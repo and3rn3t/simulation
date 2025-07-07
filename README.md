@@ -47,7 +47,34 @@ npm run build
 
 The built files will be in the `dist` directory.
 
-## How to Use
+## Performance Optimizations
+
+This simulation includes several performance optimizations:
+
+### 🚀 **Rendering Optimizations**
+- **Batched Drawing**: Organisms are grouped by type and drawn in batches to minimize context switches
+- **Frame Rate Limiting**: Capped at 60 FPS to prevent unnecessary CPU usage
+- **Efficient Grid Rendering**: Grid is drawn with a single stroke operation
+- **Canvas Caching**: Canvas dimensions are cached to avoid repeated DOM queries
+
+### 🧠 **Memory Management**
+- **Object Pooling**: Pre-allocated arrays for new organisms and removal indices
+- **Efficient Removal**: Dead organisms are removed in batches to minimize array operations
+- **Color Caching**: Organism colors are cached and only updated when opacity changes significantly
+- **Population Limiting**: Configurable maximum population to prevent memory overflow
+
+### ⚡ **Algorithm Optimizations**
+- **Early Exit Conditions**: Death checks exit early when age exceeds maximum
+- **Reduced Random Calls**: Movement calculations are optimized to reduce Math.random() calls
+- **Efficient Bounds Checking**: Canvas bounds are cached and reused
+- **Optimized Loops**: Forward loops for updates, reverse loops for removals
+
+### 📊 **Performance Monitoring**
+- **Real-time FPS Counter**: Monitor simulation performance
+- **Population Limit Control**: Adjust maximum population for your hardware
+- **Performance Metrics**: Built-in monitoring for updates and renders
+
+## Controls
 
 1. **Select an Organism**: Choose from the dropdown menu to see different growth patterns
 2. **Adjust Speed**: Use the speed slider to control how fast the simulation runs

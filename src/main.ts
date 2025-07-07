@@ -7,6 +7,8 @@ const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement
 const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
 const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
 const speedValue = document.getElementById('speed-value') as HTMLSpanElement;
+const populationLimitSlider = document.getElementById('population-limit') as HTMLInputElement;
+const populationLimitValue = document.getElementById('population-limit-value') as HTMLSpanElement;
 const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
 const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
 const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
@@ -49,6 +51,12 @@ speedSlider.addEventListener('input', () => {
   const speed = parseInt(speedSlider.value);
   simulation.setSpeed(speed);
   speedValue.textContent = `${speed}x`;
+});
+
+populationLimitSlider.addEventListener('input', () => {
+  const limit = parseInt(populationLimitSlider.value);
+  simulation.setMaxPopulation(limit);
+  populationLimitValue.textContent = limit.toString();
 });
 
 // Initialize
