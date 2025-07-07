@@ -3,31 +3,59 @@ import type { OrganismType } from './organismTypes';
 import { ACHIEVEMENTS, CHALLENGES, type Achievement, type GameStats } from './gameSystem';
 import { UNLOCKABLE_ORGANISMS } from './unlockables';
 
+/**
+ * Main simulation class that manages organisms, rendering, and game state
+ * @class OrganismSimulation
+ */
 export class OrganismSimulation {
+  /** Array of all organisms in the simulation */
   private organisms: Organism[] = [];
+  /** HTML canvas element for rendering */
   private canvas: HTMLCanvasElement;
+  /** Canvas 2D rendering context */
   private ctx: CanvasRenderingContext2D;
+  /** Whether the simulation is currently running */
   private isRunning = false;
+  /** Simulation speed multiplier */
   private speed = 5;
+  /** Timestamp when simulation started */
   private startTime = 0;
+  /** Total time spent paused */
   private pausedTime = 0;
+  /** Current generation number */
   private generation = 0;
+  /** Currently selected organism type for placement */
   private selectedOrganismType: OrganismType;
+  /** Whether the simulation is in placement mode */
   private placementMode = true;
+  /** Maximum allowed population */
   private maxPopulation = 1000;
   
   // Additional stats tracking
+  /** Number of births in the current second */
   private birthsThisSecond = 0;
+  /** Number of deaths in the current second */
   private deathsThisSecond = 0;
+  /** Total births since simulation started */
   private totalBirths = 0;
+  /** Total deaths since simulation started */
   private totalDeaths = 0;
+  /** Timestamp of last stats update */
   private lastStatsUpdate = 0;
   
   // Game system
+  /** Current player score */
   private score = 0;
+  /** Array of achievements with their states */
   private achievements: Achievement[] = [...ACHIEVEMENTS];
+  /** Maximum population ever reached */
   private maxPopulationReached = 0;
   
+  /**
+   * Creates a new simulation instance
+   * @param canvas - HTML canvas element for rendering
+   * @param initialOrganismType - Initial organism type to use
+   */
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
@@ -37,6 +65,10 @@ export class OrganismSimulation {
     this.showPlacementInstructions();
   }
   
+  /**
+   * Initializes the population with a few default organisms
+   * @private
+   */
   private initializePopulation(): void {
     this.organisms = [];
     // Start with a few organisms
@@ -47,6 +79,9 @@ export class OrganismSimulation {
     }
   }
   
+  /**
+   * Starts the simulation
+   */
   start(): void {
     if (this.placementMode) {
       // If no organisms were placed, add a few default ones
@@ -63,11 +98,17 @@ export class OrganismSimulation {
     }
   }
   
+  /**
+   * Pauses the simulation
+   */
   pause(): void {
     this.isRunning = false;
     this.pausedTime = Date.now() - this.startTime;
   }
   
+  /**
+   * Resets the simulation to initial state
+   */
   reset(): void {
     this.isRunning = false;
     this.placementMode = true;
@@ -87,6 +128,9 @@ export class OrganismSimulation {
     this.updateStats();
   }
   
+  /**
+   * Clears all organisms from the simulation
+   */
   clear(): void {
     this.organisms = [];
     this.generation = 0;
@@ -94,10 +138,18 @@ export class OrganismSimulation {
     this.updateStats();
   }
   
+  /**
+   * Sets the simulation speed
+   * @param speed - Speed multiplier (1-10)
+   */
   setSpeed(speed: number): void {
     this.speed = speed;
   }
   
+  /**
+   * Sets the organism type for new placements
+   * @param type - The organism type to use
+   */
   setOrganismType(type: OrganismType): void {
     this.selectedOrganismType = type;
     if (this.placementMode) {
@@ -121,6 +173,10 @@ export class OrganismSimulation {
     return null;
   }
   
+  /**
+   * Sets the maximum population limit
+   * @param limit - Maximum number of organisms allowed
+   */
   setMaxPopulation(limit: number): void {
     this.maxPopulation = limit;
   }

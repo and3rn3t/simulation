@@ -1,12 +1,28 @@
+/**
+ * Defines the properties and characteristics of an organism type
+ * @interface OrganismType
+ */
 export interface OrganismType {
+  /** Display name of the organism */
   name: string;
+  /** Color to render the organism */
   color: string;
+  /** Rate at which the organism reproduces */
   growthRate: number;
+  /** Rate at which the organism dies */
   deathRate: number;
+  /** Maximum age the organism can reach */
   maxAge: number;
+  /** Size of the organism when rendered */
   size: number;
+  /** Description of the organism */
   description: string;
 }
+
+/**
+ * Collection of predefined organism types
+ * @constant ORGANISM_TYPES
+ */
 
 export const ORGANISM_TYPES: Record<string, OrganismType> = {
   bacteria: {

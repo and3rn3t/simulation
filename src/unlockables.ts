@@ -1,14 +1,28 @@
 import type { OrganismType } from './organismTypes';
 
+/**
+ * Represents an organism type that can be unlocked through gameplay
+ * @interface UnlockableOrganismType
+ * @extends OrganismType
+ */
 export interface UnlockableOrganismType extends OrganismType {
+  /** Unique identifier for the organism */
   id: string;
+  /** Conditions required to unlock this organism */
   unlockCondition: {
+    /** Type of unlock condition */
     type: 'achievement' | 'score' | 'population';
+    /** Value required to meet the condition */
     value: string | number;
   };
+  /** Whether this organism has been unlocked */
   unlocked: boolean;
 }
 
+/**
+ * Array of unlockable organism types with their properties and unlock conditions
+ * @constant UNLOCKABLE_ORGANISMS
+ */
 export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
   {
     id: 'super-bacteria',
@@ -72,9 +86,21 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
   }
 ];
 
+/**
+ * Manages unlockable organisms, checking unlock conditions and updating the UI
+ * @class UnlockableOrganismManager
+ */
 export class UnlockableOrganismManager {
+  /** Array of unlockable organisms with their current state */
   private unlockableOrganisms: UnlockableOrganismType[] = [...UNLOCKABLE_ORGANISMS];
 
+  /**
+   * Checks all unlock conditions and returns newly unlocked organisms
+   * @param achievements - Array of achievement objects
+   * @param score - Current player score
+   * @param maxPopulation - Maximum population reached
+   * @returns Array of newly unlocked organisms
+   */
   checkUnlocks(achievements: any[], score: number, maxPopulation: number): UnlockableOrganismType[] {
     const newlyUnlocked: UnlockableOrganismType[] = [];
 
@@ -109,14 +135,27 @@ export class UnlockableOrganismManager {
     return newlyUnlocked;
   }
 
+  /**
+   * Returns all currently unlocked organisms
+   * @returns Array of unlocked organisms
+   */
   getUnlockedOrganisms(): UnlockableOrganismType[] {
     return this.unlockableOrganisms.filter(org => org.unlocked);
   }
 
+  /**
+   * Finds an organism by its ID
+   * @param id - The organism ID to search for
+   * @returns The organism if found, undefined otherwise
+   */
   getOrganismById(id: string): UnlockableOrganismType | undefined {
     return this.unlockableOrganisms.find(org => org.id === id);
   }
 
+  /**
+   * Updates the organism selection dropdown with newly unlocked organisms
+   * @private
+   */
   private updateOrganismSelect(): void {
     const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
     if (!organismSelect) return;
@@ -135,6 +174,10 @@ export class UnlockableOrganismManager {
     }
   }
 
+  /**
+   * Displays a notification popup when an organism is unlocked
+   * @param organism - The organism that was unlocked
+   */
   showUnlockNotification(organism: UnlockableOrganismType): void {
     const notification = document.createElement('div');
     notification.className = 'unlock-notification';

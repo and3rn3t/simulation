@@ -6,6 +6,11 @@ import { PowerUpManager } from './powerups';
 import { LeaderboardManager } from './leaderboard';
 import { UnlockableOrganismManager } from './unlockables';
 
+/**
+ * Main entry point for the organism simulation game
+ * Initializes the UI, game systems, and event handlers
+ */
+
 // Initialize the simulation
 const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
 const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
@@ -29,6 +34,9 @@ const unlockableManager = new UnlockableOrganismManager();
 
 let simulation: OrganismSimulation;
 
+/**
+ * Initializes the simulation with the selected organism type
+ */
 function initializeSimulation() {
   const selectedType = ORGANISM_TYPES[organismSelect.value];
   simulation = new OrganismSimulation(canvas, selectedType);
@@ -108,6 +116,9 @@ buyPowerUpButtons.forEach(button => {
 });
 
 // Initialize UI
+/**
+ * Initializes the game UI and displays initial data
+ */
 function initializeUI() {
   // Display achievements
   displayAchievements();
@@ -119,6 +130,9 @@ function initializeUI() {
   updateHighScoreDisplay();
 }
 
+/**
+ * Displays achievements in the UI
+ */
 function displayAchievements() {
   const achievementsList = document.getElementById('achievements-list');
   if (achievementsList) {
@@ -139,6 +153,9 @@ function displayAchievements() {
   }
 }
 
+/**
+ * Updates the challenge UI display
+ */
 function updateChallengeUI() {
   const challengeDiv = document.getElementById('current-challenge');
   

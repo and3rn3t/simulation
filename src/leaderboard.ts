@@ -1,19 +1,41 @@
+/**
+ * Represents a leaderboard entry
+ * @interface LeaderboardEntry
+ */
 export interface LeaderboardEntry {
+  /** Player's score */
   score: number;
+  /** Date when the score was achieved */
   date: string;
+  /** Population reached */
   population: number;
+  /** Generation reached */
   generation: number;
+  /** Time survived in seconds */
   timeElapsed: number;
 }
 
+/**
+ * Manages the leaderboard, storing and displaying top scores
+ * @class LeaderboardManager
+ */
 export class LeaderboardManager {
+  /** Key for localStorage */
   private readonly STORAGE_KEY = 'organism-simulation-leaderboard';
+  /** Array of leaderboard entries */
   private entries: LeaderboardEntry[] = [];
 
+  /**
+   * Initializes the leaderboard manager and loads saved data
+   */
   constructor() {
     this.loadLeaderboard();
   }
 
+  /**
+   * Adds a new entry to the leaderboard
+   * @param entry - The entry to add (date will be auto-generated)
+   */
   addEntry(entry: Omit<LeaderboardEntry, 'date'>): void {
     const newEntry: LeaderboardEntry = {
       ...entry,
@@ -30,14 +52,26 @@ export class LeaderboardManager {
     this.updateLeaderboardDisplay();
   }
 
+  /**
+   * Gets the highest score on the leaderboard
+   * @returns The highest score, or 0 if no entries exist
+   */
   getHighScore(): number {
     return this.entries.length > 0 ? this.entries[0].score : 0;
   }
 
+  /**
+   * Gets a copy of all leaderboard entries
+   * @returns Array of leaderboard entries
+   */
   getEntries(): LeaderboardEntry[] {
     return [...this.entries];
   }
 
+  /**
+   * Loads the leaderboard from localStorage
+   * @private
+   */
   private loadLeaderboard(): void {
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
@@ -50,6 +84,10 @@ export class LeaderboardManager {
     }
   }
 
+  /**
+   * Saves the leaderboard to localStorage
+   * @private
+   */
   private saveLeaderboard(): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.entries));
@@ -58,6 +96,9 @@ export class LeaderboardManager {
     }
   }
 
+  /**
+   * Updates the leaderboard display in the UI
+   */
   updateLeaderboardDisplay(): void {
     const leaderboardList = document.getElementById('leaderboard-list');
     if (!leaderboardList) return;
