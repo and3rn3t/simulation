@@ -14,6 +14,13 @@ export class OrganismSimulation {
   private placementMode = true;
   private maxPopulation = 1000;
   
+  // Additional stats tracking
+  private birthsThisSecond = 0;
+  private deathsThisSecond = 0;
+  private totalBirths = 0;
+  private totalDeaths = 0;
+  private lastStatsUpdate = 0;
+  
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
@@ -61,6 +68,14 @@ export class OrganismSimulation {
     this.pausedTime = 0;
     this.generation = 0;
     this.organisms = [];
+    
+    // Reset additional stats
+    this.birthsThisSecond = 0;
+    this.deathsThisSecond = 0;
+    this.totalBirths = 0;
+    this.totalDeaths = 0;
+    this.lastStatsUpdate = 0;
+    
     this.showPlacementInstructions();
     this.updateStats();
   }
@@ -104,6 +119,14 @@ export class OrganismSimulation {
   private update(): void {
     const deltaTime = this.speed * 0.1;
     const newOrganisms: Organism[] = [];
+    const currentTime = Date.now();
+    
+    // Reset per-second counters every second
+    if (currentTime - this.lastStatsUpdate >= 1000) {
+      this.birthsThisSecond = 0;
+      this.deathsThisSecond = 0;
+      this.lastStatsUpdate = currentTime;
+    }
     
     // Update existing organisms (backwards to allow safe removal)
     for (let i = this.organisms.length - 1; i >= 0; i--) {
@@ -114,11 +137,15 @@ export class OrganismSimulation {
       if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
         newOrganisms.push(organism.reproduce());
         this.generation++;
+        this.birthsThisSecond++;
+        this.totalBirths++;
       }
       
       // Check for death
       if (organism.shouldDie()) {
         this.organisms.splice(i, 1);
+        this.deathsThisSecond++;
+        this.totalDeaths++;
       }
     }
     
@@ -127,7 +154,9 @@ export class OrganismSimulation {
     
     // Limit population
     if (this.organisms.length > this.maxPopulation) {
-      this.organisms.splice(0, this.organisms.length - this.maxPopulation);
+      const removed = this.organisms.length - this.maxPopulation;
+      this.organisms.splice(0, removed);
+      this.totalDeaths += removed;
     }
   }
   
@@ -152,6 +181,12 @@ export class OrganismSimulation {
     const populationElement = document.getElementById('population-count');
     const generationElement = document.getElementById('generation-count');
     const timeElement = document.getElementById('time-elapsed');
+    const birthRateElement = document.getElementById('birth-rate');
+    const deathRateElement = document.getElementById('death-rate');
+    const avgAgeElement = document.getElementById('avg-age');
+    const oldestElement = document.getElementById('oldest-organism');
+    const densityElement = document.getElementById('population-density');
+    const stabilityElement = document.getElementById('population-stability');
     
     if (populationElement) {
       populationElement.textContent = this.organisms.length.toString();
@@ -166,6 +201,43 @@ export class OrganismSimulation {
         Math.floor((Date.now() - this.startTime) / 1000) : 
         Math.floor(this.pausedTime / 1000);
       timeElement.textContent = `${elapsed}s`;
+    }
+    
+    // Birth rate (births per second)
+    if (birthRateElement) {
+      birthRateElement.textContent = this.birthsThisSecond.toString();
+    }
+    
+    // Death rate (deaths per second)
+    if (deathRateElement) {
+      deathRateElement.textContent = this.deathsThisSecond.toString();
+    }
+    
+    // Average age
+    if (avgAgeElement) {
+      const avgAge = this.organisms.length > 0 ? 
+        Math.round(this.organisms.reduce((sum, org) => sum + org.age, 0) / this.organisms.length) : 0;
+      avgAgeElement.textContent = avgAge.toString();
+    }
+    
+    // Oldest organism
+    if (oldestElement) {
+      const oldest = this.organisms.length > 0 ? 
+        Math.round(Math.max(...this.organisms.map(org => org.age))) : 0;
+      oldestElement.textContent = oldest.toString();
+    }
+    
+    // Population density (organisms per 1000 square pixels)
+    if (densityElement) {
+      const area = this.canvas.width * this.canvas.height;
+      const density = Math.round((this.organisms.length / area) * 1000);
+      densityElement.textContent = density.toString();
+    }
+    
+    // Population stability (birth/death ratio)
+    if (stabilityElement) {
+      const ratio = this.totalDeaths > 0 ? (this.totalBirths / this.totalDeaths).toFixed(2) : 'N/A';
+      stabilityElement.textContent = ratio.toString();
     }
   }
   

@@ -147,11 +147,11 @@ button:active {
 }
 
 .stats {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
   margin-bottom: 20px;
-  padding: 15px;
+  padding: 20px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   backdrop-filter: blur(10px);
@@ -162,17 +162,43 @@ button:active {
   flex-direction: column;
   align-items: center;
   gap: 5px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-item span:first-child {
-  font-size: 0.9em;
+  font-size: 0.8em;
   color: rgba(255, 255, 255, 0.7);
+  text-align: center;
 }
 
 .stat-item span:last-child {
-  font-size: 1.5em;
+  font-size: 1.3em;
   font-weight: 600;
   color: #4CAF50;
+}
+
+/* Color coding for different stat types */
+#birth-rate {
+  color: #4CAF50;
+}
+
+#death-rate {
+  color: #F44336;
+}
+
+#avg-age, #oldest-organism {
+  color: #FF9800;
+}
+
+#population-density {
+  color: #2196F3;
+}
+
+#population-stability {
+  color: #9C27B0;
 }
 
 #simulation-canvas {
