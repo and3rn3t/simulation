@@ -12,25 +12,12 @@ export class OrganismSimulation {
   private generation = 0;
   private selectedOrganismType: OrganismType;
   private placementMode = true;
-  private lastFrameTime = 0;
-  private frameCount = 0;
-  private fps = 0;
   private maxPopulation = 1000;
-  
-  // Pre-allocated arrays for better memory management
-  private newOrganisms: Organism[] = [];
-  private toRemove: number[] = [];
-  
-  // Canvas caching
-  private canvasWidth: number;
-  private canvasHeight: number;
   
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.selectedOrganismType = initialOrganismType;
-    this.canvasWidth = canvas.width;
-    this.canvasHeight = canvas.height;
     this.setupCanvasEvents();
     this.clearCanvas();
     this.showPlacementInstructions();
@@ -107,97 +94,53 @@ export class OrganismSimulation {
   private animate(): void {
     if (!this.isRunning) return;
     
-    const currentTime = performance.now();
-    const deltaTime = currentTime - this.lastFrameTime;
-    
-    // Limit frame rate to 60 FPS for better performance
-    if (deltaTime >= 16.67) {
-      this.update();
-      this.draw();
-      this.updateStats();
-      this.lastFrameTime = currentTime;
-      
-      // Calculate FPS
-      this.frameCount++;
-      if (this.frameCount % 60 === 0) {
-        this.fps = Math.round(1000 / deltaTime);
-      }
-    }
+    this.update();
+    this.draw();
+    this.updateStats();
     
     requestAnimationFrame(() => this.animate());
   }
   
   private update(): void {
     const deltaTime = this.speed * 0.1;
+    const newOrganisms: Organism[] = [];
     
-    // Clear reusable arrays
-    this.newOrganisms.length = 0;
-    this.toRemove.length = 0;
-    
-    // Update existing organisms with optimized loop
-    for (let i = 0; i < this.organisms.length; i++) {
+    // Update existing organisms (backwards to allow safe removal)
+    for (let i = this.organisms.length - 1; i >= 0; i--) {
       const organism = this.organisms[i];
-      organism.update(deltaTime, this.canvasWidth, this.canvasHeight);
+      organism.update(deltaTime, this.canvas.width, this.canvas.height);
       
       // Check for reproduction
       if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
-        this.newOrganisms.push(organism.reproduce());
+        newOrganisms.push(organism.reproduce());
         this.generation++;
       }
       
-      // Check for death - collect indices to remove
+      // Check for death
       if (organism.shouldDie()) {
-        this.toRemove.push(i);
+        this.organisms.splice(i, 1);
       }
-    }
-    
-    // Remove dead organisms in reverse order to maintain indices
-    for (let i = this.toRemove.length - 1; i >= 0; i--) {
-      const index = this.toRemove[i];
-      this.organisms.splice(index, 1);
     }
     
     // Add new organisms
-    if (this.newOrganisms.length > 0) {
-      this.organisms.push(...this.newOrganisms);
-      
-      // Limit population to prevent performance issues
-      if (this.organisms.length > this.maxPopulation) {
-        this.organisms.splice(0, this.organisms.length - this.maxPopulation);
-      }
+    this.organisms.push(...newOrganisms);
+    
+    // Limit population
+    if (this.organisms.length > this.maxPopulation) {
+      this.organisms.splice(0, this.organisms.length - this.maxPopulation);
     }
   }
   
   private draw(): void {
-    // Clear canvas with a single operation
+    // Clear canvas
     this.ctx.fillStyle = '#1a1a1a';
-    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // Draw grid (cached)
+    // Draw grid
     this.drawGrid();
     
-    // Batch similar organisms for optimized drawing
-    const organismsByType = new Map<OrganismType, Organism[]>();
-    
-    for (const organism of this.organisms) {
-      const type = organism.type;
-      if (!organismsByType.has(type)) {
-        organismsByType.set(type, []);
-      }
-      organismsByType.get(type)!.push(organism);
-    }
-    
-    // Draw organisms grouped by type to minimize context switches
-    for (const [type, organisms] of organismsByType) {
-      this.ctx.fillStyle = type.color;
-      this.ctx.beginPath();
-      
-      for (const organism of organisms) {
-        this.ctx.moveTo(organism.x + type.size, organism.y);
-        this.ctx.arc(organism.x, organism.y, type.size, 0, Math.PI * 2);
-      }
-      this.ctx.fill();
-    }
+    // Draw organisms
+    this.organisms.forEach(organism => organism.draw(this.ctx));
     
     // Show placement instructions if in placement mode and no organisms
     if (this.placementMode && this.organisms.length === 0) {
@@ -209,7 +152,6 @@ export class OrganismSimulation {
     const populationElement = document.getElementById('population-count');
     const generationElement = document.getElementById('generation-count');
     const timeElement = document.getElementById('time-elapsed');
-    const fpsElement = document.getElementById('fps-count');
     
     if (populationElement) {
       populationElement.textContent = this.organisms.length.toString();
@@ -224,10 +166,6 @@ export class OrganismSimulation {
         Math.floor((Date.now() - this.startTime) / 1000) : 
         Math.floor(this.pausedTime / 1000);
       timeElement.textContent = `${elapsed}s`;
-    }
-    
-    if (fpsElement) {
-      fpsElement.textContent = `${this.fps} FPS`;
     }
   }
   
@@ -294,21 +232,20 @@ export class OrganismSimulation {
   }
   
   private drawGrid(): void {
-    // Use a more efficient grid drawing method
     this.ctx.strokeStyle = '#333';
     this.ctx.lineWidth = 0.5;
     this.ctx.beginPath();
     
     // Draw vertical lines
-    for (let x = 0; x <= this.canvasWidth; x += 50) {
+    for (let x = 0; x <= this.canvas.width; x += 50) {
       this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvasHeight);
+      this.ctx.lineTo(x, this.canvas.height);
     }
     
     // Draw horizontal lines
-    for (let y = 0; y <= this.canvasHeight; y += 50) {
+    for (let y = 0; y <= this.canvas.height; y += 50) {
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvasWidth, y);
+      this.ctx.lineTo(this.canvas.width, y);
     }
     
     this.ctx.stroke();
