@@ -44,42 +44,101 @@
         </div>
       </div>
       
-      <div class="stats">
-        <div class="stat-item">
-          <span>Population: </span>
-          <span id="population-count">0</span>
+      <div class="game-info">
+        <div class="stats">
+          <div class="stat-item">
+            <span>Population: </span>
+            <span id="population-count">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Generation: </span>
+            <span id="generation-count">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Time: </span>
+            <span id="time-elapsed">0s</span>
+          </div>
+          <div class="stat-item">
+            <span>Births/sec: </span>
+            <span id="birth-rate">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Deaths/sec: </span>
+            <span id="death-rate">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Avg Age: </span>
+            <span id="avg-age">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Oldest: </span>
+            <span id="oldest-organism">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Density: </span>
+            <span id="population-density">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Stability: </span>
+            <span id="population-stability">N/A</span>
+          </div>
         </div>
-        <div class="stat-item">
-          <span>Generation: </span>
-          <span id="generation-count">0</span>
+        
+        <div class="game-stats">
+          <div class="stat-item score">
+            <span>Score: </span>
+            <span id="score">0</span>
+          </div>
+          <div class="stat-item achievements">
+            <span>Achievements: </span>
+            <span id="achievement-count">0/7</span>
+          </div>
+          <div class="stat-item high-score">
+            <span>High Score: </span>
+            <span id="high-score">0</span>
+          </div>
         </div>
-        <div class="stat-item">
-          <span>Time: </span>
-          <span id="time-elapsed">0s</span>
+      </div>
+      
+      <div class="game-panels">
+        <div class="panel achievements-panel">
+          <h3>🏆 Achievements</h3>
+          <div id="achievements-list" class="achievements-list"></div>
         </div>
-        <div class="stat-item">
-          <span>Births/sec: </span>
-          <span id="birth-rate">0</span>
+        
+        <div class="panel challenges-panel">
+          <h3>🎯 Challenges</h3>
+          <div id="current-challenge" class="current-challenge">
+            <p>No active challenge</p>
+            <button id="start-challenge-btn">Start Challenge</button>
+          </div>
+          <div id="challenge-progress" class="challenge-progress hidden"></div>
         </div>
-        <div class="stat-item">
-          <span>Deaths/sec: </span>
-          <span id="death-rate">0</span>
+        
+        <div class="panel powerups-panel">
+          <h3>⚡ Power-ups</h3>
+          <div id="powerups-list" class="powerups-list">
+            <div class="powerup-item">
+              <span class="powerup-name">Growth Boost</span>
+              <span class="powerup-cost">Cost: 500</span>
+              <button id="buy-growth-boost" class="buy-powerup" data-powerup="growth">Buy</button>
+            </div>
+            <div class="powerup-item">
+              <span class="powerup-name">Longevity</span>
+              <span class="powerup-cost">Cost: 300</span>
+              <button id="buy-longevity" class="buy-powerup" data-powerup="longevity">Buy</button>
+            </div>
+            <div class="powerup-item">
+              <span class="powerup-name">Population Boom</span>
+              <span class="powerup-cost">Cost: 800</span>
+              <button id="buy-population-boom" class="buy-powerup" data-powerup="population">Buy</button>
+            </div>
+          </div>
         </div>
-        <div class="stat-item">
-          <span>Avg Age: </span>
-          <span id="avg-age">0</span>
-        </div>
-        <div class="stat-item">
-          <span>Oldest: </span>
-          <span id="oldest-organism">0</span>
-        </div>
-        <div class="stat-item">
-          <span>Density: </span>
-          <span id="population-density">0</span>
-        </div>
-        <div class="stat-item">
-          <span>Stability: </span>
-          <span id="population-stability">N/A</span>
+        
+        <div class="panel leaderboard-panel">
+          <h3>🏅 Leaderboard</h3>
+          <div id="leaderboard-list" class="leaderboard-list"></div>
         </div>
       </div>
       

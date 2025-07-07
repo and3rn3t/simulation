@@ -1,5 +1,7 @@
 import { Organism } from './organism';
 import type { OrganismType } from './organismTypes';
+import { ACHIEVEMENTS, CHALLENGES, type Achievement, type GameStats } from './gameSystem';
+import { UNLOCKABLE_ORGANISMS } from './unlockables';
 
 export class OrganismSimulation {
   private organisms: Organism[] = [];
@@ -20,6 +22,11 @@ export class OrganismSimulation {
   private totalBirths = 0;
   private totalDeaths = 0;
   private lastStatsUpdate = 0;
+  
+  // Game system
+  private score = 0;
+  private achievements: Achievement[] = [...ACHIEVEMENTS];
+  private maxPopulationReached = 0;
   
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
@@ -102,6 +109,18 @@ export class OrganismSimulation {
     }
   }
   
+  // New method to get organism type by ID (including unlockable ones)
+  getOrganismTypeById(id: string): OrganismType | null {
+    // Check unlockable organisms first
+    const unlockableOrganism = UNLOCKABLE_ORGANISMS.find(org => org.id === id);
+    if (unlockableOrganism && unlockableOrganism.unlocked) {
+      return unlockableOrganism;
+    }
+    
+    // Return null if not found or not unlocked
+    return null;
+  }
+  
   setMaxPopulation(limit: number): void {
     this.maxPopulation = limit;
   }
@@ -152,6 +171,15 @@ export class OrganismSimulation {
     // Add new organisms
     this.organisms.push(...newOrganisms);
     
+    // Track max population
+    this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+    
+    // Update score based on population and survival
+    this.updateScore();
+    
+    // Check achievements
+    this.checkAchievements();
+    
     // Limit population
     if (this.organisms.length > this.maxPopulation) {
       const removed = this.organisms.length - this.maxPopulation;
@@ -187,6 +215,8 @@ export class OrganismSimulation {
     const oldestElement = document.getElementById('oldest-organism');
     const densityElement = document.getElementById('population-density');
     const stabilityElement = document.getElementById('population-stability');
+    const scoreElement = document.getElementById('score');
+    const achievementCountElement = document.getElementById('achievement-count');
     
     if (populationElement) {
       populationElement.textContent = this.organisms.length.toString();
@@ -197,9 +227,7 @@ export class OrganismSimulation {
     }
     
     if (timeElement) {
-      const elapsed = this.isRunning ? 
-        Math.floor((Date.now() - this.startTime) / 1000) : 
-        Math.floor(this.pausedTime / 1000);
+      const elapsed = this.getElapsedTime();
       timeElement.textContent = `${elapsed}s`;
     }
     
@@ -215,15 +243,13 @@ export class OrganismSimulation {
     
     // Average age
     if (avgAgeElement) {
-      const avgAge = this.organisms.length > 0 ? 
-        Math.round(this.organisms.reduce((sum, org) => sum + org.age, 0) / this.organisms.length) : 0;
+      const avgAge = Math.round(this.getAverageAge());
       avgAgeElement.textContent = avgAge.toString();
     }
     
     // Oldest organism
     if (oldestElement) {
-      const oldest = this.organisms.length > 0 ? 
-        Math.round(Math.max(...this.organisms.map(org => org.age))) : 0;
+      const oldest = Math.round(this.getOldestAge());
       oldestElement.textContent = oldest.toString();
     }
     
@@ -238,6 +264,17 @@ export class OrganismSimulation {
     if (stabilityElement) {
       const ratio = this.totalDeaths > 0 ? (this.totalBirths / this.totalDeaths).toFixed(2) : 'N/A';
       stabilityElement.textContent = ratio.toString();
+    }
+    
+    // Score
+    if (scoreElement) {
+      scoreElement.textContent = this.score.toString();
+    }
+    
+    // Achievement count
+    if (achievementCountElement) {
+      const unlockedCount = this.achievements.filter(a => a.unlocked).length;
+      achievementCountElement.textContent = `${unlockedCount}/${this.achievements.length}`;
     }
   }
   
@@ -321,6 +358,90 @@ export class OrganismSimulation {
     }
     
     this.ctx.stroke();
+  }
+  
+  private updateScore(): void {
+    // Calculate score based on various factors
+    const populationBonus = this.organisms.length * 2;
+    const survivalBonus = Math.floor(this.getElapsedTime() / 10);
+    const generationBonus = this.generation;
+    
+    this.score = populationBonus + survivalBonus + generationBonus;
+  }
+  
+  private checkAchievements(): void {
+    const stats: GameStats = {
+      population: this.organisms.length,
+      generation: this.generation,
+      totalBirths: this.totalBirths,
+      totalDeaths: this.totalDeaths,
+      maxPopulation: this.maxPopulationReached,
+      timeElapsed: this.getElapsedTime(),
+      averageAge: this.getAverageAge(),
+      oldestAge: this.getOldestAge(),
+      score: this.score
+    };
+    
+    for (const achievement of this.achievements) {
+      if (!achievement.unlocked && achievement.condition(stats)) {
+        achievement.unlocked = true;
+        this.score += achievement.points;
+        this.showAchievementNotification(achievement);
+      }
+    }
+  }
+  
+  private getElapsedTime(): number {
+    return this.isRunning ? 
+      Math.floor((Date.now() - this.startTime) / 1000) : 
+      Math.floor(this.pausedTime / 1000);
+  }
+  
+  private getAverageAge(): number {
+    return this.organisms.length > 0 ? 
+      this.organisms.reduce((sum, org) => sum + org.age, 0) / this.organisms.length : 0;
+  }
+  
+  private getOldestAge(): number {
+    return this.organisms.length > 0 ? 
+      Math.max(...this.organisms.map(org => org.age)) : 0;
+  }
+  
+  private showAchievementNotification(achievement: Achievement): void {
+    // Create achievement notification
+    const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
+    notification.innerHTML = `
+      <div class="achievement-content">
+        <span class="achievement-icon">${achievement.icon}</span>
+        <div class="achievement-text">
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description}</div>
+          <div class="achievement-points">+${achievement.points} points</div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove after 4 seconds
+    setTimeout(() => {
+      notification.classList.add('hide');
+      setTimeout(() => document.body.removeChild(notification), 300);
+    }, 4000);
+  }
+  
+  startChallenge(): void {
+    if (CHALLENGES.length > 0) {
+      const availableChallenges = CHALLENGES.filter(c => !c.completed);
+      if (availableChallenges.length > 0) {
+        // For now, just log that a challenge was started
+        console.log('Challenge started:', availableChallenges[0].name);
+      }
+    }
   }
   
   getStats() {
