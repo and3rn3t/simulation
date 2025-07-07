@@ -11,12 +11,15 @@ export class OrganismSimulation {
   private pausedTime = 0;
   private generation = 0;
   private selectedOrganismType: OrganismType;
+  private placementMode = true;
   
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.selectedOrganismType = initialOrganismType;
-    this.initializePopulation();
+    this.setupCanvasEvents();
+    this.clearCanvas();
+    this.showPlacementInstructions();
   }
   
   private initializePopulation(): void {
@@ -30,6 +33,14 @@ export class OrganismSimulation {
   }
   
   start(): void {
+    if (this.placementMode) {
+      // If no organisms were placed, add a few default ones
+      if (this.organisms.length === 0) {
+        this.initializePopulation();
+      }
+      this.placementMode = false;
+    }
+    
     if (!this.isRunning) {
       this.isRunning = true;
       this.startTime = Date.now() - this.pausedTime;
@@ -44,11 +55,20 @@ export class OrganismSimulation {
   
   reset(): void {
     this.isRunning = false;
+    this.placementMode = true;
     this.startTime = 0;
     this.pausedTime = 0;
     this.generation = 0;
-    this.initializePopulation();
-    this.draw();
+    this.organisms = [];
+    this.showPlacementInstructions();
+    this.updateStats();
+  }
+  
+  clear(): void {
+    this.organisms = [];
+    this.generation = 0;
+    this.showPlacementInstructions();
+    this.updateStats();
   }
   
   setSpeed(speed: number): void {
@@ -57,7 +77,13 @@ export class OrganismSimulation {
   
   setOrganismType(type: OrganismType): void {
     this.selectedOrganismType = type;
-    this.reset();
+    if (this.placementMode) {
+      // Keep existing organisms, just change the type for new placements
+      this.draw();
+    } else {
+      // If simulation is running, reset with new type
+      this.reset();
+    }
   }
   
   private animate(): void {
@@ -106,23 +132,15 @@ export class OrganismSimulation {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
     // Draw grid
-    this.ctx.strokeStyle = '#333';
-    this.ctx.lineWidth = 1;
-    for (let x = 0; x < this.canvas.width; x += 50) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
-      this.ctx.stroke();
-    }
-    for (let y = 0; y < this.canvas.height; y += 50) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
-      this.ctx.stroke();
-    }
+    this.drawGrid();
     
     // Draw organisms
     this.organisms.forEach(organism => organism.draw(this.ctx));
+    
+    // Show placement instructions if in placement mode and no organisms
+    if (this.placementMode && this.organisms.length === 0) {
+      this.showPlacementInstructions();
+    }
   }
   
   private updateStats(): void {
@@ -146,11 +164,91 @@ export class OrganismSimulation {
     }
   }
   
+  private setupCanvasEvents(): void {
+    this.canvas.addEventListener('click', (event) => {
+      if (this.placementMode) {
+        this.placeOrganism(event);
+      }
+    });
+    
+    this.canvas.addEventListener('mousemove', (event) => {
+      if (this.placementMode) {
+        this.showPreview(event);
+      }
+    });
+  }
+  
+  private placeOrganism(event: MouseEvent): void {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Add organism at clicked position
+    this.organisms.push(new Organism(x, y, this.selectedOrganismType));
+    this.draw();
+  }
+  
+  private showPreview(event: MouseEvent): void {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Redraw canvas with preview
+    this.draw();
+    
+    // Draw preview organism
+    this.ctx.save();
+    this.ctx.globalAlpha = 0.5;
+    this.ctx.fillStyle = this.selectedOrganismType.color;
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, this.selectedOrganismType.size, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+  
+  private clearCanvas(): void {
+    this.ctx.fillStyle = '#1a1a1a';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawGrid();
+  }
+  
+  private showPlacementInstructions(): void {
+    this.clearCanvas();
+    
+    // Draw instructions
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    this.ctx.font = '20px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('Click on the canvas to place organisms', this.canvas.width / 2, this.canvas.height / 2 - 20);
+    
+    this.ctx.font = '14px Arial';
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    this.ctx.fillText('Click "Start" when ready to begin the simulation', this.canvas.width / 2, this.canvas.height / 2 + 20);
+  }
+  
+  private drawGrid(): void {
+    this.ctx.strokeStyle = '#333';
+    this.ctx.lineWidth = 1;
+    for (let x = 0; x < this.canvas.width; x += 50) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, this.canvas.height);
+      this.ctx.stroke();
+    }
+    for (let y = 0; y < this.canvas.height; y += 50) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(this.canvas.width, y);
+      this.ctx.stroke();
+    }
+  }
+  
   getStats() {
     return {
       population: this.organisms.length,
       generation: this.generation,
-      isRunning: this.isRunning
+      isRunning: this.isRunning,
+      placementMode: this.placementMode
     };
   }
 }
