@@ -5,32 +5,35 @@ import { ACHIEVEMENTS } from './gameSystem';
 import { PowerUpManager } from './powerups';
 import { LeaderboardManager } from './leaderboard';
 import { UnlockableOrganismManager } from './unlockables';
+import { GameStateManager } from './utils/gameStateManager';
+import { getRequiredElementById } from './utils/domHelpers';
 
 /**
  * Main entry point for the organism simulation game
  * Initializes the UI, game systems, and event handlers
  */
 
-// Initialize the simulation
-const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
-const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
-const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
-const speedValue = document.getElementById('speed-value') as HTMLSpanElement;
-const populationLimitSlider = document.getElementById('population-limit') as HTMLInputElement;
-const populationLimitValue = document.getElementById('population-limit-value') as HTMLSpanElement;
-const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
-const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
-const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
-const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+// Initialize DOM elements
+const canvas = getRequiredElementById<HTMLCanvasElement>('simulation-canvas');
+const organismSelect = getRequiredElementById<HTMLSelectElement>('organism-select');
+const speedSlider = getRequiredElementById<HTMLInputElement>('speed-slider');
+const speedValue = getRequiredElementById<HTMLSpanElement>('speed-value');
+const populationLimitSlider = getRequiredElementById<HTMLInputElement>('population-limit');
+const populationLimitValue = getRequiredElementById<HTMLSpanElement>('population-limit-value');
+const startBtn = getRequiredElementById<HTMLButtonElement>('start-btn');
+const pauseBtn = getRequiredElementById<HTMLButtonElement>('pause-btn');
+const resetBtn = getRequiredElementById<HTMLButtonElement>('reset-btn');
+const clearBtn = getRequiredElementById<HTMLButtonElement>('clear-btn');
 
 // Game system elements
-const startChallengeBtn = document.getElementById('start-challenge-btn') as HTMLButtonElement;
+const startChallengeBtn = getRequiredElementById<HTMLButtonElement>('start-challenge-btn');
 const buyPowerUpButtons = document.querySelectorAll('.buy-powerup') as NodeListOf<HTMLButtonElement>;
 
 // Initialize game systems
 const powerUpManager = new PowerUpManager();
 const leaderboardManager = new LeaderboardManager();
 const unlockableManager = new UnlockableOrganismManager();
+const gameStateManager = new GameStateManager(powerUpManager, leaderboardManager, unlockableManager);
 
 let simulation: OrganismSimulation;
 
@@ -169,7 +172,7 @@ function updateChallengeUI() {
 function updateHighScoreDisplay() {
   const highScoreElement = document.getElementById('high-score');
   if (highScoreElement) {
-    highScoreElement.textContent = leaderboardManager.getHighScore().toString();
+    highScoreElement.textContent = gameStateManager.getHighScore().toString();
   }
 }
 

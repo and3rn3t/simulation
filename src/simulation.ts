@@ -2,6 +2,8 @@ import { Organism } from './organism';
 import type { OrganismType } from './organismTypes';
 import { ACHIEVEMENTS, CHALLENGES, type Achievement, type GameStats } from './gameSystem';
 import { UNLOCKABLE_ORGANISMS } from './unlockables';
+import { CanvasUtils } from './utils/canvasUtils';
+import { showNotification } from './utils/domHelpers';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -14,6 +16,8 @@ export class OrganismSimulation {
   private canvas: HTMLCanvasElement;
   /** Canvas 2D rendering context */
   private ctx: CanvasRenderingContext2D;
+  /** Canvas utilities for rendering operations */
+  private canvasUtils: CanvasUtils;
   /** Whether the simulation is currently running */
   private isRunning = false;
   /** Simulation speed multiplier */
@@ -59,10 +63,10 @@ export class OrganismSimulation {
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
+    this.canvasUtils = new CanvasUtils(canvas);
     this.selectedOrganismType = initialOrganismType;
     this.setupCanvasEvents();
-    this.clearCanvas();
-    this.showPlacementInstructions();
+    this.canvasUtils.drawPlacementInstructions();
   }
   
   /**
@@ -105,8 +109,7 @@ export class OrganismSimulation {
     this.isRunning = false;
     this.pausedTime = Date.now() - this.startTime;
   }
-  
-  /**
+    /**
    * Resets the simulation to initial state
    */
   reset(): void {
@@ -124,17 +127,17 @@ export class OrganismSimulation {
     this.totalDeaths = 0;
     this.lastStatsUpdate = 0;
     
-    this.showPlacementInstructions();
+    this.canvasUtils.drawPlacementInstructions();
     this.updateStats();
   }
-  
+
   /**
    * Clears all organisms from the simulation
    */
   clear(): void {
     this.organisms = [];
     this.generation = 0;
-    this.showPlacementInstructions();
+    this.canvasUtils.drawPlacementInstructions();
     this.updateStats();
   }
   
@@ -245,19 +248,16 @@ export class OrganismSimulation {
   }
   
   private draw(): void {
-    // Clear canvas
-    this.ctx.fillStyle = '#1a1a1a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    // Draw grid
-    this.drawGrid();
+    // Clear canvas and draw grid
+    this.canvasUtils.clear();
+    this.canvasUtils.drawGrid();
     
     // Draw organisms
     this.organisms.forEach(organism => organism.draw(this.ctx));
     
     // Show placement instructions if in placement mode and no organisms
     if (this.placementMode && this.organisms.length === 0) {
-      this.showPlacementInstructions();
+      this.canvasUtils.drawPlacementInstructions();
     }
   }
   
@@ -347,73 +347,27 @@ export class OrganismSimulation {
       }
     });
   }
-  
-  private placeOrganism(event: MouseEvent): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    private placeOrganism(event: MouseEvent): void {
+    const coords = this.canvasUtils.getMouseCoordinates(event);
     
     // Add organism at clicked position
-    this.organisms.push(new Organism(x, y, this.selectedOrganismType));
+    this.organisms.push(new Organism(coords.x, coords.y, this.selectedOrganismType));
     this.draw();
   }
-  
+
   private showPreview(event: MouseEvent): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const coords = this.canvasUtils.getMouseCoordinates(event);
     
     // Redraw canvas with preview
     this.draw();
     
     // Draw preview organism
-    this.ctx.save();
-    this.ctx.globalAlpha = 0.5;
-    this.ctx.fillStyle = this.selectedOrganismType.color;
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, this.selectedOrganismType.size, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.restore();
-  }
-  
-  private clearCanvas(): void {
-    this.ctx.fillStyle = '#1a1a1a';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawGrid();
-  }
-  
-  private showPlacementInstructions(): void {
-    this.clearCanvas();
-    
-    // Draw instructions
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    this.ctx.font = '20px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('Click on the canvas to place organisms', this.canvas.width / 2, this.canvas.height / 2 - 20);
-    
-    this.ctx.font = '14px Arial';
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    this.ctx.fillText('Click "Start" when ready to begin the simulation', this.canvas.width / 2, this.canvas.height / 2 + 20);
-  }
-  
-  private drawGrid(): void {
-    this.ctx.strokeStyle = '#333';
-    this.ctx.lineWidth = 0.5;
-    this.ctx.beginPath();
-    
-    // Draw vertical lines
-    for (let x = 0; x <= this.canvas.width; x += 50) {
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
-    }
-    
-    // Draw horizontal lines
-    for (let y = 0; y <= this.canvas.height; y += 50) {
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
-    }
-    
-    this.ctx.stroke();
+    this.canvasUtils.drawPreviewOrganism(
+      coords.x, 
+      coords.y, 
+      this.selectedOrganismType.color, 
+      this.selectedOrganismType.size
+    );
   }
   
   private updateScore(): void {
@@ -464,10 +418,7 @@ export class OrganismSimulation {
   }
   
   private showAchievementNotification(achievement: Achievement): void {
-    // Create achievement notification
-    const notification = document.createElement('div');
-    notification.className = 'achievement-notification';
-    notification.innerHTML = `
+    const content = `
       <div class="achievement-content">
         <span class="achievement-icon">${achievement.icon}</span>
         <div class="achievement-text">
@@ -478,16 +429,7 @@ export class OrganismSimulation {
       </div>
     `;
     
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => notification.classList.add('show'), 100);
-    
-    // Remove after 4 seconds
-    setTimeout(() => {
-      notification.classList.add('hide');
-      setTimeout(() => document.body.removeChild(notification), 300);
-    }, 4000);
+    showNotification('achievement-notification', content, 4000);
   }
   
   startChallenge(): void {
