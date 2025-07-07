@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Organism Simulation Game</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Organism Simulation Game</h1>
+        <p>Watch how different organisms multiply and divide over time</p>
+      </header>
+      
+      <div class="controls">
+        <div class="control-group">
+          <label for="organism-select">Select Organism:</label>
+          <select id="organism-select">
+            <option value="bacteria">Bacteria (Fast growth)</option>
+            <option value="yeast">Yeast (Medium growth)</option>
+            <option value="algae">Algae (Slow growth)</option>
+            <option value="virus">Virus (Very fast growth)</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label for="speed-slider">Simulation Speed:</label>
+          <input type="range" id="speed-slider" min="1" max="10" value="5">
+          <span id="speed-value">5x</span>
+        </div>
+        
+        <div class="control-group">
+          <button id="start-btn">Start</button>
+          <button id="pause-btn">Pause</button>
+          <button id="reset-btn">Reset</button>
+        </div>
+      </div>
+      
+      <div class="stats">
+        <div class="stat-item">
+          <span>Population: </span>
+          <span id="population-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Generation: </span>
+          <span id="generation-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Time: </span>
+          <span id="time-elapsed">0s</span>
+        </div>
+      </div>
+      
+      <canvas id="simulation-canvas" width="800" height="500"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
