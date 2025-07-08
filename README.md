@@ -49,6 +49,42 @@ npm run build
 
 The built files will be in the `dist` directory.
 
+## Testing
+
+The project includes comprehensive unit tests for all major classes and utilities.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run tests once
+npm run test:run
+
+# Run tests with UI (visual interface)
+npm run test:ui
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- **Organism class** - Core organism behavior, lifecycle, and interactions
+- **CanvasUtils class** - Canvas rendering operations and utilities  
+- **StatisticsManager class** - Statistics calculation and display logic
+- **OrganismSimulation class** - Main simulation engine and game loop
+
+### Test Files
+
+- `test/organism.test.ts` - Tests for the Organism class
+- `test/canvasUtils.test.ts` - Tests for canvas utilities
+- `test/statisticsManager.test.ts` - Tests for statistics management
+- `test/simulation.test.ts` - Tests for the main simulation engine
+- `test/setup.ts` - Test environment setup and mocks
+
+All tests use Vitest with jsdom for DOM testing and comprehensive mocking for Canvas APIs.
+
 ## Performance Optimizations
 
 This simulation includes several performance optimizations:
