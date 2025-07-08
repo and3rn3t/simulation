@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Organism } from '../src/organism'
-import type { OrganismType } from '../src/organismTypes'
+import { Organism } from '../src/core/organism'
+import type { OrganismType } from '../src/models/organismTypes'
 
 describe('Organism', () => {
   let mockOrganismType: OrganismType

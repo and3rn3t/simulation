@@ -2,7 +2,7 @@
  * Utility functions for canvas operations and rendering
  */
 
-import { ErrorHandler, ErrorSeverity, CanvasError } from './errorHandler';
+import { ErrorHandler, ErrorSeverity, CanvasError } from '../system/errorHandler';
 
 /**
  * Canvas configuration constants

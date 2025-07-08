@@ -1,16 +1,18 @@
 import { Organism } from './organism';
-import type { OrganismType } from './organismTypes';
-import { ACHIEVEMENTS, CHALLENGES, type Achievement, type GameStats } from './gameSystem';
-import { UNLOCKABLE_ORGANISMS } from './unlockables';
-import { CanvasUtils } from './utils/canvasUtils';
-import { showNotification } from './utils/domHelpers';
+import type { OrganismType } from '../models/organismTypes';
+import { ACHIEVEMENTS, type Achievement } from '../features/achievements';
+import { CHALLENGES } from '../features/challenges';
+import type { GameStats } from '../types/gameTypes';
+import { UNLOCKABLE_ORGANISMS } from '../models/unlockables';
+import { CanvasUtils } from '../utils/canvas/canvasUtils';
+import { showNotification } from '../ui/domHelpers';
 import { 
   ErrorHandler, 
   ErrorSeverity, 
   CanvasError, 
   ConfigurationError
-} from './utils/errorHandler';
-import { log, perf } from './utils/logger';
+} from '../utils/system/errorHandler';
+import { log, perf } from '../utils/system/logger';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state

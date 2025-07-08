@@ -1,7 +1,7 @@
-import type { Achievement } from '../gameSystem';
-import type { PowerUpManager } from '../powerups';
-import type { LeaderboardManager } from '../leaderboard';
-import type { UnlockableOrganismManager } from '../unlockables';
+import type { Achievement } from '../../features/achievements';
+import type { PowerUpManager } from '../../features/powerups';
+import type { LeaderboardManager } from '../../features/leaderboard';
+import type { UnlockableOrganismManager } from '../../models/unlockables';
 
 /**
  * Manages the overall game state and coordinates between different systems

@@ -9,7 +9,7 @@ import {
   DOMError,
   safeExecute,
   withErrorHandling 
-} from '../src/utils/errorHandler';
+} from '../src/utils/system/errorHandler';
 
 describe('ErrorHandler', () => {
   let errorHandler: ErrorHandler;

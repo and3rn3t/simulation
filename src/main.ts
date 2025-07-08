@@ -1,12 +1,12 @@
-import './style.css';
-import { OrganismSimulation } from './simulation';
-import { ORGANISM_TYPES } from './organismTypes';
-import { ACHIEVEMENTS } from './gameSystem';
-import { PowerUpManager } from './powerups';
-import { LeaderboardManager } from './leaderboard';
-import { UnlockableOrganismManager } from './unlockables';
-import { GameStateManager } from './utils/gameStateManager';
-import { getRequiredElementById } from './utils/domHelpers';
+import './ui/style.css';
+import { OrganismSimulation } from './core/simulation';
+import { ORGANISM_TYPES } from './models/organismTypes';
+import { ACHIEVEMENTS } from './features/achievements';
+import { PowerUpManager } from './features/powerups';
+import { LeaderboardManager } from './features/leaderboard';
+import { UnlockableOrganismManager } from './models/unlockables';
+import { GameStateManager } from './utils/game/gameStateManager';
+import { getRequiredElementById } from './ui/domHelpers';
 import { 
   ErrorHandler, 
   ErrorSeverity, 
@@ -14,8 +14,8 @@ import {
   ConfigurationError,
   initializeGlobalErrorHandlers,
   withErrorHandling 
-} from './utils/errorHandler';
-import { log, perf } from './utils/logger';
+} from './utils/system/errorHandler';
+import { log, perf } from './utils/system/logger';
 
 /**
  * Main entry point for the organism simulation game

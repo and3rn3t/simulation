@@ -1,5 +1,5 @@
-import { updateElementText } from './domHelpers';
-import type { GameStats } from '../gameSystem';
+import { updateElementText } from '../../ui/domHelpers';
+import type { GameStats } from '../../types/gameTypes';
 
 /**
  * Manages the display and updating of statistics in the UI

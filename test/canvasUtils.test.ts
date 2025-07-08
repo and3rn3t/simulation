@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { CanvasUtils, CANVAS_CONFIG } from '../src/utils/canvasUtils'
+import { CanvasUtils, CANVAS_CONFIG } from '../src/utils/canvas/canvasUtils'
 
 describe('CanvasUtils', () => {
   let mockCanvas: HTMLCanvasElement

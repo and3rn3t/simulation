@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { OrganismSimulation } from '../src/simulation'
-import { ORGANISM_TYPES } from '../src/organismTypes'
+import { OrganismSimulation } from '../src/core/simulation'
+import { ORGANISM_TYPES } from '../src/models/organismTypes'
 
 // Mock canvas and DOM
 const mockCanvas = {

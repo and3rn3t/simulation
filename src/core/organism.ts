@@ -1,6 +1,6 @@
-import type { OrganismType } from "./organismTypes";
-import { ErrorHandler, ErrorSeverity, OrganismError, CanvasError } from './utils/errorHandler';
-import { log } from './utils/logger';
+import type { OrganismType } from "../models/organismTypes";
+import { ErrorHandler, ErrorSeverity, OrganismError, CanvasError } from '../utils/system/errorHandler';
+import { log } from '../utils/system/logger';
 
 /**
  * Represents an individual organism in the simulation
