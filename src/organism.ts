@@ -1,5 +1,6 @@
 import type { OrganismType } from "./organismTypes";
 import { ErrorHandler, ErrorSeverity, OrganismError, CanvasError } from './utils/errorHandler';
+import { log } from './utils/logger';
 
 /**
  * Represents an individual organism in the simulation
@@ -127,7 +128,18 @@ export class Organism {
       this.reproduced = true;
       const offsetX = (Math.random() - 0.5) * 20;
       const offsetY = (Math.random() - 0.5) * 20;
-      return new Organism(this.x + offsetX, this.y + offsetY, this.type);
+      const newOrganism = new Organism(this.x + offsetX, this.y + offsetY, this.type);
+      
+      // Log reproduction events for long-lived organisms
+      if (this.age > 50) {
+        log.logOrganism('Long-lived organism reproduced', {
+          parentAge: this.age,
+          organismType: this.type.name,
+          position: { x: this.x, y: this.y }
+        });
+      }
+      
+      return newOrganism;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new OrganismError('Failed to reproduce organism'),

@@ -10,6 +10,7 @@ import {
   CanvasError, 
   ConfigurationError
 } from './utils/errorHandler';
+import { log, perf } from './utils/logger';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -91,6 +92,11 @@ export class OrganismSimulation {
       this.canvasUtils.drawPlacementInstructions();
       
       console.log('OrganismSimulation initialized successfully');
+      log.logInit('OrganismSimulation initialized successfully', {
+        canvasSize: { width: canvas.width, height: canvas.height },
+        organismType: initialOrganismType.name,
+        maxPopulation: this.maxPopulation
+      });
     } catch (error) {
       const errorHandler = ErrorHandler.getInstance();
       errorHandler.handleError(
@@ -125,14 +131,25 @@ export class OrganismSimulation {
         // If no organisms were placed, add a few default ones
         if (this.organisms.length === 0) {
           this.initializePopulation();
+          log.logSimulation('Default population initialized', { count: 5 });
         }
         this.placementMode = false;
+        log.logSimulation('Placement mode disabled');
       }
       
       if (!this.isRunning) {
         this.isRunning = true;
         this.startTime = Date.now() - this.pausedTime;
         this.animate();
+        
+        log.logSimulation('Simulation started', {
+          organisms: this.organisms.length,
+          generation: this.generation,
+          speed: this.speed
+        });
+        
+        // Start performance monitoring
+        perf.startTiming('simulation-run');
       }
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -151,6 +168,15 @@ export class OrganismSimulation {
     try {
       this.isRunning = false;
       this.pausedTime = Date.now() - this.startTime;
+      
+      const runTime = perf.endTiming('simulation-run', 'Simulation run duration');
+      log.logSimulation('Simulation paused', {
+        runTime,
+        organisms: this.organisms.length,
+        generation: this.generation,
+        totalBirths: this.totalBirths,
+        totalDeaths: this.totalDeaths
+      });
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -321,14 +347,21 @@ export class OrganismSimulation {
       for (let i = this.organisms.length - 1; i >= 0; i--) {
         const organism = this.organisms[i];
         organism.update(deltaTime, this.canvas.width, this.canvas.height);
+            // Check for reproduction
+      if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
+        newOrganisms.push(organism.reproduce());
+        this.generation++;
+        this.birthsThisSecond++;
+        this.totalBirths++;
         
-        // Check for reproduction
-        if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
-          newOrganisms.push(organism.reproduce());
-          this.generation++;
-          this.birthsThisSecond++;
-          this.totalBirths++;
+        // Log significant population milestones
+        if (this.totalBirths % 100 === 0) {
+          log.logSimulation('Birth milestone reached', { 
+            totalBirths: this.totalBirths,
+            currentPopulation: this.organisms.length 
+          });
         }
+      }
         
         // Check for death
         if (organism.shouldDie()) {
@@ -340,22 +373,33 @@ export class OrganismSimulation {
       
       // Add new organisms
       this.organisms.push(...newOrganisms);
-      
-      // Track max population
-      this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+          // Track max population
+    this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+    
+    // Log population peaks
+    if (this.organisms.length > this.maxPopulationReached * 0.95) {
+      log.logSimulation('Population peak reached', { 
+        currentPopulation: this.organisms.length,
+        maxPopulation: this.maxPopulationReached 
+      });
+    }
       
       // Update score based on population and survival
       this.updateScore();
       
       // Check achievements
       this.checkAchievements();
+          // Limit population
+    if (this.organisms.length > this.maxPopulation) {
+      const removed = this.organisms.length - this.maxPopulation;
+      this.organisms.splice(0, removed);
+      this.totalDeaths += removed;
       
-      // Limit population
-      if (this.organisms.length > this.maxPopulation) {
-        const removed = this.organisms.length - this.maxPopulation;
-        this.organisms.splice(0, removed);
-        this.totalDeaths += removed;
-      }
+      log.logSimulation('Population capped', { 
+        removed,
+        maxPopulation: this.maxPopulation 
+      });
+    }
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -547,6 +591,12 @@ export class OrganismSimulation {
         achievement.unlocked = true;
         this.score += achievement.points;
         this.showAchievementNotification(achievement);
+        
+        log.logAchievement(achievement.name, {
+          points: achievement.points,
+          description: achievement.description,
+          newScore: this.score
+        });
       }
     }
   }
@@ -588,6 +638,10 @@ export class OrganismSimulation {
       if (availableChallenges.length > 0) {
         // For now, just log that a challenge was started
         console.log('Challenge started:', availableChallenges[0].name);
+        log.logChallenge('Challenge started', {
+          challengeName: availableChallenges[0].name,
+          availableChallenges: availableChallenges.length
+        });
       }
     }
   }
