@@ -2,6 +2,8 @@
  * Utility functions for canvas operations and rendering
  */
 
+import { ErrorHandler, ErrorSeverity, CanvasError } from './errorHandler';
+
 /**
  * Canvas configuration constants
  */
@@ -24,66 +26,108 @@ export class CanvasUtils {
   private canvas: HTMLCanvasElement;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d')!;
+    try {
+      if (!canvas) {
+        throw new CanvasError('Canvas element is required');
+      }
+      
+      this.canvas = canvas;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new CanvasError('Failed to get 2D rendering context');
+      }
+      this.ctx = ctx;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to initialize CanvasUtils'),
+        ErrorSeverity.CRITICAL,
+        'CanvasUtils constructor'
+      );
+      throw error; // Re-throw to prevent invalid state
+    }
   }
 
   /**
    * Clears the entire canvas with background color
    */
   clear(): void {
-    this.ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    try {
+      this.ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to clear canvas'),
+        ErrorSeverity.MEDIUM,
+        'Canvas clear'
+      );
+    }
   }
 
   /**
    * Draws a grid on the canvas
    */
   drawGrid(): void {
-    this.ctx.strokeStyle = CANVAS_CONFIG.GRID_COLOR;
-    this.ctx.lineWidth = CANVAS_CONFIG.GRID_LINE_WIDTH;
-    this.ctx.beginPath();
+    try {
+      this.ctx.strokeStyle = CANVAS_CONFIG.GRID_COLOR;
+      this.ctx.lineWidth = CANVAS_CONFIG.GRID_LINE_WIDTH;
+      this.ctx.beginPath();
 
-    // Draw vertical lines
-    for (let x = 0; x <= this.canvas.width; x += CANVAS_CONFIG.GRID_SIZE) {
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
+      // Draw vertical lines
+      for (let x = 0; x <= this.canvas.width; x += CANVAS_CONFIG.GRID_SIZE) {
+        this.ctx.moveTo(x, 0);
+        this.ctx.lineTo(x, this.canvas.height);
+      }
+
+      // Draw horizontal lines
+      for (let y = 0; y <= this.canvas.height; y += CANVAS_CONFIG.GRID_SIZE) {
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(this.canvas.width, y);
+      }
+
+      this.ctx.stroke();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to draw grid'),
+        ErrorSeverity.MEDIUM,
+        'Canvas grid drawing'
+      );
     }
-
-    // Draw horizontal lines
-    for (let y = 0; y <= this.canvas.height; y += CANVAS_CONFIG.GRID_SIZE) {
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
-    }
-
-    this.ctx.stroke();
   }
 
   /**
    * Draws placement instructions on the canvas
    */
   drawPlacementInstructions(): void {
-    this.clear();
-    this.drawGrid();
+    try {
+      this.clear();
+      this.drawGrid();
 
-    // Main instruction
-    this.ctx.fillStyle = CANVAS_CONFIG.INSTRUCTION_COLOR;
-    this.ctx.font = '20px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(
-      'Click on the canvas to place organisms',
-      this.canvas.width / 2,
-      this.canvas.height / 2 - 20
-    );
+      // Main instruction
+      this.ctx.fillStyle = CANVAS_CONFIG.INSTRUCTION_COLOR;
+      this.ctx.font = '20px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText(
+        'Click on the canvas to place organisms',
+        this.canvas.width / 2,
+        this.canvas.height / 2 - 20
+      );
 
-    // Sub instruction
-    this.ctx.font = '14px Arial';
-    this.ctx.fillStyle = CANVAS_CONFIG.INSTRUCTION_SUB_COLOR;
-    this.ctx.fillText(
-      'Click "Start" when ready to begin the simulation',
-      this.canvas.width / 2,
-      this.canvas.height / 2 + 20
-    );
+      // Sub instruction
+      this.ctx.font = '14px Arial';
+      this.ctx.fillStyle = CANVAS_CONFIG.INSTRUCTION_SUB_COLOR;
+      this.ctx.fillText(
+        'Click "Start" when ready to begin the simulation',
+        this.canvas.width / 2,
+        this.canvas.height / 2 + 20
+      );
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to draw placement instructions'),
+        ErrorSeverity.MEDIUM,
+        'Canvas placement instructions'
+      );
+    }
   }
 
   /**
@@ -94,13 +138,29 @@ export class CanvasUtils {
    * @param size - Organism size
    */
   drawPreviewOrganism(x: number, y: number, color: string, size: number): void {
-    this.ctx.save();
-    this.ctx.globalAlpha = CANVAS_CONFIG.PREVIEW_ALPHA;
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, size, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.restore();
+    try {
+      if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+        throw new CanvasError('Invalid coordinates provided for preview organism');
+      }
+      
+      if (typeof size !== 'number' || size <= 0) {
+        throw new CanvasError('Invalid size provided for preview organism');
+      }
+      
+      this.ctx.save();
+      this.ctx.globalAlpha = CANVAS_CONFIG.PREVIEW_ALPHA;
+      this.ctx.fillStyle = color;
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, size, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to draw preview organism'),
+        ErrorSeverity.LOW,
+        'Canvas preview organism drawing'
+      );
+    }
   }
 
   /**
@@ -109,10 +169,24 @@ export class CanvasUtils {
    * @returns Coordinates object
    */
   getMouseCoordinates(event: MouseEvent): { x: number; y: number } {
-    const rect = this.canvas.getBoundingClientRect();
-    return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
+    try {
+      if (!event) {
+        throw new CanvasError('Mouse event is required');
+      }
+      
+      const rect = this.canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to get mouse coordinates'),
+        ErrorSeverity.MEDIUM,
+        'Canvas mouse coordinates'
+      );
+      // Return fallback coordinates
+      return { x: 0, y: 0 };
+    }
   }
 }

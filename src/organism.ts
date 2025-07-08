@@ -1,4 +1,5 @@
 import type { OrganismType } from "./organismTypes";
+import { ErrorHandler, ErrorSeverity, OrganismError, CanvasError } from './utils/errorHandler';
 
 /**
  * Represents an individual organism in the simulation
@@ -23,11 +24,28 @@ export class Organism {
    * @param type - The organism type definition
    */
   constructor(x: number, y: number, type: OrganismType) {
-    this.x = x;
-    this.y = y;
-    this.age = 0;
-    this.type = type;
-    this.reproduced = false;
+    try {
+      if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+        throw new OrganismError('Invalid position coordinates provided');
+      }
+      
+      if (!type) {
+        throw new OrganismError('Organism type is required');
+      }
+      
+      this.x = x;
+      this.y = y;
+      this.age = 0;
+      this.type = type;
+      this.reproduced = false;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new OrganismError('Failed to create organism'),
+        ErrorSeverity.HIGH,
+        'Organism constructor'
+      );
+      throw error; // Re-throw to prevent invalid organism state
+    }
   }
 
   /**
@@ -37,16 +55,33 @@ export class Organism {
    * @param canvasHeight - Height of the canvas for boundary checking
    */
   update(deltaTime: number, canvasWidth: number, canvasHeight: number): void {
-    this.age += deltaTime;
+    try {
+      if (deltaTime < 0 || isNaN(deltaTime)) {
+        throw new OrganismError('Invalid deltaTime provided');
+      }
+      
+      if (canvasWidth <= 0 || canvasHeight <= 0) {
+        throw new OrganismError('Invalid canvas dimensions provided');
+      }
+      
+      this.age += deltaTime;
 
-    // Simple random movement
-    this.x += (Math.random() - 0.5) * 2;
-    this.y += (Math.random() - 0.5) * 2;
+      // Simple random movement
+      this.x += (Math.random() - 0.5) * 2;
+      this.y += (Math.random() - 0.5) * 2;
 
-    // Keep within bounds
-    const size = this.type.size;
-    this.x = Math.max(size, Math.min(canvasWidth - size, this.x));
-    this.y = Math.max(size, Math.min(canvasHeight - size, this.y));
+      // Keep within bounds
+      const size = this.type.size;
+      this.x = Math.max(size, Math.min(canvasWidth - size, this.x));
+      this.y = Math.max(size, Math.min(canvasHeight - size, this.y));
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new OrganismError('Failed to update organism'),
+        ErrorSeverity.MEDIUM,
+        'Organism update'
+      );
+      // Don't re-throw; allow organism to continue with current state
+    }
   }
 
   /**
@@ -54,7 +89,16 @@ export class Organism {
    * @returns True if the organism can reproduce, false otherwise
    */
   canReproduce(): boolean {
-    return this.age > 20 && !this.reproduced && Math.random() < this.type.growthRate * 0.01;
+    try {
+      return this.age > 20 && !this.reproduced && Math.random() < this.type.growthRate * 0.01;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new OrganismError('Failed to check reproduction'),
+        ErrorSeverity.LOW,
+        'Organism reproduction check'
+      );
+      return false; // Safe fallback
+    }
   }
 
   /**
@@ -62,7 +106,16 @@ export class Organism {
    * @returns True if the organism should die, false otherwise
    */
   shouldDie(): boolean {
-    return this.age > this.type.maxAge || Math.random() < this.type.deathRate * 0.001;
+    try {
+      return this.age > this.type.maxAge || Math.random() < this.type.deathRate * 0.001;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new OrganismError('Failed to check death condition'),
+        ErrorSeverity.LOW,
+        'Organism death check'
+      );
+      return false; // Safe fallback - keep organism alive
+    }
   }
 
   /**
@@ -70,10 +123,19 @@ export class Organism {
    * @returns A new organism instance
    */
   reproduce(): Organism {
-    this.reproduced = true;
-    const offsetX = (Math.random() - 0.5) * 20;
-    const offsetY = (Math.random() - 0.5) * 20;
-    return new Organism(this.x + offsetX, this.y + offsetY, this.type);
+    try {
+      this.reproduced = true;
+      const offsetX = (Math.random() - 0.5) * 20;
+      const offsetY = (Math.random() - 0.5) * 20;
+      return new Organism(this.x + offsetX, this.y + offsetY, this.type);
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new OrganismError('Failed to reproduce organism'),
+        ErrorSeverity.MEDIUM,
+        'Organism reproduction'
+      );
+      throw error; // Re-throw to prevent invalid reproduction
+    }
   }
 
   /**
@@ -81,9 +143,22 @@ export class Organism {
    * @param ctx - Canvas 2D rendering context
    */
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = this.type.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.type.size, 0, Math.PI * 2);
-    ctx.fill();
+    try {
+      if (!ctx) {
+        throw new CanvasError('Canvas context is required for drawing');
+      }
+      
+      ctx.fillStyle = this.type.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.type.size, 0, Math.PI * 2);
+      ctx.fill();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to draw organism'),
+        ErrorSeverity.MEDIUM,
+        'Organism drawing'
+      );
+      // Don't re-throw; allow simulation to continue without this organism being drawn
+    }
   }
 }

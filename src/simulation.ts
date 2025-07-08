@@ -4,6 +4,12 @@ import { ACHIEVEMENTS, CHALLENGES, type Achievement, type GameStats } from './ga
 import { UNLOCKABLE_ORGANISMS } from './unlockables';
 import { CanvasUtils } from './utils/canvasUtils';
 import { showNotification } from './utils/domHelpers';
+import { 
+  ErrorHandler, 
+  ErrorSeverity, 
+  CanvasError, 
+  ConfigurationError
+} from './utils/errorHandler';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -61,12 +67,39 @@ export class OrganismSimulation {
    * @param initialOrganismType - Initial organism type to use
    */
   constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d')!;
-    this.canvasUtils = new CanvasUtils(canvas);
-    this.selectedOrganismType = initialOrganismType;
-    this.setupCanvasEvents();
-    this.canvasUtils.drawPlacementInstructions();
+    try {
+      if (!canvas) {
+        throw new CanvasError('Canvas element is required');
+      }
+      
+      if (!initialOrganismType) {
+        throw new ConfigurationError('Initial organism type is required');
+      }
+
+      this.canvas = canvas;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new CanvasError('Failed to get 2D rendering context from canvas');
+      }
+      this.ctx = ctx;
+      
+      this.canvasUtils = new CanvasUtils(canvas);
+      this.selectedOrganismType = initialOrganismType;
+      
+      this.setupCanvasEvents();
+      this.canvasUtils.drawPlacementInstructions();
+      
+      console.log('OrganismSimulation initialized successfully');
+    } catch (error) {
+      const errorHandler = ErrorHandler.getInstance();
+      errorHandler.handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.CRITICAL,
+        'OrganismSimulation constructor'
+      );
+      throw error; // Re-throw to prevent invalid simulation state
+    }
   }
   
   /**
@@ -87,18 +120,27 @@ export class OrganismSimulation {
    * Starts the simulation
    */
   start(): void {
-    if (this.placementMode) {
-      // If no organisms were placed, add a few default ones
-      if (this.organisms.length === 0) {
-        this.initializePopulation();
+    try {
+      if (this.placementMode) {
+        // If no organisms were placed, add a few default ones
+        if (this.organisms.length === 0) {
+          this.initializePopulation();
+        }
+        this.placementMode = false;
       }
-      this.placementMode = false;
-    }
-    
-    if (!this.isRunning) {
-      this.isRunning = true;
-      this.startTime = Date.now() - this.pausedTime;
-      this.animate();
+      
+      if (!this.isRunning) {
+        this.isRunning = true;
+        this.startTime = Date.now() - this.pausedTime;
+        this.animate();
+      }
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.HIGH,
+        'Starting simulation'
+      );
+      // Don't re-throw to allow graceful degradation
     }
   }
   
@@ -106,39 +148,63 @@ export class OrganismSimulation {
    * Pauses the simulation
    */
   pause(): void {
-    this.isRunning = false;
-    this.pausedTime = Date.now() - this.startTime;
+    try {
+      this.isRunning = false;
+      this.pausedTime = Date.now() - this.startTime;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Pausing simulation'
+      );
+    }
   }
     /**
    * Resets the simulation to initial state
    */
   reset(): void {
-    this.isRunning = false;
-    this.placementMode = true;
-    this.startTime = 0;
-    this.pausedTime = 0;
-    this.generation = 0;
-    this.organisms = [];
-    
-    // Reset additional stats
-    this.birthsThisSecond = 0;
-    this.deathsThisSecond = 0;
-    this.totalBirths = 0;
-    this.totalDeaths = 0;
-    this.lastStatsUpdate = 0;
-    
-    this.canvasUtils.drawPlacementInstructions();
-    this.updateStats();
+    try {
+      this.isRunning = false;
+      this.placementMode = true;
+      this.startTime = 0;
+      this.pausedTime = 0;
+      this.generation = 0;
+      this.organisms = [];
+      
+      // Reset additional stats
+      this.birthsThisSecond = 0;
+      this.deathsThisSecond = 0;
+      this.totalBirths = 0;
+      this.totalDeaths = 0;
+      this.lastStatsUpdate = 0;
+      
+      this.canvasUtils.drawPlacementInstructions();
+      this.updateStats();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Resetting simulation'
+      );
+    }
   }
 
   /**
    * Clears all organisms from the simulation
    */
   clear(): void {
-    this.organisms = [];
-    this.generation = 0;
-    this.canvasUtils.drawPlacementInstructions();
-    this.updateStats();
+    try {
+      this.organisms = [];
+      this.generation = 0;
+      this.canvasUtils.drawPlacementInstructions();
+      this.updateStats();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Clearing simulation'
+      );
+    }
   }
   
   /**
@@ -146,7 +212,18 @@ export class OrganismSimulation {
    * @param speed - Speed multiplier (1-10)
    */
   setSpeed(speed: number): void {
-    this.speed = speed;
+    try {
+      if (speed < 1 || speed > 10) {
+        throw new ConfigurationError('Speed must be between 1 and 10');
+      }
+      this.speed = speed;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Setting simulation speed'
+      );
+    }
   }
   
   /**
@@ -154,13 +231,25 @@ export class OrganismSimulation {
    * @param type - The organism type to use
    */
   setOrganismType(type: OrganismType): void {
-    this.selectedOrganismType = type;
-    if (this.placementMode) {
-      // Keep existing organisms, just change the type for new placements
-      this.draw();
-    } else {
-      // If simulation is running, reset with new type
-      this.reset();
+    try {
+      if (!type) {
+        throw new ConfigurationError('Organism type is required');
+      }
+      
+      this.selectedOrganismType = type;
+      if (this.placementMode) {
+        // Keep existing organisms, just change the type for new placements
+        this.draw();
+      } else {
+        // If simulation is running, reset with new type
+        this.reset();
+      }
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Setting organism type'
+      );
     }
   }
   
@@ -181,83 +270,120 @@ export class OrganismSimulation {
    * @param limit - Maximum number of organisms allowed
    */
   setMaxPopulation(limit: number): void {
-    this.maxPopulation = limit;
+    try {
+      if (limit < 1 || limit > 5000) {
+        throw new ConfigurationError('Population limit must be between 1 and 5000');
+      }
+      this.maxPopulation = limit;
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Setting maximum population'
+      );
+    }
   }
   
   private animate(): void {
     if (!this.isRunning) return;
     
-    this.update();
-    this.draw();
-    this.updateStats();
-    
-    requestAnimationFrame(() => this.animate());
+    try {
+      this.update();
+      this.draw();
+      this.updateStats();
+      
+      requestAnimationFrame(() => this.animate());
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.HIGH,
+        'Animation loop'
+      );
+      // Stop animation on error to prevent infinite error loops
+      this.isRunning = false;
+    }
   }
   
   private update(): void {
-    const deltaTime = this.speed * 0.1;
-    const newOrganisms: Organism[] = [];
-    const currentTime = Date.now();
-    
-    // Reset per-second counters every second
-    if (currentTime - this.lastStatsUpdate >= 1000) {
-      this.birthsThisSecond = 0;
-      this.deathsThisSecond = 0;
-      this.lastStatsUpdate = currentTime;
-    }
-    
-    // Update existing organisms (backwards to allow safe removal)
-    for (let i = this.organisms.length - 1; i >= 0; i--) {
-      const organism = this.organisms[i];
-      organism.update(deltaTime, this.canvas.width, this.canvas.height);
+    try {
+      const deltaTime = this.speed * 0.1;
+      const newOrganisms: Organism[] = [];
+      const currentTime = Date.now();
       
-      // Check for reproduction
-      if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
-        newOrganisms.push(organism.reproduce());
-        this.generation++;
-        this.birthsThisSecond++;
-        this.totalBirths++;
+      // Reset per-second counters every second
+      if (currentTime - this.lastStatsUpdate >= 1000) {
+        this.birthsThisSecond = 0;
+        this.deathsThisSecond = 0;
+        this.lastStatsUpdate = currentTime;
       }
       
-      // Check for death
-      if (organism.shouldDie()) {
-        this.organisms.splice(i, 1);
-        this.deathsThisSecond++;
-        this.totalDeaths++;
+      // Update existing organisms (backwards to allow safe removal)
+      for (let i = this.organisms.length - 1; i >= 0; i--) {
+        const organism = this.organisms[i];
+        organism.update(deltaTime, this.canvas.width, this.canvas.height);
+        
+        // Check for reproduction
+        if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
+          newOrganisms.push(organism.reproduce());
+          this.generation++;
+          this.birthsThisSecond++;
+          this.totalBirths++;
+        }
+        
+        // Check for death
+        if (organism.shouldDie()) {
+          this.organisms.splice(i, 1);
+          this.deathsThisSecond++;
+          this.totalDeaths++;
+        }
       }
-    }
-    
-    // Add new organisms
-    this.organisms.push(...newOrganisms);
-    
-    // Track max population
-    this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
-    
-    // Update score based on population and survival
-    this.updateScore();
-    
-    // Check achievements
-    this.checkAchievements();
-    
-    // Limit population
-    if (this.organisms.length > this.maxPopulation) {
-      const removed = this.organisms.length - this.maxPopulation;
-      this.organisms.splice(0, removed);
-      this.totalDeaths += removed;
+      
+      // Add new organisms
+      this.organisms.push(...newOrganisms);
+      
+      // Track max population
+      this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+      
+      // Update score based on population and survival
+      this.updateScore();
+      
+      // Check achievements
+      this.checkAchievements();
+      
+      // Limit population
+      if (this.organisms.length > this.maxPopulation) {
+        const removed = this.organisms.length - this.maxPopulation;
+        this.organisms.splice(0, removed);
+        this.totalDeaths += removed;
+      }
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.HIGH,
+        'Updating simulation state'
+      );
     }
   }
   
   private draw(): void {
-    // Clear canvas and draw grid
-    this.canvasUtils.clear();
-    this.canvasUtils.drawGrid();
-    
-    // Draw organisms
-    this.organisms.forEach(organism => organism.draw(this.ctx));
-    
-    // Show placement instructions if in placement mode and no organisms
-    if (this.placementMode && this.organisms.length === 0) {
-      this.canvasUtils.drawPlacementInstructions();
+    try {
+      // Clear canvas and draw grid
+      this.canvasUtils.clear();
+      this.canvasUtils.drawGrid();
+      
+      // Draw organisms
+      this.organisms.forEach(organism => organism.draw(this.ctx));
+      
+      // Show placement instructions if in placement mode and no organisms
+      if (this.placementMode && this.organisms.length === 0) {
+        this.canvasUtils.drawPlacementInstructions();
+      }
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.HIGH,
+        'Drawing simulation'
+      );
     }
   }
   
@@ -335,39 +461,63 @@ export class OrganismSimulation {
   }
   
   private setupCanvasEvents(): void {
-    this.canvas.addEventListener('click', (event) => {
-      if (this.placementMode) {
-        this.placeOrganism(event);
-      }
-    });
-    
-    this.canvas.addEventListener('mousemove', (event) => {
-      if (this.placementMode) {
-        this.showPreview(event);
-      }
-    });
+    try {
+      this.canvas.addEventListener('click', (event) => {
+        if (this.placementMode) {
+          this.placeOrganism(event);
+        }
+      });
+      
+      this.canvas.addEventListener('mousemove', (event) => {
+        if (this.placementMode) {
+          this.showPreview(event);
+        }
+      });
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.HIGH,
+        'Setting up canvas events'
+      );
+    }
   }
     private placeOrganism(event: MouseEvent): void {
-    const coords = this.canvasUtils.getMouseCoordinates(event);
-    
-    // Add organism at clicked position
-    this.organisms.push(new Organism(coords.x, coords.y, this.selectedOrganismType));
-    this.draw();
+    try {
+      const coords = this.canvasUtils.getMouseCoordinates(event);
+      
+      // Add organism at clicked position
+      this.organisms.push(new Organism(coords.x, coords.y, this.selectedOrganismType));
+      this.draw();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Placing organism'
+      );
+    }
   }
 
   private showPreview(event: MouseEvent): void {
-    const coords = this.canvasUtils.getMouseCoordinates(event);
-    
-    // Redraw canvas with preview
-    this.draw();
-    
-    // Draw preview organism
-    this.canvasUtils.drawPreviewOrganism(
-      coords.x, 
-      coords.y, 
-      this.selectedOrganismType.color, 
-      this.selectedOrganismType.size
-    );
+    try {
+      const coords = this.canvasUtils.getMouseCoordinates(event);
+      
+      // Redraw canvas with preview
+      this.draw();
+      
+      // Draw preview organism
+      this.canvasUtils.drawPreviewOrganism(
+        coords.x, 
+        coords.y, 
+        this.selectedOrganismType.color, 
+        this.selectedOrganismType.size
+      );
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.LOW,
+        'Showing organism preview'
+      );
+    }
   }
   
   private updateScore(): void {
