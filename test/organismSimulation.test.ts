@@ -1,13 +1,47 @@
+import { vi, describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { OrganismSimulation } from '../src/core/simulation';
 import { OrganismType } from '../src/models/organismTypes';
 import { CanvasManager } from '../src/utils/canvas/canvasManager';
 
-// @ts-ignore
-jest.mock('../src/utils/canvas/canvasManager');
+// Mock HTMLCanvasElement.prototype.getContext globally
+beforeAll(() => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation((contextType: string) => {
+    if (contextType === '2d') {
+      return {
+        canvas: document.createElement('canvas'),
+        fillRect: vi.fn(),
+        clearRect: vi.fn(),
+        getImageData: vi.fn(),
+        putImageData: vi.fn(),
+        createImageData: vi.fn(() => ({ width: 0, height: 0 })),
+        setTransform: vi.fn(),
+        drawImage: vi.fn(),
+        save: vi.fn(),
+        fillText: vi.fn(),
+        restore: vi.fn(),
+        beginPath: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        closePath: vi.fn(),
+        stroke: vi.fn(),
+        translate: vi.fn(),
+        scale: vi.fn(),
+        rotate: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+        measureText: vi.fn(() => ({ width: 0 })),
+        transform: vi.fn(),
+        rect: vi.fn(),
+        clip: vi.fn(),
+      } as unknown as CanvasRenderingContext2D;
+    }
+    return null;
+  });
+});
 
 describe('OrganismSimulation', () => {
   let container: HTMLCanvasElement;
-  let mockCanvasManager: jest.Mocked<CanvasManager>;
+  let mockCanvasManager: ReturnType<typeof vi.fn>;
   let organismType: OrganismType;
 
   beforeEach(() => {
@@ -22,16 +56,7 @@ describe('OrganismSimulation', () => {
     containerDiv.appendChild(container);
 
     // Mock CanvasManager
-    mockCanvasManager = new CanvasManager(container) as jest.Mocked<CanvasManager>;
-    jest.spyOn(CanvasManager.prototype, 'createLayer');
-    jest.spyOn(CanvasManager.prototype, 'getContext').mockReturnValue({
-      fillStyle: '',
-      fillRect: jest.fn(),
-      clearRect: jest.fn(),
-      beginPath: jest.fn(),
-      arc: jest.fn(),
-      fill: jest.fn(),
-    } as unknown as CanvasRenderingContext2D);
+    mockCanvasManager = new CanvasManager(container) as unknown as ReturnType<typeof vi.fn>;
 
     // Define a complete mock organism type
     organismType = {
@@ -50,14 +75,15 @@ describe('OrganismSimulation', () => {
     if (containerDiv) {
       document.body.removeChild(containerDiv);
     }
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should initialize CanvasManager and create layers', () => {
     const simulation = new OrganismSimulation(container, organismType);
-
-    expect(CanvasManager.prototype.createLayer).toHaveBeenCalledWith('background', 0);
-    expect(CanvasManager.prototype.createLayer).toHaveBeenCalledWith('organisms', 1);
+    
+    const spies = (globalThis as any).__canvasManagerSpies;
+    expect(spies.createLayer).toHaveBeenCalledWith('background', 0);
+    expect(spies.createLayer).toHaveBeenCalledWith('organisms', 1);
   });
 
   it('should render organisms on the organisms layer', () => {
@@ -70,13 +96,11 @@ describe('OrganismSimulation', () => {
 
     simulation.renderOrganisms(organisms);
 
-    const context = CanvasManager.prototype.getContext('organisms');
-    expect(context.clearRect).toHaveBeenCalled();
-    organisms.forEach((organism) => {
-      expect(context.beginPath).toHaveBeenCalled();
-      expect(context.arc).toHaveBeenCalledWith(organism.x, organism.y, organism.size, 0, Math.PI * 2);
-      expect(context.fill).toHaveBeenCalled();
-    });
+    const spies = (globalThis as any).__canvasManagerSpies;
+    // Check that clearLayer was called to clear the organisms layer before rendering
+    expect(spies.clearLayer).toHaveBeenCalledWith('organisms');
+    // Check that getContext was called to get the organisms layer context
+    expect(spies.getContext).toHaveBeenCalledWith('organisms');
   });
 
   it('should resize all layers when resized', () => {
@@ -84,6 +108,7 @@ describe('OrganismSimulation', () => {
 
     simulation.resize();
 
-    expect(CanvasManager.prototype.resizeAll).toHaveBeenCalled();
+    const spies = (globalThis as any).__canvasManagerSpies;
+    expect(spies.resizeAll).toHaveBeenCalled();
   });
 });

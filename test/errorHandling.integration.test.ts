@@ -44,8 +44,20 @@ vi.mock('../src/utils/canvas/canvasManager', () => {
     CanvasManager: vi.fn().mockImplementation(() => {
       return {
         addLayer: vi.fn(),
-        getContext: vi.fn(() => mockCanvas.getContext('2d')),
+        getContext: vi.fn(() => ({
+          fillStyle: '',
+          fillRect: vi.fn(),
+          clearRect: vi.fn(),
+          beginPath: vi.fn(),
+          moveTo: vi.fn(),
+          lineTo: vi.fn(),
+          stroke: vi.fn(),
+          arc: vi.fn(),
+          closePath: vi.fn(),
+          canvas: { width: 800, height: 600 }, // Mocked canvas dimensions
+        })),
         removeLayer: vi.fn(),
+        createLayer: vi.fn(() => document.createElement('canvas')),
       };
     }),
   };
