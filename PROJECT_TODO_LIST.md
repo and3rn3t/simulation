@@ -27,7 +27,7 @@ This comprehensive TODO list covers various aspects of the organism simulation p
 
 ### **Priority: MEDIUM**
 
-- [ ] **Add service layer**
+- [X] **Add service layer**
   - Create `/services/` folder for business logic
   - Move complex operations from simulation class to dedicated services
   - Implement SimulationService, AchievementService, StatisticsService

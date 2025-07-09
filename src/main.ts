@@ -19,6 +19,9 @@ import {
 import { log, perf } from './utils/system/logger';
 import { StatsPanelComponent } from './ui/components';
 import { IoCContainer } from './utils/system/iocContainer';
+import { SimulationService } from './services/SimulationService';
+import { AchievementService } from './services/AchievementService';
+import { StatisticsService } from './services/StatisticsService';
 
 /**
  * Main entry point for the organism simulation game
@@ -533,3 +536,13 @@ iocContainer.register('GameStateManager', new GameStateManager(
   iocContainer.resolve('LeaderboardManager'),
   iocContainer.resolve('UnlockableOrganismManager')
 ));
+
+// Resolve services from IoC container
+const simulationService = iocContainer.resolve<SimulationService>('SimulationService');
+const achievementService = iocContainer.resolve<AchievementService>('AchievementService');
+const statisticsService = iocContainer.resolve<StatisticsService>('StatisticsService');
+
+// Example usage of services
+simulationService.startSimulation();
+achievementService.unlockAchievement('FirstWin');
+console.log('Current statistics:', statisticsService.calculateStatistics());
