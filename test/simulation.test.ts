@@ -131,6 +131,10 @@ describe('OrganismSimulation', () => {
       writable: true
     })
 
+    const container = document.createElement('div')
+    container.id = 'canvas-container'
+    document.body.appendChild(container)
+
     simulation = new OrganismSimulation(mockCanvas as HTMLCanvasElement, ORGANISM_TYPES.bacteria)
   })
 
@@ -147,6 +151,10 @@ describe('OrganismSimulation', () => {
         value: originalLocalStorage,
         writable: true
       })
+    }
+    const container = document.getElementById('canvas-container')
+    if (container) {
+      container.remove()
     }
     vi.clearAllMocks()
   })

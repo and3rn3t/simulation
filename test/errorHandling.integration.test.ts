@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { OrganismSimulation } from '../src/core/simulation';
 import { ORGANISM_TYPES } from '../src/models/organismTypes';
 import { ErrorHandler } from '../src/utils/system/errorHandler';
+import { CanvasManager } from '../src/utils/canvas/canvasManager';
 
 // Mock HTML elements for testing
 const mockCanvas = {
@@ -38,6 +39,18 @@ const mockCanvas = {
   }))
 } as unknown as HTMLCanvasElement;
 
+vi.mock('../src/utils/canvas/canvasManager', () => {
+  return {
+    CanvasManager: vi.fn().mockImplementation(() => {
+      return {
+        addLayer: vi.fn(),
+        getContext: vi.fn(() => mockCanvas.getContext('2d')),
+        removeLayer: vi.fn(),
+      };
+    }),
+  };
+});
+
 describe('Error Handling Integration', () => {
   let errorHandler: ErrorHandler;
   
@@ -50,6 +63,17 @@ describe('Error Handling Integration', () => {
     vi.spyOn(console, 'info').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    const container = document.createElement('div');
+    container.id = 'canvas-container';
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    const container = document.getElementById('canvas-container');
+    if (container) {
+      container.remove();
+    }
   });
 
   it('should handle invalid canvas gracefully', () => {
