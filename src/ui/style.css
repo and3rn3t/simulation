@@ -524,23 +524,199 @@ button:active {
   font-weight: 600;
 }
 
-/* Utility classes */
-.hidden {
-  display: none;
+/* Memory Panel Styles */
+.memory-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  transform: translateX(280px); /* Hide panel, show just the toggle button (320px - 40px for button) */
 }
 
+.memory-panel.visible {
+  transform: translateX(0); /* Show full panel */
+}
+
+.memory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid #333;
+  border-radius: 8px 8px 0 0;
+}
+
+.memory-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.memory-toggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  font-size: 18px;
+  transition: all 0.2s;
+  background: rgba(76, 175, 80, 0.8) !important;
+  border: 2px solid rgba(76, 175, 80, 1) !important;
+}
+
+.memory-toggle:hover {
+  background: rgba(76, 175, 80, 1) !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.memory-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.memory-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.memory-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memory-stat label {
+  font-size: 12px;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.memory-stat span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.memory-usage {
+  color: #4CAF50;
+}
+
+.memory-level {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.memory-level.memory-safe {
+  background: #4CAF50;
+  color: white;
+}
+
+.memory-level.memory-warning {
+  background: #FF9800;
+  color: white;
+}
+
+.memory-level.memory-critical {
+  background: #F44336;
+  color: white;
+}
+
+.memory-level.memory-emergency {
+  background: #9C27B0;
+  color: white;
+  animation: pulse 1s infinite;
+}
+
+.memory-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.memory-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 80px;
+}
+
+.memory-controls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Canvas Styles */
 #simulation-canvas {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  background: #1a1a1a;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  max-width: 100%;
-  height: auto;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin: 20px 0;
   cursor: crosshair;
+  transition: all 0.3s ease;
+}
+
+#simulation-canvas:hover {
+  border-color: #66BB6A;
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(76, 175, 80, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 #simulation-canvas.running {
-  cursor: default;
+  border-color: #2196F3;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { border-color: #2196F3; }
+  50% { border-color: #64B5F6; }
+  100% { border-color: #2196F3; }
+}
+
+/* Add a subtle grid pattern to show the canvas area more clearly */
+#simulation-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {

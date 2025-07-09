@@ -14,6 +14,11 @@ import {
 } from '../utils/system/errorHandler';
 import { log, perf } from '../utils/system/logger';
 import { CanvasManager } from '../utils/canvas/canvasManager';
+import { 
+  OrganismPool, 
+  MemoryMonitor, 
+  OrganismSoA
+} from '../utils/memory';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -65,6 +70,16 @@ export class OrganismSimulation {
   /** Maximum population ever reached */
   private maxPopulationReached = 0;
   
+  // Memory management
+  /** Object pool for organism instances */
+  private organismPool: OrganismPool;
+  /** Memory monitor for tracking usage */
+  private memoryMonitor: MemoryMonitor;
+  /** Structure of Arrays for cache-optimized organism storage */
+  private organismSoA: OrganismSoA;
+  /** Whether to use SoA optimization */
+  private useSoAOptimization = false;
+  
   private canvasManager: CanvasManager;
   private backgroundContext: CanvasRenderingContext2D;
   private organismsContext: CanvasRenderingContext2D;
@@ -109,6 +124,20 @@ export class OrganismSimulation {
       this.backgroundContext = this.canvasManager.getContext('background');
       this.organismsContext = this.canvasManager.getContext('organisms');
       
+      // Initialize memory management
+      this.organismPool = OrganismPool.getInstance();
+      this.memoryMonitor = MemoryMonitor.getInstance();
+      this.organismSoA = new OrganismSoA(this.maxPopulation);
+      
+      // Pre-fill organism pool for better performance
+      this.organismPool.preFill(100);
+      
+      // Start memory monitoring
+      this.memoryMonitor.startMonitoring(2000); // Check every 2 seconds
+      
+      // Set up memory cleanup handlers
+      this.setupMemoryCleanupHandlers();
+      
       this.initializeBackground();
       
       console.log('OrganismSimulation initialized successfully');
@@ -134,11 +163,11 @@ export class OrganismSimulation {
    */
   private initializePopulation(): void {
     this.organisms = [];
-    // Start with a few organisms
+    // Start with a few organisms using object pooling
     for (let i = 0; i < 5; i++) {
       const x = Math.random() * (this.canvas.width - 20) + 10;
       const y = Math.random() * (this.canvas.height - 20) + 10;
-      this.organisms.push(new Organism(x, y, this.selectedOrganismType));
+      this.organisms.push(this.createOrganism(x, y, this.selectedOrganismType));
     }
   }
   
@@ -215,6 +244,9 @@ export class OrganismSimulation {
       this.startTime = 0;
       this.pausedTime = 0;
       this.generation = 0;
+      
+      // Return all organisms to pool before clearing
+      this.organisms.forEach(organism => this.destroyOrganism(organism));
       this.organisms = [];
       
       // Reset additional stats
@@ -240,6 +272,8 @@ export class OrganismSimulation {
    */
   clear(): void {
     try {
+      // Return all organisms to pool before clearing
+      this.organisms.forEach(organism => this.destroyOrganism(organism));
       this.organisms = [];
       this.generation = 0;
       this.canvasUtils.drawPlacementInstructions();
@@ -369,7 +403,15 @@ export class OrganismSimulation {
         organism.update(deltaTime, this.canvas.width, this.canvas.height);
             // Check for reproduction
       if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
-        newOrganisms.push(organism.reproduce());
+        // Create new organism using object pooling instead of reproduce method
+        const child = this.createOrganism(
+          organism.x + (Math.random() - 0.5) * 20,
+          organism.y + (Math.random() - 0.5) * 20,
+          organism.type
+        );
+        newOrganisms.push(child);
+        organism.reproduced = true; // Mark parent as reproduced
+        
         this.generation++;
         this.birthsThisSecond++;
         this.totalBirths++;
@@ -385,7 +427,8 @@ export class OrganismSimulation {
         
         // Check for death
         if (organism.shouldDie()) {
-          this.organisms.splice(i, 1);
+          const removed = this.organisms.splice(i, 1)[0];
+          this.destroyOrganism(removed); // Return to pool
           this.deathsThisSecond++;
           this.totalDeaths++;
         }
@@ -411,12 +454,16 @@ export class OrganismSimulation {
       this.checkAchievements();
           // Limit population
     if (this.organisms.length > this.maxPopulation) {
-      const removed = this.organisms.length - this.maxPopulation;
-      this.organisms.splice(0, removed);
-      this.totalDeaths += removed;
+      const removeCount = this.organisms.length - this.maxPopulation;
+      const removedOrganisms = this.organisms.splice(0, removeCount);
+      
+      // Return removed organisms to pool
+      removedOrganisms.forEach(organism => this.destroyOrganism(organism));
+      
+      this.totalDeaths += removeCount;
       
       log.logSimulation('Population capped', { 
-        removed,
+        removed: removeCount,
         maxPopulation: this.maxPopulation 
       });
     }
@@ -552,8 +599,8 @@ export class OrganismSimulation {
     try {
       const coords = this.canvasUtils.getMouseCoordinates(event);
       
-      // Add organism at clicked position
-      this.organisms.push(new Organism(coords.x, coords.y, this.selectedOrganismType));
+      // Add organism at clicked position using object pooling
+      this.organisms.push(this.createOrganism(coords.x, coords.y, this.selectedOrganismType));
       this.draw();
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -699,5 +746,148 @@ export class OrganismSimulation {
   public resize(): void {
     this.canvasManager.resizeAll();
     this.initializeBackground(); // Reinitialize background after resizing
+  }
+  
+  /**
+   * Set up memory cleanup event handlers
+   */
+  private setupMemoryCleanupHandlers(): void {
+    window.addEventListener('memory-cleanup', (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const level = customEvent.detail?.level || 'normal';
+      
+      log.logSystem('Memory cleanup triggered', { level, currentPopulation: this.organisms.length });
+      
+      if (level === 'aggressive') {
+        // Aggressive cleanup: reduce population and clear caches
+        this.performAggressiveMemoryCleanup();
+      } else {
+        // Normal cleanup: just clean up pools
+        this.performNormalMemoryCleanup();
+      }
+    });
+  }
+  
+  /**
+   * Perform normal memory cleanup
+   */
+  private performNormalMemoryCleanup(): void {
+    // Clear unused organisms from pool (keep some for future use)
+    const poolStats = this.organismPool.getStats();
+    if (poolStats.poolSize > 50) {
+      this.organismPool.clear();
+      this.organismPool.preFill(25); // Keep a smaller pool
+    }
+    
+    log.logSystem('Normal memory cleanup completed', { 
+      poolSize: this.organismPool.getStats().poolSize 
+    });
+  }
+  
+  /**
+   * Perform aggressive memory cleanup
+   */
+  private performAggressiveMemoryCleanup(): void {
+    // Reduce population if memory is critical
+    if (this.organisms.length > 500) {
+      const removeCount = Math.floor(this.organisms.length * 0.3);
+      const removed = this.organisms.splice(0, removeCount);
+      
+      // Return removed organisms to pool
+      removed.forEach(organism => this.organismPool.releaseOrganism(organism));
+      
+      this.totalDeaths += removeCount;
+      
+      log.logSystem('Population reduced due to memory pressure', { 
+        removed: removeCount, 
+        remaining: this.organisms.length 
+      });
+    }
+    
+    // Clear all pools
+    this.organismPool.clear();
+    this.organismSoA.clear();
+    
+    // Compact arrays if using SoA
+    if (this.useSoAOptimization) {
+      this.organismSoA.compact();
+    }
+    
+    log.logSystem('Aggressive memory cleanup completed');
+  }
+  
+  /**
+   * Create an organism using object pooling
+   */
+  private createOrganism(x: number, y: number, type: OrganismType): Organism {
+    try {
+      // Check memory usage before creating
+      if (!this.memoryMonitor.isMemoryUsageSafe() && this.organisms.length > 100) {
+        // Skip creation if memory is tight and we have enough organisms
+        throw new Error('Memory usage too high, skipping organism creation');
+      }
+      
+      return this.organismPool.acquireOrganism(x, y, type);
+    } catch (error) {
+      // Fallback to regular creation if pool fails
+      log.logSystem('Falling back to regular organism creation', { reason: error });
+      return new Organism(x, y, type);
+    }
+  }
+  
+  /**
+   * Destroy an organism and return it to the pool
+   */
+  private destroyOrganism(organism: Organism): void {
+    try {
+      this.organismPool.releaseOrganism(organism);
+    } catch (error) {
+      // If pool release fails, just let it be garbage collected
+      log.logSystem('Failed to return organism to pool', { error });
+    }
+  }
+  
+  /**
+   * Toggle between regular array and Structure of Arrays optimization
+   */
+  public toggleSoAOptimization(enable: boolean): void {
+    if (enable === this.useSoAOptimization) {
+      return;
+    }
+    
+    this.useSoAOptimization = enable;
+    
+    if (enable) {
+      // Convert to SoA
+      this.organismSoA.fromOrganismArray(this.organisms);
+      log.logSystem('Switched to Structure of Arrays optimization', {
+        organismCount: this.organisms.length,
+        memoryUsage: this.organismSoA.getMemoryUsage()
+      });
+    } else {
+      // Convert back to regular array
+      this.organisms = this.organismSoA.toOrganismArray();
+      this.organismSoA.clear();
+      log.logSystem('Switched back to regular array storage');
+    }
+  }
+  
+  /**
+   * Get memory statistics
+   */
+  public getMemoryStats(): {
+    memoryMonitor: any;
+    organismPool: any;
+    organismSoA: any;
+    totalOrganisms: number;
+    usingSoA: boolean;
+  } {
+    return {
+      memoryMonitor: this.memoryMonitor.getMemoryStats(),
+      organismPool: this.organismPool.getStats(),
+      organismSoA: this.organismSoA.getStats(),
+      totalOrganisms: this.organisms.length,
+      usingSoA: this.useSoAOptimization
+    };
   }
 }
