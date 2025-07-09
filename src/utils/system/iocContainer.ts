@@ -1,3 +1,7 @@
+import { SimulationService } from '../../services/SimulationService';
+import { AchievementService } from '../../services/AchievementService';
+import { StatisticsService } from '../../services/StatisticsService';
+
 export class IoCContainer {
   private services: Map<string, any> = new Map();
 
@@ -16,3 +20,9 @@ export class IoCContainer {
     return instance;
   }
 }
+
+// Register services in IoC container
+const iocContainer = new IoCContainer();
+iocContainer.register('SimulationService', new SimulationService());
+iocContainer.register('AchievementService', new AchievementService());
+iocContainer.register('StatisticsService', new StatisticsService());
