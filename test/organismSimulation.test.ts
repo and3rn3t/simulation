@@ -11,10 +11,15 @@ describe('OrganismSimulation', () => {
   let organismType: OrganismType;
 
   beforeEach(() => {
+    // Create a mock canvas container element
+    const containerDiv = document.createElement('div');
+    containerDiv.id = 'canvas-container';
+    document.body.appendChild(containerDiv);
+
     // Create a mock canvas element
     container = document.createElement('canvas');
     container.id = 'simulation-canvas';
-    document.body.appendChild(container);
+    containerDiv.appendChild(container);
 
     // Mock CanvasManager
     mockCanvasManager = new CanvasManager(container) as jest.Mocked<CanvasManager>;
@@ -41,7 +46,10 @@ describe('OrganismSimulation', () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(container);
+    const containerDiv = document.getElementById('canvas-container');
+    if (containerDiv) {
+      document.body.removeChild(containerDiv);
+    }
     jest.restoreAllMocks();
   });
 
