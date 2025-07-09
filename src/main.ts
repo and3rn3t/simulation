@@ -16,6 +16,7 @@ import {
   withErrorHandling 
 } from './utils/system/errorHandler';
 import { log, perf } from './utils/system/logger';
+import { NotificationComponent, StatsPanelComponent } from './ui/components';
 
 /**
  * Main entry point for the organism simulation game
@@ -50,6 +51,10 @@ let unlockableManager: UnlockableOrganismManager;
 let gameStateManager: GameStateManager;
 let simulation: OrganismSimulation;
 
+// Initialize components
+const notificationComponent = new NotificationComponent();
+const statsPanelComponent = new StatsPanelComponent('stats-panel');
+
 /**
  * Initializes DOM elements with error handling
  */
@@ -69,7 +74,10 @@ function initializeDOMElements(): void {
     clearBtn = getRequiredElementById<HTMLButtonElement>('clear-btn');
     startChallengeBtn = getRequiredElementById<HTMLButtonElement>('start-challenge-btn');
     buyPowerUpButtons = document.querySelectorAll('.buy-powerup') as NodeListOf<HTMLButtonElement>;
-    
+
+    // Example usage of StatsPanelComponent
+    statsPanelComponent.updateText('Simulation stats will appear here.');
+
     const initTime = perf.endTiming('dom-initialization', 'DOM elements initialization');
     log.logInit('DOM elements initialized successfully', { 
       elementsCount: 11,
@@ -78,7 +86,7 @@ function initializeDOMElements(): void {
   } catch (error) {
     log.logError(error as Error, 'DOM initialization failed');
     ErrorHandler.getInstance().handleError(
-      error instanceof Error ? error : new DOMError('Failed to initialize DOM elements'),
+      error as Error,
       ErrorSeverity.CRITICAL,
       'DOM initialization'
     );
