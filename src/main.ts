@@ -22,6 +22,7 @@ import { IoCContainer } from './utils/system/iocContainer';
 import { SimulationService } from './services/SimulationService';
 import { AchievementService } from './services/AchievementService';
 import { StatisticsService } from './services/StatisticsService';
+import { CanvasManager } from './utils/canvas/canvasManager';
 
 /**
  * Main entry point for the organism simulation game
@@ -546,3 +547,28 @@ const statisticsService = iocContainer.resolve<StatisticsService>('StatisticsSer
 simulationService.startSimulation();
 achievementService.unlockAchievement('FirstWin');
 console.log('Current statistics:', statisticsService.calculateStatistics());
+
+// Initialize CanvasManager
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('simulation-container');
+  if (!container) {
+    throw new Error('Simulation container not found');
+  }
+
+  // Initialize CanvasManager
+  const canvasManager = new CanvasManager(container);
+
+  // Create canvas layers
+  canvasManager.createLayer('background', 0);
+  canvasManager.createLayer('organisms', 1);
+  canvasManager.createLayer('ui', 2);
+
+  // Example: Accessing context for rendering
+  const backgroundContext = canvasManager.getContext('background');
+
+  // Example: Drawing on the background layer
+  backgroundContext.fillStyle = 'lightblue';
+  backgroundContext.fillRect(0, 0, backgroundContext.canvas.width, backgroundContext.canvas.height);
+
+  // TODO: Integrate simulation rendering logic with the appropriate layers
+});

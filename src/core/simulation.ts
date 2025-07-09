@@ -13,6 +13,7 @@ import {
   ConfigurationError
 } from '../utils/system/errorHandler';
 import { log, perf } from '../utils/system/logger';
+import { CanvasManager } from '../utils/canvas/canvasManager';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -64,6 +65,10 @@ export class OrganismSimulation {
   /** Maximum population ever reached */
   private maxPopulationReached = 0;
   
+  private canvasManager: CanvasManager;
+  private backgroundContext: CanvasRenderingContext2D;
+  private organismsContext: CanvasRenderingContext2D;
+  
   /**
    * Creates a new simulation instance
    * @param canvas - HTML canvas element for rendering
@@ -92,6 +97,19 @@ export class OrganismSimulation {
       
       this.setupCanvasEvents();
       this.canvasUtils.drawPlacementInstructions();
+      
+      // Initialize CanvasManager for layered rendering
+      const container = document.getElementById('canvas-container');
+      if (!container) {
+        throw new Error('Canvas container element not found');
+      }
+      this.canvasManager = new CanvasManager(container);
+      this.canvasManager.createLayer('background', 0);
+      this.canvasManager.createLayer('organisms', 1);
+      this.backgroundContext = this.canvasManager.getContext('background');
+      this.organismsContext = this.canvasManager.getContext('organisms');
+      
+      this.initializeBackground();
       
       console.log('OrganismSimulation initialized successfully');
       log.logInit('OrganismSimulation initialized successfully', {
@@ -424,6 +442,9 @@ export class OrganismSimulation {
       if (this.placementMode && this.organisms.length === 0) {
         this.canvasUtils.drawPlacementInstructions();
       }
+      
+      // Render organisms on the organisms layer
+      this.renderOrganisms(this.organisms);
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -655,5 +676,28 @@ export class OrganismSimulation {
       isRunning: this.isRunning,
       placementMode: this.placementMode
     };
+  }
+  
+  private initializeBackground(): void {
+    this.backgroundContext.fillStyle = 'lightgreen';
+    this.backgroundContext.fillRect(0, 0, this.backgroundContext.canvas.width, this.backgroundContext.canvas.height);
+  }
+
+  public renderOrganisms(organisms: any[]): void {
+    // Clear organisms layer
+    this.canvasManager.clearLayer('organisms');
+
+    // Render each organism
+    organisms.forEach(organism => {
+      this.organismsContext.fillStyle = organism.color;
+      this.organismsContext.beginPath();
+      this.organismsContext.arc(organism.x, organism.y, organism.size, 0, Math.PI * 2);
+      this.organismsContext.fill();
+    });
+  }
+
+  public resize(): void {
+    this.canvasManager.resizeAll();
+    this.initializeBackground(); // Reinitialize background after resizing
   }
 }
