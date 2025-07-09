@@ -6,6 +6,7 @@ import { PowerUpManager } from './features/powerups';
 import { LeaderboardManager } from './features/leaderboard';
 import { UnlockableOrganismManager } from './models/unlockables';
 import { GameStateManager } from './utils/game/gameStateManager';
+import { StateManager } from './utils/game/stateManager';
 import { getRequiredElementById } from './ui/domHelpers';
 import { 
   ErrorHandler, 
@@ -16,7 +17,8 @@ import {
   withErrorHandling 
 } from './utils/system/errorHandler';
 import { log, perf } from './utils/system/logger';
-import { NotificationComponent, StatsPanelComponent } from './ui/components';
+import { StatsPanelComponent } from './ui/components';
+import { IoCContainer } from './utils/system/iocContainer';
 
 /**
  * Main entry point for the organism simulation game
@@ -52,7 +54,6 @@ let gameStateManager: GameStateManager;
 let simulation: OrganismSimulation;
 
 // Initialize components
-const notificationComponent = new NotificationComponent();
 const statsPanelComponent = new StatsPanelComponent('stats-panel');
 
 /**
@@ -409,6 +410,23 @@ function handleGameOver(finalStats: any): void {
   }
 }
 
+// Initialize state manager
+const stateManager = new StateManager({
+  simulationRunning: false,
+  selectedOrganism: '',
+  speed: 1,
+  populationLimit: 100,
+  stats: {
+    population: 0,
+    generation: 0,
+  },
+});
+
+// Example: Subscribe to state changes
+stateManager.getState().subscribe((state: AppState) => {
+  console.log('State updated:', state);
+});
+
 /**
  * Main application initialization with comprehensive error handling
  */
@@ -480,5 +498,38 @@ function initializeApplication(): void {
   }
 }
 
+// Define the AppState interface for state management
+interface AppState {
+  simulationRunning: boolean;
+  selectedOrganism: string;
+  speed: number;
+  populationLimit: number;
+  stats: {
+    population: number;
+    generation: number;
+  };
+}
+
+// Save state to localStorage before unloading the page
+window.addEventListener('beforeunload', () => {
+  stateManager.saveStateToLocalStorage('appState');
+});
+
+// Load state from localStorage on application initialization
+stateManager.loadStateFromLocalStorage('appState');
+
 // Initialize the application
 initializeApplication();
+
+// Initialize IoC container
+const iocContainer = new IoCContainer();
+
+// Register services
+iocContainer.register('PowerUpManager', new PowerUpManager());
+iocContainer.register('LeaderboardManager', new LeaderboardManager());
+iocContainer.register('UnlockableOrganismManager', new UnlockableOrganismManager());
+iocContainer.register('GameStateManager', new GameStateManager(
+  iocContainer.resolve('PowerUpManager'),
+  iocContainer.resolve('LeaderboardManager'),
+  iocContainer.resolve('UnlockableOrganismManager')
+));
