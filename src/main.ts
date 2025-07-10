@@ -237,7 +237,8 @@ function startSimulation(): void {
   const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
   
   if (startBtn) {
-    startBtn.textContent = 'Running...';
+    startBtn.innerHTML = '⏹️'; // Change to stop symbol when running
+    startBtn.title = 'Stop Simulation';
     startBtn.disabled = true;
   }
   if (pauseBtn) {
@@ -262,7 +263,8 @@ function pauseSimulation(): void {
   const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
   
   if (startBtn) {
-    startBtn.textContent = 'Start';
+    startBtn.innerHTML = '▶️';
+    startBtn.title = 'Start Simulation';
     startBtn.disabled = false;
   }
   if (pauseBtn) {

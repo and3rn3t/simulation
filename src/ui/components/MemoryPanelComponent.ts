@@ -8,27 +8,41 @@ export class MemoryPanelComponent {
   private element: HTMLElement;
   private memoryMonitor: MemoryMonitor;
   private updateInterval: number | null = null;
-  private isVisible = false;
+  private isVisible = false; // Panel starts hidden (only toggle button visible)
 
   constructor() {
     this.memoryMonitor = MemoryMonitor.getInstance();
     this.element = this.createElement();
     this.setupEventListeners();
     
-    // Set initial visibility state
-    this.element.classList.toggle('visible', this.isVisible);
+    // Set initial visibility state to match CSS default (hidden)
+    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    if (panel) {
+      panel.classList.remove('visible'); // Ensure it starts hidden
+    }
+    console.log('🧠 Memory panel initialized. Initial state: hidden');
   }
 
   /**
    * Create the memory panel element
    */
   private createElement(): HTMLElement {
+    // Create wrapper container
+    const wrapper = document.createElement('div');
+    wrapper.className = 'memory-panel-wrapper';
+    
+    // Create toggle button (stays fixed)
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'memory-toggle-fixed';
+    toggleButton.innerHTML = '📊';
+    toggleButton.title = 'Toggle Memory Panel';
+    
+    // Create sliding panel
     const panel = document.createElement('div');
     panel.className = 'memory-panel';
     panel.innerHTML = `
       <div class="memory-header">
         <h3>🧠 Memory Monitor</h3>
-        <button class="memory-toggle" title="Toggle Memory Panel">📊</button>
       </div>
       <div class="memory-content">
         <div class="memory-stats">
@@ -66,14 +80,17 @@ export class MemoryPanelComponent {
       </div>
     `;
 
-    return panel;
+    wrapper.appendChild(toggleButton);
+    wrapper.appendChild(panel);
+    
+    return wrapper;
   }
 
   /**
    * Set up event listeners
    */
   private setupEventListeners(): void {
-    const toggleButton = this.element.querySelector('.memory-toggle') as HTMLButtonElement;
+    const toggleButton = this.element.querySelector('.memory-toggle-fixed') as HTMLButtonElement;
     const cleanupButton = this.element.querySelector('.memory-cleanup') as HTMLButtonElement;
     const forceGcButton = this.element.querySelector('.memory-force-gc') as HTMLButtonElement;
     const toggleSoaButton = this.element.querySelector('.memory-toggle-soa') as HTMLButtonElement;
@@ -129,8 +146,15 @@ export class MemoryPanelComponent {
    * Toggle panel visibility
    */
   public toggle(): void {
+    console.log('🔄 Memory panel toggle clicked. Current state:', this.isVisible);
     this.isVisible = !this.isVisible;
-    this.element.classList.toggle('visible', this.isVisible);
+    console.log('🔄 New state:', this.isVisible);
+    
+    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    if (panel) {
+      panel.classList.toggle('visible', this.isVisible);
+      console.log('🔄 Panel classes:', panel.className);
+    }
     
     if (this.isVisible) {
       this.startUpdating();

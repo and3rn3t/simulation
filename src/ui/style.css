@@ -67,6 +67,45 @@ header p {
   gap: 8px;
 }
 
+/* Special styling for button control groups */
+.button-group {
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+/* Control button styling */
+.button-group button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  padding: 0;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.button-group button:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.button-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  border-color: transparent !important;
+}
+
+.button-group button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .control-group label {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
@@ -525,19 +564,46 @@ button:active {
 }
 
 /* Memory Panel Styles */
-.memory-panel {
+.memory-panel-wrapper {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 1000;
+}
+
+.memory-toggle-fixed {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(76, 175, 80, 0.8) !important;
+  border: 2px solid rgba(76, 175, 80, 1) !important;
+  color: white;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 50%;
+  font-size: 18px;
+  transition: all 0.2s;
+  z-index: 1001;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.memory-toggle-fixed:hover {
+  background: rgba(76, 175, 80, 1) !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+}
+
+.memory-panel {
+  position: relative;
   width: 320px;
   background: rgba(0, 0, 0, 0.9);
   border: 1px solid #333;
   border-radius: 8px;
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  z-index: 1000;
   transition: all 0.3s ease;
-  transform: translateX(280px); /* Hide panel, show just the toggle button (320px - 40px for button) */
+  transform: translateX(340px); /* Hide completely (generous buffer to ensure no edge shows) */
+  margin-top: 50px; /* Space for the fixed toggle button */
 }
 
 .memory-panel.visible {
@@ -546,7 +612,7 @@ button:active {
 
 .memory-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 12px 16px;
   background: rgba(0, 0, 0, 0.8);
@@ -558,25 +624,6 @@ button:active {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-}
-
-.memory-toggle {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  font-size: 18px;
-  transition: all 0.2s;
-  background: rgba(76, 175, 80, 0.8) !important;
-  border: 2px solid rgba(76, 175, 80, 1) !important;
-}
-
-.memory-toggle:hover {
-  background: rgba(76, 175, 80, 1) !important;
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 .memory-content {
