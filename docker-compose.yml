@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Development environment
+  simulation-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - dev
+
+  # Staging environment
+  simulation-staging:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=staging
+    restart: unless-stopped
+    profiles:
+      - staging
+
+  # Production environment
+  simulation-prod:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    profiles:
+      - prod
+
+  # Reverse proxy for production
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - simulation-prod
+    profiles:
+      - prod
+
+networks:
+  default:
+    name: simulation-network
