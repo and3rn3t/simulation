@@ -10,7 +10,8 @@ import {
   ErrorHandler, 
   ErrorSeverity, 
   CanvasError, 
-  ConfigurationError
+  ConfigurationError,
+  SimulationError
 } from '../utils/system/errorHandler';
 import { log, perf } from '../utils/system/logger';
 import { CanvasManager } from '../utils/canvas/canvasManager';
@@ -19,6 +20,14 @@ import {
   MemoryMonitor, 
   OrganismSoA
 } from '../utils/memory';
+import { 
+  SpatialPartitioningManager,
+  AdaptiveBatchProcessor,
+  PopulationPredictor,
+  algorithmWorkerManager,
+  type EnvironmentalFactors,
+  type PopulationPrediction
+} from '../utils/algorithms';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -84,6 +93,20 @@ export class OrganismSimulation {
   private backgroundContext: CanvasRenderingContext2D;
   private organismsContext: CanvasRenderingContext2D;
   
+  // Algorithm optimizations
+  private spatialPartitioning: SpatialPartitioningManager;
+  private batchProcessor: AdaptiveBatchProcessor;
+  private populationPredictor: PopulationPredictor;
+  private useOptimizations: boolean = true;
+  private lastPrediction: PopulationPrediction | null = null;
+  private environmentalFactors: EnvironmentalFactors = {
+    temperature: 0.5,
+    resources: 0.8,
+    space: 0.9,
+    toxicity: 0.0,
+    pH: 0.5
+  };
+  
   /**
    * Creates a new simulation instance
    * @param canvas - HTML canvas element for rendering
@@ -137,6 +160,29 @@ export class OrganismSimulation {
       
       // Set up memory cleanup handlers
       this.setupMemoryCleanupHandlers();
+      
+      // Initialize algorithm optimizations
+      this.spatialPartitioning = new SpatialPartitioningManager(
+        canvas.width,
+        canvas.height,
+        10 // quadtree capacity
+      );
+      
+      this.batchProcessor = new AdaptiveBatchProcessor(
+        {
+          batchSize: 50,
+          maxFrameTime: 16, // 60 FPS target
+          useTimeSlicing: true
+        },
+        16.67 // 60 FPS target
+      );
+      
+      this.populationPredictor = new PopulationPredictor(this.environmentalFactors);
+      
+      // Initialize worker manager
+      algorithmWorkerManager.initialize().catch(error => {
+        console.warn('Failed to initialize algorithm workers:', error);
+      });
       
       this.initializeBackground();
       
@@ -387,7 +433,6 @@ export class OrganismSimulation {
   private update(): void {
     try {
       const deltaTime = this.speed * 0.1;
-      const newOrganisms: Organism[] = [];
       const currentTime = Date.now();
       
       // Reset per-second counters every second
@@ -397,76 +442,42 @@ export class OrganismSimulation {
         this.lastStatsUpdate = currentTime;
       }
       
-      // Update existing organisms (backwards to allow safe removal)
-      for (let i = this.organisms.length - 1; i >= 0; i--) {
-        const organism = this.organisms[i];
-        organism.update(deltaTime, this.canvas.width, this.canvas.height);
-            // Check for reproduction
-      if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
-        // Create new organism using object pooling instead of reproduce method
-        const child = this.createOrganism(
-          organism.x + (Math.random() - 0.5) * 20,
-          organism.y + (Math.random() - 0.5) * 20,
-          organism.type
-        );
-        newOrganisms.push(child);
-        organism.reproduced = true; // Mark parent as reproduced
-        
-        this.generation++;
-        this.birthsThisSecond++;
-        this.totalBirths++;
-        
-        // Log significant population milestones
-        if (this.totalBirths % 100 === 0) {
-          log.logSimulation('Birth milestone reached', { 
-            totalBirths: this.totalBirths,
-            currentPopulation: this.organisms.length 
-          });
-        }
+      if (this.useOptimizations && this.organisms.length > 100) {
+        this.updateWithOptimizations(deltaTime);
+      } else {
+        this.updateWithoutOptimizations(deltaTime);
       }
-        
-        // Check for death
-        if (organism.shouldDie()) {
-          const removed = this.organisms.splice(i, 1)[0];
-          this.destroyOrganism(removed); // Return to pool
-          this.deathsThisSecond++;
-          this.totalDeaths++;
-        }
-      }
-      
-      // Add new organisms
-      this.organisms.push(...newOrganisms);
-          // Track max population
-    this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
-    
-    // Log population peaks
-    if (this.organisms.length > this.maxPopulationReached * 0.95) {
-      log.logSimulation('Population peak reached', { 
-        currentPopulation: this.organisms.length,
-        maxPopulation: this.maxPopulationReached 
-      });
-    }
       
       // Update score based on population and survival
       this.updateScore();
       
       // Check achievements
       this.checkAchievements();
-          // Limit population
-    if (this.organisms.length > this.maxPopulation) {
-      const removeCount = this.organisms.length - this.maxPopulation;
-      const removedOrganisms = this.organisms.splice(0, removeCount);
       
-      // Return removed organisms to pool
-      removedOrganisms.forEach(organism => this.destroyOrganism(organism));
+      // Limit population
+      if (this.organisms.length > this.maxPopulation) {
+        const removeCount = this.organisms.length - this.maxPopulation;
+        const removedOrganisms = this.organisms.splice(0, removeCount);
+        
+        // Return removed organisms to pool
+        removedOrganisms.forEach(organism => this.destroyOrganism(organism));
+        
+        this.totalDeaths += removeCount;
+        
+        log.logSimulation('Population capped', { 
+          removed: removeCount,
+          maxPopulation: this.maxPopulation 
+        });
+      }
       
-      this.totalDeaths += removeCount;
+      // Update population predictor with current data
+      this.populationPredictor.addHistoricalData(currentTime, this.organisms.length);
       
-      log.logSimulation('Population capped', { 
-        removed: removeCount,
-        maxPopulation: this.maxPopulation 
-      });
-    }
+      // Generate predictions periodically
+      if (currentTime % 5000 < 100) { // Every 5 seconds
+        this.generatePopulationPrediction();
+      }
+      
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -888,6 +899,245 @@ export class OrganismSimulation {
       organismSoA: this.organismSoA.getStats(),
       totalOrganisms: this.organisms.length,
       usingSoA: this.useSoAOptimization
+    };
+  }
+  
+  /**
+   * Updates organisms using batch processing and spatial partitioning optimizations
+   * @param deltaTime - Time elapsed since last update
+   */
+  private updateWithOptimizations(deltaTime: number): void {
+    try {
+      // Rebuild spatial partitioning structure
+      this.spatialPartitioning.rebuild(this.organisms);
+      
+      // Process organism updates in batches
+      this.batchProcessor.processBatch(
+        this.organisms,
+        (organism, dt, canvasWidth, canvasHeight) => {
+          organism.update(dt, canvasWidth, canvasHeight);
+        },
+        deltaTime,
+        this.canvas.width,
+        this.canvas.height
+      );
+      
+      // Process reproduction in batches
+      const reproductionResult = this.batchProcessor.processReproduction(
+        this.organisms,
+        (organism) => {
+          if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
+            const child = this.createOrganism(
+              organism.x + (Math.random() - 0.5) * 20,
+              organism.y + (Math.random() - 0.5) * 20,
+              organism.type
+            );
+            organism.reproduced = true;
+            this.generation++;
+            this.birthsThisSecond++;
+            this.totalBirths++;
+            
+            // Log significant population milestones
+            if (this.totalBirths % 100 === 0) {
+              log.logSimulation('Birth milestone reached', { 
+                totalBirths: this.totalBirths,
+                currentPopulation: this.organisms.length 
+              });
+            }
+            
+            return child;
+          }
+          return null;
+        },
+        this.maxPopulation
+      );
+      
+      // Add new organisms
+      this.organisms.push(...reproductionResult.newOrganisms);
+      
+      // Check for death (still needs to be done for all organisms)
+      for (let i = this.organisms.length - 1; i >= 0; i--) {
+        const organism = this.organisms[i];
+        if (organism.shouldDie()) {
+          const removed = this.organisms.splice(i, 1)[0];
+          this.destroyOrganism(removed);
+          this.deathsThisSecond++;
+          this.totalDeaths++;
+        }
+      }
+      
+      // Track max population
+      this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+      
+      // Log population peaks
+      if (this.organisms.length > this.maxPopulationReached * 0.95) {
+        log.logSimulation('Population peak reached', { 
+          currentPopulation: this.organisms.length,
+          maxPopulation: this.maxPopulationReached 
+        });
+      }
+      
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new SimulationError('Failed to update with optimizations', 'UPDATE_OPTIMIZATION_ERROR'),
+        ErrorSeverity.HIGH,
+        'OrganismSimulation updateWithOptimizations'
+      );
+      
+      // Fall back to non-optimized update
+      this.updateWithoutOptimizations(deltaTime);
+    }
+  }
+  
+  /**
+   * Updates organisms using traditional method (fallback)
+   * @param deltaTime - Time elapsed since last update
+   */
+  private updateWithoutOptimizations(deltaTime: number): void {
+    try {
+      const newOrganisms: Organism[] = [];
+      
+      // Update existing organisms (backwards to allow safe removal)
+      for (let i = this.organisms.length - 1; i >= 0; i--) {
+        const organism = this.organisms[i];
+        organism.update(deltaTime, this.canvas.width, this.canvas.height);
+        
+        // Check for reproduction
+        if (organism.canReproduce() && this.organisms.length < this.maxPopulation) {
+          // Create new organism using object pooling instead of reproduce method
+          const child = this.createOrganism(
+            organism.x + (Math.random() - 0.5) * 20,
+            organism.y + (Math.random() - 0.5) * 20,
+            organism.type
+          );
+          newOrganisms.push(child);
+          organism.reproduced = true; // Mark parent as reproduced
+          
+          this.generation++;
+          this.birthsThisSecond++;
+          this.totalBirths++;
+          
+          // Log significant population milestones
+          if (this.totalBirths % 100 === 0) {
+            log.logSimulation('Birth milestone reached', { 
+              totalBirths: this.totalBirths,
+              currentPopulation: this.organisms.length 
+            });
+          }
+        }
+        
+        // Check for death
+        if (organism.shouldDie()) {
+          const removed = this.organisms.splice(i, 1)[0];
+          this.destroyOrganism(removed); // Return to pool
+          this.deathsThisSecond++;
+          this.totalDeaths++;
+        }
+      }
+      
+      // Add new organisms
+      this.organisms.push(...newOrganisms);
+      
+      // Track max population
+      this.maxPopulationReached = Math.max(this.maxPopulationReached, this.organisms.length);
+      
+      // Log population peaks
+      if (this.organisms.length > this.maxPopulationReached * 0.95) {
+        log.logSimulation('Population peak reached', { 
+          currentPopulation: this.organisms.length,
+          maxPopulation: this.maxPopulationReached 
+        });
+      }
+      
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new SimulationError('Failed to update without optimizations', 'UPDATE_FALLBACK_ERROR'),
+        ErrorSeverity.HIGH,
+        'OrganismSimulation updateWithoutOptimizations'
+      );
+    }
+  }
+  
+  /**
+   * Generates population prediction using algorithms
+   */
+  private async generatePopulationPrediction(): Promise<void> {
+    try {
+      if (this.organisms.length === 0) {
+        return;
+      }
+      
+      this.lastPrediction = await this.populationPredictor.predictPopulationGrowth(
+        this.organisms,
+        50, // 50 time steps ahead
+        this.organisms.length > 200 // Use workers for large populations
+      );
+      
+      // You could dispatch an event or update UI with the prediction
+      // For now, we'll just log it
+      if (this.lastPrediction.confidence > 0.5) {
+        log.logSimulation('Population prediction generated', {
+          peakPopulation: this.lastPrediction.peakPopulation,
+          peakTime: this.lastPrediction.peakTime,
+          confidence: this.lastPrediction.confidence
+        });
+      }
+      
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new SimulationError('Failed to generate population prediction', 'PREDICTION_ERROR'),
+        ErrorSeverity.LOW,
+        'OrganismSimulation generatePopulationPrediction'
+      );
+    }
+  }
+
+  /**
+   * Toggles algorithm optimizations on/off
+   * @param enabled - Whether to enable optimizations
+   */
+  setOptimizationsEnabled(enabled: boolean): void {
+    this.useOptimizations = enabled;
+  }
+  
+  /**
+   * Gets the current population prediction
+   * @returns Current population prediction or null
+   */
+  getPopulationPrediction(): PopulationPrediction | null {
+    return this.lastPrediction;
+  }
+  
+  /**
+   * Updates environmental factors
+   * @param factors - New environmental factors
+   */
+  updateEnvironmentalFactors(factors: Partial<EnvironmentalFactors>): void {
+    this.environmentalFactors = { ...this.environmentalFactors, ...factors };
+    this.populationPredictor.updateEnvironmentalFactors(factors);
+  }
+  
+  /**
+   * Gets current environmental factors
+   * @returns Current environmental factors
+   */
+  getEnvironmentalFactors(): EnvironmentalFactors {
+    return { ...this.environmentalFactors };
+  }
+  
+  /**
+   * Gets algorithm performance statistics
+   * @returns Performance statistics
+   */
+  getAlgorithmPerformanceStats(): {
+    spatialPartitioning: any;
+    batchProcessor: any;
+    workerManager: any;
+  } {
+    return {
+      spatialPartitioning: this.spatialPartitioning.getDebugInfo(),
+      batchProcessor: this.batchProcessor.getPerformanceStats(),
+      workerManager: algorithmWorkerManager.getPerformanceStats()
     };
   }
 }

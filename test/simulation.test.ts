@@ -18,9 +18,31 @@ describe('OrganismSimulation', () => {
   let originalLocalStorage: any
 
   beforeEach(() => {
-    // Create a valid mock canvas element
+    // Mock the canvas container element
+    const mockCanvasContainer = document.createElement('div');
+    mockCanvasContainer.id = 'canvas-container';
+    document.body.appendChild(mockCanvasContainer);
+
+    // Create a mock canvas element with proper methods
     mockCanvas = document.createElement('canvas');
-    vi.spyOn(mockCanvas, 'getContext');
+    mockCanvas.width = 800;
+    mockCanvas.height = 600;
+    
+    // Mock the 2D context
+    const mockContext = {
+      fillStyle: '',
+      fillRect: vi.fn(),
+      clearRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      lineTo: vi.fn(),
+      moveTo: vi.fn(),
+      canvas: mockCanvas
+    };
+    
+    vi.spyOn(mockCanvas, 'getContext').mockReturnValue(mockContext as unknown as CanvasRenderingContext2D);
 
     // Initialize the simulation instance with required arguments
     simulation = new OrganismSimulation(mockCanvas, ORGANISM_TYPES.bacteria);
