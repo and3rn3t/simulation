@@ -127,6 +127,10 @@ export class PerformanceProfiler {
     console.log('🗑️ Cleared all profiling sessions');
   }
 
+  isProfiling(): boolean {
+    return this.isProfilering;
+  }
+
   // Call this method in your main animation loop
   trackFrame(): void {
     if (!this.isProfilering) return;

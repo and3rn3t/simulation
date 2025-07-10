@@ -17,6 +17,11 @@ initializeGlobalErrorHandlers();
 // Initialize components
 const memoryPanelComponent = new MemoryPanelComponent();
 
+// Development tools (lazy loaded)
+let debugMode: any = null;
+let devConsole: any = null;
+let performanceProfiler: any = null;
+
 // Simulation state
 let isSimulationRunning = false;
 let simulationInterval: number | null = null;
@@ -303,6 +308,11 @@ function clearCanvas(): void {
 function animationLoop(): void {
   if (!isSimulationRunning) return;
   
+  // Performance profiling - track frame
+  if (performanceProfiler && import.meta.env.DEV) {
+    performanceProfiler.trackFrame();
+  }
+  
   // Speed control - only update simulation every N frames based on speed
   const frameSkip = Math.max(1, 11 - simulationSpeed); // Higher speed = fewer frames to skip
   
@@ -320,6 +330,24 @@ function animationLoop(): void {
   // Update stats occasionally
   if (frameCounter % 30 === 0) {
     updateStats();
+  }
+  
+  // Update debug info
+  if (debugMode && import.meta.env.DEV && frameCounter % 60 === 0) {
+    debugMode.updateInfo({
+      fps: Math.round(1000 / (performance.now() - frameCounter)),
+      frameTime: performance.now(),
+      organismCount: organisms.length,
+      memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
+      canvasOperations: organisms.length * 2, // Rough estimate
+      simulationTime: Date.now(),
+      lastUpdate: performance.now()
+    });
+  }
+  
+  // Track frame for debug mode
+  if (debugMode && import.meta.env.DEV) {
+    debugMode.trackFrame();
   }
   
   // Continue loop
@@ -416,5 +444,128 @@ function updateStats(): void {
   const avgAgeElement = document.getElementById('avg-age');
   if (avgAgeElement) {
     avgAgeElement.textContent = avgAge.toString();
+  }
+}
+
+// Development tools keyboard shortcuts
+function setupDevKeyboardShortcuts(): void {
+  document.addEventListener('keydown', (event) => {
+    // Only handle shortcuts if not typing in an input field
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+    
+    // F1 - Show/Hide keyboard shortcuts help
+    if (event.key === 'F1') {
+      event.preventDefault();
+      toggleShortcutsHelp();
+    }
+    
+    // F12 - Toggle Developer Console
+    if (event.key === 'F12') {
+      event.preventDefault();
+      if (devConsole) {
+        devConsole.toggle();
+      }
+    }
+    
+    // F11 - Toggle Debug Mode
+    if (event.key === 'F11') {
+      event.preventDefault();
+      if (debugMode) {
+        if (debugMode.isDebugEnabled()) {
+          debugMode.disable();
+        } else {
+          debugMode.enable();
+        }
+      }
+    }
+    
+    // Ctrl+Shift+P - Start/Stop Performance Profiling
+    if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+      event.preventDefault();
+      if (performanceProfiler) {
+        if (performanceProfiler.isProfiling()) {
+          performanceProfiler.stopProfiling();
+        } else {
+          performanceProfiler.startProfiling();
+        }
+      }
+    }
+    
+    // Ctrl+Shift+D - Toggle all development tools
+    if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+      event.preventDefault();
+      if (debugMode && devConsole) {
+        const shouldEnable = !debugMode.isDebugEnabled();
+        if (shouldEnable) {
+          debugMode.enable();
+          devConsole.show();
+        } else {
+          debugMode.disable();
+          devConsole.hide();
+        }
+      }
+    }
+  });
+}
+
+function toggleShortcutsHelp(): void {
+  let helpPanel = document.getElementById('dev-shortcuts-help');
+  
+  if (helpPanel) {
+    helpPanel.remove();
+  } else {
+    helpPanel = document.createElement('div');
+    helpPanel.id = 'dev-shortcuts-help';
+    helpPanel.className = 'dev-shortcuts show';
+    helpPanel.innerHTML = `
+      <h4>🔧 Development Tools Shortcuts</h4>
+      <ul>
+        <li><kbd>F1</kbd> - Toggle this help</li>
+        <li><kbd>F11</kbd> - Toggle Debug Mode</li>
+        <li><kbd>F12</kbd> - Toggle Developer Console</li>
+        <li><kbd>Ctrl+Shift+P</kbd> - Performance Profiling</li>
+        <li><kbd>Ctrl+Shift+D</kbd> - Toggle All Dev Tools</li>
+      </ul>
+    `;
+    
+    document.body.appendChild(helpPanel);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      if (helpPanel) {
+        helpPanel.remove();
+      }
+    }, 5000);
+  }
+}
+
+// Load dev tools in development mode
+if (import.meta.env.DEV) {
+  console.log('🔧 Loading development tools...');
+  import('./dev/index').then((module) => {
+    debugMode = module.DebugMode.getInstance();
+    devConsole = module.DeveloperConsole.getInstance();
+    performanceProfiler = module.PerformanceProfiler.getInstance();
+    
+    // Set up keyboard shortcuts
+    setupDevKeyboardShortcuts();
+    
+    console.log('✅ Development tools loaded successfully');
+  }).catch((error) => {
+    console.error('❌ Failed to load development tools:', error);
+  });
+  
+  // Hot reload support
+  if (import.meta.hot) {
+    import.meta.hot.accept('./dev/index', (newModule) => {
+      if (newModule) {
+        debugMode = newModule.DebugMode.getInstance();
+        devConsole = newModule.DeveloperConsole.getInstance();
+        performanceProfiler = newModule.PerformanceProfiler.getInstance();
+        console.log('🔄 Development tools reloaded');
+      }
+    });
   }
 }

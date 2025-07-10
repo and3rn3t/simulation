@@ -3,6 +3,9 @@
  * Centralizes all development and debugging tools
  */
 
+// Import dev tools styles
+import './dev-tools.css';
+
 export { DebugMode } from './debugMode';
 export { DeveloperConsole } from './developerConsole';
 export { PerformanceProfiler } from './performanceProfiler';

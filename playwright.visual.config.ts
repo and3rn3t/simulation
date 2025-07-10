@@ -40,12 +40,10 @@ export default defineConfig({
 
   // Visual testing specific configuration
   expect: {
-    // Threshold for visual comparisons
-    threshold: 0.2,
-    // Animation handling
+    // Animation handling and visual comparison threshold for screenshots
     toHaveScreenshot: {
-      threshold: 0.2,
-      mode: 'disabled' // Disable animations for consistent screenshots
+      maxDiffPixelRatio: 0.2,
+      animations: 'disabled' // Disable animations for consistent screenshots
     }
   }
 });

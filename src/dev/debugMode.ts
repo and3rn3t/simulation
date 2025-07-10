@@ -65,6 +65,10 @@ export class DebugMode {
     }
   }
 
+  isDebugEnabled(): boolean {
+    return this.isEnabled;
+  }
+
   updateInfo(info: Partial<DebugInfo>): void {
     Object.assign(this.debugInfo, info);
     this.debugInfo.lastUpdate = performance.now();

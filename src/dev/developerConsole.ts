@@ -55,6 +55,10 @@ export class DeveloperConsole {
     }
   }
 
+  isConsoleVisible(): boolean {
+    return this.isVisible;
+  }
+
   registerCommand(command: ConsoleCommand): void {
     this.commands.set(command.name, command);
   }
@@ -69,6 +73,26 @@ export class DeveloperConsole {
     
     this.outputElement.appendChild(logEntry);
     this.outputElement.scrollTop = this.outputElement.scrollHeight;
+  }
+
+  async executeCommand(input: string): Promise<string> {
+    const [commandName, ...args] = input.trim().split(' ');
+    
+    if (!commandName) {
+      return '';
+    }
+    
+    const command = this.commands.get(commandName.toLowerCase());
+    if (!command) {
+      return `Unknown command: ${commandName}. Type "help" for available commands.`;
+    }
+    
+    try {
+      const result = await command.execute(args);
+      return result || '';
+    } catch (error) {
+      return `Error executing command: ${error}`;
+    }
   }
 
   private createConsoleElement(): void {
@@ -206,7 +230,7 @@ export class DeveloperConsole {
     if (e.key === 'Enter') {
       const input = this.inputElement?.value.trim();
       if (input) {
-        this.executeCommand(input);
+        this.executeCommandInternal(input);
         this.commandHistory.unshift(input);
         this.historyIndex = -1;
         this.inputElement!.value = '';
@@ -229,7 +253,7 @@ export class DeveloperConsole {
     }
   }
 
-  private async executeCommand(input: string): Promise<void> {
+  private async executeCommandInternal(input: string): Promise<void> {
     const [commandName, ...args] = input.split(' ');
     this.log(`> ${input}`, 'info');
     

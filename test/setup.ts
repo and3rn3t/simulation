@@ -449,3 +449,120 @@ Object.defineProperty(globalThis, 'DOMMatrix', {
   value: MockDOMMatrix,
   configurable: true,
 });
+
+// Mock document.head for dev tools
+Object.defineProperty(globalThis, 'document', {
+  value: {
+    ...globalThis.document,
+    head: {
+      appendChild: vi.fn(),
+      removeChild: vi.fn(),
+    },
+    body: {
+      appendChild: vi.fn(),
+      removeChild: vi.fn(),
+    },
+    createElement: vi.fn((tag: string) => {
+      const element = {
+        id: '',
+        className: '',
+        innerHTML: '',
+        style: {},
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        appendChild: vi.fn(),
+        removeChild: vi.fn(),
+        remove: vi.fn(),
+        scrollTop: 0,
+        scrollHeight: 0,
+        tagName: tag.toUpperCase(),
+        textContent: '',
+        value: '',
+        focus: vi.fn(),
+        blur: vi.fn(),
+        click: vi.fn(),
+        getAttribute: vi.fn(),
+        setAttribute: vi.fn(),
+        removeAttribute: vi.fn(),
+        querySelectorAll: vi.fn(() => []),
+        querySelector: vi.fn(() => null),
+        closest: vi.fn(() => null),
+        matches: vi.fn(() => false),
+      };
+      return element;
+    }),
+    getElementById: vi.fn(() => null),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    querySelectorAll: vi.fn(() => []),
+    querySelector: vi.fn(() => null),
+    readyState: 'complete',
+    title: '',
+    URL: 'http://localhost:3000',
+    location: {
+      href: 'http://localhost:3000',
+      origin: 'http://localhost:3000',
+      protocol: 'http:',
+      host: 'localhost:3000',
+      hostname: 'localhost',
+      port: '3000',
+      pathname: '/',
+      search: '',
+      hash: '',
+    },
+  },
+  configurable: true,
+});
+
+// Mock window for dev tools
+Object.defineProperty(globalThis, 'window', {
+  value: {
+    ...globalThis.window,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    location: {
+      href: 'http://localhost:3000',
+      origin: 'http://localhost:3000',
+      protocol: 'http:',
+      host: 'localhost:3000',
+      hostname: 'localhost',
+      port: '3000',
+      pathname: '/',
+      search: '',
+      hash: '',
+    },
+    setInterval: vi.fn(),
+    clearInterval: vi.fn(),
+    setTimeout: vi.fn(),
+    clearTimeout: vi.fn(),
+    console: {
+      log: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+    },
+  },
+  configurable: true,
+});
+
+// Mock performance for dev tools
+Object.defineProperty(globalThis, 'performance', {
+  value: {
+    now: vi.fn(() => Date.now()),
+    memory: {
+      usedJSHeapSize: 1000000,
+      totalJSHeapSize: 2000000,
+      jsHeapSizeLimit: 4000000,
+    },
+    getEntriesByType: vi.fn(() => []),
+    getEntriesByName: vi.fn(() => []),
+    mark: vi.fn(),
+    measure: vi.fn(),
+    clearMarks: vi.fn(),
+    clearMeasures: vi.fn(),
+  },
+  configurable: true,
+});

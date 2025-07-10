@@ -163,13 +163,13 @@ This comprehensive TODO list covers various aspects of the organism simulation p
 
 ### **Priority: HIGH**
 
-- [ ] **Development tools**
+- [X] **Development tools**
   - Add debug mode with detailed simulation info
   - Create developer console with commands
   - Implement hot-reloading for rapid development
   - Add performance profiling tools
 
-- [ ] **Testing improvements**
+- [X] **Testing improvements**
   - Increase test coverage to 95%+
   - Add end-to-end testing with Playwright
   - Implement visual regression testing
