@@ -137,53 +137,108 @@ interface OrganismType {
 
 ### OrganismSimulation Class
 
-Main simulation engine that manages the simulation state.
+Main simulation engine that manages organisms, rendering, and game state with performance optimizations.
 
 #### Constructor
 
 ```typescript
-constructor(canvas: HTMLCanvasElement)
+constructor(canvas: HTMLCanvasElement, initialOrganismType: OrganismType)
 ```
 
-#### Methods
+**Parameters:**
+
+- `canvas` - HTML canvas element for rendering
+- `initialOrganismType` - Initial organism type for placement
+
+**Example:**
 
 ```typescript
-// Start the simulation
-start(): void
-
-// Pause the simulation
-pause(): void
-
-// Reset simulation state
-reset(): void
-
-// Add organism at position
-addOrganism(x: number, y: number, type?: OrganismType): void
-
-// Update simulation (called each frame)
-update(deltaTime: number): void
-
-// Render simulation
-render(): void
-
-// Get current statistics
-getStatistics(): SimulationStatistics
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
 ```
 
-#### Events
+#### Core Methods
 
 ```typescript
-// Emitted when simulation starts
-'simulationStarted': () => void
+// Simulation control
+start(): void                    // Start the simulation
+pause(): void                    // Pause the simulation  
+reset(): void                    // Reset to initial state
+clear(): void                    // Clear all organisms
 
-// Emitted when simulation pauses
-'simulationPaused': () => void
+// Configuration
+setSpeed(speed: number): void                      // Set simulation speed (1-10)
+setOrganismType(type: OrganismType): void         // Set organism type for placement
+setMaxPopulation(limit: number): void             // Set population limit (1-5000)
 
-// Emitted when organism is added
-'organismAdded': (organism: Organism) => void
+// State access
+getStats(): SimulationStats                       // Get current simulation statistics
+getOrganismTypeById(id: string): OrganismType | null  // Get organism type by ID
+```
 
-// Emitted when organism dies
-'organismDied': (organism: Organism) => void
+#### Performance Optimization Methods
+
+```typescript
+// Algorithm optimizations
+setOptimizationsEnabled(enabled: boolean): void     // Enable/disable optimizations
+toggleSoAOptimization(enable: boolean): void        // Toggle Structure of Arrays
+getAlgorithmPerformanceStats(): PerformanceStats    // Get performance statistics
+
+// Memory management
+getMemoryStats(): MemoryStats                       // Get memory usage statistics
+```
+
+#### Environmental Control
+
+```typescript
+// Environmental factors
+updateEnvironmentalFactors(factors: Partial<EnvironmentalFactors>): void
+getEnvironmentalFactors(): EnvironmentalFactors
+getPopulationPrediction(): PopulationPrediction | null
+```
+
+#### Simulation Statistics
+
+```typescript
+interface SimulationStats {
+  population: number;      // Current population count
+  generation: number;      // Current generation number
+  isRunning: boolean;      // Whether simulation is running
+  placementMode: boolean;  // Whether in placement mode
+}
+```
+
+#### Usage Examples
+
+```typescript
+// Basic simulation setup
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+
+// Configure simulation
+simulation.setSpeed(5);
+simulation.setMaxPopulation(200);
+
+// Enable performance optimizations
+simulation.setOptimizationsEnabled(true);
+simulation.toggleSoAOptimization(true);
+
+// Start simulation
+simulation.start();
+
+// Monitor statistics
+setInterval(() => {
+  const stats = simulation.getStats();
+  console.log(`Population: ${stats.population}, Generation: ${stats.generation}`);
+}, 1000);
+
+// Get performance data
+const perfStats = simulation.getAlgorithmPerformanceStats();
+console.log('Performance stats:', perfStats);
+
+// Get memory usage
+const memStats = simulation.getMemoryStats();
+console.log('Memory usage:', memStats);
 ```
 
 ### Services
