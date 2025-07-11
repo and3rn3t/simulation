@@ -9,7 +9,7 @@ const { execSync } = require('child_process');
 // __dirname is available as a global variable in CommonJS modules
 
 const environment = process.argv[2] || 'development';
-const projectRoot = path.join(__dirname, '..');
+const projectRoot = path.join(__dirname, '..', '..');
 
 console.log(`🔧 Setting up environment: ${environment}`);
 

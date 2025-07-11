@@ -5,13 +5,9 @@
  * Validates GitHub and Cloudflare environment setup for CI/CD pipeline
  */
 
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 
 console.log('🔍 Environment Configuration Checker');
 console.log('=====================================');
@@ -66,7 +62,7 @@ function checkCurrentBranch() {
 
 // Check CI/CD workflow file
 function checkWorkflowFile() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ci-cd.yml');
+  const workflowPath = path.join(__dirname, '..', '..', '.github', 'workflows', 'ci-cd.yml');
   
   if (fs.existsSync(workflowPath)) {
     console.log('✅ CI/CD workflow file exists');
@@ -75,7 +71,7 @@ function checkWorkflowFile() {
     
     // Check for environment references
     const hasStaging = content.includes('name: staging');
-    const hasProduction = content.includes('environment: production');
+    const hasProduction = content.includes('name: production');
     const hasCloudflareAction = content.includes('cloudflare/pages-action');
     
     console.log(`${hasStaging ? '✅' : '❌'} Staging environment configured`);
@@ -91,7 +87,7 @@ function checkWorkflowFile() {
 
 // Check Cloudflare configuration
 function checkCloudflareConfig() {
-  const wranglerPath = path.join(__dirname, '..', 'wrangler.toml');
+  const wranglerPath = path.join(__dirname, '..', '..', 'wrangler.toml');
   
   if (fs.existsSync(wranglerPath)) {
     console.log('✅ Cloudflare wrangler.toml exists');
@@ -119,7 +115,7 @@ function checkEnvironmentFiles() {
   const results = {};
   
   envFiles.forEach(file => {
-    const filePath = path.join(__dirname, '..', file);
+    const filePath = path.join(__dirname, '..', '..', file);
     const exists = fs.existsSync(filePath);
     console.log(`${exists ? '✅' : '⚠️'} ${file} ${exists ? 'exists' : 'missing'}`);
     results[file] = exists;
@@ -130,7 +126,7 @@ function checkEnvironmentFiles() {
 
 // Check package.json scripts
 function checkPackageScripts() {
-  const packagePath = path.join(__dirname, '..', 'package.json');
+  const packagePath = path.join(__dirname, '..', '..', 'package.json');
   
   if (fs.existsSync(packagePath)) {
     const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));

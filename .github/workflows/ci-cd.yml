@@ -129,7 +129,7 @@ jobs:
     
     - name: Configure staging environment
       run: |
-        node scripts/setup-env.js staging
+        node scripts/env/setup-env.cjs staging
         echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
         echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
     
@@ -173,7 +173,7 @@ jobs:
     
     - name: Configure production environment
       run: |
-        node scripts/setup-env.js production
+        node scripts/env/setup-env.cjs production
         echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
         echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
     

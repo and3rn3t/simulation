@@ -12,7 +12,7 @@ const environment = process.argv[2] || 'staging';
 const version = process.argv[3] || 'latest';
 const dryRun = process.argv[4] === 'true';
 
-const projectRoot = path.join(__dirname, '..');
+const projectRoot = path.join(__dirname, '..', '..');
 const buildDir = path.join(projectRoot, 'dist');
 
 console.log(`🚀 Starting deployment to ${environment}`);
