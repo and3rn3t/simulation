@@ -11,7 +11,7 @@ This file is created to test the staging deployment workflow.
 **What should happen:**
 
 1. GitHub Actions detects push to `develop` branch
-2. Runs the CI/CD pipeline 
+2. Runs the CI/CD pipeline
 3. Deploys to Cloudflare Pages preview environment
 4. Creates a preview URL for testing
 

@@ -5,13 +5,11 @@
  * Tests and validates the staging deployment workflow
  */
 
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname is available as a global variable in Node.js
 
 console.log('🧪 Preview/Staging Deployment Tester');
 console.log('====================================\n');
@@ -59,7 +57,7 @@ function checkDevelopBranch() {
         if (localCommit !== remoteCommit) {
           console.log('💡 Run: git checkout develop && git pull origin develop');
         }
-      } catch (error) {
+      } catch {
         console.log('⚠️  Could not check remote develop branch');
       }
     }
@@ -169,6 +167,9 @@ function main() {
   }
   
   checkStagingConfig();
+
+  // Automatically test staging deployment workflow
+  testStagingWorkflow();
   
   console.log('\n🎯 Next Steps:');
   console.log('1. Check GitHub Actions: https://github.com/and3rn3t/simulation/actions');

@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 // Environment Setup Script (Node.js ES Modules)
 // Configures the build environment and loads appropriate environment variables
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname is available as a global variable in CommonJS modules
 
 const environment = process.argv[2] || 'development';
 const projectRoot = path.join(__dirname, '..');
@@ -50,7 +47,7 @@ try {
   const gitCommit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
   buildMetadata.push(`VITE_GIT_COMMIT=${gitCommit}`);
   console.log(`📝 Added git commit: ${gitCommit.substring(0, 8)}`);
-} catch (error) {
+} catch {
   console.log('⚠️  Git not available or not in a git repository');
 }
 

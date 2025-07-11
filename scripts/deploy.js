@@ -3,12 +3,10 @@
 // Deployment Script for Organism Simulation
 // Handles deployment to different environments
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const fs = require('fs');
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname is available as a global variable in Node.js
 
 const environment = process.argv[2] || 'staging';
 const version = process.argv[3] || 'latest';
@@ -79,7 +77,7 @@ switch (environment) {
     }
     break;
     
-  case 'production':
+  case 'production': {
     console.log('📦 Deploying to production environment...');
     
     // Additional production safety checks
@@ -126,6 +124,7 @@ switch (environment) {
       console.log('🔗 URL: https://organism-simulation.com');
     }
     break;
+  }
 }
 
 console.log(`🎉 Deployment to ${environment} completed successfully!`);
