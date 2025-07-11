@@ -31,11 +31,33 @@ const targetFile = path.join(projectRoot, '.env');
 
 if (!fs.existsSync(envFile)) {
   console.error(`❌ Environment file not found: ${envFile}`);
-  process.exit(1);
-}
 
-console.log(`📋 Copying ${envFile} to ${targetFile}`);
-fs.copyFileSync(envFile, targetFile);
+  // Try to find the file in the environments directory
+  const altEnvFile = path.join(projectRoot, 'environments', environment, `.env.${environment}`);
+  if (fs.existsSync(altEnvFile)) {
+    console.log(`📋 Found environment file at: ${altEnvFile}`);
+    console.log(`📋 Copying ${altEnvFile} to ${targetFile}`);
+    fs.copyFileSync(altEnvFile, targetFile);
+  } else {
+    console.error(`❌ Alternative environment file also not found: ${altEnvFile}`);
+    console.log('📝 Creating basic environment file...');
+
+    // Create a basic environment file
+    const basicEnv = [
+      `NODE_ENV=${environment}`,
+      `VITE_APP_NAME=Organism Simulation`,
+      `VITE_APP_VERSION=1.0.0`,
+      `VITE_ENVIRONMENT=${environment}`,
+      '',
+    ].join('\n');
+
+    fs.writeFileSync(targetFile, basicEnv);
+    console.log(`✅ Created basic environment file: ${targetFile}`);
+  }
+} else {
+  console.log(`📋 Copying ${envFile} to ${targetFile}`);
+  fs.copyFileSync(envFile, targetFile);
+}
 
 // Add build metadata
 const buildMetadata = [

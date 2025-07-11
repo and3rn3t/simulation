@@ -19,6 +19,9 @@
     "test:performance": "vitest run --config vitest.performance.config.ts",
     "test:visual": "playwright test --config playwright.visual.config.ts",
     "test:visualization": "node scripts/test/run-visualization-tests.cjs",
+    "test:smoke": "node scripts/test/smoke-test.cjs",
+    "test:smoke:staging": "node scripts/test/smoke-test.cjs staging",
+    "test:smoke:production": "node scripts/test/smoke-test.cjs production",
     "lint": "eslint src/ --ext .ts,.tsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx --fix",
     "format": "prettier --write src/ test/ e2e/",
@@ -56,6 +59,7 @@
     "docker:prod": "docker-compose --profile prod up",
     "sonar": "sonar-scanner",
     "ci": "npm run quality:check && npm run test:coverage && npm run test:e2e",
+    "ci:validate": "node scripts/test/validate-pipeline.cjs",
     "wrangler:validate": "node scripts/validate-wrangler.js",
     "domain:setup": "node scripts/setup-custom-domain.js",
     "workflow:validate": "node scripts/validate-workflow.js"
