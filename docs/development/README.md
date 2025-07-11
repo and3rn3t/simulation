@@ -4,26 +4,59 @@ This folder contains development-related documentation including strategies, gui
 
 ## 📁 Contents
 
-- **ERROR_HANDLING_SUMMARY.md** - Error handling strategies and implementation
-- **MEMORY_MANAGEMENT_SUMMARY.md** - Memory management techniques and optimizations
-- **LOGGING_STRATEGY.md** - Logging implementation and best practices
-- **PROJECT_TODO_LIST.md** - Current development tasks and future enhancements
+### **🚀 Project Planning & Vision**
+
+- **[PRODUCT_ROADMAP.md](./PRODUCT_ROADMAP.md)** - Comprehensive 18-month product roadmap (2025-2026)
+- **[IMMEDIATE_TODOS.md](./IMMEDIATE_TODOS.md)** - Specific actionable tasks for next 90 days
+- **[VISION_SUMMARY.md](./VISION_SUMMARY.md)** - Quick overview of project vision and goals
+- **[PROJECT_TODO_LIST.md](./PROJECT_TODO_LIST.md)** - Detailed technical TODO list (legacy)
+
+### **🛠️ Technical Implementation**
+
+- **[ERROR_HANDLING_SUMMARY.md](./ERROR_HANDLING_SUMMARY.md)** - Error handling strategies and implementation
+- **[MEMORY_MANAGEMENT_SUMMARY.md](./MEMORY_MANAGEMENT_SUMMARY.md)** - Memory management techniques and optimizations
+- **[LOGGING_STRATEGY.md](./LOGGING_STRATEGY.md)** - Logging implementation and best practices
 
 ## 🎯 Purpose
 
 These documents provide:
 
-- Development guidelines and best practices
-- Technical strategies for common challenges
-- Planning and task management
-- Implementation guidance for developers
+- **Strategic Direction**: Long-term vision and roadmap planning
+- **Immediate Action Items**: Concrete next steps for contributors
+- **Technical Guidelines**: Development best practices and strategies
+- **Implementation Guidance**: Detailed how-to documentation
 
-## 📝 Usage
+## 📝 Quick Start Guide
 
-Refer to these documents when:
+### **For New Contributors**
 
-- Implementing error handling
-- Optimizing memory usage
-- Setting up logging
-- Planning new features or tasks
-- Following development best practices
+1. **Start Here**: [VISION_SUMMARY.md](./VISION_SUMMARY.md) - Understand what we're building
+2. **Get Specific**: [IMMEDIATE_TODOS.md](./IMMEDIATE_TODOS.md) - Find tasks to work on
+3. **Go Deep**: [PRODUCT_ROADMAP.md](./PRODUCT_ROADMAP.md) - See the full vision
+
+### **For Project Planning**
+
+1. **Strategic Planning**: Use the Product Roadmap for quarterly/yearly planning
+2. **Sprint Planning**: Use Immediate TODOs for weekly/monthly planning
+3. **Technical Decisions**: Reference implementation guides for consistency
+
+### **For Development Work**
+
+1. **Before Coding**: Check relevant technical strategy documents
+2. **During Development**: Follow established patterns and best practices
+3. **After Implementation**: Update TODOs and roadmap progress
+
+## 🌟 Latest Updates
+
+### **January 2025: Major Planning Update**
+
+- **New Product Roadmap**: 18-month vision for transforming into educational platform
+- **Immediate Action Items**: 90-day plan with specific deliverables
+- **Vision Alignment**: Clear direction toward biological education and research tools
+
+### **Key Themes for 2025**
+
+- **Q1**: Enhanced Ecosystem (predator-prey, genetics, environment)
+- **Q2**: Interactive Learning (tutorials, scientific scenarios)
+- **Q3**: Social Ecosystem (sharing, collaboration, community)
+- **Q4**: Research Platform (advanced analytics, real-world integration)
