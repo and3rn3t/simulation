@@ -18,7 +18,7 @@ function checkGitRepository() {
     execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
     console.log('✅ Git repository detected');
     return true;
-  } catch (_) {
+  } catch {
     console.log('❌ Not in a Git repository');
     return false;
   }
@@ -35,7 +35,7 @@ function checkGitHubRemote() {
       console.log('⚠️  GitHub remote might not be correct:', remote);
       return false;
     }
-  } catch (_) {
+  } catch {
     console.log('❌ Could not get Git remote');
     return false;
   }
@@ -54,7 +54,7 @@ function checkCurrentBranch() {
     }
     
     return branch;
-  } catch (error) {
+  } catch {
     console.log('❌ Could not determine current branch');
     return null;
   }
