@@ -1,0 +1,71 @@
+{
+  "name": "Organism Simulation Roadmap 2025-2026",
+  "description": "Track progress on transforming the simulation into a comprehensive biological education platform",
+  "views": [
+    {
+      "name": "Roadmap Timeline",
+      "type": "roadmap",
+      "group_by": "milestone",
+      "sort_by": "created_at"
+    },
+    {
+      "name": "Current Sprint",
+      "type": "board",
+      "filter": "is:open label:\"priority:high\",\"priority:critical\"",
+      "columns": [
+        "Backlog",
+        "In Progress",
+        "Review",
+        "Done"
+      ]
+    },
+    {
+      "name": "By Feature Area",
+      "type": "table",
+      "group_by": "labels",
+      "filter": "is:open",
+      "fields": [
+        "title",
+        "assignees",
+        "labels",
+        "milestone",
+        "priority",
+        "effort"
+      ]
+    }
+  ],
+  "custom_fields": [
+    {
+      "name": "Priority",
+      "type": "single_select",
+      "options": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    {
+      "name": "Effort",
+      "type": "single_select",
+      "options": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
+    },
+    {
+      "name": "Feature Area",
+      "type": "single_select",
+      "options": [
+        "Ecosystem",
+        "Education",
+        "Performance",
+        "UI/UX",
+        "Infrastructure"
+      ]
+    }
+  ]
+}

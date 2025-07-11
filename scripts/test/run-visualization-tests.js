@@ -7,10 +7,13 @@
  * that were implemented for the organism simulation project.
  */
 
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const { fileURLToPath } = require('url');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 console.log('🧪 Running Enhanced Visualization & User Preferences Tests\n');
@@ -174,8 +177,8 @@ function verifyFeatureImplementation() {
 // main() function removed because it was defined but never used.
 
 // If running directly (not imported), run all tests
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   runAllTests();
 }
 
-module.exports = { runAllTests, verifyFeatureImplementation };
+export { runAllTests, verifyFeatureImplementation };

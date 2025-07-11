@@ -1,0 +1,92 @@
+[
+  {
+    "name": "priority:critical",
+    "color": "d73a49",
+    "description": "Critical priority - immediate attention needed"
+  },
+  {
+    "name": "priority:high",
+    "color": "ff6b35",
+    "description": "High priority - important feature or fix"
+  },
+  {
+    "name": "priority:medium",
+    "color": "fbca04",
+    "description": "Medium priority - standard development work"
+  },
+  {
+    "name": "priority:low",
+    "color": "28a745",
+    "description": "Low priority - nice to have"
+  },
+  {
+    "name": "area:ecosystem",
+    "color": "1f77b4",
+    "description": "Ecosystem and organism simulation features"
+  },
+  {
+    "name": "area:education",
+    "color": "ff7f0e",
+    "description": "Educational content and tutorials"
+  },
+  {
+    "name": "area:performance",
+    "color": "2ca02c",
+    "description": "Performance optimization and efficiency"
+  },
+  {
+    "name": "area:ui",
+    "color": "d62728",
+    "description": "User interface and user experience"
+  },
+  {
+    "name": "area:infrastructure",
+    "color": "9467bd",
+    "description": "Build, deployment, and infrastructure"
+  },
+  {
+    "name": "epic",
+    "color": "0052cc",
+    "description": "Large feature spanning multiple issues"
+  },
+  {
+    "name": "task",
+    "color": "0e8a16",
+    "description": "Specific implementation task"
+  },
+  {
+    "name": "bug",
+    "color": "d73a49",
+    "description": "Bug report or issue"
+  },
+  {
+    "name": "enhancement",
+    "color": "84b6eb",
+    "description": "New feature or improvement"
+  },
+  {
+    "name": "effort:XS",
+    "color": "f9f9f9",
+    "description": "1-2 days of work"
+  },
+  {
+    "name": "effort:S",
+    "color": "bfe5bf",
+    "description": "3-5 days of work"
+  },
+  {
+    "name": "effort:M",
+    "color": "ffeaa7",
+    "description": "1-2 weeks of work"
+  },
+  {
+    "name": "effort:L",
+    "color": "fab1a0",
+    "description": "2-4 weeks of work"
+  },
+  {
+    "name": "effort:XL",
+    "color": "fd79a8",
+    "description": "1-2 months of work"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Q3 2025: Enhanced Ecosystem",
+    "description": "Advanced organism behaviors, environmental factors, and enhanced visualization",
+    "due_on": "2025-09-30",
+    "state": "open"
+  },
+  {
+    "title": "Q4 2025: Interactive Learning",
+    "description": "Educational content platform and save/load system",
+    "due_on": "2025-12-31",
+    "state": "open"
+  },
+  {
+    "title": "Q1 2026: Social Ecosystem",
+    "description": "Multiplayer features and community content creation",
+    "due_on": "2026-03-31",
+    "state": "open"
+  },
+  {
+    "title": "Q2 2026: Research Platform",
+    "description": "Advanced analytics and real-world integration",
+    "due_on": "2026-06-30",
+    "state": "open"
+  }
+]

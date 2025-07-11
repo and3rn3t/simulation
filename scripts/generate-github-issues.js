@@ -7,8 +7,12 @@
  * automatically with proper labels, milestones, and project assignments.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // GitHub API configuration (you'll need to add your token)
 const GITHUB_CONFIG = {
@@ -339,8 +343,11 @@ function generateProjectConfig() {
   console.log(`Generated project configuration in ${outputFile}`);
 }
 
-// Main execution
-if (require.main === module) {
+// Main execution - check if this file is being run directly
+const isMainModule = import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || 
+                     import.meta.url.includes('generate-github-issues.js');
+
+if (isMainModule) {
   console.log('🚀 Generating GitHub project management files...\n');
   
   outputIssuesForManualCreation();
@@ -357,7 +364,7 @@ if (require.main === module) {
   console.log('4. Assign issues to the project and appropriate milestones');
 }
 
-module.exports = {
+export {
   generateAllIssues,
   generateEpicIssue,
   generateTaskIssue,

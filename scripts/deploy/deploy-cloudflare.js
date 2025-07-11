@@ -5,7 +5,15 @@
  * Helps set up and deploy to Cloudflare Pages
  */
 
-const { execSync } = require('child_process');
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import fs from 'fs';
+import { execSync } from 'child_process';
+
 const { writeFileSync, existsSync } = require('fs');
 
 // const __filename = fileURLToPath(require.main.filename);

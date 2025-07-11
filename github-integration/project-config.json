@@ -1,0 +1,80 @@
+{
+  "name": "Organism Simulation Roadmap 2025-2026",
+  "description": "Project management for the organism simulation game development roadmap",
+  "template": "table",
+  "custom_fields": [
+    {
+      "name": "Priority",
+      "data_type": "single_select",
+      "options": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    {
+      "name": "Quarter",
+      "data_type": "single_select",
+      "options": [
+        "Q3 2025",
+        "Q4 2025",
+        "Q1 2026",
+        "Q2 2026"
+      ]
+    },
+    {
+      "name": "Feature Area",
+      "data_type": "single_select",
+      "options": [
+        "Ecosystem",
+        "Education",
+        "Performance",
+        "UI/UX",
+        "Infrastructure"
+      ]
+    },
+    {
+      "name": "Effort",
+      "data_type": "single_select",
+      "options": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "Roadmap Timeline",
+      "layout": "roadmap",
+      "group_by": "milestone",
+      "sort_by": "created"
+    },
+    {
+      "name": "Current Sprint",
+      "layout": "board",
+      "filter": "is:open label:\"priority:high\",\"priority:critical\"",
+      "columns": [
+        "To do",
+        "In progress",
+        "Review",
+        "Done"
+      ]
+    },
+    {
+      "name": "By Feature Area",
+      "layout": "table",
+      "group_by": "Feature Area",
+      "fields": [
+        "Title",
+        "Assignees",
+        "Labels",
+        "Priority",
+        "Effort"
+      ]
+    }
+  ]
+}

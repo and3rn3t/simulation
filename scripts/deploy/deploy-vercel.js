@@ -5,8 +5,9 @@
  * Sets up environment variables and deploys to Vercel
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
+import fs from 'fs';
+import { execSync } from 'child_process';
+
 
 async function deployToVercel() {
   console.log('🚀 Starting Vercel deployment...');
@@ -37,8 +38,8 @@ VITE_APP_VERSION=${process.env.npm_package_version || '1.0.0'}
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   deployToVercel();
 }
 
-module.exports = { deployToVercel };
+export { deployToVercel };

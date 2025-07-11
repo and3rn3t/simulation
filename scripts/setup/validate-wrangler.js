@@ -5,8 +5,12 @@
  * Validates the wrangler.toml file for correct Cloudflare Pages configuration
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // __filename is available as a global variable
 

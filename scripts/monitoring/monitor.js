@@ -3,7 +3,8 @@
 // Deployment Monitor Script
 // Monitors deployment status and sends notifications
 
-const https = require('https');
+import https from 'https';
+
 
 
 const config = {
@@ -162,7 +163,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(error => {
     console.error('💥 Monitor failed:', error);
     process.exit(1);
