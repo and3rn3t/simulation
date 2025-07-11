@@ -1,6 +1,17 @@
 # Organism Simulation Game
 
+🌟 **[Try it Live!](https://organisms.andernet.dev)** 🌟
+
 A web-based interactive simulation that demonstrates how different organisms multiply and divide over time. Watch as populations grow, evolve, and respond to environmental factors with realistic growth and death rates.
+
+## 🎮 Live Demo
+
+**Experience the simulation:** [https://organisms.andernet.dev](https://organisms.andernet.dev)
+
+- ⚡ Blazingly fast global deployment
+- 📱 Mobile-optimized PWA  
+- 🌍 Works offline
+- 🚀 Real-time organism simulation
 
 ## Features
 
