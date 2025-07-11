@@ -6,7 +6,7 @@ import {
   LogCategory,
   log,
   perf
-} from '../src/utils/system/logger';
+} from '../../../src/utils/system/logger';
 
 describe('Logger', () => {
   let logger: Logger;

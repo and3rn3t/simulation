@@ -248,9 +248,9 @@ export class ArrayPool<T> {
    */
   getStats(): { totalPools: number; totalArrays: number } {
     let totalArrays = 0;
-    for (const pool of this.pools.values()) {
+    this.pools.forEach(pool => {
       totalArrays += pool.length;
-    }
+    });
     
     return {
       totalPools: this.pools.size,

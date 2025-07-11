@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { OrganismSimulation } from '../src/core/simulation';
-import { ORGANISM_TYPES } from '../src/models/organismTypes';
-import { ErrorHandler } from '../src/utils/system/errorHandler';
-import { CanvasManager } from '../src/utils/canvas/canvasManager';
+import { OrganismSimulation } from '../../src/core/simulation';
+import { ORGANISM_TYPES } from '../../src/models/organismTypes';
+import { ErrorHandler } from '../../src/utils/system/errorHandler';
+import { CanvasManager } from '../../src/utils/canvas/canvasManager';
 
 // Mock HTML elements for testing
 const mockCanvas = {

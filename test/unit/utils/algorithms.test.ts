@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SpatialPartitioningManager } from '../src/utils/algorithms/spatialPartitioning';
-import { AdaptiveBatchProcessor } from '../src/utils/algorithms/batchProcessor';
-import { PopulationPredictor } from '../src/utils/algorithms/populationPredictor';
-import { algorithmWorkerManager } from '../src/utils/algorithms/workerManager';
-import { Organism } from '../src/core/organism';
-import { ORGANISM_TYPES } from '../src/models/organismTypes';
+import { SpatialPartitioningManager } from '../../../src/utils/algorithms/spatialPartitioning';
+import { AdaptiveBatchProcessor } from '../../../src/utils/algorithms/batchProcessor';
+import { PopulationPredictor } from '../../../src/utils/algorithms/populationPredictor';
+import { algorithmWorkerManager } from '../../../src/utils/algorithms/workerManager';
+import { Organism } from '../../../src/core/organism';
+import { ORGANISM_TYPES } from '../../../src/models/organismTypes';
 
 describe('Algorithm Optimizations', () => {
   describe('SpatialPartitioningManager', () => {

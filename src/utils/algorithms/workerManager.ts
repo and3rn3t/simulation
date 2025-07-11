@@ -71,10 +71,14 @@ export class AlgorithmWorkerManager {
 
       // Create worker pool
       for (let i = 0; i < this.workerCount; i++) {
-        const worker = new Worker(
-          new URL('./simulationWorker.ts', import.meta.url),
-          { type: 'module' }
-        );
+        // Use a string path instead of URL constructor for compatibility
+        const workerScript = `
+          import('./simulationWorker.ts').then(module => {
+            // Worker initialization will be handled by the module
+          });
+        `;
+        const blob = new Blob([workerScript], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
         
         worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
           this.handleWorkerMessage(e.data);

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
-import { OrganismSimulation } from '../src/core/simulation';
-import { OrganismType } from '../src/models/organismTypes';
-import { CanvasManager } from '../src/utils/canvas/canvasManager';
+import { OrganismSimulation } from '../../src/core/simulation';
+import { OrganismType } from '../../src/models/organismTypes';
+import { CanvasManager } from '../../src/utils/canvas/canvasManager';
 
 // Mock CanvasManager
 vi.mock('../src/utils/canvas/canvasManager', () => {
