@@ -63,6 +63,9 @@ function initializeApplication(): void {
     const existingErrorDialogs = document.querySelectorAll('.notification, .error-dialog, .alert, .error-notification');
     existingErrorDialogs.forEach(dialog => dialog.remove());
     
+    // Setup mobile optimizations early
+    setupMobileOptimizations();
+    
     // Initialize basic DOM elements
     initializeBasicElements();
     
@@ -398,5 +401,83 @@ if (import.meta.env.DEV) {
         console.log('🔄 Development tools reloaded');
       }
     });
+  }
+}
+
+// Mobile-specific optimizations
+function setupMobileOptimizations(): void {
+  console.log('🔧 Setting up mobile optimizations...');
+  
+  try {
+    // Detect if we're on a mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      console.log('📱 Mobile device detected, applying optimizations...');
+      
+      // Prevent bounce scrolling on iOS
+      document.body.style.overscrollBehavior = 'none';
+      
+      // Improve touch performance
+      document.body.style.touchAction = 'manipulation';
+      
+      // Fix iOS Safari viewport height issues
+      const setVhProperty = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      
+      setVhProperty();
+      window.addEventListener('resize', setVhProperty);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(setVhProperty, 100);
+      });
+      
+      // Optimize canvas for mobile
+      const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+      if (canvas) {
+        // Enable hardware acceleration
+        canvas.style.willChange = 'transform';
+        
+        // Improve touch responsiveness
+        canvas.style.touchAction = 'none';
+        
+        // Set optimal canvas size for mobile
+        const updateCanvasSize = () => {
+          const container = canvas.parentElement;
+          if (container) {
+            const maxWidth = Math.min(container.clientWidth - 20, 400);
+            const aspectRatio = 8/5; // 800x500 original ratio
+            const height = Math.min(maxWidth / aspectRatio, 300);
+            
+            canvas.style.width = `${maxWidth}px`;
+            canvas.style.height = `${height}px`;
+          }
+        };
+        
+        updateCanvasSize();
+        window.addEventListener('resize', updateCanvasSize);
+        window.addEventListener('orientationchange', () => {
+          setTimeout(updateCanvasSize, 100);
+        });
+      }
+      
+      // Add haptic feedback for supported devices
+      if ('vibrate' in navigator) {
+        const addHapticFeedback = (element: Element) => {
+          element.addEventListener('touchstart', () => {
+            navigator.vibrate(10); // Very short vibration
+          });
+        };
+        
+        // Add haptic feedback to buttons
+        document.querySelectorAll('button').forEach(addHapticFeedback);
+      }
+      
+      console.log('✅ Mobile optimizations applied');
+    }
+    
+  } catch (error) {
+    console.error('❌ Failed to setup mobile optimizations:', error);
   }
 }

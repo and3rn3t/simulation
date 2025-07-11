@@ -189,4 +189,57 @@ export class CanvasUtils {
       return { x: 0, y: 0 };
     }
   }
+
+  /**
+   * Gets touch coordinates relative to canvas
+   * @param event - Touch event
+   * @returns Coordinates object
+   */
+  getTouchCoordinates(event: TouchEvent): { x: number; y: number } {
+    try {
+      if (!event || !event.touches || event.touches.length === 0) {
+        throw new CanvasError('Touch event with touches is required');
+      }
+      
+      const rect = this.canvas.getBoundingClientRect();
+      const touch = event.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to get touch coordinates'),
+        ErrorSeverity.MEDIUM,
+        'Canvas touch coordinates'
+      );
+      // Return fallback coordinates
+      return { x: 0, y: 0 };
+    }
+  }
+
+  /**
+   * Gets coordinates from either mouse or touch event
+   * @param event - Mouse or touch event
+   * @returns Coordinates object
+   */
+  getEventCoordinates(event: MouseEvent | TouchEvent): { x: number; y: number } {
+    try {
+      if (event instanceof MouseEvent) {
+        return this.getMouseCoordinates(event);
+      } else if (event instanceof TouchEvent) {
+        return this.getTouchCoordinates(event);
+      } else {
+        throw new CanvasError('Event must be MouseEvent or TouchEvent');
+      }
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new CanvasError('Failed to get event coordinates'),
+        ErrorSeverity.MEDIUM,
+        'Canvas event coordinates'
+      );
+      // Return fallback coordinates
+      return { x: 0, y: 0 };
+    }
+  }
 }

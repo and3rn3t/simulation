@@ -587,6 +587,7 @@ export class OrganismSimulation {
   
   private setupCanvasEvents(): void {
     try {
+      // Mouse events for desktop
       this.canvas.addEventListener('click', (event) => {
         if (this.placementMode) {
           this.placeOrganism(event);
@@ -598,6 +599,27 @@ export class OrganismSimulation {
           this.showPreview(event);
         }
       });
+
+      // Touch events for mobile
+      this.canvas.addEventListener('touchstart', (event) => {
+        event.preventDefault(); // Prevent default touch behavior
+        if (this.placementMode) {
+          this.placeOrganismTouch(event);
+        }
+      });
+
+      this.canvas.addEventListener('touchmove', (event) => {
+        event.preventDefault(); // Prevent scrolling
+        if (this.placementMode) {
+          this.showPreviewTouch(event);
+        }
+      });
+
+      // Prevent context menu on long press
+      this.canvas.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+      });
+
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -645,6 +667,43 @@ export class OrganismSimulation {
     }
   }
   
+  private placeOrganismTouch(event: TouchEvent): void {
+    try {
+      const coords = this.canvasUtils.getTouchCoordinates(event);
+      
+      // Add organism at touched position using object pooling
+      this.organisms.push(this.createOrganism(coords.x, coords.y, this.selectedOrganismType));
+      this.draw();
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.MEDIUM,
+        'Placing organism via touch'
+      );
+    }
+  }
+
+  private showPreviewTouch(event: TouchEvent): void {
+    try {
+      const coords = this.canvasUtils.getTouchCoordinates(event);
+      
+      // Clear the canvas and redraw with preview
+      this.draw();
+      this.canvasUtils.drawPreviewOrganism(
+        coords.x, 
+        coords.y, 
+        this.selectedOrganismType.color, 
+        this.selectedOrganismType.size
+      );
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.LOW,
+        'Showing touch preview'
+      );
+    }
+  }
+
   private updateScore(): void {
     // Calculate score based on various factors
     const populationBonus = this.organisms.length * 2;

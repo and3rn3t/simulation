@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
     <title>Organism Simulation Game</title>
+    
+    <!-- Mobile optimization meta tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2196F3" />
@@ -25,6 +31,15 @@
         background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
         color: white;
         min-height: 100vh;
+        /* Prevent mobile bounce scrolling */
+        overscroll-behavior: none;
+        /* Improve touch responsiveness */
+        touch-action: manipulation;
+        /* Prevent text selection on mobile */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
       #app {
         max-width: 1200px;
@@ -38,6 +53,20 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+      }
+      
+      /* Mobile-specific improvements */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+          /* Fix iOS Safari viewport issues */
+          min-height: -webkit-fill-available;
+        }
+        
+        /* Prevent zoom on input focus for iOS */
+        input, select, textarea {
+          font-size: 16px !important;
+        }
       }
     </style>
   </head>
