@@ -18,6 +18,7 @@ A web-based interactive simulation that demonstrates how different organisms mul
 - **Multiple Organism Types**: Choose from bacteria, yeast, algae, and viruses, each with unique characteristics
 - **Real-time Visualization**: Watch organisms multiply and move in real-time on HTML5 Canvas
 - **Interactive Controls**: Adjust simulation speed, pause, reset, and switch between organism types
+- **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions and Cloudflare Pages
 - **Population Statistics**: Track population size, generation count, and elapsed time
 - **Responsive Design**: Works on desktop and mobile devices
 
