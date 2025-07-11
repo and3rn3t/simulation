@@ -1,4 +1,5 @@
 import type { OrganismType } from './organismTypes';
+import { BehaviorType } from './organismTypes';
 
 /**
  * Represents an organism type that can be unlocked through gameplay
@@ -33,6 +34,10 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     maxAge: 180,
     growthRate: 0.8,
     deathRate: 0.005,
+    behaviorType: BehaviorType.PREY,
+    initialEnergy: 75,
+    maxEnergy: 150,
+    energyConsumption: 1.2,
     unlockCondition: { type: 'achievement', value: 'first-colony' },
     unlocked: false,
   },
