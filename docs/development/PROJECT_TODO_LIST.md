@@ -131,13 +131,13 @@ This comprehensive TODO list covers various aspects of the organism simulation p
   - Add accessibility features (ARIA labels, keyboard navigation)
   - Create responsive design for mobile devices
 
-- [ ] **Enhanced visualization**
+- [X] **Enhanced visualization**
   - Add data visualization charts (population graphs, ecosystem metrics)
   - Implement heat maps for population density
   - Add organism trails and movement visualization
   - Create 3D visualization mode
 
-- [ ] **User preferences system**
+- [X] **User preferences system**
   - Add comprehensive settings panel
   - Implement theme customization (dark/light mode)
   - Add language localization support

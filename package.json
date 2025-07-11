@@ -18,6 +18,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:performance": "vitest run --config vitest.performance.config.ts",
     "test:visual": "playwright test --config playwright.visual.config.ts",
+    "test:visualization": "node scripts/test/run-visualization-tests.cjs",
     "lint": "eslint src/ --ext .ts,.tsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx --fix",
     "format": "prettier --write src/ test/ e2e/",
@@ -83,6 +84,9 @@
   },
   "dependencies": {
     "canvas": "^3.1.2",
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^4.1.0",
     "rxjs": "^7.8.2"
   }
 }

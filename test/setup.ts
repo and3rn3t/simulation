@@ -566,3 +566,84 @@ Object.defineProperty(globalThis, 'performance', {
   },
   configurable: true,
 });
+
+// Mock Chart.js for visualization tests
+vi.mock('chart.js', () => {
+  const mockChart = vi.fn().mockImplementation(() => ({
+    destroy: vi.fn(),
+    update: vi.fn(),
+    render: vi.fn(),
+    resize: vi.fn(),
+    data: { datasets: [] },
+    options: {},
+    canvas: {
+      getContext: vi.fn(() => ({
+        fillRect: vi.fn(),
+        clearRect: vi.fn(),
+        fillText: vi.fn(),
+        measureText: vi.fn(() => ({ width: 12 })),
+      })),
+      width: 800,
+      height: 600,
+    },
+    ctx: {
+      fillRect: vi.fn(),
+      clearRect: vi.fn(),
+      fillText: vi.fn(),
+      measureText: vi.fn(() => ({ width: 12 })),
+    },
+  }));
+
+  return {
+    Chart: Object.assign(mockChart, {
+      register: vi.fn(),
+      defaults: {
+        responsive: true,
+        maintainAspectRatio: false,
+      },
+    }),
+    CategoryScale: vi.fn(),
+    LinearScale: vi.fn(),
+    PointElement: vi.fn(),
+    LineElement: vi.fn(),
+    Title: vi.fn(),
+    Tooltip: vi.fn(),
+    Legend: vi.fn(),
+    Filler: vi.fn(),
+    BarElement: vi.fn(),
+    ArcElement: vi.fn(),
+    registerables: [],
+  };
+});
+
+// Mock Chart.js date adapter
+vi.mock('chartjs-adapter-date-fns', () => ({}));
+
+// Mock window.matchMedia for theme detection
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
