@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Panel Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>Memory Panel Position Test</h1>
+        <div class="test-instructions">
+            <h3>Testing Instructions:</h3>
+            <p>1. You should see a green circular button (📊) in the top-right corner</p>
+            <p>2. Click the button to toggle the memory panel</p>
+            <p>3. The panel should slide in from the right side</p>
+            <p>4. Check the browser console for debug logs</p>
+        </div>
+        
+        <div>
+            <h3>Expected Behavior:</h3>
+            <ul>
+                <li><strong>Initial State:</strong> Only the green toggle button should be visible</li>
+                <li><strong>After Clicking:</strong> Memory panel should slide in from the right</li>
+                <li><strong>Position:</strong> Panel should be positioned in the top-right corner</li>
+                <li><strong>Toggle:</strong> Clicking again should hide the panel</li>
+            </ul>
+        </div>
+        
+        <div>
+            <p>Open the browser console (F12) to see debug information about the memory panel positioning.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Simple test to verify the memory panel is mounted
+        setTimeout(() => {
+            const memoryWrapper = document.querySelector('.memory-panel-wrapper');
+            const memoryToggle = document.querySelector('.memory-toggle-fixed');
+            const memoryPanel = document.querySelector('.memory-panel');
+            
+            console.log('🧪 Memory Panel Test Results:');
+            console.log('- Wrapper found:', !!memoryWrapper);
+            console.log('- Toggle button found:', !!memoryToggle);
+            console.log('- Panel found:', !!memoryPanel);
+            
+            if (memoryWrapper) {
+                const rect = memoryWrapper.getBoundingClientRect();
+                console.log('- Wrapper position:', {
+                    top: rect.top,
+                    right: window.innerWidth - rect.right,
+                    width: rect.width,
+                    height: rect.height
+                });
+            }
+            
+            if (memoryToggle) {
+                const rect = memoryToggle.getBoundingClientRect();
+                console.log('- Toggle position:', {
+                    top: rect.top,
+                    right: window.innerWidth - rect.right,
+                    width: rect.width,
+                    height: rect.height
+                });
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

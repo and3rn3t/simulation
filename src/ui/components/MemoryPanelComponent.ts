@@ -1,5 +1,6 @@
 import { MemoryMonitor } from '../../utils/memory/memoryMonitor';
 import { log } from '../../utils/system/logger';
+import './MemoryPanelComponent.css';
 
 /**
  * Memory management UI component
@@ -154,6 +155,13 @@ export class MemoryPanelComponent {
     if (panel) {
       panel.classList.toggle('visible', this.isVisible);
       console.log('🔄 Panel classes:', panel.className);
+      console.log('🔄 Panel computed style transform:', window.getComputedStyle(panel).transform);
+      console.log('🔄 Panel position:', {
+        top: panel.offsetTop,
+        left: panel.offsetLeft,
+        width: panel.offsetWidth,
+        height: panel.offsetHeight
+      });
     }
     
     if (this.isVisible) {
@@ -250,8 +258,9 @@ export class MemoryPanelComponent {
     console.log('Memory panel element:', this.element);
     console.log('Memory panel classes:', this.element.className);
     
-    // Make the panel visible by default so users can see it
-    this.setVisible(true);
+    // Start with the panel hidden (toggle button visible)
+    this.setVisible(false);
+    console.log('✅ Memory panel mounted and initialized as hidden');
   }
 
   /**
@@ -280,7 +289,20 @@ export class MemoryPanelComponent {
    */
   public setVisible(visible: boolean): void {
     if (visible !== this.isVisible) {
-      this.toggle();
+      console.log(`🔄 Setting memory panel visibility: ${visible}`);
+      this.isVisible = visible;
+      
+      const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+      if (panel) {
+        panel.classList.toggle('visible', this.isVisible);
+        console.log('🔄 Panel classes after toggle:', panel.className);
+      }
+      
+      if (this.isVisible) {
+        this.startUpdating();
+      } else {
+        this.stopUpdating();
+      }
     }
   }
 }

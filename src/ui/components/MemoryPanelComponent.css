@@ -1,56 +1,73 @@
 /* Memory Panel Styles */
-.memory-panel {
+.memory-panel-wrapper {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 1000;
+}
+
+.memory-toggle-fixed {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(76, 175, 80, 0.9) !important;
+  border: 3px solid rgba(76, 175, 80, 1) !important;
+  color: white;
+  cursor: pointer;
+  padding: 16px;
+  border-radius: 50%;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 50px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memory-toggle-fixed:hover {
+  background: rgba(76, 175, 80, 1) !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+}
+
+.memory-panel {
+  position: relative;
   width: 320px;
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid #333;
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #4CAF50;
+  border-radius: 12px;
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  transform: translateX(240px); /* Show more of the toggle button */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(340px); /* Hide completely off-screen */
+  margin-top: 65px; /* Space for the larger fixed toggle button */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .memory-panel.visible {
-  transform: translateX(0);
+  transform: translateX(0); /* Slide into view */
+  box-shadow: 0 12px 40px rgba(76, 175, 80, 0.3);
 }
 
 .memory-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 12px 16px;
   background: rgba(0, 0, 0, 0.8);
-  border-bottom: 1px solid #333;
-  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #444;
+  border-radius: 12px 12px 0 0;
 }
 
 .memory-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-}
-
-.memory-toggle {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  font-size: 18px;
-  transition: all 0.2s;
-  background: rgba(76, 175, 80, 0.8); /* Make it more visible */
-  border: 2px solid rgba(76, 175, 80, 1);
-}
-
-.memory-toggle:hover {
-  background: rgba(76, 175, 80, 1);
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+  color: #4CAF50;
 }
 
 .memory-content {
