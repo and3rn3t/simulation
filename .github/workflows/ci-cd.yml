@@ -109,7 +109,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
-    environment: staging
+    environment:
+      name: staging
     
     steps:
     - uses: actions/checkout@v4
@@ -136,6 +137,7 @@ jobs:
       uses: cloudflare/pages-action@v1
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        # Ensure CLOUDFLARE_API_TOKEN is set in repository secrets: https://github.com/<owner>/<repo>/settings/secrets/actions
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: organism-simulation
         directory: dist
@@ -151,7 +153,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment: production
+    environment:
+      name: production
     
     steps:
     - uses: actions/checkout@v4

@@ -56,7 +56,8 @@
     "sonar": "sonar-scanner",
     "ci": "npm run quality:check && npm run test:coverage && npm run test:e2e",
     "wrangler:validate": "node scripts/validate-wrangler.js",
-    "domain:setup": "node scripts/setup-custom-domain.js"
+    "domain:setup": "node scripts/setup-custom-domain.js",
+    "workflow:validate": "node scripts/validate-workflow.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
