@@ -94,36 +94,58 @@ function initializeBasicElements(): void {
   
   if (canvas) {
     console.log('✅ Canvas found');
+    ctx = canvas.getContext('2d');
     
     // Make canvas interactive
     canvas.style.cursor = 'crosshair';
-    
-    console.log('✅ Canvas setup complete');
+    canvas.addEventListener('click', (event) => {
+      const rect = canvas!.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      console.log('🖱️ Canvas clicked at:', x, y);
+      
+      // Add a new organism at click position
+      addOrganism(x, y);
+    });
   } else {
     console.error('❌ Canvas not found');
   }
   
   if (startBtn) {
     console.log('✅ Start button found');
+    startBtn.addEventListener('click', () => {
+      console.log('▶️ Start button clicked');
+      startSimulation();
+    });
   }
   
   if (pauseBtn) {
     console.log('✅ Pause button found');
+    pauseBtn.addEventListener('click', () => {
+      console.log('⏸️ Pause button clicked');
+      pauseSimulation();
+    });
   }
   
   if (resetBtn) {
     console.log('✅ Reset button found');
+    resetBtn.addEventListener('click', () => {
+      console.log('🔄 Reset button clicked');
+      resetSimulation();
+    });
   }
   
   if (clearBtn) {
     console.log('✅ Clear button found');
+    clearBtn.addEventListener('click', () => {
+      console.log('🗑️ Clear button clicked');
+      clearCanvas();
+    });
   }
   
   if (statsPanel) {
     console.log('✅ Stats panel found');
   }
-  
-  console.log('✅ Basic elements initialized');
 }
 
 function initializeMemoryPanel(): void {
@@ -155,6 +177,9 @@ function initializeGameSystems(): void {
     // Initialize leaderboard display
     leaderboardManager.updateLeaderboardDisplay();
     
+    // Initialize power-up buttons
+    powerUpManager.updatePowerUpButtons();
+    
     // Setup power-up event listeners
     const powerUpButtons = document.querySelectorAll('.buy-powerup');
     powerUpButtons.forEach(button => {
@@ -162,8 +187,8 @@ function initializeGameSystems(): void {
         const target = event.target as HTMLButtonElement;
         const powerUpType = target.getAttribute('data-powerup');
         if (powerUpType && simulation) {
-          const powerUp = powerUpManager.buyPowerUp(powerUpType);
-          if (powerUp) {
+          const success = powerUpManager.purchasePowerUp(powerUpType);
+          if (success) {
             console.log(`✅ Purchased power-up: ${powerUpType}`);
           } else {
             console.log(`❌ Cannot afford power-up: ${powerUpType}`);
@@ -228,31 +253,30 @@ function setupSimulationControls(): void {
     // Setup button event listeners
     if (startBtn && simulation) {
       startBtn.addEventListener('click', () => {
-        if (simulation!.getStats().isRunning) {
+        if (simulation.getStats().isRunning) {
           handleGameOver();
-          simulation!.pause();
         } else {
-          simulation!.start();
+          simulation.start();
         }
       });
     }
     
     if (pauseBtn && simulation) {
       pauseBtn.addEventListener('click', () => {
-        simulation!.pause();
+        simulation.pause();
       });
     }
     
     if (resetBtn && simulation) {
       resetBtn.addEventListener('click', () => {
-        simulation!.reset();
+        simulation.reset();
         leaderboardManager.updateLeaderboardDisplay();
       });
     }
     
     if (clearBtn && simulation) {
       clearBtn.addEventListener('click', () => {
-        simulation!.clear();
+        simulation.clear();
       });
     }
     
@@ -260,7 +284,7 @@ function setupSimulationControls(): void {
     if (speedSlider && speedValue && simulation) {
       speedSlider.addEventListener('input', () => {
         const speed = parseInt(speedSlider.value);
-        simulation!.setSpeed(speed);
+        simulation.setSpeed(speed);
         speedValue.textContent = `${speed}x`;
         console.log('🏃 Speed changed to:', speed);
       });
@@ -269,7 +293,7 @@ function setupSimulationControls(): void {
     if (populationLimitSlider && populationLimitValue && simulation) {
       populationLimitSlider.addEventListener('input', () => {
         const limit = parseInt(populationLimitSlider.value);
-        simulation!.setMaxPopulation(limit);
+        simulation.setMaxPopulation(limit);
         populationLimitValue.textContent = limit.toString();
         console.log('👥 Population limit changed to:', limit);
       });
@@ -277,9 +301,9 @@ function setupSimulationControls(): void {
     
     if (organismSelect && simulation) {
       organismSelect.addEventListener('change', () => {
-        const selectedType = simulation!.getOrganismTypeById(organismSelect.value);
+        const selectedType = simulation.getOrganismTypeById(organismSelect.value);
         if (selectedType) {
-          simulation!.setOrganismType(selectedType);
+          simulation.setOrganismType(selectedType);
           console.log('🦠 Organism type changed to:', organismSelect.value);
         }
       });
@@ -289,7 +313,7 @@ function setupSimulationControls(): void {
     const challengeBtn = document.getElementById('start-challenge-btn');
     if (challengeBtn && simulation) {
       challengeBtn.addEventListener('click', () => {
-        simulation!.startChallenge();
+        simulation.startChallenge();
       });
     }
     
@@ -310,19 +334,13 @@ function handleGameOver(): void {
   
   try {
     const finalStats = simulation.getStats();
-    
-    // Calculate a simple score based on population and generation
-    const score = finalStats.population * 10 + finalStats.generation * 5;
-    
-    // Add entry to leaderboard
     gameStateManager.handleGameOver({
-      score,
       population: finalStats.population,
       generation: finalStats.generation,
       timeElapsed: Math.floor(Date.now() / 1000) // Simple time calculation
     });
     
-    console.log('🏁 Game over handled, leaderboard updated with score:', score);
+    console.log('🏁 Game over handled, leaderboard updated');
     
   } catch (error) {
     console.error('❌ Failed to handle game over:', error);
@@ -334,40 +352,349 @@ function handleGameOver(): void {
   }
 }
 
-// === DEVELOPMENT TOOLS ===
+// === SIMULATION FUNCTIONS ===
 
-function setupDevKeyboardShortcuts(): void {
-  document.addEventListener('keydown', (event) => {
-    // Ctrl/Cmd + Shift + D for debug mode
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D') {
-      event.preventDefault();
-      if (debugMode) {
-        debugMode.toggle();
+function addOrganism(x: number, y: number): void {
+  if (organisms.length >= populationLimit) {
+    console.log('⚠️ Population limit reached');
+    return;
+  }
+  
+  const organism = {
+    x,
+    y,
+    age: 0,
+    size: 3 + Math.random() * 3,
+    vx: (Math.random() - 0.5) * 2,
+    vy: (Math.random() - 0.5) * 2,
+    reproductionTimer: 0,
+    lifespan: 50 + Math.random() * 100
+  };
+  
+  organisms.push(organism);
+  console.log('🦠 Added organism at', x, y, '- Total:', organisms.length);
+  
+  // Draw immediately if not running simulation
+  if (!isSimulationRunning) {
+    drawOrganisms();
+  }
+}
+
+function startSimulation(): void {
+  if (isSimulationRunning) return;
+  
+  isSimulationRunning = true;
+  frameCounter = 0; // Reset frame counter
+  console.log('▶️ Starting simulation...');
+  
+  // Update UI
+  const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
+  const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
+  
+  if (startBtn) {
+    startBtn.innerHTML = '⏹️'; // Change to stop symbol when running
+    startBtn.title = 'Stop Simulation';
+    startBtn.disabled = true;
+  }
+  if (pauseBtn) {
+    pauseBtn.disabled = false;
+  }
+  
+  // Add running class to canvas
+  if (canvas) {
+    canvas.classList.add('running');
+  }
+  
+  // Start animation loop
+  animationLoop();
+}
+
+function pauseSimulation(): void {
+  isSimulationRunning = false;
+  console.log('⏸️ Pausing simulation...');
+  
+  // Update UI
+  const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
+  const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
+  
+  if (startBtn) {
+    startBtn.innerHTML = '▶️';
+    startBtn.title = 'Start Simulation';
+    startBtn.disabled = false;
+  }
+  if (pauseBtn) {
+    pauseBtn.disabled = true;
+  }
+  
+  // Remove running class from canvas
+  if (canvas) {
+    canvas.classList.remove('running');
+  }
+  
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+}
+
+function resetSimulation(): void {
+  console.log('🔄 Resetting simulation...');
+  
+  pauseSimulation();
+  organisms = [];
+  clearCanvas();
+  
+  // Reset stats
+  updateStats();
+}
+
+function clearCanvas(): void {
+  if (!canvas || !ctx) return;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  console.log('🧹 Canvas cleared');
+}
+
+function animationLoop(): void {
+  if (!isSimulationRunning) return;
+  
+  // Performance profiling - track frame
+  if (performanceProfiler && import.meta.env.DEV) {
+    performanceProfiler.trackFrame();
+  }
+  
+  // Speed control - only update simulation every N frames based on speed
+  const frameSkip = Math.max(1, 11 - simulationSpeed); // Higher speed = fewer frames to skip
+  
+  frameCounter++;
+  
+  if (frameCounter % frameSkip === 0) {
+    // Update simulation
+    updateSimulation();
+  }
+  
+  // Always draw (for smooth visuals)
+  clearCanvas();
+  drawOrganisms();
+  
+  // Update stats occasionally
+  if (frameCounter % 30 === 0) {
+    updateStats();
+  }
+  
+  // Update debug info
+  if (debugMode && import.meta.env.DEV && frameCounter % 60 === 0) {
+    debugMode.updateInfo({
+      fps: Math.round(1000 / (performance.now() - frameCounter)),
+      frameTime: performance.now(),
+      organismCount: organisms.length,
+      memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
+      canvasOperations: organisms.length * 2, // Rough estimate
+      simulationTime: Date.now(),
+      lastUpdate: performance.now()
+    });
+  }
+  
+  // Track frame for debug mode
+  if (debugMode && import.meta.env.DEV) {
+    debugMode.trackFrame();
+  }
+  
+  // Continue loop
+  animationFrameId = requestAnimationFrame(animationLoop);
+}
+
+function updateSimulation(): void {
+  const newOrganisms: typeof organisms = [];
+  
+  for (let i = 0; i < organisms.length; i++) {
+    const organism = organisms[i];
+    if (!organism) continue;
+    
+    // Age the organism
+    organism.age++;
+    
+    // Move the organism
+    organism.x += organism.vx;
+    organism.y += organism.vy;
+    
+    // Bounce off walls
+    if (canvas) {
+      if (organism.x <= 0 || organism.x >= canvas.width) {
+        organism.vx *= -1;
+        organism.x = Math.max(0, Math.min(canvas.width, organism.x));
+      }
+      if (organism.y <= 0 || organism.y >= canvas.height) {
+        organism.vy *= -1;
+        organism.y = Math.max(0, Math.min(canvas.height, organism.y));
       }
     }
     
-    // Ctrl/Cmd + Shift + C for console
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
+    // Check if organism should die
+    if (organism.age > organism.lifespan) {
+      continue; // Don't add to new array (dies)
+    }
+    
+    // Reproduction logic
+    organism.reproductionTimer++;
+    if (organism.reproductionTimer > 60 && organisms.length < populationLimit) {
+      // Create offspring
+      const offspring = {
+        x: organism.x + (Math.random() - 0.5) * 20,
+        y: organism.y + (Math.random() - 0.5) * 20,
+        age: 0,
+        size: organism.size * (0.8 + Math.random() * 0.4),
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        reproductionTimer: 0,
+        lifespan: 50 + Math.random() * 100
+      };
+      
+      newOrganisms.push(offspring);
+      organism.reproductionTimer = 0; // Reset parent's timer
+    }
+    
+    newOrganisms.push(organism);
+  }
+  
+  organisms = newOrganisms;
+}
+
+function drawOrganisms(): void {
+  if (!ctx || !canvas) return;
+  
+  for (const organism of organisms) {
+    // Color based on age
+    const ageRatio = organism.age / organism.lifespan;
+    const hue = 120 - (ageRatio * 60); // Green to red
+    
+    ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+    ctx.beginPath();
+    ctx.arc(organism.x, organism.y, organism.size, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Draw subtle outline
+    ctx.strokeStyle = `hsl(${hue}, 70%, 30%)`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+function updateStats(): void {
+  // Update population counter
+  const populationElement = document.getElementById('population-count');
+  if (populationElement) {
+    populationElement.textContent = organisms.length.toString();
+  }
+  
+  // Calculate average age
+  const avgAge = organisms.length > 0 
+    ? Math.round(organisms.reduce((sum, org) => sum + org.age, 0) / organisms.length)
+    : 0;
+    
+  const avgAgeElement = document.getElementById('avg-age');
+  if (avgAgeElement) {
+    avgAgeElement.textContent = avgAge.toString();
+  }
+}
+
+// Development tools keyboard shortcuts
+function setupDevKeyboardShortcuts(): void {
+  document.addEventListener('keydown', (event) => {
+    // Only handle shortcuts if not typing in an input field
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+    
+    // F1 - Show/Hide keyboard shortcuts help
+    if (event.key === 'F1') {
+      event.preventDefault();
+      toggleShortcutsHelp();
+    }
+    
+    // F12 - Toggle Developer Console
+    if (event.key === 'F12') {
       event.preventDefault();
       if (devConsole) {
         devConsole.toggle();
       }
     }
     
-    // Ctrl/Cmd + Shift + P for profiler
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'P') {
+    // F11 - Toggle Debug Mode
+    if (event.key === 'F11') {
+      event.preventDefault();
+      if (debugMode) {
+        if (debugMode.isDebugEnabled()) {
+          debugMode.disable();
+        } else {
+          debugMode.enable();
+        }
+      }
+    }
+    
+    // Ctrl+Shift+P - Start/Stop Performance Profiling
+    if (event.ctrlKey && event.shiftKey && event.key === 'P') {
       event.preventDefault();
       if (performanceProfiler) {
-        performanceProfiler.toggle();
+        if (performanceProfiler.isProfiling()) {
+          performanceProfiler.stopProfiling();
+        } else {
+          performanceProfiler.startProfiling();
+        }
+      }
+    }
+    
+    // Ctrl+Shift+D - Toggle all development tools
+    if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+      event.preventDefault();
+      if (debugMode && devConsole) {
+        const shouldEnable = !debugMode.isDebugEnabled();
+        if (shouldEnable) {
+          debugMode.enable();
+          devConsole.show();
+        } else {
+          debugMode.disable();
+          devConsole.hide();
+        }
       }
     }
   });
 }
 
-// Lazy load development tools
-if (import.meta.env.DEV) {
-  console.log('🔧 Development mode detected, loading dev tools...');
+function toggleShortcutsHelp(): void {
+  let helpPanel = document.getElementById('dev-shortcuts-help');
   
+  if (helpPanel) {
+    helpPanel.remove();
+  } else {
+    helpPanel = document.createElement('div');
+    helpPanel.id = 'dev-shortcuts-help';
+    helpPanel.className = 'dev-shortcuts show';
+    helpPanel.innerHTML = `
+      <h4>🔧 Development Tools Shortcuts</h4>
+      <ul>
+        <li><kbd>F1</kbd> - Toggle this help</li>
+        <li><kbd>F11</kbd> - Toggle Debug Mode</li>
+        <li><kbd>F12</kbd> - Toggle Developer Console</li>
+        <li><kbd>Ctrl+Shift+P</kbd> - Performance Profiling</li>
+        <li><kbd>Ctrl+Shift+D</kbd> - Toggle All Dev Tools</li>
+      </ul>
+    `;
+    
+    document.body.appendChild(helpPanel);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      if (helpPanel) {
+        helpPanel.remove();
+      }
+    }, 5000);
+  }
+}
+
+// Load dev tools in development mode
+if (import.meta.env.DEV) {
+  console.log('🔧 Loading development tools...');
   import('./dev/index').then((module) => {
     debugMode = module.DebugMode.getInstance();
     devConsole = module.DeveloperConsole.getInstance();
