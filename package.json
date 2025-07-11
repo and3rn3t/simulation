@@ -37,6 +37,7 @@
     "deploy:check": "node scripts/check-deployment-status.js",
     "staging:test": "node scripts/test-staging-deployment.js",
     "staging:monitor": "node scripts/monitor-staging-deployment.js",
+    "wrangler:validate": "node scripts/validate-wrangler.js",
     "deploy:staging": "npm run build:staging && node scripts/deploy.js staging",
     "deploy:production": "npm run build:production && node scripts/deploy.js production",
     "deploy:staging:dry": "npm run build:staging && node scripts/deploy.js staging latest true",
