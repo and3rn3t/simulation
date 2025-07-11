@@ -1,0 +1,129 @@
+name: 🚀 Epic Feature
+description: High-level feature from the product roadmap
+title: "Epic: [Feature Name]"
+labels: ["epic", "feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to the Organism Simulation roadmap! This template is for major features that span multiple tasks.
+  
+  - type: dropdown
+    id: quarter
+    attributes:
+      label: Target Quarter
+      description: When should this epic be completed?
+      options:
+        - Q3 2025 (Jul-Sep)
+        - Q4 2025 (Oct-Dec)
+        - Q1 2026 (Jan-Mar)
+        - Q2 2026 (Apr-Jun)
+        - Future
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: feature-area
+    attributes:
+      label: Feature Area
+      description: Which area of the simulation does this affect?
+      options:
+        - Ecosystem (organisms, behaviors, interactions)
+        - Education (tutorials, curriculum, learning)
+        - Performance (optimization, scalability)
+        - UI/UX (interface, visualization, experience)
+        - Infrastructure (architecture, tooling, deployment)
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How critical is this feature?
+      options:
+        - Critical (blocking other work)
+        - High (important for roadmap goals)
+        - Medium (valuable enhancement)
+        - Low (nice to have)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: overview
+    attributes:
+      label: Feature Overview
+      description: Brief description of what this epic accomplishes
+      placeholder: "This epic implements..."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Who benefits and how?
+      placeholder: |
+        - As an educator, I want to...
+        - As a student, I want to...
+        - As a researcher, I want to...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What defines "done" for this epic?
+      placeholder: |
+        - [ ] Feature works as specified
+        - [ ] Performance requirements met
+        - [ ] Documentation updated
+        - [ ] Tests passing
+    validations:
+      required: true
+  
+  - type: textarea
+    id: sub-tasks
+    attributes:
+      label: Sub-tasks
+      description: Break down into smaller implementation tasks (can be updated later)
+      placeholder: |
+        - [ ] #XXX Task 1
+        - [ ] #XXX Task 2
+        - [ ] #XXX Task 3
+    validations:
+      required: false
+  
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition of Done
+      description: Specific criteria that must be met
+      placeholder: |
+        - [ ] All sub-tasks completed
+        - [ ] Unit tests written and passing
+        - [ ] Integration tests validate functionality
+        - [ ] Documentation updated
+        - [ ] Performance impact assessed
+        - [ ] Code review completed
+    validations:
+      required: true
+  
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What other work must be completed first?
+      placeholder: "Requires completion of Epic #XXX, depends on..."
+    validations:
+      required: false
+  
+  - type: textarea
+    id: roadmap-link
+    attributes:
+      label: Roadmap Reference
+      description: Link to the relevant section in the product roadmap
+      placeholder: "See Product Roadmap: [link to specific section]"
+    validations:
+      required: false

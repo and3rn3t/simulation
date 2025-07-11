@@ -1,0 +1,185 @@
+name: 📋 Project Management Automation
+
+on:
+  issues:
+    types: [opened, closed, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed]
+  schedule:
+    # Run weekly milestone progress updates
+    - cron: '0 9 * * MON'
+
+jobs:
+  auto-project-management:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Auto-assign issues to project
+        if: github.event.action == 'opened' && github.event_name == 'issues'
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/and3rn3t/projects/1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Auto-label based on title
+        if: github.event.action == 'opened' && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title.toLowerCase();
+            const labels = [];
+            
+            // Auto-assign labels based on title keywords
+            if (title.includes('epic:')) labels.push('epic');
+            if (title.includes('task:')) labels.push('task');
+            if (title.includes('bug:')) labels.push('bug');
+            
+            // Feature area detection
+            if (title.includes('organism') || title.includes('predator') || title.includes('genetic')) {
+              labels.push('area:ecosystem');
+            } else if (title.includes('tutorial') || title.includes('education') || title.includes('learning')) {
+              labels.push('area:education');
+            } else if (title.includes('performance') || title.includes('optimization')) {
+              labels.push('area:performance');
+            } else if (title.includes('ui') || title.includes('visual') || title.includes('interface')) {
+              labels.push('area:ui');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: labels
+              });
+            }
+      
+      - name: Link PR to related issues
+        if: github.event.action == 'opened' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const issueNumbers = prBody.match(/(closes|fixes|resolves)\s+#(\d+)/gi);
+            
+            if (issueNumbers) {
+              const comment = `🔗 This PR is linked to the following issues:\n${issueNumbers.join('\n')}`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: comment
+              });
+            }
+      
+      - name: Update milestone progress
+        if: github.event.action == 'closed' && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (!context.payload.issue.milestone) return;
+            
+            const milestone = context.payload.issue.milestone;
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              milestone: milestone.number,
+              state: 'all'
+            });
+            
+            const totalIssues = issues.length;
+            const closedIssues = issues.filter(issue => issue.state === 'closed').length;
+            const progress = Math.round((closedIssues / totalIssues) * 100);
+            
+            console.log(`Milestone "${milestone.title}" progress: ${progress}% (${closedIssues}/${totalIssues})`);
+            
+            // You can extend this to update README or other files with progress
+      
+      - name: Weekly roadmap update
+        if: github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get all milestones and their progress
+            const { data: milestones } = await github.rest.issues.listMilestones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            
+            let progressReport = '# 📊 Weekly Roadmap Progress Report\n\n';
+            progressReport += `*Generated on ${new Date().toISOString().split('T')[0]}*\n\n`;
+            
+            for (const milestone of milestones) {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                milestone: milestone.number,
+                state: 'all'
+              });
+              
+              const totalIssues = issues.length;
+              const closedIssues = issues.filter(issue => issue.state === 'closed').length;
+              const progress = totalIssues > 0 ? Math.round((closedIssues / totalIssues) * 100) : 0;
+              
+              progressReport += `## ${milestone.title}\n`;
+              progressReport += `**Progress:** ${progress}% (${closedIssues}/${totalIssues} issues completed)\n`;
+              progressReport += `**Due Date:** ${milestone.due_on ? new Date(milestone.due_on).toDateString() : 'No due date'}\n\n`;
+              
+              if (issues.length > 0) {
+                const openIssues = issues.filter(issue => issue.state === 'open');
+                if (openIssues.length > 0) {
+                  progressReport += `**Open Issues:**\n`;
+                  openIssues.slice(0, 5).forEach(issue => {
+                    progressReport += `- [${issue.title}](${issue.html_url})\n`;
+                  });
+                  if (openIssues.length > 5) {
+                    progressReport += `- ... and ${openIssues.length - 5} more\n`;
+                  }
+                  progressReport += '\n';
+                }
+              }
+            }
+            
+            // Create or update a GitHub Discussion with the progress report
+            console.log('Weekly Progress Report Generated:');
+            console.log(progressReport);
+            
+            // You can extend this to post to Discussions or update files
+
+  auto-close-stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Close stale issues and PRs
+        uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had recent activity. 
+            
+            If this is still relevant to the roadmap, please:
+            - Add a comment to keep it open
+            - Update the issue with current status
+            - Link it to related work
+            
+            If no activity occurs within 7 days, this issue will be closed.
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had recent activity.
+            Please rebase and address any conflicts to continue with the review process.
+          stale-issue-label: 'status:stale'
+          stale-pr-label: 'status:stale'
+          days-before-stale: 30
+          days-before-close: 7
+          exempt-issue-labels: 'epic,priority:critical,priority:high'
+          exempt-pr-labels: 'priority:critical,priority:high'

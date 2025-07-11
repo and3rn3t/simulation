@@ -1,0 +1,51 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the simulation
+title: "Bug: [Brief Description]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Please fill out the following details to help us resolve your issue.
+  
+  - type: input
+    id: bug-title
+    attributes:
+      label: Bug Title
+      description: Short summary of the bug.
+      placeholder: e.g. Organism count does not update
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the bug and steps to reproduce it.
+      placeholder: Please provide as much detail as possible.
+    validations:
+      required: true
+  
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. See error
+    validations:
+      required: false
+  
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS, device information
+      placeholder: |
+        - Browser: Chrome
+        - OS: Windows/Mac/Linux
+        - Device: Desktop/Mobile
+    validations:
+      required: false

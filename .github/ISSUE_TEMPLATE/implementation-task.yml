@@ -1,0 +1,135 @@
+name: 📋 Implementation Task
+description: Specific development task from the immediate TODOs
+title: "Task: [Brief Description]"
+labels: ["task", "implementation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing! This template is for specific implementation tasks that are part of larger features.
+  
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How urgent is this task?
+      options:
+        - Critical (blocking other work)
+        - High (this week)
+        - Medium (this month)
+        - Low (when time allows)
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort Estimate
+      description: How much work is involved?
+      options:
+        - XS (1-2 hours)
+        - S (3-5 hours)
+        - M (1-2 days)
+        - L (3-5 days)
+        - XL (1+ weeks)
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: feature-area
+    attributes:
+      label: Feature Area
+      description: Which area does this task affect?
+      options:
+        - Ecosystem (organisms, behaviors, interactions)
+        - Education (tutorials, curriculum, learning)
+        - Performance (optimization, scalability)
+        - UI/UX (interface, visualization, experience)
+        - Infrastructure (architecture, tooling, deployment)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What needs to be implemented?
+      placeholder: "Implement/Create/Add/Fix..."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: technical-requirements
+    attributes:
+      label: Technical Requirements
+      description: Specific technical details and constraints
+      placeholder: |
+        - Use TypeScript with strict typing
+        - Follow existing architecture patterns
+        - Maintain performance requirements
+        - Add appropriate error handling
+    validations:
+      required: true
+  
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this task is complete?
+      placeholder: |
+        - [ ] Feature works as specified
+        - [ ] Code follows project standards
+        - [ ] Tests are written and passing
+        - [ ] Documentation is updated
+    validations:
+      required: true
+  
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition of Done
+      description: Checklist for completion
+      placeholder: |
+        - [ ] Code implemented and tested
+        - [ ] Unit tests cover new functionality
+        - [ ] TypeScript compilation passes
+        - [ ] Code review completed
+        - [ ] Documentation updated
+    validations:
+      required: true
+  
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What must be completed before this task?
+      placeholder: "Requires #XXX, depends on..."
+    validations:
+      required: false
+  
+  - type: textarea
+    id: blocks
+    attributes:
+      label: Blocks
+      description: What other tasks are waiting for this?
+      placeholder: "Blocks #XXX, enables..."
+    validations:
+      required: false
+  
+  - type: textarea
+    id: related-epic
+    attributes:
+      label: Related Epic
+      description: Which larger feature is this part of?
+      placeholder: "Part of Epic #XXX"
+    validations:
+      required: false
+  
+  - type: textarea
+    id: todo-reference
+    attributes:
+      label: TODO Reference
+      description: Link to the specific TODO item this implements
+      placeholder: "Implements: [link to specific line in IMMEDIATE_TODOS.md]"
+    validations:
+      required: false

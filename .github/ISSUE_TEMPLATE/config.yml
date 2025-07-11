@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/and3rn3t/simulation/discussions
+    about: Ask questions, share ideas, or discuss the project
+  - name: 📚 Documentation
+    url: https://github.com/and3rn3t/simulation/tree/main/docs
+    about: Check out our comprehensive documentation
+  - name: 🗺️ Product Roadmap
+    url: https://github.com/and3rn3t/simulation/blob/main/docs/development/PRODUCT_ROADMAP.md
+    about: See our long-term vision and planned features
+  - name: 📋 Immediate TODOs
+    url: https://github.com/and3rn3t/simulation/blob/main/docs/development/IMMEDIATE_TODOS.md
+    about: Check current development priorities and tasks

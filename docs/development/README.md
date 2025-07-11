@@ -9,6 +9,8 @@ This folder contains development-related documentation including strategies, gui
 - **[PRODUCT_ROADMAP.md](./PRODUCT_ROADMAP.md)** - Comprehensive 18-month product roadmap (2025-2026)
 - **[IMMEDIATE_TODOS.md](./IMMEDIATE_TODOS.md)** - Specific actionable tasks for next 90 days
 - **[VISION_SUMMARY.md](./VISION_SUMMARY.md)** - Quick overview of project vision and goals
+- **[GITHUB_INTEGRATION.md](./GITHUB_INTEGRATION.md)** - Complete guide for GitHub project management integration
+- **[GITHUB_SETUP_GUIDE.md](./GITHUB_SETUP_GUIDE.md)** - Quick 15-minute setup for GitHub tracking
 - **[PROJECT_TODO_LIST.md](./PROJECT_TODO_LIST.md)** - Detailed technical TODO list (legacy)
 
 ### **🛠️ Technical Implementation**
@@ -46,6 +48,12 @@ These documents provide:
 2. **During Development**: Follow established patterns and best practices
 3. **After Implementation**: Update TODOs and roadmap progress
 
+### **For GitHub Project Management**
+
+1. **Quick Setup**: [GITHUB_SETUP_GUIDE.md](./GITHUB_SETUP_GUIDE.md) - 15-minute GitHub project setup
+2. **Advanced Integration**: [GITHUB_INTEGRATION.md](./GITHUB_INTEGRATION.md) - Complete project management workflow
+3. **Issue Creation**: Use provided templates and automation scripts
+
 ## 🌟 Latest Updates
 
 ### **January 2025: Major Planning Update**
@@ -60,3 +68,10 @@ These documents provide:
 - **Q2**: Interactive Learning (tutorials, scientific scenarios)
 - **Q3**: Social Ecosystem (sharing, collaboration, community)
 - **Q4**: Research Platform (advanced analytics, real-world integration)
+
+### **July 2025: GitHub Integration Update**
+
+- **GitHub Project Management**: Complete integration with GitHub Issues, Projects, and automation
+- **Issue Templates**: Structured templates for Epics, Tasks, Bugs, and Feature Requests
+- **Automated Workflows**: GitHub Actions for project management and progress tracking
+- **Quick Setup Guide**: 15-minute guide to get GitHub tracking operational
