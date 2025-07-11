@@ -108,10 +108,10 @@ export class QuadTree {
       const w = this.boundary.width / 2;
       const h = this.boundary.height / 2;
 
-      this.northeast = new QuadTree({ x: x + w, y: y, width: w, height: h }, this.capacity);
-      this.northwest = new QuadTree({ x: x, y: y, width: w, height: h }, this.capacity);
+      this.northeast = new QuadTree({ x: x + w, y, width: w, height: h }, this.capacity);
+      this.northwest = new QuadTree({ x, y, width: w, height: h }, this.capacity);
       this.southeast = new QuadTree({ x: x + w, y: y + h, width: w, height: h }, this.capacity);
-      this.southwest = new QuadTree({ x: x, y: y + h, width: w, height: h }, this.capacity);
+      this.southwest = new QuadTree({ x, y: y + h, width: w, height: h }, this.capacity);
 
       this.divided = true;
     } catch (error) {

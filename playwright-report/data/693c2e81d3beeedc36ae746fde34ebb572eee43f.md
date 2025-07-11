@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - heading "Organism Simulation Game" [level=1]
+  - paragraph: Click on the canvas to place organisms, then watch how they multiply and divide over time
+- text: "Select Organism:"
+- combobox "Select Organism:":
+  - option "Bacteria (Fast growth)" [selected]
+  - option "Yeast (Medium growth)"
+  - option "Algae (Slow growth)"
+  - option "Virus (Very fast growth)"
+- text: "Simulation Speed:"
+- slider "Simulation Speed:": "5"
+- text: "5x Max Population:"
+- slider "Max Population:": "1000"
+- text: "1000"
+- button "⏹️" [disabled]
+- button "⏸️"
+- button "🔄"
+- button "🗑️"
+- text: "Population: 0 Generation: 0 Time: 0s Births/sec: 0 Deaths/sec: 0 Avg Age: 0 Oldest: 0 Density: 0 Stability: N/A Score: 0 Achievements: 0/7 High Score: 0"
+- heading "🏆 Achievements" [level=3]
+- heading "🎯 Challenges" [level=3]
+- paragraph: No active challenge
+- button "Start Challenge"
+- heading "⚡ Power-ups" [level=3]
+- text: "Growth Boost Cost: 500"
+- button "Buy"
+- text: "Longevity Cost: 300"
+- button "Buy"
+- text: "Population Boom Cost: 800"
+- button "Buy"
+- heading "🏅 Leaderboard" [level=3]
+- button "📊"
+- heading "🧠 Memory Monitor" [level=3]
+- text: "Usage: 0.0% Level: safe Trend: ➡️ stable Pool Stats: Available"
+- button "🧹 Cleanup"
+- button "🗑️ Force GC"
+- button "📦 Toggle SoA"
+- text: "💡 Recommendations: • All good! 👍"
+```

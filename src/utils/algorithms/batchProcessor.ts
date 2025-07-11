@@ -83,8 +83,8 @@ export class OrganismBatchProcessor {
         this.currentBatch = 0;
       }
 
-      let startIndex = this.currentBatch;
-      let endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
+      const startIndex = this.currentBatch;
+      const endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
 
       // Process organisms in current batch
       for (let i = startIndex; i < endIndex; i++) {
@@ -174,8 +174,8 @@ export class OrganismBatchProcessor {
         this.currentBatch = 0;
       }
 
-      let startIndex = this.currentBatch;
-      let endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
+      const startIndex = this.currentBatch;
+      const endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
 
       // Process organisms in current batch
       for (let i = startIndex; i < endIndex; i++) {

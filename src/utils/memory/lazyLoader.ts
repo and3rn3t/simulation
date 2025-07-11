@@ -216,7 +216,7 @@ export class LazyLoader {
    */
   private async performLoad<T>(loadable: LazyLoadable<T>): Promise<T> {
     const result = loadable.loader();
-    return result instanceof Promise ? await result : result;
+    return result instanceof Promise ? result : result;
   }
 
   /**
