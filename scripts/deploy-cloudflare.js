@@ -5,8 +5,13 @@
  * Helps set up and deploy to Cloudflare Pages
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import { writeFileSync, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function setupCloudflarePages() {
   console.log('🚀 Setting up Cloudflare Pages deployment...');
@@ -29,7 +34,7 @@ VITE_APP_VERSION=${process.env.npm_package_version || '1.0.0'}
 VITE_ENVIRONMENT=${process.env.NODE_ENV || 'development'}
 `;
 
-    fs.writeFileSync('.env.local', envContent);
+    writeFileSync('.env.local', envContent);
     console.log('✅ Environment variables set for Cloudflare build');
 
     // Check if Wrangler is available
@@ -41,7 +46,7 @@ VITE_ENVIRONMENT=${process.env.NODE_ENV || 'development'}
     }
 
     // Check for wrangler.toml
-    if (fs.existsSync('wrangler.toml')) {
+    if (existsSync('wrangler.toml')) {
       console.log('✅ wrangler.toml configuration found');
     } else {
       console.log('⚠️  wrangler.toml not found - this will be created by Cloudflare Pages');
@@ -87,23 +92,20 @@ function deployToCloudflare(environment = 'preview') {
 }
 
 // CLI handling
-if (require.main === module) {
-  const command = process.argv[2];
-  
-  switch (command) {
-    case 'setup':
-      setupCloudflarePages();
-      break;
-    case 'deploy':
-      const environment = process.argv[3] || 'preview';
-      deployToCloudflare(environment);
-      break;
-    default:
-      console.log('📖 Usage:');
-      console.log('  node scripts/deploy-cloudflare.js setup    - Setup Cloudflare Pages');
-      console.log('  node scripts/deploy-cloudflare.js deploy   - Deploy to preview');
-      console.log('  node scripts/deploy-cloudflare.js deploy production - Deploy to production');
-  }
-}
+const command = process.argv[2];
 
-module.exports = { setupCloudflarePages, deployToCloudflare };
+switch (command) {
+  case 'setup':
+    setupCloudflarePages();
+    break;
+  case 'deploy': {
+    const environment = process.argv[3] || 'preview';
+    deployToCloudflare(environment);
+    break;
+  }
+  default:
+    console.log('📖 Usage:');
+    console.log('  node scripts/deploy-cloudflare.js setup    - Setup Cloudflare Pages');
+    console.log('  node scripts/deploy-cloudflare.js deploy   - Deploy to preview');
+    console.log('  node scripts/deploy-cloudflare.js deploy production - Deploy to production');
+}
