@@ -234,16 +234,17 @@ export class PopulationPredictor {
       case 'exponential':
         return initialPopulation * Math.exp(r * time);
         
-      case 'logistic':
+      case 'logistic': {
         const logisticGrowth = K / (1 + ((K - initialPopulation) / initialPopulation) * Math.exp(-r * time));
         return Math.max(0, logisticGrowth * (1 - alpha * time) * (1 - beta));
-        
-      case 'gompertz':
+      }
+      case 'gompertz': {
         const gompertzGrowth = K * Math.exp(-Math.exp(-r * (time - curve.parameters.t0)));
         return Math.max(0, gompertzGrowth * (1 - alpha * time) * (1 - beta));
-        
-      default:
+      }
+      default: {
         return initialPopulation * Math.exp(r * time);
+      }
     }
   }
 

@@ -7,8 +7,7 @@
 
 import { Organism } from '../core/organism';
 import { OrganismSimulation } from '../core/simulation';
-import { getOrganismType } from '../models/organismTypes';
-import type { OrganismType } from '../models/organismTypes';
+import { getOrganismType, type OrganismType } from '../models/organismTypes';
 
 /**
  * Collection of interactive examples for learning the simulation API

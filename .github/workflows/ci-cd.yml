@@ -132,16 +132,14 @@ jobs:
         echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
         echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
     
-    - name: Deploy to staging
-      run: |
-        echo "🚀 Deploying to staging environment..."
-        echo "Environment: staging"
-        echo "URL: https://staging.organism-simulation.com"
-        # Add your staging deployment commands here
-        # Example: 
-        # - Upload to S3/CDN
-        # - Deploy to Vercel/Netlify
-        # - Update container registry
+    - name: Deploy to Cloudflare Pages (Preview)
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: organism-simulation
+        directory: dist
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Run staging smoke tests
       run: |
@@ -176,17 +174,15 @@ jobs:
         echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
         echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
     
-    - name: Deploy to production
-      run: |
-        echo "🚀 Deploying to production environment..."
-        echo "Environment: production"
-        echo "URL: https://organism-simulation.com"
-        # Add your production deployment commands here
-        # Example:
-        # - Upload to S3/CDN  
-        # - Deploy to Vercel/Netlify
-        # - Update container registry
-        # - Blue-green deployment
+    - name: Deploy to Cloudflare Pages (Production)
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: organism-simulation
+        directory: dist
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        wranglerVersion: '3'
     
     - name: Run production smoke tests
       run: |

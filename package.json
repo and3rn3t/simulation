@@ -36,6 +36,10 @@
     "deploy:production": "npm run build:production && node scripts/deploy.js production",
     "deploy:staging:dry": "npm run build:staging && node scripts/deploy.js staging latest true",
     "deploy:production:dry": "npm run build:production && node scripts/deploy.js production latest true",
+    "deploy:vercel:preview": "vercel --prod=false",
+    "deploy:vercel:production": "vercel --prod",
+    "deploy:cloudflare:preview": "wrangler pages deploy dist --project-name=organism-simulation",
+    "deploy:cloudflare:production": "wrangler pages deploy dist --project-name=organism-simulation --compatibility-date=2024-01-01",
     "monitor:staging": "node scripts/monitor.js staging",
     "monitor:production": "node scripts/monitor.js production",
     "monitor:all": "node scripts/monitor.js",
@@ -67,7 +71,8 @@
     "typescript": "~5.8.3",
     "vite": "^5.4.2",
     "vite-plugin-pwa": "^0.21.1",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.24.3"
   },
   "dependencies": {
     "canvas": "^3.1.2",
