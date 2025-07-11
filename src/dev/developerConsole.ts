@@ -239,16 +239,24 @@ export class DeveloperConsole {
       e.preventDefault();
       if (this.historyIndex < this.commandHistory.length - 1) {
         this.historyIndex++;
-        this.inputElement!.value = this.commandHistory[this.historyIndex];
+        const historyValue = this.commandHistory[this.historyIndex];
+        if (this.inputElement && historyValue) {
+          this.inputElement.value = historyValue;
+        }
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (this.historyIndex > 0) {
         this.historyIndex--;
-        this.inputElement!.value = this.commandHistory[this.historyIndex];
+        const historyValue = this.commandHistory[this.historyIndex];
+        if (this.inputElement && historyValue) {
+          this.inputElement.value = historyValue;
+        }
       } else if (this.historyIndex === 0) {
         this.historyIndex = -1;
-        this.inputElement!.value = '';
+        if (this.inputElement) {
+          this.inputElement.value = '';
+        }
       }
     }
   }
@@ -256,6 +264,11 @@ export class DeveloperConsole {
   private async executeCommandInternal(input: string): Promise<void> {
     const [commandName, ...args] = input.split(' ');
     this.log(`> ${input}`, 'info');
+
+    if (!commandName) {
+      this.log('Empty command entered.', 'error');
+      return;
+    }
 
     const command = this.commands.get(commandName.toLowerCase());
     if (!command) {
@@ -362,10 +375,11 @@ export class DeveloperConsole {
 
         const action = args[0];
         switch (action) {
-          case 'get':
+          case 'get': {
             if (args.length < 2) return 'Usage: localStorage get <key>';
             const value = localStorage.getItem(args[1]);
             return value !== null ? `${args[1]}: ${value}` : `Key "${args[1]}" not found`;
+          }
 
           case 'set':
             if (args.length < 3) return 'Usage: localStorage set <key> <value>';

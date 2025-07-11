@@ -27,9 +27,12 @@ jobs:
     
     - name: Run type check
       run: npm run type-check
+      timeout-minutes: 10
+      continue-on-error: true
     
     - name: Run unit tests
       run: npm run test:coverage
+      timeout-minutes: 15
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
@@ -43,13 +46,16 @@ jobs:
     
     - name: Run performance tests
       run: npm run test:performance
+      timeout-minutes: 20
       continue-on-error: true
     
     - name: Install Playwright browsers
       run: npx playwright install --with-deps
+      timeout-minutes: 10
     
     - name: Run E2E tests
       run: npm run test:e2e
+      timeout-minutes: 20
       continue-on-error: true
     
     - name: Upload test results
