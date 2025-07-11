@@ -3,15 +3,13 @@ name = "organism-simulation"
 compatibility_date = "2024-01-01"
 
 # Custom domains configuration
-[env.production]
-vars = { NODE_ENV = "production",
-         VITE_APP_URL = "https://organisms.andernet.dev" }
+[env.production.vars]
+NODE_ENV = "production"
+VITE_APP_URL = "https://organisms.andernet.dev"
 
-[env.preview]
-vars = { 
-  NODE_ENV = "staging",
-  VITE_APP_URL = "https://organisms-staging.andernet.dev"
-}
+[env.preview.vars]
+NODE_ENV = "staging"
+VITE_APP_URL = "https://organisms-staging.andernet.dev"
 
 # Build configuration
 [build]

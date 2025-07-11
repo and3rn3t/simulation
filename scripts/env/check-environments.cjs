@@ -94,8 +94,8 @@ function checkCloudflareConfig() {
     
     const content = fs.readFileSync(wranglerPath, 'utf8');
     
-    const hasProduction = content.includes('[env.production]');
-    const hasPreview = content.includes('[env.preview]');
+    const hasProduction = content.includes('[env.production.vars]') || content.includes('[env.production]');
+    const hasPreview = content.includes('[env.preview.vars]') || content.includes('[env.preview]');
     const hasProjectName = content.includes('name = "organism-simulation"');
     
     console.log(`${hasProduction ? '✅' : '❌'} Production environment in wrangler.toml`);
