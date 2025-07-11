@@ -121,6 +121,72 @@ select, input[type="range"] {
   font-size: 14px;
 }
 
+/* Enhanced organism dropdown styling for better readability */
+#organism-select {
+  padding: 12px 16px;
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 44px; /* Better touch target for mobile */
+}
+
+#organism-select:hover {
+  border-color: rgba(76, 175, 80, 0.6);
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+#organism-select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+/* Enhance dropdown options */
+#organism-select option {
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  line-height: 1.4;
+}
+
+#organism-select option:hover,
+#organism-select option:checked {
+  background: rgba(76, 175, 80, 0.8);
+  color: white;
+}
+
+/* Different color accents for each organism type */
+#organism-select option[value="bacteria"] {
+  border-left: 4px solid #4CAF50;
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
+}
+
+#organism-select option[value="yeast"] {
+  border-left: 4px solid #FF9800;
+  background: linear-gradient(90deg, rgba(255, 152, 0, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
+}
+
+#organism-select option[value="algae"] {
+  border-left: 4px solid #2196F3;
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
+}
+
+#organism-select option[value="virus"] {
+  border-left: 4px solid #F44336;
+  background: linear-gradient(90deg, rgba(244, 67, 54, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
+}
+
 select:focus, input[type="range"]:focus {
   outline: none;
   border-color: #4CAF50;
@@ -650,6 +716,20 @@ button:active {
     border-radius: 8px;
   }
   
+  /* Enhanced mobile styling for organism dropdown */
+  #organism-select {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 18px; /* Larger for better mobile readability */
+    min-height: 56px; /* Even better touch target */
+    border-width: 3px; /* Thicker border for better visibility */
+  }
+  
+  #organism-select option {
+    padding: 16px;
+    font-size: 18px;
+  }
+  
   .button-group {
     flex-direction: row !important;
     justify-content: center;
@@ -961,5 +1041,63 @@ button:active {
   .leaderboard-item {
     min-height: 44px;
     padding: 12px;
+  }
+}
+
+/* High contrast mode support for improved accessibility */
+@media (prefers-contrast: high) {
+  #organism-select {
+    border-width: 3px;
+    border-color: white;
+    background: black;
+    color: white;
+  }
+  
+  #organism-select:focus {
+    border-color: yellow;
+    box-shadow: 0 0 0 3px yellow;
+  }
+  
+  #organism-select option {
+    background: black;
+    color: white;
+    border: 2px solid white;
+  }
+  
+  #organism-select option:hover,
+  #organism-select option:checked {
+    background: white;
+    color: black;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  #organism-select {
+    transition: none;
+  }
+  
+  #organism-select:hover {
+    transform: none;
+  }
+}
+
+/* Dark theme optimization for organism dropdown */
+@media (prefers-color-scheme: dark) {
+  #organism-select {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(76, 175, 80, 0.4);
+  }
+  
+  #organism-select option {
+    background: rgb(10, 10, 10);
+  }
+}
+
+/* Print styles - hide interactive elements */
+@media print {
+  #organism-select,
+  .controls {
+    display: none !important;
   }
 }
