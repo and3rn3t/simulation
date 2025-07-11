@@ -53,14 +53,14 @@ export const ErrorSeverity = {
   CRITICAL: 'critical'
 } as const;
 
-export type ErrorSeverity = typeof ErrorSeverity[keyof typeof ErrorSeverity];
+export type ErrorSeverityType = typeof ErrorSeverity[keyof typeof ErrorSeverity];
 
 /**
  * Error information interface
  */
 export interface ErrorInfo {
   error: Error;
-  severity: ErrorSeverity;
+  severity: ErrorSeverityType;
   context?: string;
   timestamp: Date;
   userAgent?: string;
@@ -94,7 +94,7 @@ export class ErrorHandler {
    * @param severity - The severity level
    * @param context - Additional context information
    */
-  handleError(error: Error, severity: ErrorSeverity = ErrorSeverity.MEDIUM, context?: string): void {
+  handleError(error: Error, severity: ErrorSeverityType = ErrorSeverity.MEDIUM, context?: string): void {
     const errorInfo: ErrorInfo = {
       error,
       severity,
@@ -112,8 +112,8 @@ export class ErrorHandler {
       this.logError(errorInfo);
     }
 
-    // Show user notification for critical errors
-    if (severity === ErrorSeverity.CRITICAL) {
+    // Only show user notification for critical errors, and only if it's not during initial app startup
+    if (severity === ErrorSeverity.CRITICAL && context !== 'Application startup') {
       this.showCriticalErrorNotification(errorInfo);
     }
   }
@@ -170,7 +170,10 @@ export class ErrorHandler {
           <h3>⚠️ Critical Error</h3>
           <p>The simulation encountered a critical error and may not function properly.</p>
           <p><strong>Error:</strong> ${errorInfo.error.message}</p>
-          <button onclick="this.parentElement.parentElement.remove()">Dismiss</button>
+          <div class="error-actions">
+            <button onclick="this.parentElement.parentElement.parentElement.remove()">Dismiss</button>
+            <button onclick="window.location.reload()">Reload Page</button>
+          </div>
         </div>
       `;
       
@@ -189,17 +192,34 @@ export class ErrorHandler {
         font-family: Arial, sans-serif;
       `;
       
+      // Style the buttons
+      const buttons = notification.querySelectorAll('button');
+      buttons.forEach(button => {
+        (button as HTMLButtonElement).style.cssText = `
+          background: rgba(255,255,255,0.2);
+          border: 1px solid rgba(255,255,255,0.3);
+          color: white;
+          padding: 8px 12px;
+          margin: 5px;
+          border-radius: 4px;
+          cursor: pointer;
+        `;
+      });
+      
       document.body.appendChild(notification);
       
-      // Auto-remove after 10 seconds
+      // Auto-remove after 15 seconds
       setTimeout(() => {
         if (notification.parentElement) {
           notification.remove();
         }
-      }, 10000);
-    } catch (domError) {
+      }, 15000);
+    } catch {
       // Fallback to alert if DOM manipulation fails
-      alert(`Critical Error: ${errorInfo.error.message}`);
+      const shouldReload = confirm(`Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`);
+      if (shouldReload) {
+        window.location.reload();
+      }
     }
   }
 
@@ -229,7 +249,7 @@ export class ErrorHandler {
   /**
    * Get error statistics
    */
-  getErrorStats(): { total: number; bySeverity: Record<ErrorSeverity, number> } {
+  getErrorStats(): { total: number; bySeverity: Record<ErrorSeverityType, number> } {
     const stats = {
       total: this.errorQueue.length,
       bySeverity: {

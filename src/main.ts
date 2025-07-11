@@ -22,6 +22,12 @@ import { ORGANISM_TYPES } from './models/organismTypes';
 // Initialize global error handlers first
 initializeGlobalErrorHandlers();
 
+// Clear any existing error dialogs that might be present from previous sessions
+document.addEventListener('DOMContentLoaded', () => {
+  const existingErrorDialogs = document.querySelectorAll('.notification, .error-dialog, .alert, .error-notification');
+  existingErrorDialogs.forEach(dialog => dialog.remove());
+});
+
 // Initialize components
 const memoryPanelComponent = new MemoryPanelComponent();
 
@@ -54,7 +60,7 @@ function initializeApplication(): void {
   
   try {
     // Clear any existing error dialogs
-    const existingErrorDialogs = document.querySelectorAll('.notification, .error-dialog, .alert');
+    const existingErrorDialogs = document.querySelectorAll('.notification, .error-dialog, .alert, .error-notification');
     existingErrorDialogs.forEach(dialog => dialog.remove());
     
     // Initialize basic DOM elements
@@ -73,9 +79,10 @@ function initializeApplication(): void {
     
   } catch (error) {
     console.error('❌ Failed to initialize application:', error);
+    // Use HIGH severity instead of CRITICAL to avoid showing error dialog on startup
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Application initialization failed'),
-      ErrorSeverity.CRITICAL,
+      ErrorSeverity.HIGH,
       'Application startup'
     );
   }
@@ -178,7 +185,7 @@ function initializeGameSystems(): void {
     console.error('❌ Failed to initialize game systems:', error);
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Game systems initialization failed'),
-      ErrorSeverity.HIGH,
+      ErrorSeverity.MEDIUM,
       'Game systems initialization'
     );
   }
@@ -204,7 +211,7 @@ function initializeSimulation(): void {
     console.error('❌ Failed to initialize simulation:', error);
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Simulation initialization failed'),
-      ErrorSeverity.CRITICAL,
+      ErrorSeverity.MEDIUM,
       'Simulation initialization'
     );
   }
