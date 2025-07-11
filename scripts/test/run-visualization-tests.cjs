@@ -11,6 +11,10 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+// Node.js globals are available, but adding explicit references for clarity
+const console = global.console;
+const process = global.process;
+
 console.log('🧪 Running Enhanced Visualization & User Preferences Tests\n');
 
 // Test categories to run
@@ -67,7 +71,7 @@ function runTestCategory(category) {
     }
     
     // Run the test
-    const result = execSync(`npx vitest run ${category.pattern}`, {
+    execSync(`npx vitest run ${category.pattern}`, {
       encoding: 'utf8',
       stdio: 'pipe'
     });

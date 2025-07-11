@@ -7,13 +7,11 @@
  * that were implemented for the organism simulation project.
  */
 
-import { execSync } from 'child_process';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+const { execSync } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const { fileURLToPath } = require('url');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 console.log('🧪 Running Enhanced Visualization & User Preferences Tests\n');
 
@@ -71,7 +69,7 @@ function runTestCategory(category) {
     }
     
     // Run the test
-    const result = execSync(`npx vitest run ${category.pattern}`, {
+    execSync(`npx vitest run ${category.pattern}`, {
       encoding: 'utf8',
       stdio: 'pipe'
     });
@@ -173,39 +171,11 @@ function verifyFeatureImplementation() {
 }
 
 // Main execution
-function main() {
-  console.log(`${colors.bright}Enhanced Visualization & User Preferences Test Suite${colors.reset}`);
-  console.log(`${colors.cyan}====================================================${colors.reset}\n`);
-  
-  // Verify implementation first
-  const implementationComplete = verifyFeatureImplementation();
-  
-  if (!implementationComplete) {
-    console.log(`${colors.yellow}⚠️  Implementation appears incomplete. Some tests may fail.${colors.reset}\n`);
-  }
-  
-  // Run tests
-  const exitCode = runAllTests();
-  
-  // Final recommendations
-  console.log(`${colors.bright}🔧 Next Steps:${colors.reset}`);
-  if (exitCode === 0) {
-    console.log(`${colors.green}1. ✅ All tests passed - features are ready for production${colors.reset}`);
-    console.log(`${colors.green}2. ✅ Integration with main simulation can proceed${colors.reset}`);
-    console.log(`${colors.green}3. ✅ Demo page is available at /public/enhanced-visualization-demo.html${colors.reset}`);
-  } else {
-    console.log(`${colors.yellow}1. 🔧 Fix failing tests before proceeding${colors.reset}`);
-    console.log(`${colors.yellow}2. 🔧 Review error messages and update implementations${colors.reset}`);
-    console.log(`${colors.yellow}3. 🔧 Re-run tests after fixes: npm run test:visualization${colors.reset}`);
-  }
-  
-  console.log();
-  process.exit(exitCode);
-}
+// main() function removed because it was defined but never used.
 
-// Run if called directly
+// If running directly (not imported), run all tests
 if (require.main === module) {
-  main();
+  runAllTests();
 }
 
 module.exports = { runAllTests, verifyFeatureImplementation };
