@@ -7,9 +7,11 @@ This folder contains all project documentation organized by category.
 ```
 docs/
 ├── adr/                    # Architecture Decision Records
+├── development/            # Development guides and strategies
+├── infrastructure/         # CI/CD, deployment, and infrastructure docs
+├── project-status/         # Project completion summaries and status reports
 ├── api/                    # API documentation
 ├── deployment/             # Deployment guides
-├── development/            # Development guides
 ├── user/                   # User documentation
 └── architecture/           # System architecture docs
 ```
@@ -18,21 +20,37 @@ docs/
 
 ### For Developers
 
-- [Development Setup](./development/SETUP.md)
+- [Development Setup](./ENVIRONMENT_SETUP_GUIDE.md)
 - [Architecture Overview](./architecture/OVERVIEW.md)
-- [API Reference](./api/README.md)
-- [Contributing Guide](./development/CONTRIBUTING.md)
+- [API Reference](./API.md)
+- [Developer Guide](./DEVELOPER_GUIDE.md)
+- [Error Handling Strategy](./development/ERROR_HANDLING_SUMMARY.md)
+- [Memory Management](./development/MEMORY_MANAGEMENT_SUMMARY.md)
+- [Logging Strategy](./development/LOGGING_STRATEGY.md)
 
 ### For DevOps
 
-- [Deployment Guide](./deployment/README.md)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [Build & Deployment](./BUILD_DEPLOYMENT.md)
 - [Environment Setup](./ENVIRONMENT_SETUP_GUIDE.md)
-- [CI/CD Documentation](./BUILD_DEPLOYMENT.md)
+- [CI/CD Setup](./infrastructure/CI-CD-SETUP.md)
+- [CI/CD Status](./infrastructure/CI-CD-STATUS.md)
+- [Cloudflare Deployment](./CLOUDFLARE_DEPLOYMENT.md)
+- [Vercel Deployment](./VERCEL_DEPLOYMENT.md)
 
-### For Users
+### Project Status & Completion Reports
 
-- [User Guide](./user/USER_GUIDE.md)
-- [Features Overview](./user/FEATURES.md)
+- [Algorithm Optimizations](./project-status/ALGORITHM_OPTIMIZATIONS_COMPLETE.md)
+- [Code Organization](./project-status/CODE_ORGANIZATION_COMPLETE.md)
+- [Implementation Status](./project-status/IMPLEMENTATION_COMPLETE.md)
+- [Refactoring Complete](./project-status/REFACTORING_COMPLETE.md)
+- [Refactoring Success](./project-status/REFACTORING_SUCCESS.md)
+- [Documentation Enhancements](./project-status/DOCUMENTATION_ENHANCEMENTS_SUMMARY.md)
+
+### Development Planning
+
+- [Project TODO List](./development/PROJECT_TODO_LIST.md)
+- [Staging Tests](./infrastructure/STAGING_TEST.md)
 
 ### Architecture Decisions
 
