@@ -457,7 +457,7 @@
 /* ===== THEME VARIANTS ===== */
 
 /* Dark Theme */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --background-color: #1a1a1a;
   --text-primary: #ffffff;
   --text-secondary: #cccccc;
@@ -476,7 +476,7 @@
 }
 
 /* High Contrast Theme */
-[data-theme="high-contrast"] {
+[data-theme='high-contrast'] {
   --background-color: #000000;
   --text-primary: #ffffff;
   --text-secondary: #ffffff;
@@ -503,12 +503,12 @@
     width: 95%;
     max-height: 95vh;
   }
-  
+
   .settings-body {
     flex-direction: column;
     height: auto;
   }
-  
+
   .settings-tabs {
     width: 100%;
     display: flex;
@@ -516,12 +516,12 @@
     border-right: none;
     border-bottom: 1px solid var(--border-color, #e0e0e0);
   }
-  
+
   .tab-button {
     white-space: nowrap;
     flex-shrink: 0;
   }
-  
+
   .chart-component,
   .heatmap-component {
     height: 300px;
@@ -532,11 +532,11 @@
   .settings-header {
     padding: 16px;
   }
-  
+
   .settings-content-area {
     padding: 16px;
   }
-  
+
   .chart-component,
   .heatmap-component {
     height: 250px;

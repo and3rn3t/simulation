@@ -31,10 +31,10 @@ export class HeatmapComponent extends BaseComponent {
         '#00d2ff', // Cyan
         '#ffeb3b', // Yellow
         '#ff9800', // Orange
-        '#f44336'  // Red (high density)
+        '#f44336', // Red (high density)
       ],
       showLegend: true,
-      ...config
+      ...config,
     };
 
     this.createElement();
@@ -59,7 +59,7 @@ export class HeatmapComponent extends BaseComponent {
   private initializeCanvas(): void {
     this.canvas.width = this.config.width;
     this.canvas.height = this.config.height;
-    
+
     const ctx = this.canvas.getContext('2d');
     if (!ctx) {
       throw new Error('Failed to get 2D context for heatmap canvas');
@@ -69,8 +69,10 @@ export class HeatmapComponent extends BaseComponent {
     // Initialize data grid
     const cols = Math.ceil(this.config.width / this.config.cellSize);
     const rows = Math.ceil(this.config.height / this.config.cellSize);
-    
-    this.data = Array(rows).fill(null).map(() => Array(cols).fill(0));
+
+    this.data = Array(rows)
+      .fill(null)
+      .map(() => Array(cols).fill(0));
 
     if (this.config.showLegend) {
       this.createLegend();
@@ -79,14 +81,14 @@ export class HeatmapComponent extends BaseComponent {
 
   private setupEventListeners(): void {
     if (this.config.onCellClick) {
-      this.canvas.addEventListener('click', (event) => {
+      this.canvas.addEventListener('click', event => {
         const rect = this.canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        
+
         const cellX = Math.floor(x / this.config.cellSize);
         const cellY = Math.floor(y / this.config.cellSize);
-        
+
         if (cellY < this.data.length && cellX < this.data[cellY].length) {
           const value = this.data[cellY][cellX];
           this.config.onCellClick!(cellX, cellY, value);
@@ -129,9 +131,8 @@ export class HeatmapComponent extends BaseComponent {
     positions.forEach(pos => {
       const cellX = Math.floor(pos.x / this.config.cellSize);
       const cellY = Math.floor(pos.y / this.config.cellSize);
-      
-      if (cellY >= 0 && cellY < this.data.length && 
-          cellX >= 0 && cellX < this.data[cellY].length) {
+
+      if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) {
         this.data[cellY][cellX]++;
       }
     });
@@ -170,7 +171,7 @@ export class HeatmapComponent extends BaseComponent {
 
     const normalized = (value - this.minValue) / (this.maxValue - this.minValue);
     const colorIndex = Math.floor(normalized * (this.config.colorScheme!.length - 1));
-    
+
     return this.config.colorScheme![Math.min(colorIndex, this.config.colorScheme!.length - 1)];
   }
 
@@ -182,7 +183,7 @@ export class HeatmapComponent extends BaseComponent {
       row.forEach((value, colIndex) => {
         const x = colIndex * this.config.cellSize;
         const y = rowIndex * this.config.cellSize;
-        
+
         this.ctx.fillStyle = this.getColorForValue(value);
         this.ctx.fillRect(x, y, this.config.cellSize, this.config.cellSize);
 
@@ -202,7 +203,7 @@ export class HeatmapComponent extends BaseComponent {
   private updateLegendValues(): void {
     const minLabel = this.element.querySelector('.legend-min') as HTMLElement;
     const maxLabel = this.element.querySelector('.legend-max') as HTMLElement;
-    
+
     if (minLabel) minLabel.textContent = this.minValue.toString();
     if (maxLabel) maxLabel.textContent = this.maxValue.toString();
   }
@@ -223,12 +224,11 @@ export class HeatmapComponent extends BaseComponent {
   getDataAt(x: number, y: number): number {
     const cellX = Math.floor(x / this.config.cellSize);
     const cellY = Math.floor(y / this.config.cellSize);
-    
-    if (cellY >= 0 && cellY < this.data.length && 
-        cellX >= 0 && cellX < this.data[cellY].length) {
+
+    if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) {
       return this.data[cellY][cellX];
     }
-    
+
     return 0;
   }
 
@@ -240,12 +240,14 @@ export class HeatmapComponent extends BaseComponent {
     this.config.height = height;
     this.canvas.width = width;
     this.canvas.height = height;
-    
+
     // Reinitialize data grid
     const cols = Math.ceil(width / this.config.cellSize);
     const rows = Math.ceil(height / this.config.cellSize);
-    
-    this.data = Array(rows).fill(null).map(() => Array(cols).fill(0));
+
+    this.data = Array(rows)
+      .fill(null)
+      .map(() => Array(cols).fill(0));
     this.render();
   }
 }
@@ -257,25 +259,28 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
   private updateInterval: NodeJS.Timeout | null = null;
 
   constructor(canvasWidth: number, canvasHeight: number, id?: string) {
-    super({
-      width: canvasWidth,
-      height: canvasHeight,
-      cellSize: 20,
-      title: 'Population Density',
-      colorScheme: [
-        '#1a1a2e', // Very dark (no population)
-        '#16213e', // Dark blue
-        '#0f4c75', // Blue
-        '#3282b8', // Light blue
-        '#bbe1fa', // Very light blue
-        '#ffeb3b', // Yellow
-        '#ff9800', // Orange
-        '#f44336'  // Red (high density)
-      ],
-      onCellClick: (x, y, value) => {
-        console.log(`Cell (${x}, ${y}) has ${value} organisms`);
-      }
-    }, id);
+    super(
+      {
+        width: canvasWidth,
+        height: canvasHeight,
+        cellSize: 20,
+        title: 'Population Density',
+        colorScheme: [
+          '#1a1a2e', // Very dark (no population)
+          '#16213e', // Dark blue
+          '#0f4c75', // Blue
+          '#3282b8', // Light blue
+          '#bbe1fa', // Very light blue
+          '#ffeb3b', // Yellow
+          '#ff9800', // Orange
+          '#f44336', // Red (high density)
+        ],
+        onCellClick: (x, y, value) => {
+          console.log(`Cell (${x}, ${y}) has ${value} organisms`);
+        },
+      },
+      id
+    );
   }
 
   /**
@@ -283,7 +288,7 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
    */
   startAutoUpdate(getPositions: () => { x: number; y: number }[], interval: number = 2000): void {
     this.stopAutoUpdate();
-    
+
     this.updateInterval = setInterval(() => {
       const positions = getPositions();
       this.updateFromPositions(positions);

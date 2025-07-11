@@ -21,29 +21,35 @@ export function initializeUIComponents() {
   demoContainer.style.zIndex = '1000';
 
   // Create a demo panel
-  const demoPanel = ComponentFactory.createPanel({
-    title: 'UI Components Demo',
-    collapsible: true,
-    closable: true,
-    onClose: () => {
-      document.body.removeChild(demoContainer);
-    }
-  }, 'ui-demo-panel');
+  const demoPanel = ComponentFactory.createPanel(
+    {
+      title: 'UI Components Demo',
+      collapsible: true,
+      closable: true,
+      onClose: () => {
+        document.body.removeChild(demoContainer);
+      },
+    },
+    'ui-demo-panel'
+  );
 
   // Add some example content
   const content = document.createElement('div');
   content.style.padding = '1rem';
 
   // Theme toggle
-  const themeToggle = ComponentFactory.createToggle({
-    label: 'Dark Mode',
-    variant: 'switch',
-    checked: ThemeManager.getCurrentTheme() === 'dark',
-    onChange: (checked: boolean) => {
-      ThemeManager.setTheme(checked ? 'dark' : 'light');
-      ThemeManager.saveThemePreference();
-    }
-  }, 'theme-toggle');
+  const themeToggle = ComponentFactory.createToggle(
+    {
+      label: 'Dark Mode',
+      variant: 'switch',
+      checked: ThemeManager.getCurrentTheme() === 'dark',
+      onChange: (checked: boolean) => {
+        ThemeManager.setTheme(checked ? 'dark' : 'light');
+        ThemeManager.saveThemePreference();
+      },
+    },
+    'theme-toggle'
+  );
 
   themeToggle.mount(content);
 
@@ -57,14 +63,14 @@ export function initializeUIComponents() {
   const primaryBtn = ComponentFactory.createButton({
     text: 'Primary Action',
     variant: 'primary',
-    onClick: () => console.log('Primary button clicked')
+    onClick: () => console.log('Primary button clicked'),
   });
 
   const secondaryBtn = ComponentFactory.createButton({
     text: 'Secondary',
     variant: 'secondary',
     size: 'small',
-    onClick: () => console.log('Secondary button clicked')
+    onClick: () => console.log('Secondary button clicked'),
   });
 
   primaryBtn.mount(buttonContainer);
@@ -80,7 +86,7 @@ export function initializeUIComponents() {
     label: 'Example Input',
     placeholder: 'Type something...',
     helperText: 'This is a helper text',
-    onChange: (value: string) => console.log('Input changed:', value)
+    onChange: (value: string) => console.log('Input changed:', value),
   });
 
   exampleInput.mount(inputContainer);
@@ -94,7 +100,7 @@ export function initializeUIComponents() {
       const modal = ComponentFactory.createModal({
         title: 'Example Modal',
         size: 'medium',
-        closable: true
+        closable: true,
       });
 
       modal.addContent(`
@@ -104,7 +110,7 @@ export function initializeUIComponents() {
 
       modal.mount(document.body);
       modal.open();
-    }
+    },
   });
 
   const modalContainer = document.createElement('div');

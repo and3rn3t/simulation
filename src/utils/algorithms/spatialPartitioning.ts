@@ -28,7 +28,7 @@ export class QuadTree {
   private capacity: number;
   private organisms: Organism[] = [];
   private divided: boolean = false;
-  
+
   // Child quadrants
   private northeast?: QuadTree | undefined;
   private northwest?: QuadTree | undefined;
@@ -43,18 +43,26 @@ export class QuadTree {
   constructor(boundary: Rectangle, capacity: number = 10) {
     try {
       if (!boundary || boundary.width <= 0 || boundary.height <= 0) {
-        throw new SimulationError('Invalid boundary provided for QuadTree', 'QUADTREE_INVALID_BOUNDARY');
+        throw new SimulationError(
+          'Invalid boundary provided for QuadTree',
+          'QUADTREE_INVALID_BOUNDARY'
+        );
       }
-      
+
       if (capacity < 1) {
-        throw new SimulationError('QuadTree capacity must be at least 1', 'QUADTREE_INVALID_CAPACITY');
+        throw new SimulationError(
+          'QuadTree capacity must be at least 1',
+          'QUADTREE_INVALID_CAPACITY'
+        );
       }
-      
+
       this.boundary = boundary;
       this.capacity = capacity;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to create QuadTree', 'QUADTREE_CREATION_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to create QuadTree', 'QUADTREE_CREATION_ERROR'),
         ErrorSeverity.HIGH,
         'QuadTree constructor'
       );
@@ -90,7 +98,9 @@ export class QuadTree {
       );
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to insert organism into QuadTree', 'QUADTREE_INSERT_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to insert organism into QuadTree', 'QUADTREE_INSERT_ERROR'),
         ErrorSeverity.MEDIUM,
         'QuadTree insert'
       );
@@ -116,7 +126,9 @@ export class QuadTree {
       this.divided = true;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to subdivide QuadTree', 'QUADTREE_SUBDIVIDE_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to subdivide QuadTree', 'QUADTREE_SUBDIVIDE_ERROR'),
         ErrorSeverity.HIGH,
         'QuadTree subdivide'
       );
@@ -182,7 +194,9 @@ export class QuadTree {
       return found;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to query QuadTree', 'QUADTREE_QUERY_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to query QuadTree', 'QUADTREE_QUERY_ERROR'),
         ErrorSeverity.MEDIUM,
         'QuadTree query'
       );
@@ -217,7 +231,7 @@ export class QuadTree {
         x: center.x - radius,
         y: center.y - radius,
         width: radius * 2,
-        height: radius * 2
+        height: radius * 2,
       };
 
       const candidates = this.query(range);
@@ -227,7 +241,7 @@ export class QuadTree {
         const dx = organism.x - center.x;
         const dy = organism.y - center.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance <= radius) {
           result.push(organism);
         }
@@ -236,7 +250,12 @@ export class QuadTree {
       return result;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to query QuadTree by radius', 'QUADTREE_RADIUS_QUERY_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError(
+              'Failed to query QuadTree by radius',
+              'QUADTREE_RADIUS_QUERY_ERROR'
+            ),
         ErrorSeverity.MEDIUM,
         'QuadTree queryRadius'
       );
@@ -257,7 +276,9 @@ export class QuadTree {
       this.southwest = undefined;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to clear QuadTree', 'QUADTREE_CLEAR_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to clear QuadTree', 'QUADTREE_CLEAR_ERROR'),
         ErrorSeverity.LOW,
         'QuadTree clear'
       );
@@ -270,14 +291,14 @@ export class QuadTree {
    */
   getOrganismCount(): number {
     let count = this.organisms.length;
-    
+
     if (this.divided) {
       count += this.northeast!.getOrganismCount();
       count += this.northwest!.getOrganismCount();
       count += this.southeast!.getOrganismCount();
       count += this.southwest!.getOrganismCount();
     }
-    
+
     return count;
   }
 
@@ -291,12 +312,14 @@ export class QuadTree {
       organismCount: this.organisms.length,
       divided: this.divided,
       totalOrganisms: this.getOrganismCount(),
-      children: this.divided ? {
-        northeast: this.northeast!.getDebugInfo(),
-        northwest: this.northwest!.getDebugInfo(),
-        southeast: this.southeast!.getDebugInfo(),
-        southwest: this.southwest!.getDebugInfo()
-      } : null
+      children: this.divided
+        ? {
+            northeast: this.northeast!.getDebugInfo(),
+            northwest: this.northwest!.getDebugInfo(),
+            southeast: this.southeast!.getDebugInfo(),
+            southwest: this.southwest!.getDebugInfo(),
+          }
+        : null,
     };
   }
 }
@@ -320,7 +343,7 @@ export class SpatialPartitioningManager {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.capacity = capacity;
-    
+
     this.quadTree = new QuadTree(
       { x: 0, y: 0, width: canvasWidth, height: canvasHeight },
       capacity
@@ -344,7 +367,12 @@ export class SpatialPartitioningManager {
       }
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to rebuild spatial partitioning', 'SPATIAL_PARTITIONING_REBUILD_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError(
+              'Failed to rebuild spatial partitioning',
+              'SPATIAL_PARTITIONING_REBUILD_ERROR'
+            ),
         ErrorSeverity.HIGH,
         'SpatialPartitioningManager rebuild'
       );
@@ -378,8 +406,7 @@ export class SpatialPartitioningManager {
     return {
       canvasSize: { width: this.canvasWidth, height: this.canvasHeight },
       capacity: this.capacity,
-      quadTree: this.quadTree.getDebugInfo()
+      quadTree: this.quadTree.getDebugInfo(),
     };
   }
 }
-

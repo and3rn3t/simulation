@@ -20,22 +20,22 @@ import { PerformanceProfiler } from './performanceProfiler';
  */
 export function initializeDevTools(): void {
   console.log('🔧 Initializing development tools...');
-  
+
   const debugMode = DebugMode.getInstance();
   const devConsole = DeveloperConsole.getInstance();
   const profiler = PerformanceProfiler.getInstance();
-  
+
   // Register console commands for debug mode
   devConsole.registerCommand({
     name: 'profile',
     description: 'Start/stop performance profiling',
     usage: 'profile [start|stop] [duration]',
-    execute: (args) => {
+    execute: args => {
       if (args.length === 0 || args[0] === 'start') {
         const duration = args[1] ? parseInt(args[1]) * 1000 : 10000;
         try {
           const sessionId = profiler.startProfiling(duration);
-          return `Started profiling session: ${sessionId} (${duration/1000}s)`;
+          return `Started profiling session: ${sessionId} (${duration / 1000}s)`;
         } catch (error) {
           return `Error: ${error}`;
         }
@@ -45,14 +45,14 @@ export function initializeDevTools(): void {
       } else {
         return 'Usage: profile [start|stop] [duration]';
       }
-    }
+    },
   });
-  
+
   devConsole.registerCommand({
     name: 'sessions',
     description: 'List all profiling sessions',
     usage: 'sessions [clear]',
-    execute: (args) => {
+    execute: args => {
       if (args[0] === 'clear') {
         profiler.clearSessions();
         return 'Cleared all sessions';
@@ -63,18 +63,18 @@ export function initializeDevTools(): void {
       }
       let output = 'Profiling Sessions:\n';
       sessions.forEach(session => {
-        const duration = session.duration ? `${(session.duration/1000).toFixed(1)}s` : 'ongoing';
+        const duration = session.duration ? `${(session.duration / 1000).toFixed(1)}s` : 'ongoing';
         output += `  ${session.id} - ${duration} - Avg FPS: ${session.averages.fps.toFixed(1)}\n`;
       });
       return output;
-    }
+    },
   });
-  
+
   devConsole.registerCommand({
     name: 'export',
     description: 'Export profiling session data',
     usage: 'export <sessionId>',
-    execute: (args) => {
+    execute: args => {
       if (args.length === 0) {
         return 'Usage: export <sessionId>';
       }
@@ -91,18 +91,18 @@ export function initializeDevTools(): void {
       } catch (error) {
         return `Error: ${error}`;
       }
-    }
+    },
   });
-  
+
   // Add global keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     // Ctrl+Shift+D for debug mode
     if (e.ctrlKey && e.shiftKey && e.key === 'D') {
       e.preventDefault();
       debugMode.toggle();
     }
   });
-  
+
   console.log('✅ Development tools initialized');
   console.log('🔧 Available shortcuts:');
   console.log('  Ctrl+` - Toggle developer console');

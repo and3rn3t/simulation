@@ -32,7 +32,7 @@ export class PerformanceProfiler {
   private sessions: ProfileSession[] = [];
   private metricsBuffer: PerformanceMetrics[] = [];
   private sampleInterval: number | null = null;
-  
+
   private lastGCTime = 0;
   private frameCounter = 0;
   private lastFrameTime = performance.now();
@@ -56,12 +56,12 @@ export class PerformanceProfiler {
       metrics: [],
       averages: this.createEmptyMetrics(),
       peaks: this.createEmptyMetrics(),
-      recommendations: []
+      recommendations: [],
     };
 
     this.isProfilering = true;
     this.metricsBuffer = [];
-    
+
     // Start sampling metrics
     this.sampleInterval = window.setInterval(() => {
       this.collectMetrics();
@@ -85,7 +85,7 @@ export class PerformanceProfiler {
     }
 
     this.isProfilering = false;
-    
+
     if (this.sampleInterval) {
       clearInterval(this.sampleInterval);
       this.sampleInterval = null;
@@ -95,22 +95,22 @@ export class PerformanceProfiler {
     this.currentSession.endTime = performance.now();
     this.currentSession.duration = this.currentSession.endTime - this.currentSession.startTime;
     this.currentSession.metrics = [...this.metricsBuffer];
-    
+
     // Calculate averages and peaks
     this.calculateSessionStatistics();
-    
+
     // Generate recommendations
     this.generateRecommendations();
-    
+
     // Store session
     this.sessions.push(this.currentSession);
-    
+
     const session = this.currentSession;
     this.currentSession = null;
-    
+
     console.log(`✅ Completed performance profiling session: ${session.id}`);
     this.logSessionSummary(session);
-    
+
     return session;
   }
 
@@ -134,17 +134,17 @@ export class PerformanceProfiler {
   // Call this method in your main animation loop
   trackFrame(): void {
     if (!this.isProfilering) return;
-    
+
     this.frameCounter++;
     const now = performance.now();
     const frameTime = now - this.lastFrameTime;
     this.lastFrameTime = now;
-    
+
     // Store frame time for FPS calculation
     if (frameTime > 0) {
       // This could be used for more accurate FPS tracking
     }
-    
+
     // Track garbage collection events
     if ((performance as any).memory) {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
@@ -174,7 +174,7 @@ export class PerformanceProfiler {
     if (!this.isProfilering) return;
 
     const memory = (performance as any).memory;
-    
+
     const metrics: PerformanceMetrics = {
       fps: this.calculateCurrentFPS(),
       frameTime: this.calculateAverageFrameTime(),
@@ -183,7 +183,7 @@ export class PerformanceProfiler {
       canvasOperations: 0, // Will be tracked separately
       drawCalls: 0, // Will be tracked separately
       updateTime: 0, // Will be measured in update loop
-      renderTime: 0 // Will be measured in render loop
+      renderTime: 0, // Will be measured in render loop
     };
 
     this.metricsBuffer.push(metrics);
@@ -203,10 +203,10 @@ export class PerformanceProfiler {
   private calculateGCPressure(): number {
     const memory = (performance as any).memory;
     if (!memory) return 0;
-    
+
     const heapUsed = memory.usedJSHeapSize;
     const heapTotal = memory.totalJSHeapSize;
-    
+
     return (heapUsed / heapTotal) * 100;
   }
 
@@ -225,7 +225,7 @@ export class PerformanceProfiler {
       canvasOperations: metrics.reduce((sum, m) => sum + m.canvasOperations, 0) / count,
       drawCalls: metrics.reduce((sum, m) => sum + m.drawCalls, 0) / count,
       updateTime: metrics.reduce((sum, m) => sum + m.updateTime, 0) / count,
-      renderTime: metrics.reduce((sum, m) => sum + m.renderTime, 0) / count
+      renderTime: metrics.reduce((sum, m) => sum + m.renderTime, 0) / count,
     };
 
     // Calculate peaks
@@ -237,7 +237,7 @@ export class PerformanceProfiler {
       canvasOperations: Math.max(...metrics.map(m => m.canvasOperations)),
       drawCalls: Math.max(...metrics.map(m => m.drawCalls)),
       updateTime: Math.max(...metrics.map(m => m.updateTime)),
-      renderTime: Math.max(...metrics.map(m => m.renderTime))
+      renderTime: Math.max(...metrics.map(m => m.renderTime)),
     };
   }
 
@@ -249,7 +249,9 @@ export class PerformanceProfiler {
 
     // FPS recommendations
     if (avg.fps < 30) {
-      recommendations.push('🔴 Critical: Average FPS is below 30. Consider reducing simulation complexity.');
+      recommendations.push(
+        '🔴 Critical: Average FPS is below 30. Consider reducing simulation complexity.'
+      );
     } else if (avg.fps < 50) {
       recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
     }
@@ -262,7 +264,8 @@ export class PerformanceProfiler {
     }
 
     // Memory recommendations
-    if (avg.memoryUsage > 100 * 1024 * 1024) { // 100MB
+    if (avg.memoryUsage > 100 * 1024 * 1024) {
+      // 100MB
       recommendations.push('🟡 Warning: High memory usage detected. Consider object pooling.');
     }
 
@@ -274,7 +277,9 @@ export class PerformanceProfiler {
 
     // Canvas operations recommendations
     if (avg.canvasOperations > 1000) {
-      recommendations.push('🟡 Warning: High canvas operation count. Consider batching operations.');
+      recommendations.push(
+        '🟡 Warning: High canvas operation count. Consider batching operations.'
+      );
     }
 
     if (avg.drawCalls > 500) {
@@ -285,7 +290,9 @@ export class PerformanceProfiler {
     if (recommendations.length === 0) {
       recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
     } else {
-      recommendations.push('💡 Consider implementing object pooling, dirty rectangle rendering, or spatial partitioning.');
+      recommendations.push(
+        '💡 Consider implementing object pooling, dirty rectangle rendering, or spatial partitioning.'
+      );
     }
 
     this.currentSession.recommendations = recommendations;
@@ -300,7 +307,7 @@ export class PerformanceProfiler {
       canvasOperations: 0,
       drawCalls: 0,
       updateTime: 0,
-      renderTime: 0
+      renderTime: 0,
     };
   }
 
@@ -308,24 +315,24 @@ export class PerformanceProfiler {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
     console.log(`Duration: ${(session.duration! / 1000).toFixed(2)}s`);
     console.log(`Samples: ${session.metrics.length}`);
-    
+
     console.group('Averages');
     console.log(`FPS: ${session.averages.fps.toFixed(1)}`);
     console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
     console.log(`Memory: ${(session.averages.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
     console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
     console.groupEnd();
-    
+
     console.group('Peaks');
     console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
     console.log(`Max Memory: ${(session.peaks.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
     console.log(`Max GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
     console.groupEnd();
-    
+
     console.group('Recommendations');
     session.recommendations.forEach(rec => console.log(rec));
     console.groupEnd();
-    
+
     console.groupEnd();
   }
 
@@ -335,7 +342,7 @@ export class PerformanceProfiler {
     if (!session) {
       throw new Error(`Session ${sessionId} not found`);
     }
-    
+
     return JSON.stringify(session, null, 2);
   }
 

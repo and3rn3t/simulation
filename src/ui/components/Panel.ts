@@ -89,7 +89,7 @@ export class Panel extends BaseComponent {
   private toggleCollapse(): void {
     this.collapsed = !this.collapsed;
     this.element.classList.toggle('ui-panel--collapsed', this.collapsed);
-    
+
     if (this.header) {
       const collapseBtn = this.header.querySelector('.ui-panel__collapse-btn');
       if (collapseBtn) {

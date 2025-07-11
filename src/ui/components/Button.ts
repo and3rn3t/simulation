@@ -25,21 +25,21 @@ export class Button extends BaseComponent {
 
   private static generateClassName(config: ButtonConfig): string {
     const classes = ['ui-button'];
-    
+
     if (config.variant) {
       classes.push(`ui-button--${config.variant}`);
     }
-    
+
     if (config.size) {
       classes.push(`ui-button--${config.size}`);
     }
-    
+
     return classes.join(' ');
   }
 
   private setupButton(): void {
     const button = this.element as HTMLButtonElement;
-    
+
     // Set text content
     if (this.config.icon) {
       button.innerHTML = `<span class="ui-button__icon">${this.config.icon}</span><span class="ui-button__text">${this.config.text}</span>`;
@@ -89,7 +89,7 @@ export class Button extends BaseComponent {
    */
   setLoading(loading: boolean): void {
     const button = this.element as HTMLButtonElement;
-    
+
     if (loading) {
       button.disabled = true;
       button.classList.add('ui-button--loading');

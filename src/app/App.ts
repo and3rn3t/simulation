@@ -71,7 +71,6 @@ export class App {
 
       // Log configuration summary
       this.logConfigurationSummary();
-
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error('Unknown initialization error'),
@@ -109,14 +108,16 @@ export class App {
    */
   private async initializeSimulation(): Promise<void> {
     console.log('🧬 Initializing simulation core...');
-    
+
     try {
       // Import and initialize simulation components
       await import('../core/simulation');
-      
+
       // Configure simulation based on app config
       const simulationConfig = this.configManager.getSimulationConfig();
-      console.log(`🎯 Simulation configured: ${simulationConfig.defaultOrganismCount} organisms, ${simulationConfig.targetFPS} FPS`);
+      console.log(
+        `🎯 Simulation configured: ${simulationConfig.defaultOrganismCount} organisms, ${simulationConfig.targetFPS} FPS`
+      );
     } catch (error) {
       console.warn('Simulation core not available:', error);
     }
@@ -155,7 +156,15 @@ export class App {
    * Check if feature is enabled
    */
   public isFeatureEnabled(
-    feature: 'memoryPanel' | 'debugMode' | 'performanceMonitoring' | 'visualTesting' | 'errorReporting' | 'devTools' | 'hotReload' | 'analytics'
+    feature:
+      | 'memoryPanel'
+      | 'debugMode'
+      | 'performanceMonitoring'
+      | 'visualTesting'
+      | 'errorReporting'
+      | 'devTools'
+      | 'hotReload'
+      | 'analytics'
   ): boolean {
     return this.configManager.getFeature(feature);
   }
@@ -165,7 +174,7 @@ export class App {
    */
   public shutdown(): void {
     console.log('🛑 Shutting down application...');
-    
+
     // Stop performance monitoring
     if (this.performanceManager) {
       this.performanceManager.stopMonitoring();

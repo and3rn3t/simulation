@@ -14,7 +14,7 @@ describe('Algorithm Optimizations', () => {
     beforeEach(() => {
       spatialPartitioning = new SpatialPartitioningManager(800, 600, 10);
       mockOrganisms = [];
-      
+
       // Create some test organisms
       for (let i = 0; i < 20; i++) {
         const organism = new Organism(
@@ -34,7 +34,7 @@ describe('Algorithm Optimizations', () => {
     it('should rebuild spatial partitioning with organisms', () => {
       spatialPartitioning.rebuild(mockOrganisms);
       const debugInfo = spatialPartitioning.getDebugInfo();
-      
+
       expect(debugInfo.totalNodes).toBeGreaterThan(0);
       expect(debugInfo.totalElements).toBe(mockOrganisms.length);
     });
@@ -42,14 +42,14 @@ describe('Algorithm Optimizations', () => {
     it('should handle empty organism list', () => {
       spatialPartitioning.rebuild([]);
       const debugInfo = spatialPartitioning.getDebugInfo();
-      
+
       expect(debugInfo.totalElements).toBe(0);
     });
 
     it('should provide performance metrics', () => {
       spatialPartitioning.rebuild(mockOrganisms);
       const debugInfo = spatialPartitioning.getDebugInfo();
-      
+
       expect(debugInfo.lastRebuildTime).toBeGreaterThan(0);
       expect(debugInfo.averageRebuildTime).toBeGreaterThan(0);
     });
@@ -64,12 +64,12 @@ describe('Algorithm Optimizations', () => {
         {
           batchSize: 10,
           maxFrameTime: 16,
-          useTimeSlicing: true
+          useTimeSlicing: true,
         },
         16.67
       );
       mockOrganisms = [];
-      
+
       // Create test organisms
       for (let i = 0; i < 50; i++) {
         const organism = new Organism(
@@ -85,17 +85,18 @@ describe('Algorithm Optimizations', () => {
       let processedCount = 0;
       const updateFunction = (organism: Organism) => {
         processedCount++;
-        organism.update(1/60, 800, 600);
+        organism.update(1 / 60, 800, 600);
       };
 
-      batchProcessor.processBatch(mockOrganisms, updateFunction, 1/60, 800, 600);
-      
+      batchProcessor.processBatch(mockOrganisms, updateFunction, 1 / 60, 800, 600);
+
       expect(processedCount).toBe(mockOrganisms.length);
     });
 
     it('should handle reproduction in batches', () => {
       const reproductionFunction = (organism: Organism) => {
-        if (Math.random() < 0.1) { // 10% chance
+        if (Math.random() < 0.1) {
+          // 10% chance
           return new Organism(
             organism.x + Math.random() * 10,
             organism.y + Math.random() * 10,
@@ -105,12 +106,8 @@ describe('Algorithm Optimizations', () => {
         return null;
       };
 
-      const result = batchProcessor.processReproduction(
-        mockOrganisms,
-        reproductionFunction,
-        1000
-      );
-      
+      const result = batchProcessor.processReproduction(mockOrganisms, reproductionFunction, 1000);
+
       expect(result.newOrganisms).toBeDefined();
       expect(Array.isArray(result.newOrganisms)).toBe(true);
       expect(result.result.processed).toBe(mockOrganisms.length);
@@ -118,11 +115,11 @@ describe('Algorithm Optimizations', () => {
 
     it('should provide performance statistics', () => {
       const updateFunction = (organism: Organism) => {
-        organism.update(1/60, 800, 600);
+        organism.update(1 / 60, 800, 600);
       };
 
-      batchProcessor.processBatch(mockOrganisms, updateFunction, 1/60, 800, 600);
-      
+      batchProcessor.processBatch(mockOrganisms, updateFunction, 1 / 60, 800, 600);
+
       const stats = batchProcessor.getPerformanceStats();
       expect(stats.averageProcessingTime).toBeGreaterThanOrEqual(0);
       expect(stats.currentBatchSize).toBeGreaterThan(0);
@@ -130,14 +127,14 @@ describe('Algorithm Optimizations', () => {
 
     it('should adapt batch size based on performance', () => {
       const updateFunction = (organism: Organism) => {
-        organism.update(1/60, 800, 600);
+        organism.update(1 / 60, 800, 600);
       };
 
       // Process multiple times to trigger adaptation
       for (let i = 0; i < 5; i++) {
-        batchProcessor.processBatch(mockOrganisms, updateFunction, 1/60, 800, 600);
+        batchProcessor.processBatch(mockOrganisms, updateFunction, 1 / 60, 800, 600);
       }
-      
+
       const stats = batchProcessor.getPerformanceStats();
       expect(stats.currentBatchSize).toBeGreaterThan(0);
     });
@@ -153,12 +150,12 @@ describe('Algorithm Optimizations', () => {
         resources: 0.8,
         space: 0.9,
         toxicity: 0.0,
-        pH: 0.5
+        pH: 0.5,
       };
-      
+
       predictor = new PopulationPredictor(environmentalFactors);
       mockOrganisms = [];
-      
+
       // Create test organisms
       for (let i = 0; i < 30; i++) {
         const organism = new Organism(
@@ -175,7 +172,7 @@ describe('Algorithm Optimizations', () => {
       predictor.addHistoricalData(currentTime, 100);
       predictor.addHistoricalData(currentTime + 1000, 120);
       predictor.addHistoricalData(currentTime + 2000, 140);
-      
+
       // This should not throw an error
       expect(true).toBe(true);
     });
@@ -184,11 +181,11 @@ describe('Algorithm Optimizations', () => {
       // Add some historical data first
       const currentTime = Date.now();
       for (let i = 0; i < 10; i++) {
-        predictor.addHistoricalData(currentTime - (i * 1000), 100 + i * 5);
+        predictor.addHistoricalData(currentTime - i * 1000, 100 + i * 5);
       }
 
       const prediction = await predictor.predictPopulationGrowth(mockOrganisms, 10, false);
-      
+
       expect(prediction).toBeDefined();
       expect(prediction.totalPopulation).toHaveLength(10);
       expect(prediction.confidence).toBeGreaterThanOrEqual(0);
@@ -199,11 +196,11 @@ describe('Algorithm Optimizations', () => {
     it('should update environmental factors', () => {
       const newFactors = {
         temperature: 0.7,
-        resources: 0.6
+        resources: 0.6,
       };
-      
+
       predictor.updateEnvironmentalFactors(newFactors);
-      
+
       // This should not throw an error
       expect(true).toBe(true);
     });
@@ -211,7 +208,7 @@ describe('Algorithm Optimizations', () => {
     it('should handle edge cases', async () => {
       // Test with no historical data
       const prediction = await predictor.predictPopulationGrowth([], 5, false);
-      
+
       expect(prediction).toBeDefined();
       expect(prediction.totalPopulation).toHaveLength(5);
       expect(prediction.confidence).toBe(0);
@@ -237,7 +234,7 @@ describe('Algorithm Optimizations', () => {
 
     it('should provide performance statistics', () => {
       const stats = algorithmWorkerManager.getPerformanceStats();
-      
+
       expect(stats.workerCount).toBeGreaterThanOrEqual(0);
       expect(stats.pendingTasks).toBeGreaterThanOrEqual(0);
       expect(stats.tasksCompleted).toBeGreaterThanOrEqual(0);
@@ -245,7 +242,7 @@ describe('Algorithm Optimizations', () => {
 
     it('should handle worker task processing', async () => {
       const testData = { numbers: [1, 2, 3, 4, 5] };
-      
+
       // This tests that the worker manager can handle tasks
       // without actually processing them (since we're in a test environment)
       const stats = algorithmWorkerManager.getPerformanceStats();
@@ -260,26 +257,30 @@ describe('Algorithm Optimizations', () => {
         { batchSize: 20, maxFrameTime: 16, useTimeSlicing: true },
         16.67
       );
-      
+
       const mockOrganisms: Organism[] = [];
       for (let i = 0; i < 100; i++) {
-        mockOrganisms.push(new Organism(
-          Math.random() * 800,
-          Math.random() * 600,
-          ORGANISM_TYPES.bacteria
-        ));
+        mockOrganisms.push(
+          new Organism(Math.random() * 800, Math.random() * 600, ORGANISM_TYPES.bacteria)
+        );
       }
 
       // Rebuild spatial partitioning
       spatialPartitioning.rebuild(mockOrganisms);
-      
+
       // Process in batches
       let processedCount = 0;
-      batchProcessor.processBatch(mockOrganisms, (organism) => {
-        processedCount++;
-        organism.update(1/60, 800, 600);
-      }, 1/60, 800, 600);
-      
+      batchProcessor.processBatch(
+        mockOrganisms,
+        organism => {
+          processedCount++;
+          organism.update(1 / 60, 800, 600);
+        },
+        1 / 60,
+        800,
+        600
+      );
+
       expect(processedCount).toBe(mockOrganisms.length);
       expect(spatialPartitioning.getDebugInfo().totalElements).toBe(mockOrganisms.length);
     });
@@ -290,27 +291,31 @@ describe('Algorithm Optimizations', () => {
         { batchSize: 15, maxFrameTime: 16, useTimeSlicing: true },
         16.67
       );
-      
+
       const mockOrganisms: Organism[] = [];
       for (let i = 0; i < 50; i++) {
-        mockOrganisms.push(new Organism(
-          Math.random() * 800,
-          Math.random() * 600,
-          ORGANISM_TYPES.bacteria
-        ));
+        mockOrganisms.push(
+          new Organism(Math.random() * 800, Math.random() * 600, ORGANISM_TYPES.bacteria)
+        );
       }
 
       // Process multiple frames to generate performance data
       for (let frame = 0; frame < 10; frame++) {
         spatialPartitioning.rebuild(mockOrganisms);
-        batchProcessor.processBatch(mockOrganisms, (organism) => {
-          organism.update(1/60, 800, 600);
-        }, 1/60, 800, 600);
+        batchProcessor.processBatch(
+          mockOrganisms,
+          organism => {
+            organism.update(1 / 60, 800, 600);
+          },
+          1 / 60,
+          800,
+          600
+        );
       }
-      
+
       const spatialStats = spatialPartitioning.getDebugInfo();
       const batchStats = batchProcessor.getPerformanceStats();
-      
+
       expect(spatialStats.totalRebuildOperations).toBeGreaterThan(0);
       expect(batchStats.averageProcessingTime).toBeGreaterThanOrEqual(0);
       expect(batchStats.currentBatchSize).toBeGreaterThan(0);

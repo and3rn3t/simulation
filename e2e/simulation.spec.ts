@@ -27,13 +27,13 @@ test.describe('Organism Simulation - Basic Functionality', () => {
 
     // Start simulation
     await startBtn.click();
-    
+
     // Wait a bit and verify simulation is running
     await page.waitForTimeout(1000);
-    
+
     // Pause simulation
     await pauseBtn.click();
-    
+
     // The test passes if no errors occur during start/pause
     expect(true).toBe(true);
   });
@@ -48,7 +48,7 @@ test.describe('Organism Simulation - Basic Functionality', () => {
 
     // Reset simulation
     await resetBtn.click();
-    
+
     // Verify reset worked (organism count should be 0 or reset state)
     // This would need to be verified through UI elements showing count
     expect(true).toBe(true);
@@ -56,24 +56,24 @@ test.describe('Organism Simulation - Basic Functionality', () => {
 
   test('should clear canvas', async ({ page }) => {
     const clearBtn = page.locator('#clear-btn');
-    
+
     // Clear the canvas
     await clearBtn.click();
-    
+
     // Verify clear worked
     expect(true).toBe(true);
   });
 
   test('should respond to speed control changes', async ({ page }) => {
     const speedSlider = page.locator('#speed-slider');
-    
-    if (await speedSlider.count() > 0) {
+
+    if ((await speedSlider.count()) > 0) {
       // Change speed
       await speedSlider.fill('3');
-      
+
       // Verify speed value display updates
       const speedValue = page.locator('#speed-value');
-      if (await speedValue.count() > 0) {
+      if ((await speedValue.count()) > 0) {
         await expect(speedValue).toContainText('3x');
       }
     }
@@ -81,14 +81,14 @@ test.describe('Organism Simulation - Basic Functionality', () => {
 
   test('should respond to population limit changes', async ({ page }) => {
     const populationSlider = page.locator('#population-limit');
-    
-    if (await populationSlider.count() > 0) {
+
+    if ((await populationSlider.count()) > 0) {
       // Change population limit
       await populationSlider.fill('500');
-      
+
       // Verify population limit display updates
       const populationValue = page.locator('#population-limit-value');
-      if (await populationValue.count() > 0) {
+      if ((await populationValue.count()) > 0) {
         await expect(populationValue).toContainText('500');
       }
     }
@@ -96,30 +96,30 @@ test.describe('Organism Simulation - Basic Functionality', () => {
 
   test('should handle canvas interactions', async ({ page }) => {
     const canvas = page.locator('#simulation-canvas');
-    
+
     // Click on canvas (should add organism if functionality exists)
     await canvas.click({
-      position: { x: 200, y: 200 }
+      position: { x: 200, y: 200 },
     });
-    
+
     // Wait for any resulting changes
     await page.waitForTimeout(500);
-    
+
     // The test passes if clicking doesn't cause errors
     expect(true).toBe(true);
   });
 
   test('should handle organism type selection', async ({ page }) => {
     const organismSelect = page.locator('#organism-select');
-    
-    if (await organismSelect.count() > 0) {
+
+    if ((await organismSelect.count()) > 0) {
       // Change organism type
       await organismSelect.selectOption({ index: 1 });
-      
+
       // Wait for change to process
       await page.waitForTimeout(500);
     }
-    
+
     expect(true).toBe(true);
   });
 });
@@ -133,13 +133,13 @@ test.describe('Organism Simulation - Advanced Features', () => {
   test('should handle memory panel if present', async ({ page }) => {
     // Check if memory panel is visible
     const memoryPanel = page.locator('.memory-panel');
-    
-    if (await memoryPanel.count() > 0) {
+
+    if ((await memoryPanel.count()) > 0) {
       await expect(memoryPanel).toBeVisible();
-      
+
       // Check if memory statistics are displayed
       const memoryUsage = page.locator('.memory-usage');
-      if (await memoryUsage.count() > 0) {
+      if ((await memoryUsage.count()) > 0) {
         await expect(memoryUsage).toBeVisible();
       }
     }
@@ -161,12 +161,13 @@ test.describe('Organism Simulation - Advanced Features', () => {
     await page.locator('#clear-btn').click();
 
     // Check that no critical errors occurred
-    const criticalErrors = errors.filter(error => 
-      error.includes('Critical') || 
-      error.includes('TypeError') || 
-      error.includes('ReferenceError')
+    const criticalErrors = errors.filter(
+      error =>
+        error.includes('Critical') ||
+        error.includes('TypeError') ||
+        error.includes('ReferenceError')
     );
-    
+
     expect(criticalErrors.length).toBe(0);
   });
 
@@ -174,7 +175,7 @@ test.describe('Organism Simulation - Advanced Features', () => {
     // Test desktop size
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.waitForTimeout(500);
-    
+
     const canvas = page.locator('#simulation-canvas');
     await expect(canvas).toBeVisible();
 
@@ -197,20 +198,20 @@ test.describe('Performance Tests', () => {
 
     // Start monitoring performance
     const startTime = Date.now();
-    
+
     // Start simulation
     await page.locator('#start-btn').click();
-    
+
     // Let it run for a few seconds
     await page.waitForTimeout(5000);
-    
+
     // Check that page is still responsive
     const endTime = Date.now();
     const responseTime = endTime - startTime;
-    
+
     // Should complete within reasonable time
     expect(responseTime).toBeLessThan(10000); // 10 seconds max
-    
+
     // Page should still be responsive
     await page.locator('#pause-btn').click();
   });

@@ -24,9 +24,9 @@ export class ControlPanelComponent extends Panel {
     const panelConfig: PanelConfig = {
       title: config.title || 'Simulation Controls',
       collapsible: true,
-      className: 'control-panel'
+      className: 'control-panel',
     };
-    
+
     super(panelConfig);
     this.controlConfig = config;
     this.setupControls();
@@ -34,7 +34,7 @@ export class ControlPanelComponent extends Panel {
 
   private setupControls(): void {
     const content = this.getContent();
-    
+
     // Create control sections
     this.createPlaybackControls(content);
     this.createSpeedControls(content);
@@ -53,20 +53,26 @@ export class ControlPanelComponent extends Panel {
     buttonContainer.style.marginBottom = 'var(--ui-space-md)';
 
     // Start/Pause button
-    const playPauseBtn = ComponentFactory.createButton({
-      text: this.isRunning ? 'Pause' : 'Start',
-      variant: this.isRunning ? 'secondary' : 'primary',
-      icon: this.isRunning ? '⏸️' : '▶️',
-      onClick: () => this.togglePlayback()
-    }, 'control-play-pause');
+    const playPauseBtn = ComponentFactory.createButton(
+      {
+        text: this.isRunning ? 'Pause' : 'Start',
+        variant: this.isRunning ? 'secondary' : 'primary',
+        icon: this.isRunning ? '⏸️' : '▶️',
+        onClick: () => this.togglePlayback(),
+      },
+      'control-play-pause'
+    );
 
     // Reset button
-    const resetBtn = ComponentFactory.createButton({
-      text: 'Reset',
-      variant: 'danger',
-      icon: '🔄',
-      onClick: () => this.handleReset()
-    }, 'control-reset');
+    const resetBtn = ComponentFactory.createButton(
+      {
+        text: 'Reset',
+        variant: 'danger',
+        icon: '🔄',
+        onClick: () => this.handleReset(),
+      },
+      'control-reset'
+    );
 
     playPauseBtn.mount(buttonContainer);
     resetBtn.mount(buttonContainer);
@@ -100,11 +106,11 @@ export class ControlPanelComponent extends Panel {
     speedDisplay.textContent = `Speed: ${this.speed}x`;
     speedDisplay.className = 'speed-display';
 
-    speedSlider.addEventListener('input', (e) => {
+    speedSlider.addEventListener('input', e => {
       const target = e.target as HTMLInputElement;
       this.speed = parseFloat(target.value);
       speedDisplay.textContent = `Speed: ${this.speed}x`;
-      
+
       if (this.controlConfig.onSpeedChange) {
         this.controlConfig.onSpeedChange(this.speed);
       }
@@ -128,17 +134,20 @@ export class ControlPanelComponent extends Panel {
     optionsContainer.style.gap = 'var(--ui-space-sm)';
 
     // Auto-spawn toggle
-    const autoSpawnToggle = ComponentFactory.createToggle({
-      label: 'Auto-spawn organisms',
-      variant: 'switch',
-      checked: this.autoSpawn,
-      onChange: (checked) => {
-        this.autoSpawn = checked;
-        if (this.controlConfig.onAutoSpawnToggle) {
-          this.controlConfig.onAutoSpawnToggle(checked);
-        }
-      }
-    }, 'control-auto-spawn');
+    const autoSpawnToggle = ComponentFactory.createToggle(
+      {
+        label: 'Auto-spawn organisms',
+        variant: 'switch',
+        checked: this.autoSpawn,
+        onChange: checked => {
+          this.autoSpawn = checked;
+          if (this.controlConfig.onAutoSpawnToggle) {
+            this.controlConfig.onAutoSpawnToggle(checked);
+          }
+        },
+      },
+      'control-auto-spawn'
+    );
 
     autoSpawnToggle.mount(optionsContainer);
 
@@ -148,14 +157,14 @@ export class ControlPanelComponent extends Panel {
 
   private togglePlayback(): void {
     this.isRunning = !this.isRunning;
-    
+
     // Update button
     const playPauseBtn = ComponentFactory.getComponent<Button>('control-play-pause');
     if (playPauseBtn) {
       playPauseBtn.updateConfig({
         text: this.isRunning ? 'Pause' : 'Start',
         variant: this.isRunning ? 'secondary' : 'primary',
-        icon: this.isRunning ? '⏸️' : '▶️'
+        icon: this.isRunning ? '⏸️' : '▶️',
       });
     }
 
@@ -169,14 +178,14 @@ export class ControlPanelComponent extends Panel {
 
   private handleReset(): void {
     this.isRunning = false;
-    
+
     // Update button
     const playPauseBtn = ComponentFactory.getComponent<Button>('control-play-pause');
     if (playPauseBtn) {
       playPauseBtn.updateConfig({
         text: 'Start',
         variant: 'primary',
-        icon: '▶️'
+        icon: '▶️',
       });
     }
 
@@ -206,12 +215,12 @@ export class ControlPanelComponent extends Panel {
    */
   setSpeed(speed: number): void {
     this.speed = Math.max(0.1, Math.min(5, speed));
-    
+
     const slider = this.element.querySelector('.speed-slider') as HTMLInputElement;
     if (slider) {
       slider.value = this.speed.toString();
     }
-    
+
     const display = this.element.querySelector('.speed-display');
     if (display) {
       display.textContent = `Speed: ${this.speed}x`;

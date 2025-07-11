@@ -4,7 +4,7 @@ import {
   ChartData,
   ChartOptions,
   ChartType,
-  registerables
+  registerables,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import { BaseComponent } from './BaseComponent';
@@ -42,7 +42,7 @@ export class ChartComponent extends BaseComponent {
       maintainAspectRatio: false,
       width: 400,
       height: 300,
-      ...config
+      ...config,
     };
 
     this.createElement();
@@ -60,7 +60,7 @@ export class ChartComponent extends BaseComponent {
     `;
 
     this.canvas = this.element.querySelector('canvas') as HTMLCanvasElement;
-    
+
     if (this.config.width && this.config.height) {
       this.canvas.width = this.config.width;
       this.canvas.height = this.config.height;
@@ -84,21 +84,21 @@ export class ChartComponent extends BaseComponent {
             labels: {
               color: 'rgba(255, 255, 255, 0.87)',
               font: {
-                size: 12
-              }
-            }
+                size: 12,
+              },
+            },
           },
           tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             titleColor: 'rgba(255, 255, 255, 0.87)',
             bodyColor: 'rgba(255, 255, 255, 0.87)',
             borderColor: 'rgba(255, 255, 255, 0.2)',
-            borderWidth: 1
-          }
+            borderWidth: 1,
+          },
         },
         scales: this.getScalesConfig(),
-        ...this.config.options
-      }
+        ...this.config.options,
+      },
     };
 
     this.chart = new Chart(ctx, chartConfig);
@@ -107,14 +107,16 @@ export class ChartComponent extends BaseComponent {
   private getDefaultData(): ChartData {
     return {
       labels: [],
-      datasets: [{
-        label: 'Data',
-        data: [],
-        backgroundColor: this.config.backgroundColor || 'rgba(76, 175, 80, 0.2)',
-        borderColor: this.config.borderColor || 'rgba(76, 175, 80, 1)',
-        borderWidth: 2,
-        fill: false
-      }]
+      datasets: [
+        {
+          label: 'Data',
+          data: [],
+          backgroundColor: this.config.backgroundColor || 'rgba(76, 175, 80, 0.2)',
+          borderColor: this.config.borderColor || 'rgba(76, 175, 80, 1)',
+          borderWidth: 2,
+          fill: false,
+        },
+      ],
     };
   }
 
@@ -123,20 +125,20 @@ export class ChartComponent extends BaseComponent {
       return {
         x: {
           ticks: {
-            color: 'rgba(255, 255, 255, 0.6)'
+            color: 'rgba(255, 255, 255, 0.6)',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
+            color: 'rgba(255, 255, 255, 0.1)',
+          },
         },
         y: {
           ticks: {
-            color: 'rgba(255, 255, 255, 0.6)'
+            color: 'rgba(255, 255, 255, 0.6)',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          }
-        }
+            color: 'rgba(255, 255, 255, 0.1)',
+          },
+        },
       };
     }
     return {};
@@ -230,64 +232,67 @@ export class ChartComponent extends BaseComponent {
  */
 export class PopulationChartComponent extends ChartComponent {
   constructor(id?: string) {
-    super({
-      type: 'line',
-      title: 'Population Over Time',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Total Population',
-            data: [],
-            backgroundColor: 'rgba(76, 175, 80, 0.2)',
-            borderColor: 'rgba(76, 175, 80, 1)',
-            borderWidth: 2,
-            fill: true
-          },
-          {
-            label: 'Births',
-            data: [],
-            backgroundColor: 'rgba(33, 150, 243, 0.2)',
-            borderColor: 'rgba(33, 150, 243, 1)',
-            borderWidth: 2,
-            fill: false
-          },
-          {
-            label: 'Deaths',
-            data: [],
-            backgroundColor: 'rgba(244, 67, 54, 0.2)',
-            borderColor: 'rgba(244, 67, 54, 1)',
-            borderWidth: 2,
-            fill: false
-          }
-        ]
-      },
-      options: {
-        scales: {
-          x: {
-            type: 'time',
-            time: {
-              displayFormats: {
-                second: 'HH:mm:ss'
-              }
+    super(
+      {
+        type: 'line',
+        title: 'Population Over Time',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Total Population',
+              data: [],
+              backgroundColor: 'rgba(76, 175, 80, 0.2)',
+              borderColor: 'rgba(76, 175, 80, 1)',
+              borderWidth: 2,
+              fill: true,
             },
-            title: {
-              display: true,
-              text: 'Time',
-              color: 'rgba(255, 255, 255, 0.87)'
-            }
+            {
+              label: 'Births',
+              data: [],
+              backgroundColor: 'rgba(33, 150, 243, 0.2)',
+              borderColor: 'rgba(33, 150, 243, 1)',
+              borderWidth: 2,
+              fill: false,
+            },
+            {
+              label: 'Deaths',
+              data: [],
+              backgroundColor: 'rgba(244, 67, 54, 0.2)',
+              borderColor: 'rgba(244, 67, 54, 1)',
+              borderWidth: 2,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                displayFormats: {
+                  second: 'HH:mm:ss',
+                },
+              },
+              title: {
+                display: true,
+                text: 'Time',
+                color: 'rgba(255, 255, 255, 0.87)',
+              },
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Count',
+                color: 'rgba(255, 255, 255, 0.87)',
+              },
+            },
           },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Count',
-              color: 'rgba(255, 255, 255, 0.87)'
-            }
-          }
-        }
-      }
-    }, id);
+        },
+      },
+      id
+    );
   }
 
   /**
@@ -300,7 +305,7 @@ export class PopulationChartComponent extends ChartComponent {
     deaths: number;
   }): void {
     const timeLabel = stats.timestamp;
-    
+
     this.addDataPoint(timeLabel.toString(), 0, stats.population);
     this.addDataPoint(timeLabel.toString(), 1, stats.births);
     this.addDataPoint(timeLabel.toString(), 2, stats.deaths);
@@ -312,40 +317,45 @@ export class PopulationChartComponent extends ChartComponent {
  */
 export class OrganismDistributionChart extends ChartComponent {
   constructor(id?: string) {
-    super({
-      type: 'doughnut',
-      title: 'Organism Type Distribution',
-      data: {
-        labels: [],
-        datasets: [{
-          data: [],
-          backgroundColor: [
-            'rgba(76, 175, 80, 0.8)',
-            'rgba(33, 150, 243, 0.8)',
-            'rgba(244, 67, 54, 0.8)',
-            'rgba(255, 152, 0, 0.8)',
-            'rgba(156, 39, 176, 0.8)',
-            'rgba(255, 193, 7, 0.8)'
+    super(
+      {
+        type: 'doughnut',
+        title: 'Organism Type Distribution',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              data: [],
+              backgroundColor: [
+                'rgba(76, 175, 80, 0.8)',
+                'rgba(33, 150, 243, 0.8)',
+                'rgba(244, 67, 54, 0.8)',
+                'rgba(255, 152, 0, 0.8)',
+                'rgba(156, 39, 176, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+              ],
+              borderColor: [
+                'rgba(76, 175, 80, 1)',
+                'rgba(33, 150, 243, 1)',
+                'rgba(244, 67, 54, 1)',
+                'rgba(255, 152, 0, 1)',
+                'rgba(156, 39, 176, 1)',
+                'rgba(255, 193, 7, 1)',
+              ],
+              borderWidth: 2,
+            },
           ],
-          borderColor: [
-            'rgba(76, 175, 80, 1)',
-            'rgba(33, 150, 243, 1)',
-            'rgba(244, 67, 54, 1)',
-            'rgba(255, 152, 0, 1)',
-            'rgba(156, 39, 176, 1)',
-            'rgba(255, 193, 7, 1)'
-          ],
-          borderWidth: 2
-        }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+          },
+        },
       },
-      options: {
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
-    }, id);
+      id
+    );
   }
 
   /**
@@ -357,10 +367,12 @@ export class OrganismDistributionChart extends ChartComponent {
 
     this.updateData({
       labels,
-      datasets: [{
-        ...this.chart!.data.datasets[0],
-        data
-      }]
+      datasets: [
+        {
+          ...this.chart!.data.datasets[0],
+          data,
+        },
+      ],
     });
   }
 }

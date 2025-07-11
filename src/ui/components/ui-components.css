@@ -3,38 +3,38 @@
 /* CSS Custom Properties for Design System */
 :root {
   /* Colors */
-  --ui-primary: #4CAF50;
-  --ui-primary-dark: #388E3C;
-  --ui-primary-light: #81C784;
-  --ui-secondary: #2196F3;
-  --ui-secondary-dark: #1976D2;
-  --ui-secondary-light: #64B5F6;
-  --ui-danger: #F44336;
-  --ui-danger-dark: #D32F2F;
-  --ui-danger-light: #EF5350;
-  --ui-success: #4CAF50;
-  --ui-warning: #FF9800;
-  --ui-info: #2196F3;
-  
+  --ui-primary: #4caf50;
+  --ui-primary-dark: #388e3c;
+  --ui-primary-light: #81c784;
+  --ui-secondary: #2196f3;
+  --ui-secondary-dark: #1976d2;
+  --ui-secondary-light: #64b5f6;
+  --ui-danger: #f44336;
+  --ui-danger-dark: #d32f2f;
+  --ui-danger-light: #ef5350;
+  --ui-success: #4caf50;
+  --ui-warning: #ff9800;
+  --ui-info: #2196f3;
+
   /* Neutral colors */
-  --ui-gray-50: #FAFAFA;
-  --ui-gray-100: #F5F5F5;
-  --ui-gray-200: #EEEEEE;
-  --ui-gray-300: #E0E0E0;
-  --ui-gray-400: #BDBDBD;
-  --ui-gray-500: #9E9E9E;
+  --ui-gray-50: #fafafa;
+  --ui-gray-100: #f5f5f5;
+  --ui-gray-200: #eeeeee;
+  --ui-gray-300: #e0e0e0;
+  --ui-gray-400: #bdbdbd;
+  --ui-gray-500: #9e9e9e;
   --ui-gray-600: #757575;
   --ui-gray-700: #616161;
   --ui-gray-800: #424242;
   --ui-gray-900: #212121;
-  
+
   /* Dark theme colors */
   --ui-dark-bg: #1a1a1a;
   --ui-dark-surface: #2d2d2d;
   --ui-dark-surface-elevated: #3a3a3a;
   --ui-dark-text: rgba(255, 255, 255, 0.87);
   --ui-dark-text-secondary: rgba(255, 255, 255, 0.6);
-  
+
   /* Spacing */
   --ui-space-xs: 0.25rem;
   --ui-space-sm: 0.5rem;
@@ -42,26 +42,26 @@
   --ui-space-lg: 1.5rem;
   --ui-space-xl: 2rem;
   --ui-space-2xl: 3rem;
-  
+
   /* Border radius */
   --ui-radius-sm: 0.25rem;
   --ui-radius-md: 0.375rem;
   --ui-radius-lg: 0.5rem;
   --ui-radius-xl: 0.75rem;
-  
+
   /* Shadows */
   --ui-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --ui-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --ui-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --ui-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
+
   /* Typography */
   --ui-font-size-xs: 0.75rem;
   --ui-font-size-sm: 0.875rem;
   --ui-font-size-md: 1rem;
   --ui-font-size-lg: 1.125rem;
   --ui-font-size-xl: 1.25rem;
-  
+
   /* Transitions */
   --ui-transition: all 0.2s ease-in-out;
   --ui-transition-fast: all 0.1s ease-in-out;
@@ -139,7 +139,7 @@
 }
 
 .ui-button--success {
-  background: linear-gradient(135deg, var(--ui-success), #388E3C);
+  background: linear-gradient(135deg, var(--ui-success), #388e3c);
   color: white;
 }
 
@@ -176,7 +176,9 @@
 }
 
 @keyframes ui-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ui-button__icon {
@@ -345,8 +347,12 @@
 
 /* Modal animations */
 @keyframes ui-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes ui-modal-in {
@@ -636,31 +642,31 @@
   .ui-modal {
     padding: var(--ui-space-sm);
   }
-  
+
   .ui-modal__dialog {
     margin: 0;
     max-height: calc(100vh - 1rem);
   }
-  
+
   .ui-modal__header,
   .ui-modal__content {
     padding: var(--ui-space-md);
   }
-  
+
   .ui-button--large {
     padding: var(--ui-space-sm) var(--ui-space-md);
     font-size: var(--ui-font-size-sm);
   }
-  
+
   .control-panel {
     min-width: auto;
     width: 100%;
   }
-  
+
   .button-group {
     justify-content: stretch;
   }
-  
+
   .button-group .ui-button {
     flex: 1;
   }
@@ -686,11 +692,11 @@
   .ui-button {
     border: 2px solid currentColor;
   }
-  
+
   .ui-input__field {
     border-width: 3px;
   }
-  
+
   .ui-toggle__element {
     border-width: 3px;
   }
@@ -701,7 +707,7 @@
   .ui-button:focus {
     outline: none;
   }
-  
+
   .ui-input__field:focus {
     outline: none;
   }

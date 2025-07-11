@@ -98,7 +98,9 @@ export class VisualizationDashboard extends BaseComponent {
 
     // Distribution chart
     this.distributionChart = new OrganismDistributionChart('distribution-chart');
-    const distributionContainer = this.element.querySelector('#distribution-chart-container') as HTMLElement;
+    const distributionContainer = this.element.querySelector(
+      '#distribution-chart-container'
+    ) as HTMLElement;
     this.distributionChart.mount(distributionContainer);
 
     // Density heatmap
@@ -117,7 +119,7 @@ export class VisualizationDashboard extends BaseComponent {
         maxTrailLength: 50,
         trailFadeRate: 0.02,
         trailWidth: 2,
-        showTrails: true
+        showTrails: true,
       },
       'organism-trails'
     );
@@ -135,7 +137,7 @@ export class VisualizationDashboard extends BaseComponent {
       this.isVisible = !this.isVisible;
       dashboardContent.style.display = this.isVisible ? 'block' : 'none';
       toggleIcon.textContent = this.isVisible ? '🔽' : '🔼';
-      
+
       if (this.isVisible) {
         this.startUpdates();
       } else {
@@ -149,30 +151,30 @@ export class VisualizationDashboard extends BaseComponent {
     const chartsToggle = ComponentFactory.createToggle({
       label: 'Charts',
       checked: this.preferencesManager.getPreferences().showCharts,
-      onChange: (checked) => {
+      onChange: checked => {
         this.toggleCharts(checked);
         this.preferencesManager.updatePreference('showCharts', checked);
-      }
+      },
     });
     chartsToggle.mount(displayToggles);
 
     const heatmapToggle = ComponentFactory.createToggle({
       label: 'Heatmap',
       checked: this.preferencesManager.getPreferences().showHeatmap,
-      onChange: (checked) => {
+      onChange: checked => {
         this.toggleHeatmap(checked);
         this.preferencesManager.updatePreference('showHeatmap', checked);
-      }
+      },
     });
     heatmapToggle.mount(displayToggles);
 
     const trailsToggle = ComponentFactory.createToggle({
       label: 'Trails',
       checked: this.preferencesManager.getPreferences().showTrails,
-      onChange: (checked) => {
+      onChange: checked => {
         this.toggleTrails(checked);
         this.preferencesManager.updatePreference('showTrails', checked);
-      }
+      },
     });
     trailsToggle.mount(displayToggles);
 
@@ -189,7 +191,7 @@ export class VisualizationDashboard extends BaseComponent {
     const frequencyValue = document.createElement('span');
     frequencyValue.textContent = `${this.preferencesManager.getPreferences().chartUpdateInterval}ms`;
 
-    frequencySlider.addEventListener('input', (e) => {
+    frequencySlider.addEventListener('input', e => {
       const value = parseInt((e.target as HTMLInputElement).value);
       frequencyValue.textContent = `${value}ms`;
       this.preferencesManager.updatePreference('chartUpdateInterval', value);
@@ -207,7 +209,7 @@ export class VisualizationDashboard extends BaseComponent {
 
   private applyPreferences(): void {
     const preferences = this.preferencesManager.getPreferences();
-    
+
     this.toggleCharts(preferences.showCharts);
     this.toggleHeatmap(preferences.showHeatmap);
     this.toggleTrails(preferences.showTrails);
@@ -242,7 +244,7 @@ export class VisualizationDashboard extends BaseComponent {
         timestamp: data.timestamp,
         population: data.population,
         births: data.births,
-        deaths: data.deaths
+        deaths: data.deaths,
       });
 
       // Update distribution chart
@@ -259,7 +261,6 @@ export class VisualizationDashboard extends BaseComponent {
 
       // Update stats
       this.updateStats(data);
-
     } catch (error) {
       console.error('Error updating visualization:', error);
     }
@@ -292,7 +293,7 @@ export class VisualizationDashboard extends BaseComponent {
     const chartDataSize = this.populationChart ? 0.1 : 0; // ~100KB for chart data
     const trailDataSize = data.positions.length * 0.001; // ~1KB per position
     const heatmapDataSize = 0.05; // ~50KB for heatmap
-    
+
     return chartDataSize + trailDataSize + heatmapDataSize;
   }
 
@@ -312,7 +313,7 @@ export class VisualizationDashboard extends BaseComponent {
         births: 0,
         deaths: 0,
         organismTypes: {},
-        positions: []
+        positions: [],
       });
     }, interval);
   }
@@ -355,10 +356,10 @@ export class VisualizationDashboard extends BaseComponent {
     return {
       charts: {
         population: this.populationChart,
-        distribution: this.distributionChart
+        distribution: this.distributionChart,
       },
       trails: this.trailComponent.exportTrailData(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -368,7 +369,7 @@ export class VisualizationDashboard extends BaseComponent {
   resize(): void {
     this.populationChart.resize();
     this.distributionChart.resize();
-    
+
     if (this.simulationCanvas) {
       this.densityHeatmap.resize(this.simulationCanvas.width, this.simulationCanvas.height);
     }

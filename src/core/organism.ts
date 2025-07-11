@@ -1,5 +1,10 @@
-import type { OrganismType } from "../models/organismTypes";
-import { ErrorHandler, ErrorSeverity, OrganismError, CanvasError } from '../utils/system/errorHandler';
+import type { OrganismType } from '../models/organismTypes';
+import {
+  ErrorHandler,
+  ErrorSeverity,
+  OrganismError,
+  CanvasError,
+} from '../utils/system/errorHandler';
 import { log } from '../utils/system/logger';
 
 /**
@@ -29,11 +34,11 @@ export class Organism {
       if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
         throw new OrganismError('Invalid position coordinates provided');
       }
-      
+
       if (!type) {
         throw new OrganismError('Organism type is required');
       }
-      
+
       this.x = x;
       this.y = y;
       this.age = 0;
@@ -60,11 +65,11 @@ export class Organism {
       if (deltaTime < 0 || isNaN(deltaTime)) {
         throw new OrganismError('Invalid deltaTime provided');
       }
-      
+
       if (canvasWidth <= 0 || canvasHeight <= 0) {
         throw new OrganismError('Invalid canvas dimensions provided');
       }
-      
+
       this.age += deltaTime;
 
       // Simple random movement
@@ -129,16 +134,16 @@ export class Organism {
       const offsetX = (Math.random() - 0.5) * 20;
       const offsetY = (Math.random() - 0.5) * 20;
       const newOrganism = new Organism(this.x + offsetX, this.y + offsetY, this.type);
-      
+
       // Log reproduction events for long-lived organisms
       if (this.age > 50) {
         log.logOrganism('Long-lived organism reproduced', {
           parentAge: this.age,
           organismType: this.type.name,
-          position: { x: this.x, y: this.y }
+          position: { x: this.x, y: this.y },
         });
       }
-      
+
       return newOrganism;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -159,7 +164,7 @@ export class Organism {
       if (!ctx) {
         throw new CanvasError('Canvas context is required for drawing');
       }
-      
+
       ctx.fillStyle = this.type.color;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.type.size, 0, Math.PI * 2);

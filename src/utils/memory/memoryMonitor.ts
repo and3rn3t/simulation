@@ -15,9 +15,9 @@ export interface MemoryInfo {
  * Memory threshold configuration
  */
 export interface MemoryThresholds {
-  warning: number;    // Percentage of heap limit
-  critical: number;   // Percentage of heap limit
-  emergency: number;  // Percentage of heap limit
+  warning: number; // Percentage of heap limit
+  critical: number; // Percentage of heap limit
+  emergency: number; // Percentage of heap limit
 }
 
 /**
@@ -30,16 +30,16 @@ export class MemoryMonitor {
   private maxHistorySize = 100;
   private monitoringInterval: number | null = null;
   private thresholds: MemoryThresholds = {
-    warning: 70,   // 70% of heap limit
-    critical: 85,  // 85% of heap limit
-    emergency: 95  // 95% of heap limit
+    warning: 70, // 70% of heap limit
+    critical: 85, // 85% of heap limit
+    emergency: 95, // 95% of heap limit
   };
   private lastAlertTime = 0;
   private alertCooldown = 5000; // 5 seconds between alerts
 
   private constructor() {
     this.isSupported = 'memory' in performance;
-    
+
     if (!this.isSupported) {
       log.logSystem('Memory monitoring not supported in this browser');
     }
@@ -69,7 +69,7 @@ export class MemoryMonitor {
         usedJSHeapSize: memory.usedJSHeapSize,
         totalJSHeapSize: memory.totalJSHeapSize,
         jsHeapSizeLimit: memory.jsHeapSizeLimit,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -87,7 +87,7 @@ export class MemoryMonitor {
   getMemoryUsagePercentage(): number {
     const memInfo = this.getCurrentMemoryInfo();
     if (!memInfo) return 0;
-    
+
     return (memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100;
   }
 
@@ -104,7 +104,7 @@ export class MemoryMonitor {
    */
   getMemoryUsageLevel(): 'safe' | 'warning' | 'critical' | 'emergency' {
     const percentage = this.getMemoryUsagePercentage();
-    
+
     if (percentage >= this.thresholds.emergency) return 'emergency';
     if (percentage >= this.thresholds.critical) return 'critical';
     if (percentage >= this.thresholds.warning) return 'warning';
@@ -146,7 +146,7 @@ export class MemoryMonitor {
     if (!memInfo) return;
 
     this.memoryHistory.push(memInfo);
-    
+
     // Keep history size manageable
     if (this.memoryHistory.length > this.maxHistorySize) {
       this.memoryHistory.shift();
@@ -159,7 +159,7 @@ export class MemoryMonitor {
   private checkMemoryThresholds(): void {
     const level = this.getMemoryUsageLevel();
     const now = Date.now();
-    
+
     // Avoid alert spam with cooldown
     if (now - this.lastAlertTime < this.alertCooldown) {
       return;
@@ -175,7 +175,7 @@ export class MemoryMonitor {
         log.logSystem('Memory usage warning', {
           percentage: percentage.toFixed(1),
           usedMB: (memInfo.usedJSHeapSize / 1024 / 1024).toFixed(1),
-          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1)
+          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1),
         });
         this.lastAlertTime = now;
         break;
@@ -184,7 +184,7 @@ export class MemoryMonitor {
         log.logSystem('Memory usage critical', {
           percentage: percentage.toFixed(1),
           usedMB: (memInfo.usedJSHeapSize / 1024 / 1024).toFixed(1),
-          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1)
+          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1),
         });
         this.triggerMemoryCleanup();
         this.lastAlertTime = now;
@@ -194,7 +194,7 @@ export class MemoryMonitor {
         log.logSystem('Memory usage emergency - forcing cleanup', {
           percentage: percentage.toFixed(1),
           usedMB: (memInfo.usedJSHeapSize / 1024 / 1024).toFixed(1),
-          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1)
+          limitMB: (memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(1),
         });
         this.forceMemoryCleanup();
         this.lastAlertTime = now;
@@ -207,9 +207,11 @@ export class MemoryMonitor {
    */
   private triggerMemoryCleanup(): void {
     // Notify other systems to clean up
-    window.dispatchEvent(new CustomEvent('memory-cleanup', {
-      detail: { level: 'normal' }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('memory-cleanup', {
+        detail: { level: 'normal' },
+      })
+    );
   }
 
   /**
@@ -227,9 +229,11 @@ export class MemoryMonitor {
     }
 
     // Notify other systems to do aggressive cleanup
-    window.dispatchEvent(new CustomEvent('memory-cleanup', {
-      detail: { level: 'aggressive' }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('memory-cleanup', {
+        detail: { level: 'aggressive' },
+      })
+    );
   }
 
   /**
@@ -245,20 +249,21 @@ export class MemoryMonitor {
     const current = this.getCurrentMemoryInfo();
     const percentage = this.getMemoryUsagePercentage();
     const level = this.getMemoryUsageLevel();
-    
+
     let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
     let averageUsage = 0;
 
     if (this.memoryHistory.length > 5) {
       const recent = this.memoryHistory.slice(-5);
       const older = this.memoryHistory.slice(-10, -5);
-      
+
       if (recent.length > 0 && older.length > 0) {
-        const recentAvg = recent.reduce((sum, info) => sum + info.usedJSHeapSize, 0) / recent.length;
+        const recentAvg =
+          recent.reduce((sum, info) => sum + info.usedJSHeapSize, 0) / recent.length;
         const olderAvg = older.reduce((sum, info) => sum + info.usedJSHeapSize, 0) / older.length;
-        
+
         const changePct = ((recentAvg - olderAvg) / olderAvg) * 100;
-        
+
         if (changePct > 5) trend = 'increasing';
         else if (changePct < -5) trend = 'decreasing';
         else trend = 'stable';
@@ -266,9 +271,13 @@ export class MemoryMonitor {
     }
 
     if (this.memoryHistory.length > 0) {
-      averageUsage = this.memoryHistory.reduce((sum, info) => 
-        sum + (info.usedJSHeapSize / info.jsHeapSizeLimit), 0
-      ) / this.memoryHistory.length * 100;
+      averageUsage =
+        (this.memoryHistory.reduce(
+          (sum, info) => sum + info.usedJSHeapSize / info.jsHeapSizeLimit,
+          0
+        ) /
+          this.memoryHistory.length) *
+        100;
     }
 
     return {
@@ -276,7 +285,7 @@ export class MemoryMonitor {
       percentage,
       level,
       trend,
-      averageUsage
+      averageUsage,
     };
   }
 
@@ -345,7 +354,7 @@ export class MemoryAwareCache<K, V> {
   constructor(maxSize: number = 1000) {
     this.maxSize = maxSize;
     this.memoryMonitor = MemoryMonitor.getInstance();
-    
+
     // Listen for memory cleanup events
     window.addEventListener('memory-cleanup', (event: Event) => {
       const customEvent = event as CustomEvent;
@@ -375,7 +384,7 @@ export class MemoryAwareCache<K, V> {
     }
 
     this.cache.set(key, value);
-    
+
     // Evict entries if needed
     if (this.cache.size > this.maxSize) {
       this.evictOldEntries();
@@ -409,12 +418,12 @@ export class MemoryAwareCache<K, V> {
   private evictOldEntries(): void {
     const entries = Array.from(this.cache.entries());
     const evictCount = Math.max(1, Math.floor(entries.length * 0.25)); // Evict 25%
-    
+
     for (let i = 0; i < evictCount; i++) {
       const [key] = entries[i];
       this.cache.delete(key);
     }
-    
+
     log.logSystem('Cache evicted entries', { evictCount, remainingSize: this.cache.size });
   }
 
@@ -425,7 +434,7 @@ export class MemoryAwareCache<K, V> {
     return {
       size: this.cache.size,
       maxSize: this.maxSize,
-      hitRate: 0 // Could implement hit tracking if needed
+      hitRate: 0, // Could implement hit tracking if needed
     };
   }
 }

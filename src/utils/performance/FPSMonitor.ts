@@ -27,19 +27,19 @@ export class FPSMonitor {
    */
   public recordFrame(): void {
     const currentTime = performance.now();
-    
+
     if (this.lastFrameTime > 0) {
       const deltaTime = currentTime - this.lastFrameTime;
       const fps = 1000 / deltaTime;
-      
+
       this.frames.push(fps);
-      
+
       // Keep only recent frames
       if (this.frames.length > this.maxSamples) {
         this.frames.shift();
       }
     }
-    
+
     this.lastFrameTime = currentTime;
     this.frameCount++;
   }
@@ -85,7 +85,7 @@ export class FPSMonitor {
    */
   public getPerformanceGrade(): 'excellent' | 'good' | 'fair' | 'poor' {
     const stats = this.getFPSStats();
-    
+
     if (stats.average >= 55) return 'excellent';
     if (stats.average >= 45) return 'good';
     if (stats.average >= 30) return 'fair';

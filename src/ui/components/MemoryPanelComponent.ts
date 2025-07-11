@@ -15,7 +15,7 @@ export class MemoryPanelComponent {
     this.memoryMonitor = MemoryMonitor.getInstance();
     this.element = this.createElement();
     this.setupEventListeners();
-    
+
     // Set initial visibility state to match CSS default (hidden)
     const panel = this.element.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
@@ -31,13 +31,13 @@ export class MemoryPanelComponent {
     // Create wrapper container
     const wrapper = document.createElement('div');
     wrapper.className = 'memory-panel-wrapper';
-    
+
     // Create toggle button (stays fixed)
     const toggleButton = document.createElement('button');
     toggleButton.className = 'memory-toggle-fixed';
     toggleButton.innerHTML = '📊';
     toggleButton.title = 'Toggle Memory Panel';
-    
+
     // Create sliding panel
     const panel = document.createElement('div');
     panel.className = 'memory-panel';
@@ -83,7 +83,7 @@ export class MemoryPanelComponent {
 
     wrapper.appendChild(toggleButton);
     wrapper.appendChild(panel);
-    
+
     return wrapper;
   }
 
@@ -111,10 +111,12 @@ export class MemoryPanelComponent {
    * Trigger memory cleanup
    */
   private triggerCleanup(): void {
-    window.dispatchEvent(new CustomEvent('memory-cleanup', {
-      detail: { level: 'normal' }
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('memory-cleanup', {
+        detail: { level: 'normal' },
+      })
+    );
+
     log.logSystem('Memory cleanup triggered manually');
   }
 
@@ -150,7 +152,7 @@ export class MemoryPanelComponent {
     console.log('🔄 Memory panel toggle clicked. Current state:', this.isVisible);
     this.isVisible = !this.isVisible;
     console.log('🔄 New state:', this.isVisible);
-    
+
     const panel = this.element.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       panel.classList.toggle('visible', this.isVisible);
@@ -160,10 +162,10 @@ export class MemoryPanelComponent {
         top: panel.offsetTop,
         left: panel.offsetLeft,
         width: panel.offsetWidth,
-        height: panel.offsetHeight
+        height: panel.offsetHeight,
       });
     }
-    
+
     if (this.isVisible) {
       this.startUpdating();
     } else {
@@ -178,7 +180,7 @@ export class MemoryPanelComponent {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
-    
+
     this.updateDisplay();
     this.updateInterval = window.setInterval(() => {
       this.updateDisplay();
@@ -208,7 +210,7 @@ export class MemoryPanelComponent {
     if (usageElement && fillElement) {
       usageElement.textContent = `${stats.percentage.toFixed(1)}%`;
       fillElement.style.width = `${Math.min(stats.percentage, 100)}%`;
-      
+
       // Color based on usage level
       const level = stats.level;
       fillElement.className = `memory-fill memory-${level}`;
@@ -224,8 +226,8 @@ export class MemoryPanelComponent {
     // Update trend
     const trendElement = this.element.querySelector('.memory-trend') as HTMLElement;
     if (trendElement) {
-      const trendIcon = stats.trend === 'increasing' ? '📈' : 
-                       stats.trend === 'decreasing' ? '📉' : '➡️';
+      const trendIcon =
+        stats.trend === 'increasing' ? '📈' : stats.trend === 'decreasing' ? '📉' : '➡️';
       trendElement.textContent = `${trendIcon} ${stats.trend}`;
     }
 
@@ -236,7 +238,9 @@ export class MemoryPanelComponent {
     }
 
     // Update recommendations
-    const recommendationsElement = this.element.querySelector('.recommendations-list') as HTMLElement;
+    const recommendationsElement = this.element.querySelector(
+      '.recommendations-list'
+    ) as HTMLElement;
     if (recommendationsElement) {
       if (recommendations.length > 0) {
         recommendationsElement.innerHTML = recommendations
@@ -257,7 +261,7 @@ export class MemoryPanelComponent {
     console.log('Memory panel mounted to:', parent.tagName);
     console.log('Memory panel element:', this.element);
     console.log('Memory panel classes:', this.element.className);
-    
+
     // Start with the panel hidden (toggle button visible)
     this.setVisible(false);
     console.log('✅ Memory panel mounted and initialized as hidden');
@@ -291,13 +295,13 @@ export class MemoryPanelComponent {
     if (visible !== this.isVisible) {
       console.log(`🔄 Setting memory panel visibility: ${visible}`);
       this.isVisible = visible;
-      
+
       const panel = this.element.querySelector('.memory-panel') as HTMLElement;
       if (panel) {
         panel.classList.toggle('visible', this.isVisible);
         console.log('🔄 Panel classes after toggle:', panel.className);
       }
-      
+
       if (this.isVisible) {
         this.startUpdating();
       } else {

@@ -11,7 +11,7 @@ describe('PerformanceProfiler', () => {
   beforeEach(() => {
     // Mock console methods
     vi.spyOn(console, 'log').mockImplementation(() => {});
-    
+
     profiler = PerformanceProfiler.getInstance();
   });
 
@@ -21,7 +21,7 @@ describe('PerformanceProfiler', () => {
       profiler.stopProfiling();
     }
     profiler.clearSessions();
-    
+
     // Restore mocks
     vi.restoreAllMocks();
   });
@@ -29,7 +29,7 @@ describe('PerformanceProfiler', () => {
   it('should be a singleton', () => {
     const instance1 = PerformanceProfiler.getInstance();
     const instance2 = PerformanceProfiler.getInstance();
-    
+
     expect(instance1).toBe(instance2);
   });
 
@@ -39,7 +39,7 @@ describe('PerformanceProfiler', () => {
 
   it('should start profiling', () => {
     const sessionId = profiler.startProfiling(1000);
-    
+
     expect(profiler.isProfiling()).toBe(true);
     expect(sessionId).toBeDefined();
     expect(typeof sessionId).toBe('string');
@@ -48,9 +48,9 @@ describe('PerformanceProfiler', () => {
   it('should stop profiling', () => {
     profiler.startProfiling(1000);
     expect(profiler.isProfiling()).toBe(true);
-    
+
     const session = profiler.stopProfiling();
-    
+
     expect(profiler.isProfiling()).toBe(false);
     expect(session).toBeDefined();
     expect(session?.id).toBeDefined();
@@ -58,19 +58,19 @@ describe('PerformanceProfiler', () => {
 
   it('should track frames', () => {
     profiler.startProfiling(1000);
-    
+
     // Track a few frames
     profiler.trackFrame();
     profiler.trackFrame();
     profiler.trackFrame();
-    
+
     // Should not throw
     expect(() => profiler.trackFrame()).not.toThrow();
   });
 
   it('should not start profiling twice', () => {
     profiler.startProfiling(1000);
-    
+
     expect(() => profiler.startProfiling(1000)).toThrow();
   });
 
@@ -81,17 +81,17 @@ describe('PerformanceProfiler', () => {
 
   it('should manage sessions', () => {
     const sessionId = profiler.startProfiling(100);
-    
+
     // Wait for session to complete
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       setTimeout(() => {
         const sessions = profiler.getAllSessions();
         expect(sessions.length).toBeGreaterThan(0);
-        
+
         const session = profiler.getSession(sessionId);
         expect(session).toBeDefined();
         expect(session?.id).toBe(sessionId);
-        
+
         resolve();
       }, 150);
     });
@@ -99,14 +99,14 @@ describe('PerformanceProfiler', () => {
 
   it('should clear sessions', () => {
     profiler.startProfiling(100);
-    
-    return new Promise<void>((resolve) => {
+
+    return new Promise<void>(resolve => {
       setTimeout(() => {
         expect(profiler.getAllSessions().length).toBeGreaterThan(0);
-        
+
         profiler.clearSessions();
         expect(profiler.getAllSessions().length).toBe(0);
-        
+
         resolve();
       }, 150);
     });
@@ -120,10 +120,10 @@ describe('PerformanceProfiler', () => {
   it('should track frames only when profiling', () => {
     // Should not throw when not profiling
     expect(() => profiler.trackFrame()).not.toThrow();
-    
+
     profiler.startProfiling(1000);
     expect(() => profiler.trackFrame()).not.toThrow();
-    
+
     profiler.stopProfiling();
     expect(() => profiler.trackFrame()).not.toThrow();
   });

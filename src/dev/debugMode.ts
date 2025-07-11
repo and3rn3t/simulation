@@ -24,9 +24,9 @@ export class DebugMode {
     memoryUsage: 0,
     canvasOperations: 0,
     simulationTime: 0,
-    lastUpdate: 0
+    lastUpdate: 0,
   };
-  
+
   private fpsHistory: number[] = [];
   private frameTimeHistory: number[] = [];
   private lastFrameTime = performance.now();
@@ -41,7 +41,7 @@ export class DebugMode {
 
   enable(): void {
     if (this.isEnabled) return;
-    
+
     this.isEnabled = true;
     this.createDebugPanel();
     this.startUpdating();
@@ -50,7 +50,7 @@ export class DebugMode {
 
   disable(): void {
     if (!this.isEnabled) return;
-    
+
     this.isEnabled = false;
     this.removeDebugPanel();
     this.stopUpdating();
@@ -78,19 +78,20 @@ export class DebugMode {
     const now = performance.now();
     const frameTime = now - this.lastFrameTime;
     this.lastFrameTime = now;
-    
+
     this.fpsHistory.push(1000 / frameTime);
     this.frameTimeHistory.push(frameTime);
-    
+
     // Keep only last 60 frames for rolling average
     if (this.fpsHistory.length > 60) {
       this.fpsHistory.shift();
       this.frameTimeHistory.shift();
     }
-    
+
     // Calculate averages
     this.debugInfo.fps = this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
-    this.debugInfo.frameTime = this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length;
+    this.debugInfo.frameTime =
+      this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length;
   }
 
   private createDebugPanel(): void {
@@ -146,27 +147,27 @@ export class DebugMode {
         </div>
       </div>
     `;
-    
+
     this.styleDebugPanel();
     document.body.appendChild(this.debugPanel);
-    
+
     // Add event listeners
     const closeBtn = this.debugPanel.querySelector('#debug-close');
     closeBtn?.addEventListener('click', () => this.disable());
-    
+
     const dumpStateBtn = this.debugPanel.querySelector('#debug-dump-state');
     dumpStateBtn?.addEventListener('click', () => this.dumpState());
-    
+
     const profileBtn = this.debugPanel.querySelector('#debug-performance-profile');
     profileBtn?.addEventListener('click', () => this.startPerformanceProfile());
-    
+
     const gcBtn = this.debugPanel.querySelector('#debug-memory-gc');
     gcBtn?.addEventListener('click', () => this.forceGarbageCollection());
   }
 
   private styleDebugPanel(): void {
     if (!this.debugPanel) return;
-    
+
     const style = document.createElement('style');
     style.textContent = `
       #debug-panel {
@@ -267,18 +268,19 @@ export class DebugMode {
 
   private updateDebugDisplay(): void {
     if (!this.debugPanel) return;
-    
+
     const fps = this.debugPanel.querySelector('#debug-fps');
     const frameTime = this.debugPanel.querySelector('#debug-frame-time');
     const organismCount = this.debugPanel.querySelector('#debug-organism-count');
     const simulationTime = this.debugPanel.querySelector('#debug-simulation-time');
     const memory = this.debugPanel.querySelector('#debug-memory');
     const canvasOps = this.debugPanel.querySelector('#debug-canvas-ops');
-    
+
     if (fps) fps.textContent = this.debugInfo.fps.toFixed(1);
     if (frameTime) frameTime.textContent = `${this.debugInfo.frameTime.toFixed(2)}ms`;
     if (organismCount) organismCount.textContent = this.debugInfo.organismCount.toString();
-    if (simulationTime) simulationTime.textContent = `${(this.debugInfo.simulationTime / 1000).toFixed(1)}s`;
+    if (simulationTime)
+      simulationTime.textContent = `${(this.debugInfo.simulationTime / 1000).toFixed(1)}s`;
     if (memory) memory.textContent = `${(this.debugInfo.memoryUsage / 1024 / 1024).toFixed(2)} MB`;
     if (canvasOps) canvasOps.textContent = this.debugInfo.canvasOperations.toString();
   }
@@ -298,14 +300,14 @@ export class DebugMode {
       userAgent: navigator.userAgent,
       performance: {
         memory: (performance as any).memory,
-        timing: performance.timing
-      }
+        timing: performance.timing,
+      },
     };
-    
+
     console.group('🔍 State Dump');
     console.log(JSON.stringify(state, null, 2));
     console.groupEnd();
-    
+
     // Also save to localStorage for debugging
     localStorage.setItem('debug-state-dump', JSON.stringify(state));
   }
@@ -313,11 +315,11 @@ export class DebugMode {
   private startPerformanceProfile(): void {
     console.log('🚀 Starting performance profile...');
     performance.mark('profile-start');
-    
+
     setTimeout(() => {
       performance.mark('profile-end');
       performance.measure('debug-profile', 'profile-start', 'profile-end');
-      
+
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {

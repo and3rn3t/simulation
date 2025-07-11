@@ -34,7 +34,7 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     growthRate: 0.8,
     deathRate: 0.005,
     unlockCondition: { type: 'achievement', value: 'first-colony' },
-    unlocked: false
+    unlocked: false,
   },
   {
     id: 'crystal-organism',
@@ -46,7 +46,7 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     growthRate: 0.3,
     deathRate: 0.001,
     unlockCondition: { type: 'achievement', value: 'ancient-wisdom' },
-    unlocked: false
+    unlocked: false,
   },
   {
     id: 'nano-virus',
@@ -58,7 +58,7 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     growthRate: 1.2,
     deathRate: 0.02,
     unlockCondition: { type: 'score', value: 5000 },
-    unlocked: false
+    unlocked: false,
   },
   {
     id: 'meta-organism',
@@ -70,7 +70,7 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     growthRate: 0.6,
     deathRate: 0.003,
     unlockCondition: { type: 'achievement', value: 'metropolis' },
-    unlocked: false
+    unlocked: false,
   },
   {
     id: 'quantum-cell',
@@ -82,8 +82,8 @@ export const UNLOCKABLE_ORGANISMS: UnlockableOrganismType[] = [
     growthRate: 0.4,
     deathRate: 0.002,
     unlockCondition: { type: 'population', value: 1000 },
-    unlocked: false
-  }
+    unlocked: false,
+  },
 ];
 
 /**
@@ -101,7 +101,11 @@ export class UnlockableOrganismManager {
    * @param maxPopulation - Maximum population reached
    * @returns Array of newly unlocked organisms
    */
-  checkUnlocks(achievements: any[], score: number, maxPopulation: number): UnlockableOrganismType[] {
+  checkUnlocks(
+    achievements: any[],
+    score: number,
+    maxPopulation: number
+  ): UnlockableOrganismType[] {
     const newlyUnlocked: UnlockableOrganismType[] = [];
 
     for (const organism of this.unlockableOrganisms) {

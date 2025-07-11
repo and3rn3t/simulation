@@ -37,7 +37,7 @@ header {
 header h1 {
   font-size: 2.5em;
   margin: 0;
-  background: linear-gradient(45deg, #4CAF50, #2196F3);
+  background: linear-gradient(45deg, #4caf50, #2196f3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -112,7 +112,8 @@ header p {
   font-size: 0.9em;
 }
 
-select, input[type="range"] {
+select,
+input[type='range'] {
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
@@ -145,7 +146,7 @@ select, input[type="range"] {
 
 #organism-select:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
@@ -167,33 +168,34 @@ select, input[type="range"] {
 }
 
 /* Different color accents for each organism type */
-#organism-select option[value="bacteria"] {
-  border-left: 4px solid #4CAF50;
+#organism-select option[value='bacteria'] {
+  border-left: 4px solid #4caf50;
   background: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
 }
 
-#organism-select option[value="yeast"] {
-  border-left: 4px solid #FF9800;
+#organism-select option[value='yeast'] {
+  border-left: 4px solid #ff9800;
   background: linear-gradient(90deg, rgba(255, 152, 0, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
 }
 
-#organism-select option[value="algae"] {
-  border-left: 4px solid #2196F3;
+#organism-select option[value='algae'] {
+  border-left: 4px solid #2196f3;
   background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
 }
 
-#organism-select option[value="virus"] {
-  border-left: 4px solid #F44336;
+#organism-select option[value='virus'] {
+  border-left: 4px solid #f44336;
   background: linear-gradient(90deg, rgba(244, 67, 54, 0.1) 0%, rgba(0, 0, 0, 0.95) 10%);
 }
 
-select:focus, input[type="range"]:focus {
+select:focus,
+input[type='range']:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 button {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: linear-gradient(45deg, #4caf50, #45a049);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -214,7 +216,7 @@ button:active {
 }
 
 #pause-btn {
-  background: linear-gradient(45deg, #FF9800, #F57C00);
+  background: linear-gradient(45deg, #ff9800, #f57c00);
 }
 
 #pause-btn:hover {
@@ -222,7 +224,7 @@ button:active {
 }
 
 #reset-btn {
-  background: linear-gradient(45deg, #F44336, #D32F2F);
+  background: linear-gradient(45deg, #f44336, #d32f2f);
 }
 
 #reset-btn:hover {
@@ -232,7 +234,7 @@ button:active {
 /* Duplicate #clear-btn styles removed */
 
 #clear-btn {
-  background: linear-gradient(45deg, #9C27B0, #673AB7);
+  background: linear-gradient(45deg, #9c27b0, #673ab7);
 }
 
 #clear-btn:hover {
@@ -240,7 +242,7 @@ button:active {
 }
 
 #speed-value {
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: 600;
   font-size: 0.9em;
 }
@@ -276,28 +278,29 @@ button:active {
 .stat-item span:last-child {
   font-size: 1.3em;
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 /* Color coding for different stat types */
 #birth-rate {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 #death-rate {
-  color: #F44336;
+  color: #f44336;
 }
 
-#avg-age, #oldest-organism {
-  color: #FF9800;
+#avg-age,
+#oldest-organism {
+  color: #ff9800;
 }
 
 #population-density {
-  color: #2196F3;
+  color: #2196f3;
 }
 
 #population-stability {
-  color: #9C27B0;
+  color: #9c27b0;
 }
 
 /* Game panels styling */
@@ -324,16 +327,16 @@ button:active {
 }
 
 .game-stats .score span:last-child {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 1.5em;
 }
 
 .game-stats .achievements span:last-child {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .game-stats .high-score span:last-child {
-  color: #FF6B6B;
+  color: #ff6b6b;
 }
 
 .game-panels {
@@ -405,7 +408,7 @@ button:active {
 }
 
 .achievement-points {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 0.8em;
   font-weight: 600;
 }
@@ -450,12 +453,12 @@ button:active {
 
 .challenge-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #2196F3);
+  background: linear-gradient(90deg, #4caf50, #2196f3);
   transition: width 0.3s ease;
 }
 
 .challenge-timer {
-  color: #FF9800;
+  color: #ff9800;
   font-size: 0.9em;
   margin-top: 5px;
 }
@@ -484,7 +487,7 @@ button:active {
 }
 
 .powerup-cost {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 0.8em;
 }
 
@@ -534,7 +537,7 @@ button:active {
 
 .leaderboard-rank {
   font-weight: 600;
-  color: #FFD700;
+  color: #ffd700;
   min-width: 30px;
 }
 
@@ -618,7 +621,7 @@ button:active {
 }
 
 .achievement-notification .achievement-points {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 0.9em;
   font-weight: 600;
 }
@@ -627,10 +630,10 @@ button:active {
 
 /* Canvas Styles */
 #simulation-canvas {
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   border-radius: 8px;
   background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   margin: 20px 0;
@@ -639,22 +642,28 @@ button:active {
 }
 
 #simulation-canvas:hover {
-  border-color: #66BB6A;
-  box-shadow: 
+  border-color: #66bb6a;
+  box-shadow:
     0 6px 12px rgba(0, 0, 0, 0.4),
     0 0 20px rgba(76, 175, 80, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 #simulation-canvas.running {
-  border-color: #2196F3;
+  border-color: #2196f3;
   animation: pulse-border 2s infinite;
 }
 
 @keyframes pulse-border {
-  0% { border-color: #2196F3; }
-  50% { border-color: #64B5F6; }
-  100% { border-color: #2196F3; }
+  0% {
+    border-color: #2196f3;
+  }
+  50% {
+    border-color: #64b5f6;
+  }
+  100% {
+    border-color: #2196f3;
+  }
 }
 
 /* Add a subtle grid pattern to show the canvas area more clearly */
@@ -665,7 +674,7 @@ button:active {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -676,46 +685,47 @@ button:active {
   body {
     padding: 10px;
   }
-  
+
   #app {
     max-width: 100%;
   }
-  
+
   header h1 {
     font-size: 1.8em;
     margin-bottom: 10px;
   }
-  
+
   header p {
     font-size: 0.9em;
     margin: 5px 0 15px 0;
   }
-  
+
   .controls {
     flex-direction: column;
     gap: 15px;
     padding: 15px;
     margin-bottom: 15px;
   }
-  
+
   .control-group {
     width: 100%;
     max-width: 300px;
     margin: 0 auto;
   }
-  
+
   .control-group label {
     font-size: 0.9em;
     margin-bottom: 8px;
   }
-  
-  select, input[type="range"] {
+
+  select,
+  input[type='range'] {
     width: 100%;
     padding: 12px;
     font-size: 16px; /* Prevents zoom on iOS */
     border-radius: 8px;
   }
-  
+
   /* Enhanced mobile styling for organism dropdown */
   #organism-select {
     width: 100%;
@@ -724,12 +734,12 @@ button:active {
     min-height: 56px; /* Even better touch target */
     border-width: 3px; /* Thicker border for better visibility */
   }
-  
+
   #organism-select option {
     padding: 16px;
     font-size: 18px;
   }
-  
+
   .button-group {
     flex-direction: row !important;
     justify-content: center;
@@ -737,47 +747,47 @@ button:active {
     margin: 20px 0;
     flex-wrap: wrap;
   }
-  
+
   .button-group button {
     width: 60px;
     height: 60px;
     font-size: 24px;
     touch-action: manipulation; /* Prevents double-tap zoom */
   }
-  
+
   .game-info {
     flex-direction: column;
     gap: 15px;
     margin-bottom: 15px;
   }
-  
+
   .stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 15px;
   }
-  
+
   .stat-item {
     flex-direction: column;
     padding: 12px 8px;
     text-align: center;
   }
-  
+
   .stat-item span:first-child {
     font-size: 0.75em;
     margin-bottom: 4px;
   }
-  
+
   .stat-item span:last-child {
     font-size: 1.1em;
   }
-  
+
   .game-stats {
     flex-direction: column;
     gap: 10px;
     padding: 15px;
   }
-  
+
   .game-stats .stat-item {
     flex-direction: row;
     justify-content: space-between;
@@ -785,22 +795,22 @@ button:active {
     min-width: auto;
     padding: 12px 15px;
   }
-  
+
   .game-panels {
     grid-template-columns: 1fr;
     gap: 15px;
     margin-bottom: 15px;
   }
-  
+
   .panel {
     padding: 15px;
   }
-  
+
   .panel h3 {
     font-size: 1em;
     margin-bottom: 12px;
   }
-  
+
   /* Canvas mobile optimization */
   #simulation-canvas {
     width: 100%;
@@ -809,35 +819,35 @@ button:active {
     margin: 15px 0;
     touch-action: manipulation;
   }
-  
+
   /* Achievements panel mobile */
   .achievements-list {
     max-height: 200px;
   }
-  
+
   .achievement-item {
     padding: 12px;
     flex-direction: column;
     text-align: center;
     gap: 8px;
   }
-  
+
   .achievement-icon {
     font-size: 2em;
   }
-  
+
   .achievement-info {
     text-align: center;
   }
-  
+
   .achievement-name {
     font-size: 0.9em;
   }
-  
+
   .achievement-desc {
     font-size: 0.8em;
   }
-  
+
   /* Power-ups mobile */
   .powerup-item {
     flex-direction: column;
@@ -845,13 +855,13 @@ button:active {
     text-align: center;
     padding: 12px;
   }
-  
+
   .buy-powerup {
     width: 100%;
     padding: 10px;
     font-size: 0.9em;
   }
-  
+
   /* Leaderboard mobile */
   .leaderboard-item {
     flex-direction: column;
@@ -859,20 +869,20 @@ button:active {
     text-align: center;
     padding: 12px;
   }
-  
+
   .leaderboard-rank {
     font-size: 1.2em;
   }
-  
+
   /* Challenge panel mobile */
   .current-challenge {
     padding: 15px;
   }
-  
+
   .challenge-progress-bar {
     height: 8px;
   }
-  
+
   /* Notifications mobile */
   .achievement-notification,
   .unlock-notification {
@@ -882,24 +892,24 @@ button:active {
     transform: translateY(-100%);
     padding: 12px;
   }
-  
+
   .achievement-notification.show,
   .unlock-notification.show {
     transform: translateY(0);
   }
-  
+
   .achievement-notification.hide,
   .unlock-notification.hide {
     transform: translateY(-100%);
   }
-  
+
   .achievement-content,
   .unlock-content {
     flex-direction: column;
     text-align: center;
     gap: 8px;
   }
-  
+
   .achievement-notification .achievement-icon,
   .unlock-notification .unlock-icon {
     font-size: 2.5em;
@@ -911,36 +921,36 @@ button:active {
   body {
     padding: 5px;
   }
-  
+
   header h1 {
     font-size: 1.5em;
   }
-  
+
   .controls {
     padding: 10px;
   }
-  
+
   .button-group button {
     width: 50px;
     height: 50px;
     font-size: 20px;
   }
-  
+
   .stats {
     grid-template-columns: 1fr;
     gap: 8px;
     padding: 10px;
   }
-  
+
   .panel {
     padding: 12px;
   }
-  
+
   #simulation-canvas {
     height: 250px;
     margin: 10px 0;
   }
-  
+
   .achievement-notification,
   .unlock-notification {
     top: 5px;
@@ -955,20 +965,20 @@ button:active {
   body {
     padding: 5px;
   }
-  
+
   header {
     margin-bottom: 15px;
   }
-  
+
   header h1 {
     font-size: 1.6em;
     margin-bottom: 5px;
   }
-  
+
   header p {
     margin: 5px 0;
   }
-  
+
   .controls {
     flex-direction: row;
     flex-wrap: wrap;
@@ -976,39 +986,39 @@ button:active {
     gap: 10px;
     padding: 10px;
   }
-  
+
   .control-group {
     max-width: 150px;
     flex: 0 1 auto;
   }
-  
+
   .button-group {
     flex: 1 1 100%;
     justify-content: center;
     margin: 10px 0;
   }
-  
+
   .game-info {
     flex-direction: row;
     gap: 10px;
   }
-  
+
   .stats {
     grid-template-columns: repeat(3, 1fr);
     gap: 5px;
     padding: 10px;
   }
-  
+
   .game-stats {
     flex: 0 0 auto;
     min-width: 200px;
   }
-  
+
   .game-panels {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  
+
   #simulation-canvas {
     height: 200px;
     margin: 10px 0;
@@ -1021,21 +1031,22 @@ button:active {
     min-height: 44px; /* Apple's recommended minimum touch target size */
     min-width: 44px;
   }
-  
+
   .button-group button {
     min-height: 60px;
     min-width: 60px;
   }
-  
-  select, input[type="range"] {
+
+  select,
+  input[type='range'] {
     min-height: 44px;
   }
-  
+
   .buy-powerup {
     min-height: 44px;
     padding: 12px 16px;
   }
-  
+
   .achievement-item,
   .powerup-item,
   .leaderboard-item {
@@ -1052,18 +1063,18 @@ button:active {
     background: black;
     color: white;
   }
-  
+
   #organism-select:focus {
     border-color: yellow;
     box-shadow: 0 0 0 3px yellow;
   }
-  
+
   #organism-select option {
     background: black;
     color: white;
     border: 2px solid white;
   }
-  
+
   #organism-select option:hover,
   #organism-select option:checked {
     background: white;
@@ -1076,7 +1087,7 @@ button:active {
   #organism-select {
     transition: none;
   }
-  
+
   #organism-select:hover {
     transform: none;
   }
@@ -1088,7 +1099,7 @@ button:active {
     background: rgba(0, 0, 0, 0.9);
     border-color: rgba(76, 175, 80, 0.4);
   }
-  
+
   #organism-select option {
     background: rgb(10, 10, 10);
   }

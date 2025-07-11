@@ -70,12 +70,12 @@ export class Input extends BaseComponent {
     this.label = document.createElement('label');
     this.label.className = 'ui-input__label';
     this.label.textContent = this.config.label!;
-    
+
     // Generate unique ID for input
     const inputId = `input-${Math.random().toString(36).substr(2, 9)}`;
     this.input.id = inputId;
     this.label.setAttribute('for', inputId);
-    
+
     // Mark as required
     if (this.config.required) {
       this.label.innerHTML += ' <span class="ui-input__required">*</span>';
@@ -87,11 +87,11 @@ export class Input extends BaseComponent {
   private createHelperText(): void {
     this.helperElement = document.createElement('div');
     this.helperElement.className = 'ui-input__helper';
-    
+
     const helperId = `helper-${Math.random().toString(36).substr(2, 9)}`;
     this.helperElement.id = helperId;
     this.input.setAttribute('aria-describedby', helperId);
-    
+
     this.updateHelperText();
     this.element.appendChild(this.helperElement);
   }
@@ -112,42 +112,42 @@ export class Input extends BaseComponent {
     if (this.config.placeholder) {
       this.input.placeholder = this.config.placeholder;
     }
-    
+
     if (this.config.value !== undefined) {
       this.input.value = this.config.value;
     }
-    
+
     if (this.config.disabled) {
       this.input.disabled = true;
     }
-    
+
     if (this.config.required) {
       this.input.required = true;
     }
-    
+
     if (this.config.min !== undefined) {
       this.input.min = this.config.min.toString();
     }
-    
+
     if (this.config.max !== undefined) {
       this.input.max = this.config.max.toString();
     }
-    
+
     if (this.config.step !== undefined) {
       this.input.step = this.config.step.toString();
     }
-    
+
     if (this.config.pattern) {
       this.input.pattern = this.config.pattern;
     }
-    
+
     if (this.config.ariaLabel) {
       this.input.setAttribute('aria-label', this.config.ariaLabel);
     }
   }
 
   private setupEventListeners(): void {
-    this.input.addEventListener('input', (event) => {
+    this.input.addEventListener('input', event => {
       const target = event.target as HTMLInputElement;
       if (this.config.onChange) {
         this.config.onChange(target.value);
@@ -195,11 +195,11 @@ export class Input extends BaseComponent {
    */
   setError(hasError: boolean, errorText?: string): void {
     this.hasError = hasError;
-    
+
     if (errorText) {
       this.config.errorText = errorText;
     }
-    
+
     this.element.classList.toggle('ui-input--error', hasError);
     this.updateHelperText();
   }

@@ -43,16 +43,20 @@ export function updateElementText(id: string, text: string): void {
  * @param content - HTML content for the notification
  * @param duration - How long to show the notification (ms)
  */
-export function showNotification(className: string, content: string, duration: number = 4000): void {
+export function showNotification(
+  className: string,
+  content: string,
+  duration: number = 4000
+): void {
   const notification = document.createElement('div');
   notification.className = className;
   notification.innerHTML = content;
-  
+
   document.body.appendChild(notification);
-  
+
   // Animate in
   setTimeout(() => notification.classList.add('show'), 100);
-  
+
   // Remove after duration
   setTimeout(() => {
     notification.classList.add('hide');

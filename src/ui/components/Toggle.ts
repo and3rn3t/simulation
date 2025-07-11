@@ -27,15 +27,15 @@ export class Toggle extends BaseComponent {
 
   private static generateClassName(config: ToggleConfig): string {
     const classes = ['ui-toggle'];
-    
+
     if (config.variant) {
       classes.push(`ui-toggle--${config.variant}`);
     }
-    
+
     if (config.size) {
       classes.push(`ui-toggle--${config.size}`);
     }
-    
+
     return classes.join(' ');
   }
 
@@ -44,7 +44,7 @@ export class Toggle extends BaseComponent {
     this.input = document.createElement('input');
     this.input.type = this.config.variant === 'checkbox' ? 'checkbox' : 'checkbox';
     this.input.className = 'ui-toggle__input';
-    
+
     // Generate unique ID
     const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
     this.input.id = toggleId;
@@ -55,7 +55,7 @@ export class Toggle extends BaseComponent {
     // Create visual toggle element
     const toggleElement = document.createElement('div');
     toggleElement.className = 'ui-toggle__element';
-    
+
     // Create handle for switch variant
     if (this.config.variant === 'switch') {
       const handle = document.createElement('div');
@@ -74,7 +74,7 @@ export class Toggle extends BaseComponent {
     // Append elements
     this.element.appendChild(this.input);
     this.element.appendChild(toggleElement);
-    
+
     if (this.label) {
       this.element.appendChild(this.label);
     }
@@ -92,22 +92,22 @@ export class Toggle extends BaseComponent {
       this.input.checked = true;
       this.element.classList.add('ui-toggle--checked');
     }
-    
+
     if (this.config.disabled) {
       this.input.disabled = true;
       this.element.classList.add('ui-toggle--disabled');
     }
-    
+
     if (this.config.ariaLabel) {
       this.input.setAttribute('aria-label', this.config.ariaLabel);
     }
   }
 
   private setupEventListeners(): void {
-    this.input.addEventListener('change', (event) => {
+    this.input.addEventListener('change', event => {
       const target = event.target as HTMLInputElement;
       this.element.classList.toggle('ui-toggle--checked', target.checked);
-      
+
       if (this.config.onChange) {
         this.config.onChange(target.checked);
       }
@@ -122,7 +122,7 @@ export class Toggle extends BaseComponent {
     });
 
     // Add keyboard support for better accessibility
-    this.input.addEventListener('keydown', (event) => {
+    this.input.addEventListener('keydown', event => {
       if (event.key === ' ') {
         event.preventDefault();
         this.toggle();
@@ -151,7 +151,7 @@ export class Toggle extends BaseComponent {
    */
   toggle(): void {
     this.setChecked(!this.isChecked());
-    
+
     if (this.config.onChange) {
       this.config.onChange(this.isChecked());
     }

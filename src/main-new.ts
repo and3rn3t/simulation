@@ -20,20 +20,19 @@ async function startApp() {
   try {
     const config = getAppConfig();
     const app = App.getInstance(config);
-    
+
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
       await new Promise(resolve => {
         document.addEventListener('DOMContentLoaded', resolve);
       });
     }
-    
+
     // Initialize the application
     await app.initialize();
-    
   } catch (error) {
     console.error('Failed to start application:', error);
-    
+
     // Show user-friendly error message
     document.body.innerHTML = `
       <div style="

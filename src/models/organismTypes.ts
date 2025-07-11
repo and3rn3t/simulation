@@ -31,7 +31,7 @@ export const ORGANISM_TYPES = {
     deathRate: 0.1,
     maxAge: 100,
     size: 2,
-    description: 'Fast-growing single-celled organisms'
+    description: 'Fast-growing single-celled organisms',
   },
   yeast: {
     name: 'Yeast',
@@ -40,7 +40,7 @@ export const ORGANISM_TYPES = {
     deathRate: 0.05,
     maxAge: 200,
     size: 3,
-    description: 'Fungal cells with moderate growth'
+    description: 'Fungal cells with moderate growth',
   },
   algae: {
     name: 'Algae',
@@ -49,7 +49,7 @@ export const ORGANISM_TYPES = {
     deathRate: 0.02,
     maxAge: 400,
     size: 4,
-    description: 'Photosynthetic organisms with slow growth'
+    description: 'Photosynthetic organisms with slow growth',
   },
   virus: {
     name: 'Virus',
@@ -58,8 +58,8 @@ export const ORGANISM_TYPES = {
     deathRate: 0.3,
     maxAge: 50,
     size: 1,
-    description: 'Rapidly replicating infectious agents'
-  }
+    description: 'Rapidly replicating infectious agents',
+  },
 } as const;
 
 // Type-safe accessors for organism types

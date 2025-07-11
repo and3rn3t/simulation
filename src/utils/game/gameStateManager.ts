@@ -30,17 +30,17 @@ export class GameStateManager {
   updateGameSystems(stats: any, achievements: Achievement[]): void {
     // Update power-up manager with current score
     this.powerUpManager.updateScore(stats.population);
-    
+
     // Update power-ups (check for expired ones)
     this.powerUpManager.updatePowerUps();
-    
+
     // Check for unlocks
     const newlyUnlocked = this.unlockableManager.checkUnlocks(
-      achievements, 
-      stats.population, 
+      achievements,
+      stats.population,
       stats.population
     );
-    
+
     // Show unlock notifications
     newlyUnlocked.forEach(organism => {
       this.unlockableManager.showUnlockNotification(organism);
@@ -56,9 +56,9 @@ export class GameStateManager {
       score: finalStats.population,
       population: finalStats.population,
       generation: finalStats.generation,
-      timeElapsed: finalStats.timeElapsed || 0
+      timeElapsed: finalStats.timeElapsed || 0,
     });
-    
+
     // Update leaderboard display
     this.leaderboardManager.updateLeaderboardDisplay();
   }

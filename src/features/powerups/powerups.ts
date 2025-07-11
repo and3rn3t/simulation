@@ -46,7 +46,7 @@ export const POWERUPS: PowerUp[] = [
     duration: 30,
     effect: { type: 'growth', multiplier: 2 },
     active: false,
-    endTime: 0
+    endTime: 0,
   },
   {
     id: 'longevity',
@@ -56,7 +56,7 @@ export const POWERUPS: PowerUp[] = [
     duration: 60,
     effect: { type: 'longevity', multiplier: 0.5 },
     active: false,
-    endTime: 0
+    endTime: 0,
   },
   {
     id: 'population',
@@ -66,8 +66,8 @@ export const POWERUPS: PowerUp[] = [
     duration: 0, // instant effect
     effect: { type: 'population', multiplier: 50 },
     active: false,
-    endTime: 0
-  }
+    endTime: 0,
+  },
 ];
 
 /**
@@ -112,7 +112,7 @@ export class PowerUpManager {
 
     if (powerUp.duration > 0) {
       powerUp.active = true;
-      powerUp.endTime = Date.now() + (powerUp.duration * 1000);
+      powerUp.endTime = Date.now() + powerUp.duration * 1000;
     }
 
     this.score -= powerUp.cost;
@@ -152,7 +152,7 @@ export class PowerUpManager {
       if (button) {
         button.disabled = !this.canAfford(powerUp.id) || powerUp.active;
         button.textContent = powerUp.active ? 'Active' : 'Buy';
-        
+
         const item = button.closest('.powerup-item');
         if (item) {
           item.classList.toggle('powerup-active', powerUp.active);

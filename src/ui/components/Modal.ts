@@ -109,7 +109,7 @@ export class Modal extends BaseComponent {
     const focusableElements = this.dialog.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0] as HTMLElement;
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
@@ -147,7 +147,7 @@ export class Modal extends BaseComponent {
       const firstFocusable = this.dialog.querySelector(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       ) as HTMLElement;
-      
+
       if (firstFocusable) {
         firstFocusable.focus();
       }
@@ -218,7 +218,7 @@ export class Modal extends BaseComponent {
     this.element.setAttribute('role', 'dialog');
     this.element.setAttribute('aria-modal', 'true');
     this.element.setAttribute('tabindex', '-1');
-    
+
     if (this.config.title) {
       this.element.setAttribute('aria-labelledby', 'modal-title');
     }

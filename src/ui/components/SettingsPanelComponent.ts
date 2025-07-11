@@ -15,14 +15,14 @@ export class SettingsPanelComponent extends Modal {
       title: 'Settings & Preferences',
       size: 'large',
       closable: true,
-      onClose: () => this.handleCancel()
+      onClose: () => this.handleCancel(),
     });
-    
+
     if (id) this.element.id = id;
 
     this.preferencesManager = UserPreferencesManager.getInstance();
     this.tempPreferences = this.preferencesManager.getPreferences();
-    
+
     this.createSettingsContent();
   }
 
@@ -67,15 +67,18 @@ export class SettingsPanelComponent extends Modal {
       { id: 'performance', label: 'Performance', icon: '🚀' },
       { id: 'accessibility', label: 'Accessibility', icon: '♿' },
       { id: 'notifications', label: 'Notifications', icon: '🔔' },
-      { id: 'privacy', label: 'Privacy', icon: '🔒' }
+      { id: 'privacy', label: 'Privacy', icon: '🔒' },
     ];
 
     tabs.forEach((tab, index) => {
-      const tabButton = ComponentFactory.createButton({
-        text: `${tab.icon} ${tab.label}`,
-        variant: index === 0 ? 'primary' : 'secondary',
-        onClick: () => this.switchTab(tab.id)
-      }, `settings-tab-${tab.id}`);
+      const tabButton = ComponentFactory.createButton(
+        {
+          text: `${tab.icon} ${tab.label}`,
+          variant: index === 0 ? 'primary' : 'secondary',
+          onClick: () => this.switchTab(tab.id),
+        },
+        `settings-tab-${tab.id}`
+      );
 
       tabButton.mount(tabContainer);
     });
@@ -95,7 +98,10 @@ export class SettingsPanelComponent extends Modal {
 
     const activeTab = this.element.querySelector(`#settings-tab-${tabId} button`);
     if (activeTab) {
-      activeTab.className = activeTab.className.replace('ui-button--secondary', 'ui-button--primary');
+      activeTab.className = activeTab.className.replace(
+        'ui-button--secondary',
+        'ui-button--primary'
+      );
     }
 
     // Show/hide panels
@@ -132,7 +138,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = lang.code === this.tempPreferences.language;
       languageSelect.appendChild(option);
     });
-    languageSelect.addEventListener('change', (e) => {
+    languageSelect.addEventListener('change', e => {
       this.tempPreferences.language = (e.target as HTMLSelectElement).value;
     });
 
@@ -148,7 +154,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = format === this.tempPreferences.dateFormat;
       dateFormatSelect.appendChild(option);
     });
-    dateFormatSelect.addEventListener('change', (e) => {
+    dateFormatSelect.addEventListener('change', e => {
       this.tempPreferences.dateFormat = (e.target as HTMLSelectElement).value as any;
     });
 
@@ -171,7 +177,7 @@ export class SettingsPanelComponent extends Modal {
     const speedValue = document.createElement('span');
     speedValue.textContent = `${this.tempPreferences.defaultSpeed}x`;
 
-    speedSlider.addEventListener('input', (e) => {
+    speedSlider.addEventListener('input', e => {
       const value = parseFloat((e.target as HTMLInputElement).value);
       this.tempPreferences.defaultSpeed = value;
       speedValue.textContent = `${value}x`;
@@ -188,9 +194,9 @@ export class SettingsPanelComponent extends Modal {
     const autoSaveToggle = ComponentFactory.createToggle({
       label: 'Auto-save simulations',
       checked: this.tempPreferences.autoSave,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.autoSave = checked;
-      }
+      },
     });
 
     autoSaveToggle.mount(simulationSection);
@@ -221,7 +227,7 @@ export class SettingsPanelComponent extends Modal {
     [
       { value: 'auto', label: 'Auto (System)' },
       { value: 'light', label: 'Light' },
-      { value: 'dark', label: 'Dark' }
+      { value: 'dark', label: 'Dark' },
     ].forEach(theme => {
       const option = document.createElement('option');
       option.value = theme.value;
@@ -229,7 +235,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = theme.value === this.tempPreferences.theme;
       themeSelect.appendChild(option);
     });
-    themeSelect.addEventListener('change', (e) => {
+    themeSelect.addEventListener('change', e => {
       this.tempPreferences.theme = (e.target as HTMLSelectElement).value as any;
     });
 
@@ -245,7 +251,7 @@ export class SettingsPanelComponent extends Modal {
     primaryColor.type = 'color';
     primaryColor.value = this.tempPreferences.customColors.primary;
     primaryColor.className = 'ui-color-picker';
-    primaryColor.addEventListener('change', (e) => {
+    primaryColor.addEventListener('change', e => {
       this.tempPreferences.customColors.primary = (e.target as HTMLInputElement).value;
     });
 
@@ -256,7 +262,7 @@ export class SettingsPanelComponent extends Modal {
     secondaryColor.type = 'color';
     secondaryColor.value = this.tempPreferences.customColors.secondary;
     secondaryColor.className = 'ui-color-picker';
-    secondaryColor.addEventListener('change', (e) => {
+    secondaryColor.addEventListener('change', e => {
       this.tempPreferences.customColors.secondary = (e.target as HTMLInputElement).value;
     });
 
@@ -267,7 +273,7 @@ export class SettingsPanelComponent extends Modal {
     accentColor.type = 'color';
     accentColor.value = this.tempPreferences.customColors.accent;
     accentColor.className = 'ui-color-picker';
-    accentColor.addEventListener('change', (e) => {
+    accentColor.addEventListener('change', e => {
       this.tempPreferences.customColors.accent = (e.target as HTMLInputElement).value;
     });
 
@@ -297,9 +303,9 @@ export class SettingsPanelComponent extends Modal {
     const trailsToggle = ComponentFactory.createToggle({
       label: 'Show organism trails',
       checked: this.tempPreferences.showTrails,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.showTrails = checked;
-      }
+      },
     });
     trailsToggle.mount(section);
 
@@ -307,9 +313,9 @@ export class SettingsPanelComponent extends Modal {
     const heatmapToggle = ComponentFactory.createToggle({
       label: 'Show population heatmap',
       checked: this.tempPreferences.showHeatmap,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.showHeatmap = checked;
-      }
+      },
     });
     heatmapToggle.mount(section);
 
@@ -317,9 +323,9 @@ export class SettingsPanelComponent extends Modal {
     const chartsToggle = ComponentFactory.createToggle({
       label: 'Show data charts',
       checked: this.tempPreferences.showCharts,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.showCharts = checked;
-      }
+      },
     });
     chartsToggle.mount(section);
 
@@ -335,7 +341,7 @@ export class SettingsPanelComponent extends Modal {
     const intervalValue = document.createElement('span');
     intervalValue.textContent = `${this.tempPreferences.chartUpdateInterval}ms`;
 
-    intervalSlider.addEventListener('input', (e) => {
+    intervalSlider.addEventListener('input', e => {
       const value = parseInt((e.target as HTMLInputElement).value);
       this.tempPreferences.chartUpdateInterval = value;
       intervalValue.textContent = `${value}ms`;
@@ -379,7 +385,7 @@ export class SettingsPanelComponent extends Modal {
     const maxOrganismsValue = document.createElement('span');
     maxOrganismsValue.textContent = this.tempPreferences.maxOrganisms.toString();
 
-    maxOrganismsSlider.addEventListener('input', (e) => {
+    maxOrganismsSlider.addEventListener('input', e => {
       const value = parseInt((e.target as HTMLInputElement).value);
       this.tempPreferences.maxOrganisms = value;
       maxOrganismsValue.textContent = value.toString();
@@ -402,7 +408,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = quality === this.tempPreferences.renderQuality;
       qualitySelect.appendChild(option);
     });
-    qualitySelect.addEventListener('change', (e) => {
+    qualitySelect.addEventListener('change', e => {
       this.tempPreferences.renderQuality = (e.target as HTMLSelectElement).value as any;
     });
 
@@ -412,9 +418,9 @@ export class SettingsPanelComponent extends Modal {
     const particleToggle = ComponentFactory.createToggle({
       label: 'Enable particle effects',
       checked: this.tempPreferences.enableParticleEffects,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.enableParticleEffects = checked;
-      }
+      },
     });
     particleToggle.mount(section);
 
@@ -441,9 +447,9 @@ export class SettingsPanelComponent extends Modal {
     const motionToggle = ComponentFactory.createToggle({
       label: 'Reduce animations',
       checked: this.tempPreferences.reducedMotion,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.reducedMotion = checked;
-      }
+      },
     });
     motionToggle.mount(section);
 
@@ -451,9 +457,9 @@ export class SettingsPanelComponent extends Modal {
     const contrastToggle = ComponentFactory.createToggle({
       label: 'High contrast mode',
       checked: this.tempPreferences.highContrast,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.highContrast = checked;
-      }
+      },
     });
     contrastToggle.mount(section);
 
@@ -467,7 +473,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = size === this.tempPreferences.fontSize;
       fontSizeSelect.appendChild(option);
     });
-    fontSizeSelect.addEventListener('change', (e) => {
+    fontSizeSelect.addEventListener('change', e => {
       this.tempPreferences.fontSize = (e.target as HTMLSelectElement).value as any;
     });
 
@@ -477,9 +483,9 @@ export class SettingsPanelComponent extends Modal {
     const screenReaderToggle = ComponentFactory.createToggle({
       label: 'Screen reader optimizations',
       checked: this.tempPreferences.screenReaderMode,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.screenReaderMode = checked;
-      }
+      },
     });
     screenReaderToggle.mount(section);
 
@@ -506,9 +512,9 @@ export class SettingsPanelComponent extends Modal {
     const soundToggle = ComponentFactory.createToggle({
       label: 'Enable sound effects',
       checked: this.tempPreferences.soundEnabled,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.soundEnabled = checked;
-      }
+      },
     });
     soundToggle.mount(section);
 
@@ -524,7 +530,7 @@ export class SettingsPanelComponent extends Modal {
     const volumeValue = document.createElement('span');
     volumeValue.textContent = `${Math.round(this.tempPreferences.soundVolume * 100)}%`;
 
-    volumeSlider.addEventListener('input', (e) => {
+    volumeSlider.addEventListener('input', e => {
       const value = parseFloat((e.target as HTMLInputElement).value);
       this.tempPreferences.soundVolume = value;
       volumeValue.textContent = `${Math.round(value * 100)}%`;
@@ -542,16 +548,16 @@ export class SettingsPanelComponent extends Modal {
       { key: 'achievements', label: 'Achievement notifications' },
       { key: 'milestones', label: 'Milestone notifications' },
       { key: 'warnings', label: 'Warning notifications' },
-      { key: 'errors', label: 'Error notifications' }
+      { key: 'errors', label: 'Error notifications' },
     ];
 
     notificationTypes.forEach(type => {
       const toggle = ComponentFactory.createToggle({
         label: type.label,
         checked: (this.tempPreferences.notificationTypes as any)[type.key],
-        onChange: (checked) => {
+        onChange: checked => {
           (this.tempPreferences.notificationTypes as any)[type.key] = checked;
-        }
+        },
       });
       toggle.mount(section);
     });
@@ -579,9 +585,9 @@ export class SettingsPanelComponent extends Modal {
     const analyticsToggle = ComponentFactory.createToggle({
       label: 'Enable analytics',
       checked: this.tempPreferences.analyticsEnabled,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.analyticsEnabled = checked;
-      }
+      },
     });
     analyticsToggle.mount(section);
 
@@ -589,9 +595,9 @@ export class SettingsPanelComponent extends Modal {
     const dataToggle = ComponentFactory.createToggle({
       label: 'Allow data collection',
       checked: this.tempPreferences.dataCollection,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.dataCollection = checked;
-      }
+      },
     });
     dataToggle.mount(section);
 
@@ -599,9 +605,9 @@ export class SettingsPanelComponent extends Modal {
     const shareToggle = ComponentFactory.createToggle({
       label: 'Share usage data',
       checked: this.tempPreferences.shareUsageData,
-      onChange: (checked) => {
+      onChange: checked => {
         this.tempPreferences.shareUsageData = checked;
-      }
+      },
     });
     shareToggle.mount(section);
 
@@ -619,21 +625,21 @@ export class SettingsPanelComponent extends Modal {
     const resetButton = ComponentFactory.createButton({
       text: 'Reset to Defaults',
       variant: 'secondary',
-      onClick: () => this.handleReset()
+      onClick: () => this.handleReset(),
     });
 
     // Cancel
     const cancelButton = ComponentFactory.createButton({
       text: 'Cancel',
       variant: 'secondary',
-      onClick: () => this.handleCancel()
+      onClick: () => this.handleCancel(),
     });
 
     // Save
     const saveButton = ComponentFactory.createButton({
       text: 'Save Changes',
       variant: 'primary',
-      onClick: () => this.handleSave()
+      onClick: () => this.handleSave(),
     });
 
     resetButton.mount(container);
@@ -672,7 +678,7 @@ export class SettingsPanelComponent extends Modal {
     const confirmModal = ComponentFactory.createModal({
       title: 'Reset Settings',
       size: 'small',
-      closable: true
+      closable: true,
     });
 
     const content = document.createElement('div');
@@ -690,7 +696,7 @@ export class SettingsPanelComponent extends Modal {
     const cancelBtn = ComponentFactory.createButton({
       text: 'Cancel',
       variant: 'secondary',
-      onClick: () => confirmModal.close()
+      onClick: () => confirmModal.close(),
     });
 
     const resetBtn = ComponentFactory.createButton({
@@ -702,7 +708,7 @@ export class SettingsPanelComponent extends Modal {
         this.preferencesManager.applyAll();
         confirmModal.close();
         this.close();
-      }
+      },
     });
 
     cancelBtn.mount(buttonContainer);

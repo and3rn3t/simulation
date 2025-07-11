@@ -91,7 +91,8 @@ export class MemoryTracker {
 
     return {
       current,
-      average: usedValues.length > 0 ? usedValues.reduce((a, b) => a + b, 0) / usedValues.length : 0,
+      average:
+        usedValues.length > 0 ? usedValues.reduce((a, b) => a + b, 0) / usedValues.length : 0,
       peak: usedValues.length > 0 ? Math.max(...usedValues) : 0,
       trend: this.getMemoryTrend(),
       leakDetected: this.detectMemoryLeak(),

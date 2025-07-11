@@ -45,11 +45,14 @@ export class AlgorithmWorkerManager {
   private workers: Worker[] = [];
   private workerCount: number;
   private currentWorkerIndex: number = 0;
-  private pendingTasks: Map<string, {
-    resolve: (result: any) => void;
-    reject: (error: Error) => void;
-    timeout: NodeJS.Timeout;
-  }> = new Map();
+  private pendingTasks: Map<
+    string,
+    {
+      resolve: (result: any) => void;
+      reject: (error: Error) => void;
+      timeout: NodeJS.Timeout;
+    }
+  > = new Map();
   private isInitialized: boolean = false;
 
   /**
@@ -79,26 +82,28 @@ export class AlgorithmWorkerManager {
         `;
         const blob = new Blob([workerScript], { type: 'application/javascript' });
         const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
-        
+
         worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
           this.handleWorkerMessage(e.data);
         };
-        
-        worker.onerror = (error) => {
+
+        worker.onerror = error => {
           ErrorHandler.getInstance().handleError(
             new SimulationError(`Worker error: ${error.message}`, 'WORKER_ERROR'),
             ErrorSeverity.HIGH,
             'AlgorithmWorkerManager'
           );
         };
-        
+
         this.workers.push(worker);
       }
 
       this.isInitialized = true;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to initialize worker pool', 'WORKER_INIT_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to initialize worker pool', 'WORKER_INIT_ERROR'),
         ErrorSeverity.HIGH,
         'AlgorithmWorkerManager initialization'
       );
@@ -116,7 +121,7 @@ export class AlgorithmWorkerManager {
     competition: { totalPopulation: number[]; byType: Record<string, number[]> };
   }> {
     await this.initialize();
-    
+
     return this.sendTaskToWorker('PREDICT_POPULATION', data);
   }
 
@@ -139,7 +144,7 @@ export class AlgorithmWorkerManager {
     };
   }> {
     await this.initialize();
-    
+
     return this.sendTaskToWorker('CALCULATE_STATISTICS', data);
   }
 
@@ -153,7 +158,7 @@ export class AlgorithmWorkerManager {
     return new Promise((resolve, reject) => {
       const taskId = this.generateTaskId();
       const worker = this.getNextWorker();
-      
+
       // Set up task timeout
       const timeout = setTimeout(() => {
         this.pendingTasks.delete(taskId);
@@ -164,14 +169,14 @@ export class AlgorithmWorkerManager {
       this.pendingTasks.set(taskId, {
         resolve,
         reject,
-        timeout
+        timeout,
       });
 
       // Send task to worker
       const message: WorkerMessage = {
         id: taskId,
         type,
-        data
+        data,
       };
 
       worker.postMessage(message);
@@ -184,7 +189,7 @@ export class AlgorithmWorkerManager {
    */
   private handleWorkerMessage(response: WorkerResponse): void {
     const task = this.pendingTasks.get(response.id);
-    
+
     if (!task) {
       return; // Task may have timed out
     }
@@ -243,18 +248,20 @@ export class AlgorithmWorkerManager {
     try {
       this.workers.forEach(worker => worker.terminate());
       this.workers = [];
-      
+
       // Reject all pending tasks
       this.pendingTasks.forEach(task => {
         clearTimeout(task.timeout);
         task.reject(new SimulationError('Worker pool terminated', 'WORKER_TERMINATED'));
       });
-      
+
       this.pendingTasks.clear();
       this.isInitialized = false;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to terminate workers', 'WORKER_TERMINATION_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to terminate workers', 'WORKER_TERMINATION_ERROR'),
         ErrorSeverity.MEDIUM,
         'AlgorithmWorkerManager terminate'
       );
@@ -276,7 +283,7 @@ export class AlgorithmWorkerManager {
       workerCount: this.workers.length,
       pendingTasks: this.pendingTasks.size,
       averageTaskTime: 0, // Would need to track task completion times
-      tasksCompleted: 0   // Would need to track total completed tasks
+      tasksCompleted: 0, // Would need to track total completed tasks
     };
   }
 }

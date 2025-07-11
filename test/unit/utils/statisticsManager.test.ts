@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { StatisticsManager } from '../../../src/utils/game/statisticsManager'
-import * as domHelpers from '../../../src/ui/domHelpers'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { StatisticsManager } from '../../../src/utils/game/statisticsManager';
+import * as domHelpers from '../../../src/ui/domHelpers';
 
 // Mock domHelpers
 vi.mock('../src/ui/domHelpers', () => ({
-  updateElementText: vi.fn()
-}))
+  updateElementText: vi.fn(),
+}));
 
 describe('StatisticsManager', () => {
-  let statisticsManager: StatisticsManager
-  let mockCanvas: HTMLCanvasElement
+  let statisticsManager: StatisticsManager;
+  let mockCanvas: HTMLCanvasElement;
 
   const createMockStats = (overrides: any = {}) => ({
     population: 100,
@@ -24,29 +24,29 @@ describe('StatisticsManager', () => {
     maxPopulation: 100,
     score: 500,
     achievements: [],
-    ...overrides
-  })
+    ...overrides,
+  });
 
   beforeEach(() => {
-    statisticsManager = new StatisticsManager()
-    
+    statisticsManager = new StatisticsManager();
+
     // Mock canvas element
     mockCanvas = {
       width: 800,
-      height: 600
-    } as HTMLCanvasElement
-    
+      height: 600,
+    } as HTMLCanvasElement;
+
     // Mock DOM methods
     vi.spyOn(document, 'getElementById').mockImplementation((id: string) => {
       if (id === 'simulation-canvas') {
-        return mockCanvas
+        return mockCanvas;
       }
-      return null
-    })
-    
+      return null;
+    });
+
     // Clear all mocks
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   describe('updateAllStats', () => {
     it('should update all basic statistics', () => {
@@ -65,83 +65,83 @@ describe('StatisticsManager', () => {
         achievements: [
           { unlocked: true, name: 'First Colony' },
           { unlocked: true, name: 'Population Boom' },
-          { unlocked: false, name: 'Extinction Event' }
-        ]
-      })
+          { unlocked: false, name: 'Extinction Event' },
+        ],
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
       // Check basic stats
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-count', '150')
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('generation-count', '5')
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('time-elapsed', '120s')
-      
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-count', '150');
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('generation-count', '5');
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('time-elapsed', '120s');
+
       // Check rates
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('birth-rate', '3')
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('death-rate', '1')
-      
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('birth-rate', '3');
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('death-rate', '1');
+
       // Check age stats
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('avg-age', '26')
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('oldest-organism', '89')
-      
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('avg-age', '26');
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('oldest-organism', '89');
+
       // Check score
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('score', '1500')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('score', '1500');
+    });
 
     it('should update population density when canvas is available', () => {
       const stats = createMockStats({
-        population: 100
-      })
+        population: 100,
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
       // Population density = (100 / (800 * 600)) * 1000 = 0.208... rounds to 0
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-density', '0')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-density', '0');
+    });
 
     it('should handle higher population density correctly', () => {
       const stats = createMockStats({
-        population: 10000
-      })
+        population: 10000,
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
       // Population density = (10000 / (800 * 600)) * 1000 = 20.83... rounds to 21
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-density', '21')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-density', '21');
+    });
 
     it('should handle missing canvas gracefully', () => {
-      vi.spyOn(document, 'getElementById').mockReturnValue(null)
+      vi.spyOn(document, 'getElementById').mockReturnValue(null);
 
-      const stats = createMockStats()
+      const stats = createMockStats();
 
       expect(() => {
-        statisticsManager.updateAllStats(stats)
-      }).not.toThrow()
-    })
+        statisticsManager.updateAllStats(stats);
+      }).not.toThrow();
+    });
 
     it('should update population stability ratio', () => {
       const stats = createMockStats({
         totalBirths: 150,
-        totalDeaths: 50
-      })
+        totalDeaths: 50,
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
       // Stability ratio = 150 / 50 = 3.00
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-stability', '3.00')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-stability', '3.00');
+    });
 
     it('should handle zero deaths for population stability', () => {
       const stats = createMockStats({
         totalBirths: 150,
-        totalDeaths: 0
-      })
+        totalDeaths: 0,
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-stability', 'N/A')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('population-stability', 'N/A');
+    });
 
     it('should update achievement count correctly', () => {
       const stats = createMockStats({
@@ -149,35 +149,35 @@ describe('StatisticsManager', () => {
           { unlocked: true, name: 'Achievement 1' },
           { unlocked: false, name: 'Achievement 2' },
           { unlocked: true, name: 'Achievement 3' },
-          { unlocked: false, name: 'Achievement 4' }
-        ]
-      })
+          { unlocked: false, name: 'Achievement 4' },
+        ],
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('achievement-count', '2/4')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('achievement-count', '2/4');
+    });
 
     it('should handle empty achievements array', () => {
       const stats = createMockStats({
-        achievements: []
-      })
+        achievements: [],
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('achievement-count', '0/0')
-    })
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('achievement-count', '0/0');
+    });
 
     it('should round age values appropriately', () => {
       const stats = createMockStats({
         averageAge: 25.7,
-        oldestAge: 89.3
-      })
+        oldestAge: 89.3,
+      });
 
-      statisticsManager.updateAllStats(stats)
+      statisticsManager.updateAllStats(stats);
 
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('avg-age', '26')
-      expect(domHelpers.updateElementText).toHaveBeenCalledWith('oldest-organism', '89')
-    })
-  })
-})
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('avg-age', '26');
+      expect(domHelpers.updateElementText).toHaveBeenCalledWith('oldest-organism', '89');
+    });
+  });
+});

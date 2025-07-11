@@ -121,7 +121,7 @@ export class ThemeManager {
   static setTheme(theme: 'light' | 'dark'): void {
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // Update CSS custom properties based on theme
     if (theme === 'light') {
       this.applyLightTheme();
@@ -168,7 +168,7 @@ export class ThemeManager {
   static initializeTheme(): void {
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('ui-theme') as 'light' | 'dark' | null;
-    
+
     if (savedTheme) {
       this.setTheme(savedTheme);
     } else {
@@ -178,12 +178,11 @@ export class ThemeManager {
     }
 
     // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', (e) => {
-        if (!localStorage.getItem('ui-theme')) {
-          this.setTheme(e.matches ? 'dark' : 'light');
-        }
-      });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('ui-theme')) {
+        this.setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
   }
 
   /**
@@ -211,10 +210,10 @@ export class AccessibilityManager {
     announcement.style.width = '1px';
     announcement.style.height = '1px';
     announcement.style.overflow = 'hidden';
-    
+
     document.body.appendChild(announcement);
     announcement.textContent = message;
-    
+
     setTimeout(() => {
       document.body.removeChild(announcement);
     }, 1000);
@@ -227,7 +226,7 @@ export class AccessibilityManager {
     const focusableElements = container.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0] as HTMLElement;
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 

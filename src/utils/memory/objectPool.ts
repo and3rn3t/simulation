@@ -22,11 +22,7 @@ export class ObjectPool<T> {
    * @param resetFn Function to reset objects when returned to pool
    * @param maxSize Maximum pool size (default: 1000)
    */
-  constructor(
-    createFn: () => T,
-    resetFn: (obj: T) => void,
-    maxSize: number = 1000
-  ) {
+  constructor(createFn: () => T, resetFn: (obj: T) => void, maxSize: number = 1000) {
     this.createFn = createFn;
     this.resetFn = resetFn;
     this.maxSize = maxSize;
@@ -93,7 +89,7 @@ export class ObjectPool<T> {
       maxSize: this.maxSize,
       totalCreated: this.totalCreated,
       totalReused: this.totalReused,
-      reuseRatio: this.totalCreated > 0 ? this.totalReused / this.totalCreated : 0
+      reuseRatio: this.totalCreated > 0 ? this.totalReused / this.totalCreated : 0,
     };
   }
 
@@ -107,11 +103,11 @@ export class ObjectPool<T> {
         this.resetFn(obj);
         this.pool.push(obj);
       }
-      
+
       log.logSystem('Object pool pre-filled', {
         poolType: this.constructor.name,
         count: this.pool.length,
-        maxSize: this.maxSize
+        maxSize: this.maxSize,
       });
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -143,15 +139,16 @@ export class OrganismPool extends ObjectPool<Organism> {
   private constructor() {
     super(
       // Create function - creates a temporary organism that will be reset
-      () => new Organism(0, 0, {
-        name: 'temp',
-        color: '#000000',
-        size: 1,
-        growthRate: 0,
-        deathRate: 0,
-        maxAge: 1,
-        description: 'temporary'
-      }),
+      () =>
+        new Organism(0, 0, {
+          name: 'temp',
+          color: '#000000',
+          size: 1,
+          growthRate: 0,
+          deathRate: 0,
+          maxAge: 1,
+          description: 'temporary',
+        }),
       // Reset function - prepares organism for reuse
       (organism: Organism) => {
         organism.x = 0;
@@ -179,14 +176,14 @@ export class OrganismPool extends ObjectPool<Organism> {
    */
   acquireOrganism(x: number, y: number, type: OrganismType): Organism {
     const organism = this.acquire();
-    
+
     // Initialize the organism with the specified parameters
     organism.x = x;
     organism.y = y;
     organism.age = 0;
     organism.type = type;
     organism.reproduced = false;
-    
+
     return organism;
   }
 
@@ -224,12 +221,12 @@ export class ArrayPool<T> {
   releaseArray(array: T[]): void {
     const length = array.length;
     let pool = this.pools.get(length);
-    
+
     if (!pool) {
       pool = [];
       this.pools.set(length, pool);
     }
-    
+
     if (pool.length < this.maxPoolSize) {
       array.length = 0; // Clear the array
       pool.push(array);
@@ -251,10 +248,10 @@ export class ArrayPool<T> {
     this.pools.forEach(pool => {
       totalArrays += pool.length;
     });
-    
+
     return {
       totalPools: this.pools.size,
-      totalArrays
+      totalArrays,
     };
   }
 }

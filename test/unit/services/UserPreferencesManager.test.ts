@@ -13,11 +13,11 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
   length: 0,
-  key: vi.fn()
+  key: vi.fn(),
 };
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
-  writable: true
+  writable: true,
 });
 
 // Mock window.matchMedia
@@ -31,10 +31,10 @@ Object.defineProperty(global, 'window', {
       removeListener: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn()
-    }))
+      dispatchEvent: vi.fn(),
+    })),
   },
-  writable: true
+  writable: true,
 });
 
 describe('UserPreferencesManager', () => {
@@ -54,7 +54,7 @@ describe('UserPreferencesManager', () => {
     it('should return the same instance', () => {
       const instance1 = UserPreferencesManager.getInstance();
       const instance2 = UserPreferencesManager.getInstance();
-      
+
       expect(instance1).toBe(instance2);
     });
   });
@@ -62,7 +62,7 @@ describe('UserPreferencesManager', () => {
   describe('Default Preferences', () => {
     it('should initialize with default preferences', () => {
       const preferences = manager.getPreferences();
-      
+
       // Check for key default properties
       expect(preferences.theme).toBe('auto');
       expect(preferences.language).toBe('en');
@@ -70,7 +70,7 @@ describe('UserPreferencesManager', () => {
       expect(preferences.showTrails).toBe(true);
       expect(preferences.autoSave).toBe(true);
       expect(preferences.soundEnabled).toBe(true);
-      
+
       // Verify it has the expected structure
       expect(preferences).toHaveProperty('customColors');
       expect(preferences).toHaveProperty('notificationTypes');
@@ -83,7 +83,7 @@ describe('UserPreferencesManager', () => {
   describe('Preference Updates', () => {
     it('should update a single preference', () => {
       manager.updatePreference('theme', 'dark');
-      
+
       const preferences = manager.getPreferences();
       expect(preferences.theme).toBe('dark');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
@@ -96,11 +96,11 @@ describe('UserPreferencesManager', () => {
       const updates = {
         theme: 'light' as const,
         showCharts: false,
-        maxDataPoints: 200
+        maxDataPoints: 200,
       };
-      
+
       manager.updatePreferences(updates);
-      
+
       const preferences = manager.getPreferences();
       expect(preferences.theme).toBe('light');
       expect(preferences.showCharts).toBe(false);
@@ -112,7 +112,7 @@ describe('UserPreferencesManager', () => {
       expect(() => manager.updatePreference('theme', 'dark')).not.toThrow();
       expect(() => manager.updatePreference('showCharts', false)).not.toThrow();
       expect(() => manager.updatePreference('language', 'en')).not.toThrow();
-      
+
       // Most validation is done by TypeScript at compile time
       const preferences = manager.getPreferences();
       expect(preferences.theme).toBeDefined();
@@ -123,21 +123,19 @@ describe('UserPreferencesManager', () => {
     it('should notify listeners when preferences change', () => {
       const listener = vi.fn();
       manager.addChangeListener(listener);
-      
+
       manager.updatePreference('theme', 'dark');
-      
-      expect(listener).toHaveBeenCalledWith(
-        expect.objectContaining({ theme: 'dark' })
-      );
+
+      expect(listener).toHaveBeenCalledWith(expect.objectContaining({ theme: 'dark' }));
     });
 
     it('should remove event listeners', () => {
       const listener = vi.fn();
       manager.addChangeListener(listener);
       manager.removeChangeListener(listener);
-      
+
       manager.updatePreference('theme', 'dark');
-      
+
       expect(listener).not.toHaveBeenCalled();
     });
   });
@@ -146,20 +144,20 @@ describe('UserPreferencesManager', () => {
     it('should load preferences from localStorage on initialization', () => {
       // Clear the existing instance first
       vi.clearAllMocks();
-      
+
       const savedPreferences = {
         theme: 'dark',
         language: 'fr',
-        showCharts: false
+        showCharts: false,
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedPreferences));
-      
+
       // Force a new instance by clearing the singleton
       (UserPreferencesManager as any).instance = null;
       const newManager = UserPreferencesManager.getInstance();
       const preferences = newManager.getPreferences();
-      
+
       expect(preferences.theme).toBe('dark');
       expect(preferences.language).toBe('fr');
       expect(preferences.showCharts).toBe(false);
@@ -167,7 +165,7 @@ describe('UserPreferencesManager', () => {
 
     it('should handle corrupted localStorage data gracefully', () => {
       localStorageMock.getItem.mockReturnValue('invalid json');
-      
+
       expect(() => UserPreferencesManager.getInstance()).not.toThrow();
     });
   });
@@ -177,15 +175,15 @@ describe('UserPreferencesManager', () => {
       const mockSetAttribute = vi.fn();
       const mockSetProperty = vi.fn();
       Object.defineProperty(document, 'documentElement', {
-        value: { 
+        value: {
           setAttribute: mockSetAttribute,
-          style: { setProperty: mockSetProperty }
+          style: { setProperty: mockSetProperty },
         },
-        writable: true
+        writable: true,
       });
-      
+
       manager.applyTheme();
-      
+
       // Check that it applies current theme
       expect(mockSetProperty).toHaveBeenCalled();
     });
@@ -194,9 +192,9 @@ describe('UserPreferencesManager', () => {
   describe('Import/Export', () => {
     it('should export preferences', () => {
       manager.updatePreference('theme', 'dark');
-      
+
       const exported = manager.exportPreferences();
-      
+
       expect(exported).toContain('dark');
       expect(() => JSON.parse(exported)).not.toThrow();
     });
@@ -204,9 +202,9 @@ describe('UserPreferencesManager', () => {
     it('should import valid preferences', () => {
       const preferences = { theme: 'light', showCharts: false };
       const json = JSON.stringify(preferences);
-      
+
       const result = manager.importPreferences(json);
-      
+
       expect(result).toBe(true);
       expect(manager.getPreferences().theme).toBe('light');
       expect(manager.getPreferences().showCharts).toBe(false);
@@ -214,7 +212,7 @@ describe('UserPreferencesManager', () => {
 
     it('should reject invalid import data', () => {
       const result = manager.importPreferences('invalid json');
-      
+
       expect(result).toBe(false);
     });
   });

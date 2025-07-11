@@ -6,38 +6,38 @@ export interface UserPreferences {
     secondary: string;
     accent: string;
   };
-  
+
   // Language preferences
   language: string;
   dateFormat: 'US' | 'EU' | 'ISO';
   numberFormat: 'US' | 'EU';
-  
+
   // Simulation preferences
   defaultSpeed: number;
   autoSave: boolean;
   autoSaveInterval: number; // minutes
   showTooltips: boolean;
   showAnimations: boolean;
-  
+
   // Visualization preferences
   showTrails: boolean;
   showHeatmap: boolean;
   showCharts: boolean;
   chartUpdateInterval: number; // milliseconds
   maxDataPoints: number;
-  
+
   // Performance preferences
   maxOrganisms: number;
   renderQuality: 'low' | 'medium' | 'high';
   enableParticleEffects: boolean;
   fpsLimit: number;
-  
+
   // Accessibility preferences
   reducedMotion: boolean;
   highContrast: boolean;
   fontSize: 'small' | 'medium' | 'large';
   screenReaderMode: boolean;
-  
+
   // Notification preferences
   soundEnabled: boolean;
   soundVolume: number;
@@ -47,7 +47,7 @@ export interface UserPreferences {
     warnings: boolean;
     errors: boolean;
   };
-  
+
   // Privacy preferences
   analyticsEnabled: boolean;
   dataCollection: boolean;
@@ -87,7 +87,7 @@ export class UserPreferencesManager {
       customColors: {
         primary: '#4CAF50',
         secondary: '#2196F3',
-        accent: '#FF9800'
+        accent: '#FF9800',
       },
       language: 'en',
       dateFormat: 'US',
@@ -116,11 +116,11 @@ export class UserPreferencesManager {
         achievements: true,
         milestones: true,
         warnings: true,
-        errors: true
+        errors: true,
       },
       analyticsEnabled: true,
       dataCollection: true,
-      shareUsageData: false
+      shareUsageData: false,
     };
   }
 
@@ -134,7 +134,7 @@ export class UserPreferencesManager {
         apply: 'Apply',
         close: 'Close',
         settings: 'Settings',
-        preferences: 'Preferences'
+        preferences: 'Preferences',
       },
       simulation: {
         start: 'Start',
@@ -145,7 +145,7 @@ export class UserPreferencesManager {
         population: 'Population',
         generation: 'Generation',
         time: 'Time',
-        speed: 'Speed'
+        speed: 'Speed',
       },
       preferences: {
         theme: 'Theme',
@@ -153,8 +153,8 @@ export class UserPreferencesManager {
         performance: 'Performance',
         accessibility: 'Accessibility',
         notifications: 'Notifications',
-        privacy: 'Privacy'
-      }
+        privacy: 'Privacy',
+      },
     });
 
     // Spanish
@@ -166,7 +166,7 @@ export class UserPreferencesManager {
         apply: 'Aplicar',
         close: 'Cerrar',
         settings: 'Configuración',
-        preferences: 'Preferencias'
+        preferences: 'Preferencias',
       },
       simulation: {
         start: 'Iniciar',
@@ -177,7 +177,7 @@ export class UserPreferencesManager {
         population: 'Población',
         generation: 'Generación',
         time: 'Tiempo',
-        speed: 'Velocidad'
+        speed: 'Velocidad',
       },
       preferences: {
         theme: 'Tema',
@@ -185,8 +185,8 @@ export class UserPreferencesManager {
         performance: 'Rendimiento',
         accessibility: 'Accesibilidad',
         notifications: 'Notificaciones',
-        privacy: 'Privacidad'
-      }
+        privacy: 'Privacidad',
+      },
     });
 
     // French
@@ -198,7 +198,7 @@ export class UserPreferencesManager {
         apply: 'Appliquer',
         close: 'Fermer',
         settings: 'Paramètres',
-        preferences: 'Préférences'
+        preferences: 'Préférences',
       },
       simulation: {
         start: 'Démarrer',
@@ -209,7 +209,7 @@ export class UserPreferencesManager {
         population: 'Population',
         generation: 'Génération',
         time: 'Temps',
-        speed: 'Vitesse'
+        speed: 'Vitesse',
       },
       preferences: {
         theme: 'Thème',
@@ -217,8 +217,8 @@ export class UserPreferencesManager {
         performance: 'Performance',
         accessibility: 'Accessibilité',
         notifications: 'Notifications',
-        privacy: 'Confidentialité'
-      }
+        privacy: 'Confidentialité',
+      },
     });
   }
 
@@ -232,10 +232,7 @@ export class UserPreferencesManager {
   /**
    * Update specific preference
    */
-  updatePreference<K extends keyof UserPreferences>(
-    key: K,
-    value: UserPreferences[K]
-  ): void {
+  updatePreference<K extends keyof UserPreferences>(key: K, value: UserPreferences[K]): void {
     this.preferences[key] = value;
     this.savePreferences();
     this.notifyListeners();
@@ -344,7 +341,7 @@ export class UserPreferencesManager {
   getString(path: string): string {
     const lang = this.languages.get(this.preferences.language) || this.languages.get('en')!;
     const keys = path.split('.');
-    
+
     let current: any = lang;
     for (const key of keys) {
       if (current && typeof current === 'object' && key in current) {
@@ -363,7 +360,7 @@ export class UserPreferencesManager {
         break;
       }
     }
-    
+
     return typeof current === 'string' ? current : path;
   }
 
@@ -374,7 +371,7 @@ export class UserPreferencesManager {
     return [
       { code: 'en', name: 'English' },
       { code: 'es', name: 'Español' },
-      { code: 'fr', name: 'Français' }
+      { code: 'fr', name: 'Français' },
     ];
   }
 
@@ -383,14 +380,14 @@ export class UserPreferencesManager {
    */
   applyTheme(): void {
     let theme = this.preferences.theme;
-    
+
     if (theme === 'auto') {
       // Use system preference
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // Apply custom colors
     const root = document.documentElement;
     root.style.setProperty('--ui-primary', this.preferences.customColors.primary);
@@ -403,7 +400,7 @@ export class UserPreferencesManager {
    */
   applyAccessibility(): void {
     const root = document.documentElement;
-    
+
     // Reduced motion
     if (this.preferences.reducedMotion) {
       root.style.setProperty('--animation-duration', '0s');
@@ -445,7 +442,7 @@ export class UserPreferencesManager {
       maxOrganisms: this.preferences.maxOrganisms,
       renderQuality: this.preferences.renderQuality,
       enableParticleEffects: this.preferences.enableParticleEffects,
-      fpsLimit: this.preferences.fpsLimit
+      fpsLimit: this.preferences.fpsLimit,
     };
   }
 

@@ -1,7 +1,4 @@
-import { 
-  VisualizationDashboard, 
-  SettingsPanelComponent
-} from '../ui/components';
+import { VisualizationDashboard, SettingsPanelComponent } from '../ui/components';
 import { UserPreferencesManager } from '../services/UserPreferencesManager';
 import '../ui/components/visualization-components.css';
 
@@ -18,7 +15,7 @@ export class EnhancedVisualizationIntegration {
   constructor(simulationCanvas: HTMLCanvasElement) {
     this.simulationCanvas = simulationCanvas;
     this.preferencesManager = UserPreferencesManager.getInstance();
-    
+
     this.initializeComponents();
     this.setupEventListeners();
     this.applyInitialPreferences();
@@ -45,7 +42,7 @@ export class EnhancedVisualizationIntegration {
       dashboardContainer = document.createElement('div');
       dashboardContainer.id = 'visualization-container';
       dashboardContainer.style.marginTop = '20px';
-      
+
       // Insert after the canvas
       const canvasParent = this.simulationCanvas.parentElement;
       if (canvasParent) {
@@ -78,7 +75,7 @@ export class EnhancedVisualizationIntegration {
 
   private setupEventListeners(): void {
     // Listen for preference changes
-    this.preferencesManager.addChangeListener((preferences) => {
+    this.preferencesManager.addChangeListener(preferences => {
       this.handlePreferenceChange(preferences);
     });
 
@@ -94,7 +91,7 @@ export class EnhancedVisualizationIntegration {
   private setupSimulationEventListeners(): void {
     // These would be real simulation events in the actual implementation
     // For demonstration purposes, we'll simulate some data updates
-    
+
     // Example: Listen for organism creation
     document.addEventListener('organismCreated', () => {
       this.updateVisualizationData();
@@ -114,13 +111,13 @@ export class EnhancedVisualizationIntegration {
 
   private applyInitialPreferences(): void {
     const preferences = this.preferencesManager.getPreferences();
-    
+
     // Apply theme
     this.preferencesManager.applyTheme();
-    
+
     // Apply accessibility settings
     this.preferencesManager.applyAccessibility();
-    
+
     // Configure visualization based on preferences
     this.visualizationDashboard.setVisible(
       preferences.showCharts || preferences.showHeatmap || preferences.showTrails
@@ -154,34 +151,34 @@ export class EnhancedVisualizationIntegration {
   private generateSampleData(gameState?: any): any {
     // This would be replaced with actual simulation data
     const now = new Date();
-    
+
     return {
       timestamp: now,
       population: gameState?.population || Math.floor(Math.random() * 100),
       births: gameState?.births || Math.floor(Math.random() * 10),
       deaths: gameState?.deaths || Math.floor(Math.random() * 5),
       organismTypes: gameState?.organismTypes || {
-        'Basic': Math.floor(Math.random() * 50),
-        'Advanced': Math.floor(Math.random() * 30),
-        'Predator': Math.floor(Math.random() * 20)
+        Basic: Math.floor(Math.random() * 50),
+        Advanced: Math.floor(Math.random() * 30),
+        Predator: Math.floor(Math.random() * 20),
       },
-      positions: gameState?.positions || this.generateRandomPositions()
+      positions: gameState?.positions || this.generateRandomPositions(),
     };
   }
 
   private generateRandomPositions(): any[] {
     const positions = [];
     const count = Math.floor(Math.random() * 50) + 10;
-    
+
     for (let i = 0; i < count; i++) {
       positions.push({
         x: Math.random() * this.simulationCanvas.width,
         y: Math.random() * this.simulationCanvas.height,
         id: `organism-${i}`,
-        type: ['Basic', 'Advanced', 'Predator'][Math.floor(Math.random() * 3)]
+        type: ['Basic', 'Advanced', 'Predator'][Math.floor(Math.random() * 3)],
       });
     }
-    
+
     return positions;
   }
 
@@ -225,7 +222,7 @@ export class EnhancedVisualizationIntegration {
    */
   startDemo(): void {
     console.log('🎮 Starting Enhanced Visualization Demo...');
-    
+
     // Generate sample data every 2 seconds
     const demoInterval = setInterval(() => {
       this.updateVisualizationData();
@@ -256,7 +253,7 @@ export class EnhancedVisualizationIntegration {
  */
 export function initializeEnhancedVisualization(): EnhancedVisualizationIntegration | null {
   const simulationCanvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
-  
+
   if (!simulationCanvas) {
     console.error('Simulation canvas not found');
     return null;
@@ -264,14 +261,14 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
 
   try {
     const integration = new EnhancedVisualizationIntegration(simulationCanvas);
-    
+
     // Add to global scope for debugging
     (window as any).visualizationIntegration = integration;
-    
+
     console.log('✅ Enhanced visualization features initialized');
     console.log('💡 Try: visualizationIntegration.startDemo() in the console');
     console.log('⚙️ Access settings with: visualizationIntegration.showSettings()');
-    
+
     return integration;
   } catch (error) {
     console.error('Failed to initialize enhanced visualization:', error);

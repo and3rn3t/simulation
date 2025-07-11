@@ -37,7 +37,7 @@ export interface AppConfig {
 export function createConfigFromEnv(): AppConfig {
   // Use globalThis to access Vite environment variables safely
   const env = (globalThis as any).__VITE_ENV__ || {};
-  
+
   return {
     environment: (env.VITE_APP_ENVIRONMENT as AppConfig['environment']) || 'development',
     features: {

@@ -37,7 +37,7 @@
   position: relative;
   width: 320px;
   background: rgba(0, 0, 0, 0.95);
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   border-radius: 12px;
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -67,7 +67,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .memory-content {
@@ -101,7 +101,7 @@
 }
 
 .memory-usage {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .memory-level {
@@ -113,32 +113,32 @@
 }
 
 .memory-level.memory-safe {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
 .memory-level.memory-warning {
-  background: #FF9800;
+  background: #ff9800;
   color: white;
 }
 
 .memory-level.memory-critical {
-  background: #F44336;
+  background: #f44336;
   color: white;
 }
 
 .memory-level.memory-emergency {
-  background: #9C27B0;
+  background: #9c27b0;
   color: white;
   animation: pulse 1s infinite;
 }
 
 .memory-trend {
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .pool-stats {
-  color: #9C27B0;
+  color: #9c27b0;
   font-size: 13px;
 }
 
@@ -152,24 +152,26 @@
 
 .memory-fill {
   height: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
   border-radius: 4px;
 }
 
 .memory-fill.memory-safe {
-  background: linear-gradient(90deg, #4CAF50, #66BB6A);
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
 }
 
 .memory-fill.memory-warning {
-  background: linear-gradient(90deg, #FF9800, #FFB74D);
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
 }
 
 .memory-fill.memory-critical {
-  background: linear-gradient(90deg, #F44336, #EF5350);
+  background: linear-gradient(90deg, #f44336, #ef5350);
 }
 
 .memory-fill.memory-emergency {
-  background: linear-gradient(90deg, #9C27B0, #BA68C8);
+  background: linear-gradient(90deg, #9c27b0, #ba68c8);
   animation: pulse 1s infinite;
 }
 
@@ -202,18 +204,18 @@
 }
 
 .memory-cleanup {
-  border-color: #4CAF50 !important;
-  color: #4CAF50 !important;
+  border-color: #4caf50 !important;
+  color: #4caf50 !important;
 }
 
 .memory-force-gc {
-  border-color: #FF9800 !important;
-  color: #FF9800 !important;
+  border-color: #ff9800 !important;
+  color: #ff9800 !important;
 }
 
 .memory-toggle-soa {
-  border-color: #2196F3 !important;
-  color: #2196F3 !important;
+  border-color: #2196f3 !important;
+  color: #2196f3 !important;
 }
 
 .memory-recommendations {
@@ -224,7 +226,7 @@
 .recommendations-header {
   font-size: 13px;
   font-weight: 600;
-  color: #FFD700;
+  color: #ffd700;
   margin-bottom: 8px;
 }
 
@@ -242,9 +244,15 @@
 
 /* Animations */
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Responsive adjustments */
@@ -255,15 +263,15 @@
     top: 10px;
     transform: translateX(240px);
   }
-  
+
   .memory-panel.visible {
     transform: translateX(0);
   }
-  
+
   .memory-controls {
     flex-direction: column;
   }
-  
+
   .memory-controls button {
     min-width: unset;
   }
@@ -275,12 +283,12 @@
     background: black;
     border: 2px solid white;
   }
-  
+
   .memory-header {
     background: black;
     border-bottom: 2px solid white;
   }
-  
+
   .memory-controls button {
     border: 2px solid white;
   }

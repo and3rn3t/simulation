@@ -1,8 +1,4 @@
-import { 
-  ComponentFactory, 
-  ThemeManager, 
-  AccessibilityManager
-} from './index';
+import { ComponentFactory, ThemeManager, AccessibilityManager } from './index';
 import './ui-components.css';
 
 /**
@@ -57,18 +53,21 @@ export class ComponentDemo {
       { text: 'Small', size: 'small' as const },
       { text: 'Large', size: 'large' as const },
       { text: 'With Icon', icon: '🚀' },
-      { text: 'Disabled', disabled: true }
+      { text: 'Disabled', disabled: true },
     ];
 
     buttons.forEach((config, index) => {
-      const button = ComponentFactory.createButton({
-        ...config,
-        onClick: () => {
-          AccessibilityManager.announceToScreenReader(`Button "${config.text}" clicked`);
-          console.log(`Button "${config.text}" clicked`);
-        }
-      }, `demo-button-${index}`);
-      
+      const button = ComponentFactory.createButton(
+        {
+          ...config,
+          onClick: () => {
+            AccessibilityManager.announceToScreenReader(`Button "${config.text}" clicked`);
+            console.log(`Button "${config.text}" clicked`);
+          },
+        },
+        `demo-button-${index}`
+      );
+
       button.mount(buttonContainer);
     });
 
@@ -89,39 +88,42 @@ export class ComponentDemo {
 
     // Create various input examples
     const inputs = [
-      { 
-        label: 'Text Input', 
+      {
+        label: 'Text Input',
         placeholder: 'Enter text...',
-        helperText: 'This is helper text'
+        helperText: 'This is helper text',
       },
-      { 
-        label: 'Email Input', 
+      {
+        label: 'Email Input',
         type: 'email' as const,
         placeholder: 'Enter email...',
-        required: true
+        required: true,
       },
-      { 
-        label: 'Number Input', 
+      {
+        label: 'Number Input',
         type: 'number' as const,
         min: 0,
         max: 100,
-        step: 1
+        step: 1,
       },
-      { 
-        label: 'Password Input', 
+      {
+        label: 'Password Input',
         type: 'password' as const,
-        placeholder: 'Enter password...'
-      }
+        placeholder: 'Enter password...',
+      },
     ];
 
     inputs.forEach((config, index) => {
-      const input = ComponentFactory.createInput({
-        ...config,
-        onChange: (value) => {
-          console.log(`Input "${config.label}" changed to: ${value}`);
-        }
-      }, `demo-input-${index}`);
-      
+      const input = ComponentFactory.createInput(
+        {
+          ...config,
+          onChange: value => {
+            console.log(`Input "${config.label}" changed to: ${value}`);
+          },
+        },
+        `demo-input-${index}`
+      );
+
       input.mount(inputContainer);
     });
 
@@ -146,20 +148,23 @@ export class ComponentDemo {
       { label: 'Checkbox Toggle', variant: 'checkbox' as const },
       { label: 'Small Switch', variant: 'switch' as const, size: 'small' as const },
       { label: 'Large Switch', variant: 'switch' as const, size: 'large' as const },
-      { label: 'Pre-checked', variant: 'switch' as const, checked: true }
+      { label: 'Pre-checked', variant: 'switch' as const, checked: true },
     ];
 
     toggles.forEach((config, index) => {
-      const toggle = ComponentFactory.createToggle({
-        ...config,
-        onChange: (checked) => {
-          AccessibilityManager.announceToScreenReader(
-            `${config.label} ${checked ? 'enabled' : 'disabled'}`
-          );
-          console.log(`${config.label} ${checked ? 'enabled' : 'disabled'}`);
-        }
-      }, `demo-toggle-${index}`);
-      
+      const toggle = ComponentFactory.createToggle(
+        {
+          ...config,
+          onChange: checked => {
+            AccessibilityManager.announceToScreenReader(
+              `${config.label} ${checked ? 'enabled' : 'disabled'}`
+            );
+            console.log(`${config.label} ${checked ? 'enabled' : 'disabled'}`);
+          },
+        },
+        `demo-toggle-${index}`
+      );
+
       toggle.mount(toggleContainer);
     });
 
@@ -179,25 +184,31 @@ export class ComponentDemo {
     panelContainer.style.marginBottom = '2rem';
 
     // Create panel examples
-    const basicPanel = ComponentFactory.createPanel({
-      title: 'Basic Panel',
-      closable: true,
-      onClose: () => {
-        AccessibilityManager.announceToScreenReader('Panel closed');
-        console.log('Basic panel closed');
-      }
-    }, 'demo-panel-basic');
+    const basicPanel = ComponentFactory.createPanel(
+      {
+        title: 'Basic Panel',
+        closable: true,
+        onClose: () => {
+          AccessibilityManager.announceToScreenReader('Panel closed');
+          console.log('Basic panel closed');
+        },
+      },
+      'demo-panel-basic'
+    );
 
     basicPanel.addContent('<p>This is a basic panel with a close button.</p>');
     basicPanel.mount(panelContainer);
 
-    const collapsiblePanel = ComponentFactory.createPanel({
-      title: 'Collapsible Panel',
-      collapsible: true,
-      onToggle: (collapsed) => {
-        console.log(`Panel ${collapsed ? 'collapsed' : 'expanded'}`);
-      }
-    }, 'demo-panel-collapsible');
+    const collapsiblePanel = ComponentFactory.createPanel(
+      {
+        title: 'Collapsible Panel',
+        collapsible: true,
+        onToggle: collapsed => {
+          console.log(`Panel ${collapsed ? 'collapsed' : 'expanded'}`);
+        },
+      },
+      'demo-panel-collapsible'
+    );
 
     collapsiblePanel.addContent('<p>This panel can be collapsed and expanded.</p>');
     collapsiblePanel.mount(panelContainer);
@@ -217,17 +228,20 @@ export class ComponentDemo {
     buttonContainer.style.marginBottom = '2rem';
 
     // Create modal examples
-    const basicModal = ComponentFactory.createModal({
-      title: 'Basic Modal',
-      closable: true,
-      size: 'medium',
-      onOpen: () => {
-        AccessibilityManager.announceToScreenReader('Modal opened');
+    const basicModal = ComponentFactory.createModal(
+      {
+        title: 'Basic Modal',
+        closable: true,
+        size: 'medium',
+        onOpen: () => {
+          AccessibilityManager.announceToScreenReader('Modal opened');
+        },
+        onClose: () => {
+          AccessibilityManager.announceToScreenReader('Modal closed');
+        },
       },
-      onClose: () => {
-        AccessibilityManager.announceToScreenReader('Modal closed');
-      }
-    }, 'demo-modal-basic');
+      'demo-modal-basic'
+    );
 
     basicModal.addContent(`
       <p>This is a basic modal dialog.</p>
@@ -237,7 +251,7 @@ export class ComponentDemo {
     const openModalBtn = ComponentFactory.createButton({
       text: 'Open Modal',
       variant: 'primary',
-      onClick: () => basicModal.open()
+      onClick: () => basicModal.open(),
     });
 
     openModalBtn.mount(buttonContainer);
@@ -261,18 +275,21 @@ export class ComponentDemo {
     themeContainer.style.marginBottom = '2rem';
 
     // Theme toggle
-    const themeToggle = ComponentFactory.createToggle({
-      label: 'Dark Mode',
-      variant: 'switch',
-      checked: ThemeManager.getCurrentTheme() === 'dark',
-      onChange: (checked) => {
-        ThemeManager.setTheme(checked ? 'dark' : 'light');
-        ThemeManager.saveThemePreference();
-        AccessibilityManager.announceToScreenReader(
-          `Theme changed to ${checked ? 'dark' : 'light'} mode`
-        );
-      }
-    }, 'theme-toggle');
+    const themeToggle = ComponentFactory.createToggle(
+      {
+        label: 'Dark Mode',
+        variant: 'switch',
+        checked: ThemeManager.getCurrentTheme() === 'dark',
+        onChange: checked => {
+          ThemeManager.setTheme(checked ? 'dark' : 'light');
+          ThemeManager.saveThemePreference();
+          AccessibilityManager.announceToScreenReader(
+            `Theme changed to ${checked ? 'dark' : 'light'} mode`
+          );
+        },
+      },
+      'theme-toggle'
+    );
 
     themeToggle.mount(themeContainer);
 

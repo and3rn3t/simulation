@@ -1,6 +1,6 @@
 /**
  * Interactive Code Examples for Organism Simulation
- * 
+ *
  * This module provides interactive examples that demonstrate
  * how to use the various APIs and features of the simulation.
  */
@@ -318,7 +318,7 @@ const trackStats = () => {
 setInterval(trackStats, 1000);
 console.log('Statistics tracking started');
 
-// Note: In the simulation, organisms are added via click events`
+// Note: In the simulation, organisms are added via click events`,
     };
 
     const code = codeExamples[exampleName as keyof typeof codeExamples] || '';
@@ -333,7 +333,7 @@ console.log('Statistics tracking started');
     if (example) {
       this.clearOutput();
       this.logToConsole(`Running example: ${exampleName}`);
-      
+
       try {
         example();
       } catch (error) {
@@ -348,7 +348,7 @@ console.log('Statistics tracking started');
   private clearOutput(): void {
     const canvasContainer = document.getElementById('example-canvas-container');
     const consoleOutput = document.getElementById('example-console');
-    
+
     if (canvasContainer) canvasContainer.innerHTML = '';
     if (consoleOutput) consoleOutput.innerHTML = '';
   }
@@ -376,32 +376,36 @@ console.log('Statistics tracking started');
     canvas.height = height;
     canvas.style.border = '1px solid #ccc';
     canvas.style.backgroundColor = '#f0f0f0';
-    
+
     const container = document.getElementById('example-canvas-container');
     if (container) {
       container.appendChild(canvas);
     }
-    
+
     return canvas;
   }
 
   // Example implementations
   private basicOrganismExample(): void {
     const organism = new Organism(100, 150, getOrganismType('bacteria'));
-    
+
     this.logToConsole(`Created organism: ${organism.type.name} at (${organism.x}, ${organism.y})`);
     this.logToConsole(`Age: ${organism.age}, Max Age: ${organism.type.maxAge}`);
-    
+
     // Update the organism
     organism.update(1, 800, 600);
-    
-    this.logToConsole(`After update: position (${organism.x.toFixed(2)}, ${organism.y.toFixed(2)})`);
+
+    this.logToConsole(
+      `After update: position (${organism.x.toFixed(2)}, ${organism.y.toFixed(2)})`
+    );
     this.logToConsole(`Age: ${organism.age}`);
-    
+
     // Check reproduction
     if (organism.canReproduce()) {
       const child = organism.reproduce();
-      this.logToConsole(`Organism reproduced! Child at (${child.x.toFixed(2)}, ${child.y.toFixed(2)})`);
+      this.logToConsole(
+        `Organism reproduced! Child at (${child.x.toFixed(2)}, ${child.y.toFixed(2)})`
+      );
     } else {
       this.logToConsole('Organism cannot reproduce yet');
     }
@@ -410,43 +414,50 @@ console.log('Statistics tracking started');
   private simulationSetupExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
     const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
-    
+
     this.logToConsole('Simulation created');
-    
+
     // Note: In the actual simulation, organisms are added via click events
     // Here we demonstrate the setup process
-    
+
     const stats = simulation.getStats();
     this.logToConsole(`Initial population: ${stats.population}`);
-    
+
     // Configure simulation
     simulation.setSpeed(3);
     simulation.setMaxPopulation(50);
-    
+
     this.logToConsole('Simulation configured and ready');
-    
+
     // Start simulation
     simulation.start();
     this.logToConsole('Simulation started');
   }
 
   private organismTypesExample(): void {
-    const types = [getOrganismType('bacteria'), getOrganismType('yeast'), getOrganismType('algae'), getOrganismType('virus')];
-    
+    const types = [
+      getOrganismType('bacteria'),
+      getOrganismType('yeast'),
+      getOrganismType('algae'),
+      getOrganismType('virus'),
+    ];
+
     types.forEach(type => {
-      this.logToConsole(`${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`);
+      this.logToConsole(
+        `${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
+      );
     });
-    
+
     // Create organisms of different types
     const canvas = this.createExampleCanvas(400, 300);
     const ctx = canvas.getContext('2d');
-    
+
     if (ctx) {
       types.forEach((type, index) => {
         const organism = new Organism(50 + index * 80, 150, type);
         organism.draw(ctx);
       });
-      
+
       this.logToConsole('Drew organisms of different types on canvas');
     }
   }
@@ -454,23 +465,23 @@ console.log('Statistics tracking started');
   private performanceDemoExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
     const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
-    
+
     this.logToConsole('Performance test setup (organisms added via placement in real simulation)');
-    
+
     const startTime = performance.now();
     // In real simulation, organisms are added via click events
     // Here we demonstrate the performance monitoring
     const endTime = performance.now();
-    
+
     this.logToConsole(`Performance test completed in ${(endTime - startTime).toFixed(2)}ms`);
-    
+
     // Enable optimizations
     simulation.setOptimizationsEnabled(true);
     this.logToConsole('Enabled algorithm optimizations');
-    
+
     const stats = simulation.getStats();
     this.logToConsole(`Current population: ${stats.population}`);
-    
+
     simulation.start();
     this.logToConsole('Performance demo started');
   }
@@ -478,21 +489,21 @@ console.log('Statistics tracking started');
   private memoryManagementExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
     const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
-    
+
     const initialMemory = simulation.getMemoryStats();
     this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
-    
+
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
-    
+
     const afterMemory = simulation.getMemoryStats();
     this.logToConsole(`Memory stats - Pool size: ${afterMemory.organismPool.poolSize}`);
     this.logToConsole(`Total organisms: ${afterMemory.totalOrganisms}`);
-    
+
     // Toggle SoA optimization
     simulation.toggleSoAOptimization(true);
     this.logToConsole('Enabled Structure of Arrays optimization');
-    
+
     const optimizedMemory = simulation.getMemoryStats();
     this.logToConsole(`Using SoA: ${optimizedMemory.usingSoA}`);
   }
@@ -505,20 +516,20 @@ console.log('Statistics tracking started');
       growthRate: 0.05,
       deathRate: 0.01,
       maxAge: 200,
-      description: 'Custom example organism'
+      description: 'Custom example organism',
     };
-    
+
     this.logToConsole(`Created custom organism type: ${customType.name}`);
     this.logToConsole(`Color: ${customType.color}, Size: ${customType.size}`);
     this.logToConsole(`Growth Rate: ${customType.growthRate}, Death Rate: ${customType.deathRate}`);
-    
+
     const organism = new Organism(200, 150, customType);
     this.logToConsole(`Created organism with custom type at (${organism.x}, ${organism.y})`);
-    
+
     // Draw the custom organism
     const canvas = this.createExampleCanvas(400, 300);
     const ctx = canvas.getContext('2d');
-    
+
     if (ctx) {
       organism.draw(ctx);
       this.logToConsole('Drew custom organism on canvas');
@@ -528,25 +539,25 @@ console.log('Statistics tracking started');
   private eventHandlingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
     const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
-    
+
     this.logToConsole('Setting up event monitoring...');
-    
+
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
-    
+
     // Monitor simulation stats
     let monitorCount = 0;
     const monitor = setInterval(() => {
       const stats = simulation.getStats();
       this.logToConsole(`Population: ${stats.population}, Generation: ${stats.generation}`);
-      
+
       monitorCount++;
       if (monitorCount >= 5) {
         clearInterval(monitor);
         this.logToConsole('Monitoring stopped');
       }
     }, 2000);
-    
+
     simulation.start();
     this.logToConsole('Started simulation with event monitoring');
   }
@@ -554,35 +565,37 @@ console.log('Statistics tracking started');
   private statisticsTrackingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
     const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
-    
+
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
-    
+
     const initialStats = simulation.getStats();
-    this.logToConsole(`Initial stats - Population: ${initialStats.population}, Running: ${initialStats.isRunning}`);
-    
+    this.logToConsole(
+      `Initial stats - Population: ${initialStats.population}, Running: ${initialStats.isRunning}`
+    );
+
     simulation.start();
     this.logToConsole('Started statistics tracking');
-    
+
     // Track stats over time
     const statsHistory: any[] = [];
     let trackingCount = 0;
-    
+
     const tracker = setInterval(() => {
       const stats = simulation.getStats();
       statsHistory.push({
         timestamp: Date.now(),
         population: stats.population,
-        generation: stats.generation
+        generation: stats.generation,
       });
-      
+
       this.logToConsole(`Stats - Pop: ${stats.population}, Gen: ${stats.generation}`);
-      
+
       if (statsHistory.length > 3) {
         const trend = statsHistory.slice(-3).map(s => s.population);
         this.logToConsole(`Population trend: ${trend.join(' → ')}`);
       }
-      
+
       trackingCount++;
       if (trackingCount >= 5) {
         clearInterval(tracker);
@@ -601,7 +614,7 @@ export function initializeInteractiveExamples(containerId: string = 'interactive
     console.error(`Container with ID '${containerId}' not found`);
     return;
   }
-  
+
   new InteractiveExamples(container);
 }
 

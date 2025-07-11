@@ -65,7 +65,7 @@ export class ConfigManager {
     if (this.isProduction()) {
       throw new Error('Configuration updates not allowed in production');
     }
-    
+
     this.config = { ...this.config, ...updates };
   }
 

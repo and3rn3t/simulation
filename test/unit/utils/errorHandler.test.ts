@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { 
-  ErrorHandler, 
-  ErrorSeverity, 
-  SimulationError, 
-  CanvasError, 
-  OrganismError, 
+import {
+  ErrorHandler,
+  ErrorSeverity,
+  SimulationError,
+  CanvasError,
+  OrganismError,
   ConfigurationError,
   DOMError,
   safeExecute,
-  withErrorHandling 
+  withErrorHandling,
 } from '../../../src/utils/system/errorHandler';
 
 describe('ErrorHandler', () => {
@@ -18,7 +18,7 @@ describe('ErrorHandler', () => {
     // Get a fresh instance for each test
     errorHandler = ErrorHandler.getInstance();
     errorHandler.clearErrors();
-    
+
     // Mock console methods
     vi.spyOn(console, 'info').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -59,31 +59,23 @@ describe('ErrorHandler', () => {
 
     it('should handle errors with different severity levels', () => {
       const testError = new Error('Test error');
-      
+
       errorHandler.handleError(testError, ErrorSeverity.LOW);
-      expect(console.info).toHaveBeenCalledWith(
-        '[LOW] Error: Test error'
-      );
+      expect(console.info).toHaveBeenCalledWith('[LOW] Error: Test error');
 
       errorHandler.handleError(testError, ErrorSeverity.MEDIUM);
-      expect(console.warn).toHaveBeenCalledWith(
-        '[MEDIUM] Error: Test error'
-      );
+      expect(console.warn).toHaveBeenCalledWith('[MEDIUM] Error: Test error');
 
       errorHandler.handleError(testError, ErrorSeverity.HIGH);
-      expect(console.error).toHaveBeenCalledWith(
-        '[HIGH] Error: Test error'
-      );
+      expect(console.error).toHaveBeenCalledWith('[HIGH] Error: Test error');
 
       errorHandler.handleError(testError, ErrorSeverity.CRITICAL);
-      expect(console.error).toHaveBeenCalledWith(
-        '[CRITICAL] Error: Test error'
-      );
+      expect(console.error).toHaveBeenCalledWith('[CRITICAL] Error: Test error');
     });
 
     it('should add context to error messages', () => {
       const testError = new Error('Test error');
-      
+
       errorHandler.handleError(testError, ErrorSeverity.MEDIUM, 'Test context');
       expect(console.warn).toHaveBeenCalledWith(
         '[MEDIUM] Error: Test error (Context: Test context)'
@@ -93,10 +85,10 @@ describe('ErrorHandler', () => {
     it('should track recent errors', () => {
       const error1 = new Error('Error 1');
       const error2 = new Error('Error 2');
-      
+
       errorHandler.handleError(error1, ErrorSeverity.LOW);
       errorHandler.handleError(error2, ErrorSeverity.HIGH);
-      
+
       const recentErrors = errorHandler.getRecentErrors();
       expect(recentErrors).toHaveLength(2);
       expect(recentErrors[0].error.message).toBe('Error 1');
@@ -106,10 +98,10 @@ describe('ErrorHandler', () => {
     it('should provide error statistics', () => {
       const error1 = new Error('Error 1');
       const error2 = new Error('Error 2');
-      
+
       errorHandler.handleError(error1, ErrorSeverity.LOW);
       errorHandler.handleError(error2, ErrorSeverity.HIGH);
-      
+
       const stats = errorHandler.getErrorStats();
       expect(stats.total).toBe(2);
       expect(stats.bySeverity[ErrorSeverity.LOW]).toBe(1);
@@ -119,9 +111,9 @@ describe('ErrorHandler', () => {
     it('should clear errors', () => {
       const testError = new Error('Test error');
       errorHandler.handleError(testError, ErrorSeverity.LOW);
-      
+
       expect(errorHandler.getRecentErrors()).toHaveLength(1);
-      
+
       errorHandler.clearErrors();
       expect(errorHandler.getRecentErrors()).toHaveLength(0);
     });
@@ -130,12 +122,14 @@ describe('ErrorHandler', () => {
   describe('Utility Functions', () => {
     it('should safely execute functions', () => {
       const successFn = vi.fn(() => 'success');
-      const errorFn = vi.fn(() => { throw new Error('Test error'); });
-      
+      const errorFn = vi.fn(() => {
+        throw new Error('Test error');
+      });
+
       const result1 = safeExecute(successFn, 'Test context');
       expect(result1).toBe('success');
       expect(successFn).toHaveBeenCalled();
-      
+
       const result2 = safeExecute(errorFn, 'Test context', 'fallback');
       expect(result2).toBe('fallback');
       expect(errorFn).toHaveBeenCalled();
@@ -146,14 +140,16 @@ describe('ErrorHandler', () => {
 
     it('should create error-wrapped functions', () => {
       const testFn = vi.fn((x: number) => x * 2);
-      const errorFn = vi.fn(() => { throw new Error('Test error'); });
-      
+      const errorFn = vi.fn(() => {
+        throw new Error('Test error');
+      });
+
       const wrappedTestFn = withErrorHandling(testFn, 'Test context');
       const wrappedErrorFn = withErrorHandling(errorFn, 'Test context');
-      
+
       expect(wrappedTestFn(5)).toBe(10);
       expect(testFn).toHaveBeenCalledWith(5);
-      
+
       expect(wrappedErrorFn()).toBeUndefined();
       expect(errorFn).toHaveBeenCalled();
       expect(console.warn).toHaveBeenCalledWith(

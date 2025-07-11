@@ -10,7 +10,7 @@ import { JSDOM } from 'jsdom';
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
   url: 'http://localhost:3000',
   pretendToBeVisual: true,
-  resources: 'usable'
+  resources: 'usable',
 });
 
 // Set up global environment (only if not already set)
@@ -59,7 +59,7 @@ const localStorageMock = {
 };
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 // Mock Canvas API for JSDOM
@@ -226,7 +226,4 @@ afterEach(() => {
 });
 
 // Export utilities for tests
-export {
-  mockCanvas,
-  localStorageMock,
-};
+export { mockCanvas, localStorageMock };

@@ -1,6 +1,6 @@
 /**
  * Examples module exports
- * 
+ *
  * This module provides access to interactive code examples
  * and documentation for the Organism Simulation project.
  */

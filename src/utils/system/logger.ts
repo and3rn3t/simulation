@@ -13,10 +13,10 @@ export const LogLevel = {
   ERROR: 'error',
   PERFORMANCE: 'performance',
   USER_ACTION: 'user_action',
-  SYSTEM: 'system'
+  SYSTEM: 'system',
 } as const;
 
-export type LogLevel = typeof LogLevel[keyof typeof LogLevel];
+export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
 
 /**
  * Log categories for organizing different types of logs
@@ -25,34 +25,34 @@ export const LogCategory = {
   // Application lifecycle
   INIT: 'initialization',
   SHUTDOWN: 'shutdown',
-  
+
   // Simulation events
   SIMULATION: 'simulation',
   ORGANISM: 'organism',
   RENDERING: 'rendering',
-  
+
   // User interactions
   USER_INPUT: 'user_input',
   UI_INTERACTION: 'ui_interaction',
-  
+
   // Performance and metrics
   PERFORMANCE: 'performance',
   METRICS: 'metrics',
-  
+
   // System events
   SYSTEM: 'system',
   BROWSER: 'browser',
-  
+
   // Game features
   ACHIEVEMENTS: 'achievements',
   CHALLENGES: 'challenges',
   POWERUPS: 'powerups',
-  
+
   // Error handling
-  ERROR: 'error'
+  ERROR: 'error',
 } as const;
 
-export type LogCategory = typeof LogCategory[keyof typeof LogCategory];
+export type LogCategory = (typeof LogCategory)[keyof typeof LogCategory];
 
 /**
  * Structured log entry interface
@@ -85,7 +85,7 @@ export class Logger {
     LogLevel.ERROR,
     LogLevel.PERFORMANCE,
     LogLevel.USER_ACTION,
-    LogLevel.SYSTEM
+    LogLevel.SYSTEM,
   ]);
 
   private constructor() {
@@ -126,7 +126,7 @@ export class Logger {
       context,
       sessionId: this.sessionId,
       userAgent: navigator?.userAgent,
-      url: window?.location?.href
+      url: window?.location?.href,
     };
 
     this.addToLogs(logEntry);
@@ -167,7 +167,7 @@ export class Logger {
   logPerformance(metric: string, value: number, unit?: string): void {
     this.log(LogLevel.PERFORMANCE, LogCategory.PERFORMANCE, metric, {
       value,
-      unit: unit || 'ms'
+      unit: unit || 'ms',
     });
   }
 
@@ -182,7 +182,12 @@ export class Logger {
    * Log achievement unlocks
    */
   logAchievement(achievementName: string, data?: any): void {
-    this.log(LogLevel.INFO, LogCategory.ACHIEVEMENTS, `Achievement unlocked: ${achievementName}`, data);
+    this.log(
+      LogLevel.INFO,
+      LogCategory.ACHIEVEMENTS,
+      `Achievement unlocked: ${achievementName}`,
+      data
+    );
   }
 
   /**
@@ -203,11 +208,17 @@ export class Logger {
    * Log errors (integrates with ErrorHandler)
    */
   logError(error: Error, context?: string, data?: any): void {
-    this.log(LogLevel.ERROR, LogCategory.ERROR, error.message, {
-      name: error.name,
-      stack: error.stack,
-      ...data
-    }, context);
+    this.log(
+      LogLevel.ERROR,
+      LogCategory.ERROR,
+      error.message,
+      {
+        name: error.name,
+        stack: error.stack,
+        ...data,
+      },
+      context
+    );
   }
 
   /**
@@ -215,7 +226,7 @@ export class Logger {
    */
   private addToLogs(logEntry: LogEntry): void {
     this.logs.push(logEntry);
-    
+
     // Keep logs manageable
     if (this.logs.length > this.maxLogSize) {
       this.logs.shift();
@@ -228,8 +239,10 @@ export class Logger {
   private outputToConsole(logEntry: LogEntry): void {
     const timestamp = logEntry.timestamp.toISOString();
     const prefix = `[${timestamp}] [${logEntry.level.toUpperCase()}] [${logEntry.category.toUpperCase()}]`;
-    const message = logEntry.context ? `${logEntry.message} (${logEntry.context})` : logEntry.message;
-    
+    const message = logEntry.context
+      ? `${logEntry.message} (${logEntry.context})`
+      : logEntry.message;
+
     switch (logEntry.level) {
       case LogLevel.DEBUG:
         console.debug(prefix, message, logEntry.data);
@@ -298,11 +311,15 @@ export class Logger {
   /**
    * Get logging statistics
    */
-  getLogStats(): { total: number; byLevel: Record<string, number>; byCategory: Record<string, number> } {
+  getLogStats(): {
+    total: number;
+    byLevel: Record<string, number>;
+    byCategory: Record<string, number>;
+  } {
     const stats = {
       total: this.logs.length,
       byLevel: {} as Record<string, number>,
-      byCategory: {} as Record<string, number>
+      byCategory: {} as Record<string, number>,
     };
 
     this.logs.forEach(log => {
@@ -335,7 +352,7 @@ export class Logger {
       timezoneOffset: new Date().getTimezoneOffset(),
       url: window?.location?.href,
       referrer: document?.referrer,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }
@@ -378,12 +395,8 @@ export class PerformanceLogger {
 
     const endTime = performance.now();
     const duration = endTime - startTime;
-    
-    this.logger.logPerformance(
-      logMessage || `Operation: ${operation}`,
-      duration,
-      'ms'
-    );
+
+    this.logger.logPerformance(logMessage || `Operation: ${operation}`, duration, 'ms');
 
     this.performanceMarks.delete(operation);
     return duration;

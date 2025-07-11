@@ -66,10 +66,10 @@ export class PerformanceManager {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
     }
-    
+
     const values = this.metrics.get(name)!;
     values.push(value);
-    
+
     // Keep only last 100 values to prevent memory leaks
     if (values.length > 100) {
       values.shift();
@@ -127,21 +127,23 @@ export class PerformanceManager {
 
     // Check memory usage
     const memoryUsed = this.getMetricStats('memory.used');
-    if (memoryUsed && memoryUsed.current > 100) { // 100MB threshold
+    if (memoryUsed && memoryUsed.current > 100) {
+      // 100MB threshold
       issues.push(`High memory usage: ${memoryUsed.current.toFixed(1)}MB`);
     }
 
     // Check for memory leaks
     if (memoryUsed && memoryUsed.count > 10) {
       const trend = this.calculateTrend('memory.used');
-      if (trend > 0.1) { // Growing by more than 0.1MB per sample
+      if (trend > 0.1) {
+        // Growing by more than 0.1MB per sample
         issues.push('Potential memory leak detected');
       }
     }
 
     return {
       healthy: issues.length === 0,
-      issues
+      issues,
     };
   }
 
@@ -157,7 +159,7 @@ export class PerformanceManager {
 
     const first = recent[0];
     const last = recent[recent.length - 1];
-    
+
     return (last - first) / recent.length;
   }
 }

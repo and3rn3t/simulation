@@ -36,7 +36,7 @@ const button = ComponentFactory.createButton({
   text: 'Click Me',
   variant: 'primary',
   size: 'medium',
-  onClick: () => console.log('Clicked!')
+  onClick: () => console.log('Clicked!'),
 });
 
 button.mount(container);
@@ -75,7 +75,7 @@ const panel = ComponentFactory.createPanel({
   closable: true,
   collapsible: true,
   onClose: () => console.log('Panel closed'),
-  onToggle: (collapsed) => console.log('Panel collapsed:', collapsed)
+  onToggle: collapsed => console.log('Panel collapsed:', collapsed),
 });
 
 panel.addContent('<p>Panel content here</p>');
@@ -102,7 +102,7 @@ const modal = ComponentFactory.createModal({
   size: 'medium',
   closable: true,
   onOpen: () => console.log('Modal opened'),
-  onClose: () => console.log('Modal closed')
+  onClose: () => console.log('Modal closed'),
 });
 
 modal.addContent('<p>Are you sure?</p>');
@@ -137,7 +137,7 @@ const input = ComponentFactory.createInput({
   placeholder: 'Enter your email...',
   required: true,
   helperText: 'We will never share your email',
-  onChange: (value) => console.log('Value changed:', value)
+  onChange: value => console.log('Value changed:', value),
 });
 
 input.mount(container);
@@ -174,7 +174,7 @@ const toggle = ComponentFactory.createToggle({
   variant: 'switch',
   size: 'medium',
   checked: true,
-  onChange: (checked) => console.log('Toggle changed:', checked)
+  onChange: checked => console.log('Toggle changed:', checked),
 });
 
 toggle.mount(container);
@@ -351,8 +351,8 @@ const controlPanel = new ControlPanelComponent({
   onStart: () => simulation.start(),
   onPause: () => simulation.pause(),
   onReset: () => simulation.reset(),
-  onSpeedChange: (speed) => simulation.setSpeed(speed),
-  onAutoSpawnToggle: (enabled) => simulation.setAutoSpawn(enabled)
+  onSpeedChange: speed => simulation.setSpeed(speed),
+  onAutoSpawnToggle: enabled => simulation.setAutoSpawn(enabled),
 });
 
 controlPanel.mount(document.getElementById('controls'));
@@ -362,11 +362,14 @@ controlPanel.mount(document.getElementById('controls'));
 
 ```typescript
 // Create a confirmation modal
-const confirmModal = ComponentFactory.createModal({
-  title: 'Confirm Action',
-  size: 'small',
-  closable: true
-}, 'confirm-modal');
+const confirmModal = ComponentFactory.createModal(
+  {
+    title: 'Confirm Action',
+    size: 'small',
+    closable: true,
+  },
+  'confirm-modal'
+);
 
 const modalContent = document.createElement('div');
 modalContent.innerHTML = '<p>Are you sure you want to reset the simulation?</p>';
@@ -379,7 +382,7 @@ buttonContainer.style.marginTop = '1rem';
 const cancelBtn = ComponentFactory.createButton({
   text: 'Cancel',
   variant: 'secondary',
-  onClick: () => confirmModal.close()
+  onClick: () => confirmModal.close(),
 });
 
 const confirmBtn = ComponentFactory.createButton({
@@ -388,7 +391,7 @@ const confirmBtn = ComponentFactory.createButton({
   onClick: () => {
     simulation.reset();
     confirmModal.close();
-  }
+  },
 });
 
 cancelBtn.mount(buttonContainer);

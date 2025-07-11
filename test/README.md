@@ -6,7 +6,7 @@
 test/
 ├── unit/                   # Unit tests for individual components
 │   ├── core/              # Tests for core functionality
-│   ├── utils/             # Tests for utility functions  
+│   ├── utils/             # Tests for utility functions
 │   ├── features/          # Tests for feature modules
 │   └── ui/                # Tests for UI components
 ├── integration/           # Integration tests
@@ -39,7 +39,7 @@ test/
 - Focus on business logic and edge cases
 - Target: 95%+ code coverage
 
-### Integration Tests  
+### Integration Tests
 
 - Test interactions between components
 - Test feature workflows
@@ -76,7 +76,7 @@ test/
 - Error handling
 - Data persistence
 
-### Important (Should Pass)  
+### Important (Should Pass)
 
 - UI components
 - User interactions

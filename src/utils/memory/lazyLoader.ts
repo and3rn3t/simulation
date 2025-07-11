@@ -36,7 +36,7 @@ export class LazyLoader {
 
   private constructor() {
     this.memoryMonitor = MemoryMonitor.getInstance();
-    
+
     // Listen for memory cleanup events
     window.addEventListener('memory-cleanup', (event: Event) => {
       const customEvent = event as CustomEvent;
@@ -63,7 +63,10 @@ export class LazyLoader {
    */
   register<T>(loadable: LazyLoadable<T>): void {
     this.loadables.set(loadable.id, loadable);
-    log.logSystem('Lazy loadable registered', { id: loadable.id, hasDependencies: Boolean(loadable.dependencies?.length) });
+    log.logSystem('Lazy loadable registered', {
+      id: loadable.id,
+      hasDependencies: Boolean(loadable.dependencies?.length),
+    });
   }
 
   /**
@@ -82,7 +85,7 @@ export class LazyLoader {
         return {
           success: true,
           data: loadable.data as T,
-          fromCache: true
+          fromCache: true,
         };
       }
 
@@ -92,7 +95,7 @@ export class LazyLoader {
         return {
           success: true,
           data: data as T,
-          fromCache: false
+          fromCache: false,
         };
       }
 
@@ -115,18 +118,20 @@ export class LazyLoader {
         loadable.data = data;
         loadable.isLoaded = true;
         this.updateLoadOrder(id);
-        
-        log.logSystem('Lazy loadable loaded', { id, memoryUsage: this.memoryMonitor.getMemoryUsagePercentage() });
+
+        log.logSystem('Lazy loadable loaded', {
+          id,
+          memoryUsage: this.memoryMonitor.getMemoryUsagePercentage(),
+        });
 
         return {
           success: true,
           data: data as T,
-          fromCache: false
+          fromCache: false,
         };
       } finally {
         this.loadingPromises.delete(id);
       }
-
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new Error(`Failed to load ${id}`),
@@ -137,7 +142,7 @@ export class LazyLoader {
       return {
         success: false,
         error: error instanceof Error ? error : new Error(String(error)),
-        fromCache: false
+        fromCache: false,
       };
     }
   }
@@ -147,7 +152,7 @@ export class LazyLoader {
    */
   async preload(ids: string[]): Promise<LoadResult<any>[]> {
     const results: LoadResult<any>[] = [];
-    
+
     // Load in batches to avoid memory pressure
     const batchSize = 5;
     for (let i = 0; i < ids.length; i += batchSize) {
@@ -155,14 +160,17 @@ export class LazyLoader {
       const batchPromises = batch.map(id => this.load(id));
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
-      
+
       // Check memory after each batch
       if (!this.memoryMonitor.isMemoryUsageSafe()) {
-        log.logSystem('Memory pressure detected during preload, stopping', { completed: i + batch.length, total: ids.length });
+        log.logSystem('Memory pressure detected during preload, stopping', {
+          completed: i + batch.length,
+          total: ids.length,
+        });
         break;
       }
     }
-    
+
     return results;
   }
 
@@ -243,7 +251,7 @@ export class LazyLoader {
   private evictLeastRecentlyUsed(): void {
     const loadedCount = this.loadOrder.length;
     const evictCount = Math.min(Math.floor(loadedCount * 0.3), loadedCount - this.maxCacheSize);
-    
+
     if (evictCount <= 0) return;
 
     const toEvict = this.loadOrder.slice(0, evictCount);
@@ -295,7 +303,7 @@ export class LazyLoader {
       totalLoaded,
       currentlyLoading,
       memoryUsage,
-      cacheHitRate: 0 // Could implement hit tracking if needed
+      cacheHitRate: 0, // Could implement hit tracking if needed
     };
   }
 
@@ -338,7 +346,7 @@ export class UnlockableOrganismLazyLoader {
       id: `organism_${id}`,
       isLoaded: false,
       loader,
-      dependencies: dependencies?.map(dep => `organism_${dep}`)
+      dependencies: dependencies?.map(dep => `organism_${dep}`),
     });
   }
 

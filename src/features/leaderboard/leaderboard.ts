@@ -39,15 +39,15 @@ export class LeaderboardManager {
   addEntry(entry: Omit<LeaderboardEntry, 'date'>): void {
     const newEntry: LeaderboardEntry = {
       ...entry,
-      date: new Date().toLocaleDateString()
+      date: new Date().toLocaleDateString(),
     };
 
     this.entries.push(newEntry);
     this.entries.sort((a, b) => b.score - a.score);
-    
+
     // Keep only top 10 entries
     this.entries = this.entries.slice(0, 10);
-    
+
     this.saveLeaderboard();
     this.updateLeaderboardDisplay();
   }
@@ -104,12 +104,14 @@ export class LeaderboardManager {
     if (!leaderboardList) return;
 
     if (this.entries.length === 0) {
-      leaderboardList.innerHTML = '<p style="text-align: center; color: rgba(255, 255, 255, 0.6);">No scores yet!</p>';
+      leaderboardList.innerHTML =
+        '<p style="text-align: center; color: rgba(255, 255, 255, 0.6);">No scores yet!</p>';
       return;
     }
 
     leaderboardList.innerHTML = this.entries
-      .map((entry, index) => `
+      .map(
+        (entry, index) => `
         <div class="leaderboard-item ${index === 0 ? 'current' : ''}">
           <span class="leaderboard-rank">#${index + 1}</span>
           <div class="leaderboard-info">
@@ -120,7 +122,8 @@ export class LeaderboardManager {
           </div>
           <span class="leaderboard-date">${entry.date}</span>
         </div>
-      `)
+      `
+      )
       .join('');
   }
 }

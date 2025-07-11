@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { 
-  Logger, 
+import {
+  Logger,
   PerformanceLogger,
-  LogLevel, 
+  LogLevel,
   LogCategory,
   log,
-  perf
+  perf,
 } from '../../../src/utils/system/logger';
 
 describe('Logger', () => {
@@ -14,10 +14,18 @@ describe('Logger', () => {
   beforeEach(() => {
     logger = Logger.getInstance();
     logger.clearLogs();
-    
+
     // Enable all log levels for testing
-    logger.setLogLevels([LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR, LogLevel.PERFORMANCE, LogLevel.USER_ACTION, LogLevel.SYSTEM]);
-    
+    logger.setLogLevels([
+      LogLevel.DEBUG,
+      LogLevel.INFO,
+      LogLevel.WARN,
+      LogLevel.ERROR,
+      LogLevel.PERFORMANCE,
+      LogLevel.USER_ACTION,
+      LogLevel.SYSTEM,
+    ]);
+
     // Mock console methods
     vi.spyOn(console, 'debug').mockImplementation(() => {});
     vi.spyOn(console, 'info').mockImplementation(() => {});
@@ -41,7 +49,7 @@ describe('Logger', () => {
     it('should log messages with different levels', () => {
       // Temporarily enable debug logging for this test
       logger.setLogLevels([LogLevel.DEBUG, LogLevel.INFO, LogLevel.ERROR]);
-      
+
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Test info message');
       logger.log(LogLevel.ERROR, LogCategory.ERROR, 'Test error message');
       logger.log(LogLevel.DEBUG, LogCategory.SYSTEM, 'Test debug message');
@@ -55,7 +63,7 @@ describe('Logger', () => {
 
     it('should include timestamp and session info', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Test message');
-      
+
       const logs = logger.getRecentLogs();
       expect(logs[0].timestamp).toBeInstanceOf(Date);
       expect(logs[0].sessionId).toBeDefined();
@@ -65,7 +73,7 @@ describe('Logger', () => {
     it('should handle data and context', () => {
       const testData = { key: 'value', number: 42 };
       logger.log(LogLevel.INFO, LogCategory.SIMULATION, 'Test with data', testData, 'test context');
-      
+
       const logs = logger.getRecentLogs();
       expect(logs[0].data).toEqual(testData);
       expect(logs[0].context).toBe('test context');
@@ -76,10 +84,15 @@ describe('Logger', () => {
     it('should provide convenience methods for common log types', () => {
       // Enable all log levels for this test
       logger.setLogLevels([
-        LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR, 
-        LogLevel.PERFORMANCE, LogLevel.USER_ACTION, LogLevel.SYSTEM
+        LogLevel.DEBUG,
+        LogLevel.INFO,
+        LogLevel.WARN,
+        LogLevel.ERROR,
+        LogLevel.PERFORMANCE,
+        LogLevel.USER_ACTION,
+        LogLevel.SYSTEM,
       ]);
-      
+
       logger.logInit('Init message');
       logger.logSimulation('Simulation message');
       logger.logUserAction('User action');
@@ -102,9 +115,9 @@ describe('Logger', () => {
     it('should log performance metrics', () => {
       // Enable performance logging for this test
       logger.setLogLevels([LogLevel.PERFORMANCE]);
-      
+
       logger.logPerformance('Frame time', 16.67, 'ms');
-      
+
       const logs = logger.getRecentLogs();
       expect(logs).toHaveLength(1);
       expect(logs[0].level).toBe(LogLevel.PERFORMANCE);
@@ -114,7 +127,7 @@ describe('Logger', () => {
     it('should log errors with stack traces', () => {
       const testError = new Error('Test error');
       logger.logError(testError, 'test context');
-      
+
       const logs = logger.getRecentLogs();
       expect(logs).toHaveLength(1);
       expect(logs[0].level).toBe(LogLevel.ERROR);
@@ -128,7 +141,7 @@ describe('Logger', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Init message');
       logger.log(LogLevel.INFO, LogCategory.SIMULATION, 'Simulation message');
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Another init message');
-      
+
       const initLogs = logger.getLogsByCategory(LogCategory.INIT);
       expect(initLogs).toHaveLength(2);
       expect(initLogs.every(log => log.category === LogCategory.INIT)).toBe(true);
@@ -138,7 +151,7 @@ describe('Logger', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Info message');
       logger.log(LogLevel.ERROR, LogCategory.ERROR, 'Error message');
       logger.log(LogLevel.INFO, LogCategory.SIMULATION, 'Another info message');
-      
+
       const infoLogs = logger.getLogsByLevel(LogLevel.INFO);
       expect(infoLogs).toHaveLength(2);
       expect(infoLogs.every(log => log.level === LogLevel.INFO)).toBe(true);
@@ -150,7 +163,7 @@ describe('Logger', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Message 1');
       logger.log(LogLevel.ERROR, LogCategory.ERROR, 'Message 2');
       logger.log(LogLevel.INFO, LogCategory.SIMULATION, 'Message 3');
-      
+
       const stats = logger.getLogStats();
       expect(stats.total).toBe(3);
       expect(stats.byLevel[LogLevel.INFO]).toBe(2);
@@ -162,7 +175,7 @@ describe('Logger', () => {
 
     it('should export logs as JSON', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Test message');
-      
+
       const exported = logger.exportLogs();
       const parsed = JSON.parse(exported);
       expect(Array.isArray(parsed)).toBe(true);
@@ -172,9 +185,9 @@ describe('Logger', () => {
     it('should clear logs', () => {
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Message 1');
       logger.log(LogLevel.INFO, LogCategory.INIT, 'Message 2');
-      
+
       expect(logger.getRecentLogs()).toHaveLength(2);
-      
+
       logger.clearLogs();
       expect(logger.getRecentLogs()).toHaveLength(0);
     });
@@ -183,7 +196,7 @@ describe('Logger', () => {
   describe('System Information', () => {
     it('should provide system information', () => {
       const systemInfo = logger.getSystemInfo();
-      
+
       expect(systemInfo).toBeDefined();
       expect(typeof systemInfo.timestamp).toBe('string');
       expect(typeof systemInfo.timezoneOffset).toBe('number');
@@ -196,7 +209,7 @@ describe('PerformanceLogger', () => {
 
   beforeEach(() => {
     perfLogger = PerformanceLogger.getInstance();
-    
+
     // Mock console methods
     vi.spyOn(console, 'info').mockImplementation(() => {});
   });
@@ -204,13 +217,13 @@ describe('PerformanceLogger', () => {
   describe('Timing Operations', () => {
     it('should time operations', () => {
       perfLogger.startTiming('test-operation');
-      
+
       // Simulate some work
       const start = performance.now();
       while (performance.now() - start < 10) {
         // Wait for at least 10ms
       }
-      
+
       const duration = perfLogger.endTiming('test-operation');
       expect(duration).toBeGreaterThan(0);
     });
@@ -223,12 +236,12 @@ describe('PerformanceLogger', () => {
     it('should log performance metrics', () => {
       // We need to mock the logger's log method to test this since it's internal
       const logSpy = vi.spyOn(Logger.getInstance(), 'log' as any);
-      
+
       perfLogger.logFrameRate(60);
-      
+
       // Check that the logger was called
       expect(logSpy).toHaveBeenCalled();
-      
+
       logSpy.mockRestore();
     });
   });

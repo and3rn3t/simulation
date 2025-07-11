@@ -18,7 +18,7 @@ export const SIMULATION_CONFIG = {
   /** Notification display duration (ms) */
   NOTIFICATION_DURATION: 4000,
   /** Game systems update interval (ms) */
-  GAME_SYSTEMS_UPDATE_INTERVAL: 1000
+  GAME_SYSTEMS_UPDATE_INTERVAL: 1000,
 } as const;
 
 export const CANVAS_CONFIG = {
@@ -33,7 +33,7 @@ export const CANVAS_CONFIG = {
   /** Grid line spacing */
   GRID_SIZE: 50,
   /** Grid line width */
-  GRID_LINE_WIDTH: 0.5
+  GRID_LINE_WIDTH: 0.5,
 } as const;
 
 export const UI_CONFIG = {
@@ -44,7 +44,7 @@ export const UI_CONFIG = {
   /** Animation delay for notifications */
   NOTIFICATION_ANIMATION_DELAY: 100,
   /** Animation hide delay */
-  NOTIFICATION_HIDE_DELAY: 300
+  NOTIFICATION_HIDE_DELAY: 300,
 } as const;
 
 export const ELEMENT_IDS = {
@@ -74,5 +74,5 @@ export const ELEMENT_IDS = {
   HIGH_SCORE: 'high-score',
   // Lists
   ACHIEVEMENTS_LIST: 'achievements-list',
-  LEADERBOARD_LIST: 'leaderboard-list'
+  LEADERBOARD_LIST: 'leaderboard-list',
 } as const;

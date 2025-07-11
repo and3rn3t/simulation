@@ -22,7 +22,7 @@ export abstract class BaseComponent {
       console.warn('Component is already mounted');
       return;
     }
-    
+
     parent.appendChild(this.element);
     this.mounted = true;
     this.onMount();
@@ -35,7 +35,7 @@ export abstract class BaseComponent {
     if (!this.mounted || !this.element.parentNode) {
       return;
     }
-    
+
     this.element.parentNode.removeChild(this.element);
     this.mounted = false;
     this.onUnmount();

@@ -6,48 +6,48 @@ vi.mock('../../src/ui/components/ComponentFactory', () => ({
     createButton: vi.fn(() => ({
       mount: vi.fn(),
       unmount: vi.fn(),
-      getElement: vi.fn(() => ({ style: {} }))
+      getElement: vi.fn(() => ({ style: {} })),
     })),
     createCard: vi.fn(() => ({
       mount: vi.fn(),
       unmount: vi.fn(),
-      getElement: vi.fn(() => ({ style: {} }))
+      getElement: vi.fn(() => ({ style: {} })),
     })),
     createModal: vi.fn(() => ({
       mount: vi.fn(),
       unmount: vi.fn(),
-      getElement: vi.fn(() => ({ style: {} }))
+      getElement: vi.fn(() => ({ style: {} })),
     })),
     createInput: vi.fn(() => ({
       mount: vi.fn(),
       unmount: vi.fn(),
-      getElement: vi.fn(() => ({ style: {} }))
+      getElement: vi.fn(() => ({ style: {} })),
     })),
     createToggle: vi.fn(() => ({
       mount: vi.fn(),
       unmount: vi.fn(),
       getElement: vi.fn(() => ({ style: {} })),
       setValue: vi.fn(),
-      getValue: vi.fn(() => false)
+      getValue: vi.fn(() => false),
     })),
     getComponent: vi.fn(),
     removeComponent: vi.fn(),
     removeAllComponents: vi.fn(),
-    getComponentIds: vi.fn(() => [])
+    getComponentIds: vi.fn(() => []),
   },
   ThemeManager: {
     setTheme: vi.fn(),
     getCurrentTheme: vi.fn(() => 'dark'),
     toggleTheme: vi.fn(),
     initializeTheme: vi.fn(),
-    saveThemePreference: vi.fn()
+    saveThemePreference: vi.fn(),
   },
   AccessibilityManager: {
     announceToScreenReader: vi.fn(),
     trapFocus: vi.fn(() => () => {}),
     prefersReducedMotion: vi.fn(() => false),
-    prefersHighContrast: vi.fn(() => false)
-  }
+    prefersHighContrast: vi.fn(() => false),
+  },
 }));
 
 // Mock OrganismTrailComponent to avoid complex DOM dependencies
@@ -61,10 +61,10 @@ vi.mock('../../src/ui/components/OrganismTrailComponent', () => ({
     exportTrailData = vi.fn(() => ({ trails: [] }));
     getElement = vi.fn(() => ({
       style: {},
-      className: 'organism-trail-component'
+      className: 'organism-trail-component',
     }));
     destroy = vi.fn();
-  }
+  },
 }));
 
 // Mock Chart.js
@@ -115,7 +115,7 @@ vi.mock('../../src/services/UserPreferencesManager', () => ({
         highContrast: false,
         reducedMotion: false,
         autoSave: true,
-        soundEnabled: true
+        soundEnabled: true,
       })),
       updatePreference: vi.fn(),
       updatePreferences: vi.fn(),
@@ -124,9 +124,9 @@ vi.mock('../../src/services/UserPreferencesManager', () => ({
       applyTheme: vi.fn(),
       applyAccessibility: vi.fn(),
       exportPreferences: vi.fn(),
-      importPreferences: vi.fn()
-    }))
-  }
+      importPreferences: vi.fn(),
+    })),
+  },
 }));
 
 // Setup DOM environment for tests
@@ -171,18 +171,18 @@ Object.defineProperty(global, 'document', {
                 createImageData: vi.fn(() => ({
                   data: new Uint8ClampedArray(16),
                   width: 2,
-                  height: 2
+                  height: 2,
                 })),
                 putImageData: vi.fn(),
                 getImageData: vi.fn(() => ({
                   data: new Uint8ClampedArray(16),
                   width: 2,
-                  height: 2
-                }))
+                  height: 2,
+                })),
               })),
               style: {},
               addEventListener: vi.fn(),
-              removeEventListener: vi.fn()
+              removeEventListener: vi.fn(),
             };
           }
           // Return mock elements for any selector - be permissive
@@ -205,11 +205,11 @@ Object.defineProperty(global, 'document', {
                   getContext: vi.fn(() => ({
                     clearRect: vi.fn(),
                     fillRect: vi.fn(),
-                    strokeRect: vi.fn()
+                    strokeRect: vi.fn(),
                   })),
                   style: {},
                   className: '',
-                  textContent: ''
+                  textContent: '',
                 };
               }
               return null;
@@ -218,7 +218,7 @@ Object.defineProperty(global, 'document', {
             style: {
               display: '',
               setProperty: vi.fn(),
-              removeProperty: vi.fn()
+              removeProperty: vi.fn(),
             },
             className: '',
             innerHTML: '',
@@ -228,13 +228,18 @@ Object.defineProperty(global, 'document', {
             // Add common element properties
             checked: false,
             value: '',
-            type: 'checkbox'
+            type: 'checkbox',
           };
         }),
         querySelectorAll: vi.fn(() => []),
         getBoundingClientRect: vi.fn(() => ({
-          left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100
-        }))
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 100,
+          right: 100,
+          bottom: 100,
+        })),
       };
 
       if (tagName === 'canvas') {
@@ -260,8 +265,8 @@ Object.defineProperty(global, 'document', {
             restore: vi.fn(),
             translate: vi.fn(),
             scale: vi.fn(),
-            rotate: vi.fn()
-          }))
+            rotate: vi.fn(),
+          })),
         });
       }
 
@@ -272,18 +277,18 @@ Object.defineProperty(global, 'document', {
       style: {
         setProperty: vi.fn(),
         removeProperty: vi.fn(),
-        getProperty: vi.fn()
-      }
+        getProperty: vi.fn(),
+      },
     },
     body: {
       appendChild: vi.fn(),
-      removeChild: vi.fn()
+      removeChild: vi.fn(),
     },
     getElementById: vi.fn(),
     querySelector: vi.fn(),
-    querySelectorAll: vi.fn(() => [])
+    querySelectorAll: vi.fn(() => []),
   },
-  configurable: true
+  configurable: true,
 });
 
 Object.defineProperty(global, 'window', {
@@ -291,16 +296,16 @@ Object.defineProperty(global, 'window', {
     matchMedia: vi.fn(() => ({
       matches: false,
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     })),
     localStorage: {
       getItem: vi.fn(),
       setItem: vi.fn(),
       removeItem: vi.fn(),
-      clear: vi.fn()
-    }
+      clear: vi.fn(),
+    },
   },
-  configurable: true
+  configurable: true,
 });
 
 // Mock Canvas API
@@ -327,11 +332,11 @@ Object.defineProperty(global, 'HTMLCanvasElement', {
         restore: vi.fn(),
         translate: vi.fn(),
         scale: vi.fn(),
-        rotate: vi.fn()
+        rotate: vi.fn(),
       };
     }
   },
-  configurable: true
+  configurable: true,
 });
 
 // Now import the component
@@ -393,25 +398,25 @@ describe('VisualizationDashboard Integration Tests', () => {
   describe('Dashboard Initialization', () => {
     it('should create dashboard with all visualization components', () => {
       dashboard = new VisualizationDashboard(mockCanvas);
-      
+
       expect(dashboard).toBeDefined();
       expect(dashboard.getElement()).toBeDefined();
     });
 
     it('should initialize components based on preferences', () => {
       dashboard = new VisualizationDashboard(mockCanvas);
-      
+
       const element = dashboard.getElement();
-      
+
       // Should have dashboard structure
       expect(element.className).toContain('visualization-dashboard');
     });
 
     it('should create dashboard controls', () => {
       dashboard = new VisualizationDashboard(mockCanvas);
-      
+
       const element = dashboard.getElement();
-      
+
       expect(element).toBeDefined();
     });
   });
@@ -429,12 +434,12 @@ describe('VisualizationDashboard Integration Tests', () => {
         deaths: 2,
         organismTypes: {
           bacteria: 60,
-          virus: 40
+          virus: 40,
         },
         positions: [
           { x: 100, y: 150, id: '1', type: 'bacteria' },
-          { x: 200, y: 100, id: '2', type: 'virus' }
-        ]
+          { x: 200, y: 100, id: '2', type: 'virus' },
+        ],
       };
 
       expect(() => dashboard.updateVisualization(visualizationData)).not.toThrow();
@@ -447,7 +452,7 @@ describe('VisualizationDashboard Integration Tests', () => {
         births: 0,
         deaths: 0,
         organismTypes: {},
-        positions: []
+        positions: [],
       };
 
       expect(() => dashboard.updateVisualization(emptyData)).not.toThrow();
@@ -476,7 +481,7 @@ describe('VisualizationDashboard Integration Tests', () => {
 
     it('should export visualization data', () => {
       const exportData = dashboard.exportData();
-      
+
       expect(exportData).toBeDefined();
       expect(exportData).toHaveProperty('timestamp');
     });
@@ -490,7 +495,7 @@ describe('VisualizationDashboard Integration Tests', () => {
     it('should mount properly', () => {
       const container = document.createElement('div');
       dashboard.mount(container);
-      
+
       expect(dashboard.getElement()).toBeDefined();
     });
 
@@ -498,7 +503,7 @@ describe('VisualizationDashboard Integration Tests', () => {
       const container = document.createElement('div');
       dashboard.mount(container);
       dashboard.unmount();
-      
+
       expect(dashboard.getElement()).toBeDefined();
     });
   });

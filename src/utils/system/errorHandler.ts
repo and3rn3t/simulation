@@ -7,7 +7,7 @@
  */
 export class SimulationError extends Error {
   public readonly code: string;
-  
+
   constructor(message: string, code: string) {
     super(message);
     this.name = 'SimulationError';
@@ -50,10 +50,10 @@ export const ErrorSeverity = {
   LOW: 'low',
   MEDIUM: 'medium',
   HIGH: 'high',
-  CRITICAL: 'critical'
+  CRITICAL: 'critical',
 } as const;
 
-export type ErrorSeverityType = typeof ErrorSeverity[keyof typeof ErrorSeverity];
+export type ErrorSeverityType = (typeof ErrorSeverity)[keyof typeof ErrorSeverity];
 
 /**
  * Error information interface
@@ -94,14 +94,18 @@ export class ErrorHandler {
    * @param severity - The severity level
    * @param context - Additional context information
    */
-  handleError(error: Error, severity: ErrorSeverityType = ErrorSeverity.MEDIUM, context?: string): void {
+  handleError(
+    error: Error,
+    severity: ErrorSeverityType = ErrorSeverity.MEDIUM,
+    context?: string
+  ): void {
     const errorInfo: ErrorInfo = {
       error,
       severity,
       context,
       timestamp: new Date(),
       userAgent: navigator?.userAgent,
-      stackTrace: error.stack
+      stackTrace: error.stack,
     };
 
     // Add to error queue
@@ -124,7 +128,7 @@ export class ErrorHandler {
    */
   private addToQueue(errorInfo: ErrorInfo): void {
     this.errorQueue.push(errorInfo);
-    
+
     // Keep queue size manageable
     if (this.errorQueue.length > this.maxQueueSize) {
       this.errorQueue.shift();
@@ -138,7 +142,7 @@ export class ErrorHandler {
   private logError(errorInfo: ErrorInfo): void {
     const logMessage = `[${errorInfo.severity.toUpperCase()}] ${errorInfo.error.name}: ${errorInfo.error.message}`;
     const contextMessage = errorInfo.context ? ` (Context: ${errorInfo.context})` : '';
-    
+
     switch (errorInfo.severity) {
       case ErrorSeverity.LOW:
         console.info(logMessage + contextMessage);
@@ -176,7 +180,7 @@ export class ErrorHandler {
           </div>
         </div>
       `;
-      
+
       // Add styles
       notification.style.cssText = `
         position: fixed;
@@ -191,7 +195,7 @@ export class ErrorHandler {
         max-width: 400px;
         font-family: Arial, sans-serif;
       `;
-      
+
       // Style the buttons
       const buttons = notification.querySelectorAll('button');
       buttons.forEach(button => {
@@ -205,9 +209,9 @@ export class ErrorHandler {
           cursor: pointer;
         `;
       });
-      
+
       document.body.appendChild(notification);
-      
+
       // Auto-remove after 15 seconds
       setTimeout(() => {
         if (notification.parentElement) {
@@ -216,7 +220,9 @@ export class ErrorHandler {
       }, 15000);
     } catch {
       // Fallback to alert if DOM manipulation fails
-      const shouldReload = confirm(`Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`);
+      const shouldReload = confirm(
+        `Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`
+      );
       if (shouldReload) {
         window.location.reload();
       }
@@ -256,8 +262,8 @@ export class ErrorHandler {
         [ErrorSeverity.LOW]: 0,
         [ErrorSeverity.MEDIUM]: 0,
         [ErrorSeverity.HIGH]: 0,
-        [ErrorSeverity.CRITICAL]: 0
-      }
+        [ErrorSeverity.CRITICAL]: 0,
+      },
     };
 
     this.errorQueue.forEach(errorInfo => {
@@ -274,11 +280,7 @@ export class ErrorHandler {
  * @param context - Context for error reporting
  * @param fallback - Fallback value if function fails
  */
-export function safeExecute<T>(
-  fn: () => T,
-  context: string,
-  fallback?: T
-): T | undefined {
+export function safeExecute<T>(fn: () => T, context: string, fallback?: T): T | undefined {
   try {
     return fn();
   } catch (error) {
@@ -335,7 +337,7 @@ export function initializeGlobalErrorHandlers(): void {
   const errorHandler = ErrorHandler.getInstance();
 
   // Handle uncaught errors
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', event => {
     errorHandler.handleError(
       new Error(event.message),
       ErrorSeverity.HIGH,
@@ -344,13 +346,13 @@ export function initializeGlobalErrorHandlers(): void {
   });
 
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', event => {
     errorHandler.handleError(
       new Error(`Unhandled promise rejection: ${event.reason}`),
       ErrorSeverity.HIGH,
       'Promise rejection'
     );
-    
+
     // Prevent the default browser behavior
     event.preventDefault();
   });

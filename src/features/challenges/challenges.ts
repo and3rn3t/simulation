@@ -34,7 +34,7 @@ export const CHALLENGES: Challenge[] = [
     type: 'population',
     reward: 500,
     timeLimit: 60,
-    completed: false
+    completed: false,
   },
   {
     id: 'longevity-master',
@@ -44,7 +44,7 @@ export const CHALLENGES: Challenge[] = [
     type: 'age',
     reward: 400,
     timeLimit: 120,
-    completed: false
+    completed: false,
   },
   {
     id: 'growth-spurt',
@@ -53,6 +53,6 @@ export const CHALLENGES: Challenge[] = [
     target: 50,
     type: 'growth',
     reward: 300,
-    completed: false
-  }
+    completed: false,
+  },
 ];

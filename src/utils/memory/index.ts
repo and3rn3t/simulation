@@ -1,28 +1,20 @@
 // Memory management utilities
-export { 
-  ObjectPool, 
-  OrganismPool, 
-  ArrayPool, 
-  arrayPool,
-  type PoolStats 
-} from './objectPool';
+export { ObjectPool, OrganismPool, ArrayPool, arrayPool, type PoolStats } from './objectPool';
 
-export { 
-  MemoryMonitor, 
+export {
+  MemoryMonitor,
   MemoryAwareCache,
   type MemoryInfo,
-  type MemoryThresholds
+  type MemoryThresholds,
 } from './memoryMonitor';
 
-export { 
-  OrganismSoA 
-} from './cacheOptimizedStructures';
+export { OrganismSoA } from './cacheOptimizedStructures';
 
-export { 
+export {
   LazyLoader,
   UnlockableOrganismLazyLoader,
   lazyLoader,
   unlockableOrganismLoader,
   type LazyLoadable,
-  type LoadResult
+  type LoadResult,
 } from './lazyLoader';

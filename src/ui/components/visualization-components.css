@@ -218,7 +218,7 @@
   font-weight: 500;
 }
 
-.trail-toggle input[type="checkbox"] {
+.trail-toggle input[type='checkbox'] {
   margin: 0;
 }
 
@@ -236,7 +236,7 @@
   font-size: var(--ui-font-size-sm);
 }
 
-.trail-settings input[type="range"] {
+.trail-settings input[type='range'] {
   margin: var(--ui-space-xs) 0;
 }
 
@@ -428,25 +428,25 @@
   .settings-tabs {
     flex-direction: column;
   }
-  
+
   .trail-settings {
     grid-template-columns: 1fr;
   }
-  
+
   .trail-stats {
     flex-direction: column;
     gap: var(--ui-space-sm);
   }
-  
+
   .settings-actions {
     flex-direction: column;
   }
-  
+
   .slider-container {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .slider-container span {
     text-align: center;
   }
@@ -495,14 +495,14 @@
 }
 
 /* Dark theme specific adjustments */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --chart-grid-color: rgba(255, 255, 255, 0.1);
   --chart-text-color: rgba(255, 255, 255, 0.87);
   --chart-legend-color: rgba(255, 255, 255, 0.6);
 }
 
 /* Light theme specific adjustments */
-[data-theme="light"] {
+[data-theme='light'] {
   --chart-grid-color: rgba(0, 0, 0, 0.1);
   --chart-text-color: rgba(0, 0, 0, 0.87);
   --chart-legend-color: rgba(0, 0, 0, 0.6);
@@ -510,8 +510,14 @@
 
 /* Animation for data updates */
 @keyframes dataUpdate {
-  0% { opacity: 0.5; transform: scale(0.95); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .chart-component.updating {
@@ -560,7 +566,7 @@
 }
 
 .chart-loading::before {
-  content: "📊";
+  content: '📊';
   margin-right: var(--ui-space-sm);
   animation: pulse 1.5s infinite;
 }
@@ -575,12 +581,17 @@
 }
 
 .heatmap-loading::before {
-  content: "🔥";
+  content: '🔥';
   margin-right: var(--ui-space-sm);
   animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }

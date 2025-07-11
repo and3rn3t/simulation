@@ -4,18 +4,18 @@ export { App } from './app/App';
 // Configuration exports
 export { ConfigManager } from './config/ConfigManager';
 export type { AppConfig } from './types/appTypes';
-export { 
-  developmentConfig, 
-  productionConfig, 
+export {
+  developmentConfig,
+  productionConfig,
   testingConfig,
   stagingConfig,
-  createConfigFromEnv 
+  createConfigFromEnv,
 } from './types/appTypes';
 
 // Core exports - only export what exists and works
 // export * from './core';
 
-// Model exports - only export what exists and works  
+// Model exports - only export what exists and works
 // export * from './models';
 
 // Feature exports - only export what exists and works

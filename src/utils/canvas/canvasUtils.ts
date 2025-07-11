@@ -14,7 +14,7 @@ export const CANVAS_CONFIG = {
   GRID_LINE_WIDTH: 0.5,
   INSTRUCTION_COLOR: 'rgba(255, 255, 255, 0.8)',
   INSTRUCTION_SUB_COLOR: 'rgba(255, 255, 255, 0.6)',
-  PREVIEW_ALPHA: 0.5
+  PREVIEW_ALPHA: 0.5,
 } as const;
 
 /**
@@ -30,9 +30,9 @@ export class CanvasUtils {
       if (!canvas) {
         throw new CanvasError('Canvas element is required');
       }
-      
+
       this.canvas = canvas;
-      
+
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new CanvasError('Failed to get 2D rendering context');
@@ -142,11 +142,11 @@ export class CanvasUtils {
       if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
         throw new CanvasError('Invalid coordinates provided for preview organism');
       }
-      
+
       if (typeof size !== 'number' || size <= 0) {
         throw new CanvasError('Invalid size provided for preview organism');
       }
-      
+
       this.ctx.save();
       this.ctx.globalAlpha = CANVAS_CONFIG.PREVIEW_ALPHA;
       this.ctx.fillStyle = color;
@@ -173,11 +173,11 @@ export class CanvasUtils {
       if (!event) {
         throw new CanvasError('Mouse event is required');
       }
-      
+
       const rect = this.canvas.getBoundingClientRect();
       return {
         x: event.clientX - rect.left,
-        y: event.clientY - rect.top
+        y: event.clientY - rect.top,
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -200,12 +200,12 @@ export class CanvasUtils {
       if (!event || !event.touches || event.touches.length === 0) {
         throw new CanvasError('Touch event with touches is required');
       }
-      
+
       const rect = this.canvas.getBoundingClientRect();
       const touch = event.touches[0];
       return {
         x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top
+        y: touch.clientY - rect.top,
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(

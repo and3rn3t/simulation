@@ -16,7 +16,7 @@ describe('HeatmapComponent', () => {
       strokeRect: vi.fn(),
       strokeStyle: '',
       fillStyle: '',
-      lineWidth: 1
+      lineWidth: 1,
     } as any;
 
     mockCanvas = {
@@ -29,8 +29,8 @@ describe('HeatmapComponent', () => {
         left: 0,
         top: 0,
         width: 400,
-        height: 300
-      })
+        height: 300,
+      }),
     } as any;
 
     // Mock document.createElement for canvas
@@ -46,7 +46,7 @@ describe('HeatmapComponent', () => {
       width: 400,
       height: 300,
       cellSize: 10,
-      title: 'Test Heatmap'
+      title: 'Test Heatmap',
     };
   });
 
@@ -60,14 +60,14 @@ describe('HeatmapComponent', () => {
   describe('Constructor and Initialization', () => {
     it('should create heatmap component with default config', () => {
       component = new HeatmapComponent(config);
-      
+
       expect(component).toBeDefined();
       expect(component.getElement()).toBeDefined();
     });
 
     it('should create canvas with correct dimensions', () => {
       component = new HeatmapComponent(config);
-      
+
       expect(mockCanvas.width).toBe(400);
       expect(mockCanvas.height).toBe(300);
     });
@@ -75,23 +75,23 @@ describe('HeatmapComponent', () => {
     it('should set up event listeners when onCellClick is provided', () => {
       const configWithCallback = {
         ...config,
-        onCellClick: vi.fn()
+        onCellClick: vi.fn(),
       };
-      
+
       component = new HeatmapComponent(configWithCallback);
-      
+
       expect(mockCanvas.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
     it('should create legend when showLegend is true', () => {
       const configWithLegend = {
         ...config,
-        showLegend: true
+        showLegend: true,
       };
-      
+
       component = new HeatmapComponent(configWithLegend);
       const element = component.getElement();
-      
+
       expect(element.querySelector('.heatmap-legend')).toBeDefined();
     });
   });
@@ -105,11 +105,11 @@ describe('HeatmapComponent', () => {
       const positions = [
         { x: 50, y: 50 },
         { x: 100, y: 100 },
-        { x: 150, y: 150 }
+        { x: 150, y: 150 },
       ];
 
       component.updateFromPositions(positions);
-      
+
       // Should call render method (which calls fillRect)
       expect(mockContext.clearRect).toHaveBeenCalled();
       expect(mockContext.fillRect).toHaveBeenCalled();
@@ -125,11 +125,11 @@ describe('HeatmapComponent', () => {
       const testData = [
         [0.1, 0.2, 0.3],
         [0.4, 0.5, 0.6],
-        [0.7, 0.8, 0.9]
+        [0.7, 0.8, 0.9],
       ];
 
       component.setData(testData);
-      
+
       // Should render the data
       expect(mockContext.clearRect).toHaveBeenCalled();
       expect(mockContext.fillRect).toHaveBeenCalled();
@@ -137,10 +137,10 @@ describe('HeatmapComponent', () => {
 
     it('should handle positions outside canvas bounds', () => {
       const positions = [
-        { x: -10, y: 50 },    // Outside left
-        { x: 500, y: 100 },   // Outside right
-        { x: 150, y: -10 },   // Outside top
-        { x: 200, y: 400 }    // Outside bottom
+        { x: -10, y: 50 }, // Outside left
+        { x: 500, y: 100 }, // Outside right
+        { x: 150, y: -10 }, // Outside top
+        { x: 200, y: 400 }, // Outside bottom
       ];
 
       expect(() => component.updateFromPositions(positions)).not.toThrow();
@@ -152,13 +152,16 @@ describe('HeatmapComponent', () => {
       const onCellClick = vi.fn();
       const configWithCallback = {
         ...config,
-        onCellClick
+        onCellClick,
       };
-      
+
       component = new HeatmapComponent(configWithCallback);
-      
+
       // Set some test data first
-      component.setData([[1, 2], [3, 4]]);
+      component.setData([
+        [1, 2],
+        [3, 4],
+      ]);
 
       // Verify that addEventListener was called for click events
       expect(mockCanvas.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
@@ -168,9 +171,9 @@ describe('HeatmapComponent', () => {
       const onCellClick = vi.fn();
       const configWithCallback = {
         ...config,
-        onCellClick
+        onCellClick,
       };
-      
+
       component = new HeatmapComponent(configWithCallback);
       component.setData([[1]]);
 
@@ -183,12 +186,12 @@ describe('HeatmapComponent', () => {
     it('should use custom color scheme', () => {
       const customConfig = {
         ...config,
-        colorScheme: ['#ff0000', '#00ff00', '#0000ff']
+        colorScheme: ['#ff0000', '#00ff00', '#0000ff'],
       };
 
       component = new HeatmapComponent(customConfig);
       const testData = [[0.5]];
-      
+
       expect(() => component.setData(testData)).not.toThrow();
     });
 
@@ -196,7 +199,7 @@ describe('HeatmapComponent', () => {
       const configWithoutTitle = {
         width: 400,
         height: 300,
-        cellSize: 10
+        cellSize: 10,
       };
 
       component = new HeatmapComponent(configWithoutTitle);
@@ -212,9 +215,9 @@ describe('HeatmapComponent', () => {
     it('should mount and unmount properly', () => {
       const container = document.createElement('div');
       component.mount(container);
-      
+
       expect(container.children.length).toBeGreaterThan(0);
-      
+
       component.unmount();
       expect(component.getElement().parentNode).toBeNull();
     });
@@ -232,7 +235,7 @@ describe('PopulationDensityHeatmap', () => {
       strokeRect: vi.fn(),
       strokeStyle: '',
       fillStyle: '',
-      lineWidth: 1
+      lineWidth: 1,
     } as any;
 
     const mockCanvas = {
@@ -245,8 +248,8 @@ describe('PopulationDensityHeatmap', () => {
         left: 0,
         top: 0,
         width: 400,
-        height: 300
-      })
+        height: 300,
+      }),
     } as any;
 
     const originalCreateElement = document.createElement;
@@ -267,18 +270,18 @@ describe('PopulationDensityHeatmap', () => {
 
   it('should create population density heatmap with correct dimensions', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     expect(component).toBeDefined();
     expect(component.getElement()).toBeDefined();
   });
 
   it('should update with position data', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     const positions = [
       { x: 100, y: 150 },
       { x: 200, y: 100 },
-      { x: 150, y: 200 }
+      { x: 150, y: 200 },
     ];
 
     expect(() => component.updateFromPositions(positions)).not.toThrow();
@@ -286,20 +289,20 @@ describe('PopulationDensityHeatmap', () => {
 
   it('should handle empty position list', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     expect(() => component.updateFromPositions([])).not.toThrow();
   });
 
   it('should start and stop auto updates', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     const getPositions = vi.fn().mockReturnValue([
       { x: 100, y: 150 },
-      { x: 200, y: 100 }
+      { x: 200, y: 100 },
     ]);
 
     component.startAutoUpdate(getPositions, 100);
-    
+
     // Should be able to stop without error
     component.stopAutoUpdate();
     expect(getPositions).toHaveBeenCalled();
@@ -307,12 +310,12 @@ describe('PopulationDensityHeatmap', () => {
 
   it('should handle positions outside canvas bounds', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     const positions = [
-      { x: -10, y: 150 },   // Outside left
-      { x: 500, y: 100 },   // Outside right
-      { x: 150, y: -10 },   // Outside top
-      { x: 200, y: 400 }    // Outside bottom
+      { x: -10, y: 150 }, // Outside left
+      { x: 500, y: 100 }, // Outside right
+      { x: 150, y: -10 }, // Outside top
+      { x: 200, y: 400 }, // Outside bottom
     ];
 
     expect(() => component.updateFromPositions(positions)).not.toThrow();
@@ -320,10 +323,10 @@ describe('PopulationDensityHeatmap', () => {
 
   it('should clean up auto updates on unmount', () => {
     component = new PopulationDensityHeatmap(400, 300);
-    
+
     const getPositions = vi.fn().mockReturnValue([]);
     component.startAutoUpdate(getPositions, 100);
-    
+
     // Should clean up when unmounting
     component.unmount();
     expect(() => component.stopAutoUpdate()).not.toThrow();

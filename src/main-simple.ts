@@ -14,16 +14,16 @@ if (document.readyState === 'loading') {
 
 async function initializeApp() {
   console.log('🎯 Starting app initialization...');
-  
+
   try {
     console.log('📱 Testing MemoryPanelComponent import...');
     const { MemoryPanelComponent } = await import('./ui/components/MemoryPanelComponent');
     console.log('✅ MemoryPanelComponent imported successfully');
-    
+
     const memoryPanel = new MemoryPanelComponent();
     memoryPanel.mount(document.body);
     console.log('✅ Memory panel created and mounted');
-    
+
     // Add visible test button
     const testButton = document.createElement('button');
     testButton.textContent = '🧠 TOGGLE MEMORY PANEL';
@@ -45,7 +45,7 @@ async function initializeApp() {
     };
     document.body.appendChild(testButton);
     console.log('✅ Test button added to page');
-    
+
     // Check canvas visibility
     const canvas = document.getElementById('simulation-canvas');
     if (canvas) {
@@ -56,7 +56,6 @@ async function initializeApp() {
     } else {
       console.error('❌ Canvas not found');
     }
-    
   } catch (error) {
     console.error('❌ Failed to create memory panel:', error);
   }

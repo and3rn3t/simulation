@@ -10,28 +10,30 @@ export class StatisticsManager {
    * Updates all statistics elements in the UI
    * @param stats - The game statistics to display
    */
-  updateAllStats(stats: GameStats & {
-    birthsThisSecond: number;
-    deathsThisSecond: number;
-    achievements: any[];
-  }): void {
+  updateAllStats(
+    stats: GameStats & {
+      birthsThisSecond: number;
+      deathsThisSecond: number;
+      achievements: any[];
+    }
+  ): void {
     // Basic stats
     updateElementText('population-count', stats.population.toString());
     updateElementText('generation-count', stats.generation.toString());
     updateElementText('time-elapsed', `${stats.timeElapsed}s`);
-    
+
     // Rates
     updateElementText('birth-rate', stats.birthsThisSecond.toString());
     updateElementText('death-rate', stats.deathsThisSecond.toString());
-    
+
     // Age stats
     updateElementText('avg-age', Math.round(stats.averageAge).toString());
     updateElementText('oldest-organism', Math.round(stats.oldestAge).toString());
-    
+
     // Population metrics
     this.updatePopulationDensity(stats.population);
     this.updatePopulationStability(stats.totalBirths, stats.totalDeaths);
-    
+
     // Game stats
     updateElementText('score', stats.score.toString());
     this.updateAchievementCount(stats.achievements);

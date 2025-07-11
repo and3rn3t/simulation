@@ -44,7 +44,7 @@ export class OrganismBatchProcessor {
     this.config = {
       batchSize: Math.max(1, config.batchSize),
       maxFrameTime: Math.max(1, config.maxFrameTime),
-      useTimeSlicing: config.useTimeSlicing
+      useTimeSlicing: config.useTimeSlicing,
     };
   }
 
@@ -59,7 +59,12 @@ export class OrganismBatchProcessor {
    */
   processBatch(
     organisms: Organism[],
-    updateFn: (organism: Organism, deltaTime: number, canvasWidth: number, canvasHeight: number) => void,
+    updateFn: (
+      organism: Organism,
+      deltaTime: number,
+      canvasWidth: number,
+      canvasHeight: number
+    ) => void,
     deltaTime: number,
     canvasWidth: number,
     canvasHeight: number
@@ -68,13 +73,13 @@ export class OrganismBatchProcessor {
       this.processingStartTime = performance.now();
       let processed = 0;
       const totalOrganisms = organisms.length;
-      
+
       if (totalOrganisms === 0) {
         return {
           processed: 0,
           processingTime: 0,
           completed: true,
-          remaining: 0
+          remaining: 0,
         };
       }
 
@@ -100,7 +105,9 @@ export class OrganismBatchProcessor {
           }
         } catch (error) {
           ErrorHandler.getInstance().handleError(
-            error instanceof Error ? error : new SimulationError('Failed to update organism in batch', 'BATCH_UPDATE_ERROR'),
+            error instanceof Error
+              ? error
+              : new SimulationError('Failed to update organism in batch', 'BATCH_UPDATE_ERROR'),
             ErrorSeverity.MEDIUM,
             'Batch organism update'
           );
@@ -110,7 +117,7 @@ export class OrganismBatchProcessor {
 
       this.currentBatch = startIndex + processed;
       const completed = this.currentBatch >= totalOrganisms;
-      
+
       if (completed) {
         this.currentBatch = 0;
       }
@@ -121,20 +128,22 @@ export class OrganismBatchProcessor {
         processed,
         processingTime,
         completed,
-        remaining: totalOrganisms - this.currentBatch
+        remaining: totalOrganisms - this.currentBatch,
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to process organism batch', 'BATCH_PROCESS_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError('Failed to process organism batch', 'BATCH_PROCESS_ERROR'),
         ErrorSeverity.HIGH,
         'OrganismBatchProcessor processBatch'
       );
-      
+
       return {
         processed: 0,
         processingTime: 0,
         completed: false,
-        remaining: organisms.length
+        remaining: organisms.length,
       };
     }
   }
@@ -164,8 +173,8 @@ export class OrganismBatchProcessor {
             processed: 0,
             processingTime: 0,
             completed: true,
-            remaining: 0
-          }
+            remaining: 0,
+          },
         };
       }
 
@@ -198,7 +207,12 @@ export class OrganismBatchProcessor {
           }
         } catch (error) {
           ErrorHandler.getInstance().handleError(
-            error instanceof Error ? error : new SimulationError('Failed to process organism reproduction', 'BATCH_REPRODUCTION_ERROR'),
+            error instanceof Error
+              ? error
+              : new SimulationError(
+                  'Failed to process organism reproduction',
+                  'BATCH_REPRODUCTION_ERROR'
+                ),
             ErrorSeverity.MEDIUM,
             'Batch reproduction processing'
           );
@@ -208,7 +222,7 @@ export class OrganismBatchProcessor {
 
       this.currentBatch = startIndex + processed;
       const completed = this.currentBatch >= totalOrganisms;
-      
+
       if (completed) {
         this.currentBatch = 0;
       }
@@ -221,24 +235,29 @@ export class OrganismBatchProcessor {
           processed,
           processingTime,
           completed,
-          remaining: totalOrganisms - this.currentBatch
-        }
+          remaining: totalOrganisms - this.currentBatch,
+        },
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new SimulationError('Failed to process reproduction batch', 'BATCH_REPRODUCTION_PROCESS_ERROR'),
+        error instanceof Error
+          ? error
+          : new SimulationError(
+              'Failed to process reproduction batch',
+              'BATCH_REPRODUCTION_PROCESS_ERROR'
+            ),
         ErrorSeverity.HIGH,
         'OrganismBatchProcessor processReproduction'
       );
-      
+
       return {
         newOrganisms: [],
         result: {
           processed: 0,
           processingTime: 0,
           completed: false,
-          remaining: organisms.length
-        }
+          remaining: organisms.length,
+        },
       };
     }
   }
@@ -269,7 +288,7 @@ export class OrganismBatchProcessor {
       ...this.config,
       ...config,
       batchSize: Math.max(1, config.batchSize || this.config.batchSize),
-      maxFrameTime: Math.max(1, config.maxFrameTime || this.config.maxFrameTime)
+      maxFrameTime: Math.max(1, config.maxFrameTime || this.config.maxFrameTime),
     };
   }
 
@@ -282,7 +301,7 @@ export class OrganismBatchProcessor {
     return {
       current: this.currentBatch,
       total: totalOrganisms,
-      percentage: totalOrganisms > 0 ? (this.currentBatch / totalOrganisms) * 100 : 0
+      percentage: totalOrganisms > 0 ? (this.currentBatch / totalOrganisms) * 100 : 0,
     };
   }
 
@@ -326,17 +345,22 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
    */
   override processBatch(
     organisms: Organism[],
-    updateFn: (organism: Organism, deltaTime: number, canvasWidth: number, canvasHeight: number) => void,
+    updateFn: (
+      organism: Organism,
+      deltaTime: number,
+      canvasWidth: number,
+      canvasHeight: number
+    ) => void,
     deltaTime: number,
     canvasWidth: number,
     canvasHeight: number
   ): BatchResult {
     const result = super.processBatch(organisms, updateFn, deltaTime, canvasWidth, canvasHeight);
-    
+
     // Track performance and adjust batch size
     this.trackPerformance(result.processingTime);
     this.adaptBatchSize();
-    
+
     return result;
   }
 
@@ -346,7 +370,7 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
    */
   private trackPerformance(processingTime: number): void {
     this.performanceHistory.push(processingTime);
-    
+
     // Keep only recent performance data
     if (this.performanceHistory.length > 10) {
       this.performanceHistory.shift();
@@ -361,16 +385,23 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
       return;
     }
 
-    const avgProcessingTime = this.performanceHistory.reduce((sum, time) => sum + time, 0) / this.performanceHistory.length;
+    const avgProcessingTime =
+      this.performanceHistory.reduce((sum, time) => sum + time, 0) / this.performanceHistory.length;
     const config = this.getConfig();
     let newBatchSize = config.batchSize;
 
     if (avgProcessingTime > this.targetFrameTime) {
       // Processing is too slow, reduce batch size
-      newBatchSize = Math.max(this.minBatchSize, Math.floor(config.batchSize / this.adjustmentFactor));
+      newBatchSize = Math.max(
+        this.minBatchSize,
+        Math.floor(config.batchSize / this.adjustmentFactor)
+      );
     } else if (avgProcessingTime < this.targetFrameTime * 0.7) {
       // Processing is fast, increase batch size
-      newBatchSize = Math.min(this.maxBatchSize, Math.ceil(config.batchSize * this.adjustmentFactor));
+      newBatchSize = Math.min(
+        this.maxBatchSize,
+        Math.ceil(config.batchSize * this.adjustmentFactor)
+      );
     }
 
     if (newBatchSize !== config.batchSize) {
@@ -398,23 +429,25 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
     currentBatchSize: number;
   } {
     const config = this.getConfig();
-    
+
     if (this.performanceHistory.length === 0) {
       return {
         averageProcessingTime: 0,
         minProcessingTime: 0,
         maxProcessingTime: 0,
         targetFrameTime: this.targetFrameTime,
-        currentBatchSize: config.batchSize
+        currentBatchSize: config.batchSize,
       };
     }
 
     return {
-      averageProcessingTime: this.performanceHistory.reduce((sum, time) => sum + time, 0) / this.performanceHistory.length,
+      averageProcessingTime:
+        this.performanceHistory.reduce((sum, time) => sum + time, 0) /
+        this.performanceHistory.length,
       minProcessingTime: Math.min(...this.performanceHistory),
       maxProcessingTime: Math.max(...this.performanceHistory),
       targetFrameTime: this.targetFrameTime,
-      currentBatchSize: config.batchSize
+      currentBatchSize: config.batchSize,
     };
   }
 }

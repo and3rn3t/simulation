@@ -11,7 +11,7 @@ vi.mock('../src/utils/canvas/canvasManager', () => {
     clearLayer: vi.fn(),
     resizeAll: vi.fn(),
   };
-  
+
   return {
     CanvasManager: vi.fn(() => mockCanvasManager),
   };
@@ -90,7 +90,7 @@ describe('OrganismSimulation', () => {
 
   it('should initialize CanvasManager and create layers', () => {
     const simulation = new OrganismSimulation(container, organismType);
-    
+
     // Check that CanvasManager was instantiated
     expect(CanvasManager).toHaveBeenCalled();
   });

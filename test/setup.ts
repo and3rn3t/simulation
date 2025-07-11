@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from 'vitest';
 import { createCanvas } from 'canvas';
 
 // Define HTMLCanvasElement globally
@@ -50,14 +50,14 @@ Object.defineProperty(globalThis, 'HTMLCanvasElement', {
 });
 
 // Mock requestAnimationFrame
-;(globalThis as any).requestAnimationFrame = vi.fn((cb) => {
-  setTimeout(cb, 16)
-})
+(globalThis as any).requestAnimationFrame = vi.fn(cb => {
+  setTimeout(cb, 16);
+});
 
 // Mock performance.now
-;(globalThis as any).performance = {
-  now: vi.fn(() => Date.now())
-}
+(globalThis as any).performance = {
+  now: vi.fn(() => Date.now()),
+};
 
 // Mock localStorage
 Object.defineProperty(global, 'localStorage', {
@@ -215,7 +215,7 @@ class MockElement {
 
 // Mock document.createElement
 const originalCreateElement = document.createElement;
-document.createElement = (tagName) => {
+document.createElement = tagName => {
   if (tagName === 'canvas') {
     return originalCreateElement.call(document, 'canvas');
   }
@@ -224,7 +224,7 @@ document.createElement = (tagName) => {
 
 // Mock document.getElementById
 const originalGetElementById = document.getElementById;
-document.getElementById = (id) => {
+document.getElementById = id => {
   if (id === 'canvas-container') {
     const container = new MockElement();
     container.id = 'canvas-container';
@@ -235,88 +235,89 @@ document.getElementById = (id) => {
 
 // Mock CanvasManager methods as spies
 const createLayerSpy = vi.fn();
-const getContextSpy = vi.fn(() =>
-  ({
-    canvas: { width: 800, height: 600 },
-    fillRect: vi.fn(),
-    clearRect: vi.fn(),
-    drawImage: vi.fn(),
-    getImageData: vi.fn(),
-    putImageData: vi.fn(),
-    createImageData: vi.fn(),
-    setTransform: vi.fn(),
-    resetTransform: vi.fn(),
-    scale: vi.fn(),
-    rotate: vi.fn(),
-    translate: vi.fn(),
-    save: vi.fn(),
-    restore: vi.fn(),
-    beginPath: vi.fn(),
-    moveTo: vi.fn(),
-    lineTo: vi.fn(),
-    closePath: vi.fn(),
-    stroke: vi.fn(),
-    fill: vi.fn(),
-    measureText: vi.fn(() => ({ width: 0 })),
-    strokeText: vi.fn(),
-    fillText: vi.fn(),
-    clip: vi.fn(),
-    isPointInPath: vi.fn(),
-    isPointInStroke: vi.fn(),
-    globalAlpha: 1.0,
-    globalCompositeOperation: 'source-over',
-    lineWidth: 1.0,
-    lineCap: 'butt',
-    lineJoin: 'miter',
-    miterLimit: 10.0,
-    shadowBlur: 0,
-    shadowColor: '',
-    shadowOffsetX: 0,
-    shadowOffsetY: 0,
-    font: '10px sans-serif',
-    textAlign: 'start',
-    textBaseline: 'alphabetic',
-    strokeStyle: '',
-    fillStyle: '',
-    createConicGradient: vi.fn(),
-    createLinearGradient: vi.fn(),
-    createPattern: vi.fn(),
-    createRadialGradient: vi.fn(),
-    drawFocusIfNeeded: vi.fn(),
-    ellipse: vi.fn(),
-    getLineDash: vi.fn(),
-    lineDashOffset: 0,
-    setLineDash: vi.fn(),
-    scrollPathIntoView: vi.fn(),
-    textDirection: 'ltr',
-    filter: '',
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'low',
-    arc: vi.fn(),
-    arcTo: vi.fn(),
-    bezierCurveTo: vi.fn(),
-    quadraticCurveTo: vi.fn(),
-    rect: vi.fn(),
-    fillRule: 'nonzero',
-    roundRect: vi.fn(),
-    strokeRect: vi.fn(),
-    getContextAttributes: vi.fn(),
-    isContextLost: vi.fn(),
-    drawCustomFocusRing: vi.fn(),
-    addHitRegion: vi.fn(),
-    removeHitRegion: vi.fn(),
-    clearHitRegions: vi.fn(),
-    reset: vi.fn(),
-    direction: 'ltr',
-    fontKerning: 'auto',
-    fontStretch: 'normal',
-    fontVariantCaps: 'normal',
-    letterSpacing: 'normal',
-    wordSpacing: 'normal',
-    textRendering: 'auto',
-    getTransform: vi.fn(),
-    transform: vi.fn(),
-  } as any)
+const getContextSpy = vi.fn(
+  () =>
+    ({
+      canvas: { width: 800, height: 600 },
+      fillRect: vi.fn(),
+      clearRect: vi.fn(),
+      drawImage: vi.fn(),
+      getImageData: vi.fn(),
+      putImageData: vi.fn(),
+      createImageData: vi.fn(),
+      setTransform: vi.fn(),
+      resetTransform: vi.fn(),
+      scale: vi.fn(),
+      rotate: vi.fn(),
+      translate: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      measureText: vi.fn(() => ({ width: 0 })),
+      strokeText: vi.fn(),
+      fillText: vi.fn(),
+      clip: vi.fn(),
+      isPointInPath: vi.fn(),
+      isPointInStroke: vi.fn(),
+      globalAlpha: 1.0,
+      globalCompositeOperation: 'source-over',
+      lineWidth: 1.0,
+      lineCap: 'butt',
+      lineJoin: 'miter',
+      miterLimit: 10.0,
+      shadowBlur: 0,
+      shadowColor: '',
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      font: '10px sans-serif',
+      textAlign: 'start',
+      textBaseline: 'alphabetic',
+      strokeStyle: '',
+      fillStyle: '',
+      createConicGradient: vi.fn(),
+      createLinearGradient: vi.fn(),
+      createPattern: vi.fn(),
+      createRadialGradient: vi.fn(),
+      drawFocusIfNeeded: vi.fn(),
+      ellipse: vi.fn(),
+      getLineDash: vi.fn(),
+      lineDashOffset: 0,
+      setLineDash: vi.fn(),
+      scrollPathIntoView: vi.fn(),
+      textDirection: 'ltr',
+      filter: '',
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'low',
+      arc: vi.fn(),
+      arcTo: vi.fn(),
+      bezierCurveTo: vi.fn(),
+      quadraticCurveTo: vi.fn(),
+      rect: vi.fn(),
+      fillRule: 'nonzero',
+      roundRect: vi.fn(),
+      strokeRect: vi.fn(),
+      getContextAttributes: vi.fn(),
+      isContextLost: vi.fn(),
+      drawCustomFocusRing: vi.fn(),
+      addHitRegion: vi.fn(),
+      removeHitRegion: vi.fn(),
+      clearHitRegions: vi.fn(),
+      reset: vi.fn(),
+      direction: 'ltr',
+      fontKerning: 'auto',
+      fontStretch: 'normal',
+      fontVariantCaps: 'normal',
+      letterSpacing: 'normal',
+      wordSpacing: 'normal',
+      textRendering: 'auto',
+      getTransform: vi.fn(),
+      transform: vi.fn(),
+    }) as any
 );
 const resizeLayerSpy = vi.fn();
 const clearLayerSpy = vi.fn();
@@ -360,48 +361,50 @@ class EnhancedHTMLCanvasElementMock extends HTMLCanvasElementMock {
   toDataURL = vi.fn(() => 'data:image/png;base64,');
   transferControlToOffscreen = vi.fn();
   // Explicitly type getContext to match the base class
-  getContext: (type: string) => import("canvas").CanvasRenderingContext2D | null = vi.fn((type: string) => {
-    if (type === '2d') {
-      // Create a base context from the canvas package and extend it with the required properties
-      const baseCanvas = createCanvas(this.width, this.height);
-      const ctx = baseCanvas.getContext('2d') as import("canvas").CanvasRenderingContext2D & {
-        addPage?: Function;
-        beginTag?: Function;
-        endTag?: Function;
-        patternQuality?: string;
-        textDrawingMode?: string;
-        antialias?: string;
-        quality?: string;
-        currentTransform?: DOMMatrix;
-      };
+  getContext: (type: string) => import('canvas').CanvasRenderingContext2D | null = vi.fn(
+    (type: string) => {
+      if (type === '2d') {
+        // Create a base context from the canvas package and extend it with the required properties
+        const baseCanvas = createCanvas(this.width, this.height);
+        const ctx = baseCanvas.getContext('2d') as import('canvas').CanvasRenderingContext2D & {
+          addPage?: Function;
+          beginTag?: Function;
+          endTag?: Function;
+          patternQuality?: string;
+          textDrawingMode?: string;
+          antialias?: string;
+          quality?: string;
+          currentTransform?: DOMMatrix;
+        };
 
-      ctx.addPage = vi.fn();
-      ctx.beginTag = vi.fn();
-      ctx.endTag = vi.fn();
-      ctx.patternQuality = 'good';
-      ctx.textDrawingMode = 'path';
-      ctx.antialias = 'default';
-      ctx.quality = 'best';
-      ctx.currentTransform = new DOMMatrix();
-      ctx.measureText = vi.fn(() => ({
-        width: 0,
-        actualBoundingBoxAscent: 0,
-        actualBoundingBoxDescent: 0,
-        actualBoundingBoxLeft: 0,
-        actualBoundingBoxRight: 0,
-        fontBoundingBoxAscent: 0,
-        fontBoundingBoxDescent: 0,
-        alphabeticBaseline: 0,
-        hangingBaseline: 0,
-        ideographicBaseline: 0,
-        emHeightAscent: 0,
-        emHeightDescent: 0,
-      }));
+        ctx.addPage = vi.fn();
+        ctx.beginTag = vi.fn();
+        ctx.endTag = vi.fn();
+        ctx.patternQuality = 'good';
+        ctx.textDrawingMode = 'path';
+        ctx.antialias = 'default';
+        ctx.quality = 'best';
+        ctx.currentTransform = new DOMMatrix();
+        ctx.measureText = vi.fn(() => ({
+          width: 0,
+          actualBoundingBoxAscent: 0,
+          actualBoundingBoxDescent: 0,
+          actualBoundingBoxLeft: 0,
+          actualBoundingBoxRight: 0,
+          fontBoundingBoxAscent: 0,
+          fontBoundingBoxDescent: 0,
+          alphabeticBaseline: 0,
+          hangingBaseline: 0,
+          ideographicBaseline: 0,
+          emHeightAscent: 0,
+          emHeightDescent: 0,
+        }));
 
-      return ctx;
+        return ctx;
+      }
+      return null;
     }
-    return null;
-  });
+  );
 }
 
 // Mock DOMMatrix for the test environment

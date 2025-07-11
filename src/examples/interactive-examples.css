@@ -41,7 +41,8 @@
   border-color: #3498db;
 }
 
-#run-example, #clear-output {
+#run-example,
+#clear-output {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -154,24 +155,24 @@
   .interactive-examples {
     padding: 10px;
   }
-  
+
   .example-controls {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   #example-selector {
     width: 100%;
   }
-  
+
   .example-output {
     grid-template-columns: 1fr;
   }
-  
+
   #example-canvas-container {
     min-height: 200px;
   }
-  
+
   #example-console {
     max-height: 200px;
   }
