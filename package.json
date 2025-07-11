@@ -62,7 +62,9 @@
     "ci:validate": "node scripts/test/validate-pipeline.cjs",
     "wrangler:validate": "node scripts/validate-wrangler.js",
     "domain:setup": "node scripts/setup-custom-domain.js",
-    "workflow:validate": "node scripts/validate-workflow.js"
+    "workflow:validate": "node scripts/validate-workflow.mjs",
+    "workflow:troubleshoot": "node scripts/troubleshoot-project-workflow.mjs",
+    "workflow:verify": "node scripts/verify-workflow.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

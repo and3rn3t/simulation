@@ -52,12 +52,12 @@ export default [
       // TypeScript specific rules
       '@typescript-eslint/no-unused-vars': 'warn', // Changed from error to warn
       '@typescript-eslint/no-explicit-any': 'off', // Disabled for now
-      '@typescript-eslint/explicit-function-return-type': 'off', 
-      '@typescript-eslint/no-unsafe-assignment': 'off', 
-      '@typescript-eslint/no-unsafe-member-access': 'off', 
-      '@typescript-eslint/no-unsafe-call': 'off', 
-      '@typescript-eslint/no-unsafe-return': 'off', 
-      
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+
       // General JavaScript rules
       'no-console': 'off', // Allow console for debugging
       'no-debugger': 'error',
@@ -72,15 +72,15 @@ export default [
       'no-redeclare': 'warn', // Changed from error
       'no-case-declarations': 'warn', // Changed from error
       'no-return-await': 'warn', // Changed from error
-      
+
       // Code complexity rules - very relaxed for now
-      'complexity': 'off', // Disabled
-      'max-depth': 'off',   // Disabled
+      complexity: 'off', // Disabled
+      'max-depth': 'off', // Disabled
       'max-lines-per-function': 'off', // Disabled
-      'max-params': 'off',  // Disabled
-      
+      'max-params': 'off', // Disabled
+
       // Best practices
-      'eqeqeq': ['error', 'always'],
+      eqeqeq: ['error', 'always'],
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
@@ -89,10 +89,10 @@ export default [
     },
   },
   {
-    files: ['scripts/**/*.js'],
+    files: ['scripts/**/*.js', 'scripts/**/*.mjs', 'scripts/**/*.cjs'],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'script', // CommonJS
+      sourceType: 'module', // ES modules for .mjs files
       globals: {
         // Node.js globals
         process: 'readonly',
@@ -112,14 +112,6 @@ export default [
     },
   },
   {
-    ignores: [
-      'dist/**',
-      'coverage/**',
-      'node_modules/**',
-      'public/**',
-      '*.js',
-      '*.mjs',
-      '*.cjs',
-    ],
+    ignores: ['dist/**', 'coverage/**', 'node_modules/**', 'public/**'],
   },
 ];

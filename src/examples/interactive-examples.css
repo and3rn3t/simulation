@@ -117,6 +117,7 @@
   margin-bottom: 8px;
   padding: 4px 0;
   border-bottom: 1px solid #34495e;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .log-entry:last-child {
@@ -202,10 +203,7 @@
   color: #3498db;
 }
 
-/* Animation for console output */
-.log-entry {
-  animation: fadeIn 0.3s ease-in;
-}
+/* Removed duplicate .log-entry selector */
 
 @keyframes fadeIn {
   from {
