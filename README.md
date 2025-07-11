@@ -19,6 +19,7 @@ A web-based interactive simulation that demonstrates how different organisms mul
 - **Real-time Visualization**: Watch organisms multiply and move in real-time on HTML5 Canvas
 - **Interactive Controls**: Adjust simulation speed, pause, reset, and switch between organism types
 - **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions and Cloudflare Pages
+- **Staging Environment**: Test features in staging before production deployment
 - **Population Statistics**: Track population size, generation count, and elapsed time
 - **Responsive Design**: Works on desktop and mobile devices
 
