@@ -21,9 +21,8 @@ VITE_APP_VERSION = "1.0.0"
 VITE_ENABLE_DEBUG = "false"
 VITE_ENABLE_ANALYTICS = "true"
 
-# Functions configuration (if needed for API routes)
-[[pages_build_output_dir]]
-path = "dist"
+# Pages configuration
+pages_build_output_dir = "dist"
 
 # Redirects and headers
 [[redirects]]
