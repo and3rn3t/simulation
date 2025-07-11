@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-env node */
+/* eslint-disable no-undef */
 
 // Deployment Script for Organism Simulation
 // Handles deployment to different environments
