@@ -3,13 +3,8 @@
 // Deployment Monitor Script
 // Monitors deployment status and sends notifications
 
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const https = require('https');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const config = {
   environments: {
@@ -41,7 +36,7 @@ async function checkHealth(environment) {
   const url = env.url + env.healthEndpoint;
   console.log(`🏥 Checking health for ${environment}: ${url}`);
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const req = https.get(url, { timeout: env.timeout }, (res) => {
       const isHealthy = res.statusCode === env.expectedStatus;
       
@@ -83,18 +78,12 @@ async function checkHealth(environment) {
   });
 }
 
-async function sendNotification(message, isError = false) {
+async function sendNotification(message) {
   const webhook = config.notifications.slack;
   if (!webhook) {
     console.log('📢 No webhook configured, notification skipped');
     return;
   }
-
-  const payload = {
-    text: message,
-    username: 'Deployment Monitor',
-    icon_emoji: isError ? ':red_circle:' : ':green_circle:'
-  };
 
   // Implementation would depend on your notification service
   console.log(`📢 Notification: ${message}`);
@@ -110,8 +99,7 @@ async function monitorEnvironment(environment) {
     } else {
       console.error(`❌ ${environment} is unhealthy`);
       await sendNotification(
-        `❌ ${environment} deployment is unhealthy: ${result.error || `Status ${result.status}`}`,
-        true
+        `❌ ${environment} deployment is unhealthy: ${result.error || `Status ${result.status}`}`
       );
     }
 
@@ -119,10 +107,10 @@ async function monitorEnvironment(environment) {
   } catch (error) {
     console.error(`💥 Monitor error for ${environment}:`, error.message);
     await sendNotification(`💥 Monitor error for ${environment}: ${error.message}`, true);
+    await sendNotification(`💥 Monitor error for ${environment}: ${error.message}`);
     return null;
   }
 }
-
 async function main() {
   const environment = process.argv[2];
   const action = process.argv[3] || 'check';
@@ -152,7 +140,8 @@ async function main() {
     console.log(`👀 Starting continuous monitoring for ${environment || 'all environments'}`);
     const interval = 60000; // 1 minute
     
-    setInterval(async () => {
+    // Use global setInterval for Node.js
+    global.setInterval(async () => {
       if (environment) {
         await monitorEnvironment(environment);
       } else {
@@ -173,7 +162,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
   main().catch(error => {
     console.error('💥 Monitor failed:', error);
     process.exit(1);
