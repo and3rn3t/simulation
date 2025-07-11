@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-playwright.playwright",
+    "ZixuanChen.vitest-explorer",
+    "SonarSource.sonarlint-vscode",
+    "eamodio.gitlens",
+    "ms-azuretools.vscode-docker",
+    "pmneo.tsimporter",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

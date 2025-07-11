@@ -37,7 +37,8 @@ jobs:
         file: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       continue-on-error: true
     
     - name: Run performance tests
