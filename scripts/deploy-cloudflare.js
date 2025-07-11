@@ -5,13 +5,11 @@
  * Helps set up and deploy to Cloudflare Pages
  */
 
-import { execSync } from 'child_process';
-import { writeFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+const { execSync } = require('child_process');
+const { writeFileSync, existsSync } = require('fs');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(require.main.filename);
+// const __dirname = dirname(__filename);
 
 async function setupCloudflarePages() {
   console.log('🚀 Setting up Cloudflare Pages deployment...');
@@ -41,7 +39,7 @@ VITE_ENVIRONMENT=${process.env.NODE_ENV || 'development'}
     try {
       execSync('npx wrangler --version', { stdio: 'pipe' });
       console.log('✅ Wrangler CLI is available');
-    } catch (error) {
+    } catch {
       console.log('⚠️  Wrangler CLI not found, install with: npm install -D wrangler');
     }
 
