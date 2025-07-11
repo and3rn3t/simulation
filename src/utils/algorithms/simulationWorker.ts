@@ -116,16 +116,21 @@ class PopulationPredictor {
       
       organismTypes.forEach(type => {
         const currentPop = typePopulations[type.name];
-        const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
-        const competitionEffect = (totalCompetition / carryingCapacity) * currentPop;
-        const deathEffect = type.deathRate * 0.01 * currentPop;
-        
-        const netGrowth = intrinsicGrowth - competitionEffect - deathEffect;
-        const newPop = Math.max(0, currentPop + netGrowth);
-        
-        typePopulations[type.name] = newPop;
-        typePredictions[type.name].push(Math.round(newPop));
-        totalPop += newPop;
+        if (currentPop !== undefined) {
+          const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
+          const competitionEffect = (totalCompetition / carryingCapacity) * currentPop;
+          const deathEffect = type.deathRate * 0.01 * currentPop;
+          
+          const netGrowth = intrinsicGrowth - competitionEffect - deathEffect;
+          const newPop = Math.max(0, currentPop + netGrowth);
+          
+          typePopulations[type.name] = newPop;
+          const typePrediction = typePredictions[type.name];
+          if (typePrediction) {
+            typePrediction.push(Math.round(newPop));
+          }
+          totalPop += newPop;
+        }
       });
       
       totalPredictions.push(Math.round(totalPop));
@@ -239,7 +244,7 @@ class StatisticsCalculator {
     // Calculate statistics
     const mean = ages.reduce((sum, age) => sum + age, 0) / ages.length;
     const sortedAges = [...ages].sort((a, b) => a - b);
-    const median = sortedAges[Math.floor(sortedAges.length / 2)];
+    const median = sortedAges[Math.floor(sortedAges.length / 2)] ?? 0;
     const variance = ages.reduce((sum, age) => sum + Math.pow(age - mean, 2), 0) / ages.length;
     const standardDeviation = Math.sqrt(variance);
     

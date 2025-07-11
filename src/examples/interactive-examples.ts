@@ -7,7 +7,7 @@
 
 import { Organism } from '../core/organism';
 import { OrganismSimulation } from '../core/simulation';
-import { ORGANISM_TYPES } from '../models/organismTypes';
+import { getOrganismType } from '../models/organismTypes';
 import type { OrganismType } from '../models/organismTypes';
 
 /**
@@ -112,7 +112,7 @@ export class InteractiveExamples {
     const codeExamples = {
       'basic-organism': `
 // Basic Organism Example
-const organism = new Organism(100, 150, ORGANISM_TYPES.bacteria);
+const organism = new Organism(100, 150, getOrganismType('bacteria'));
 
 console.log('Created organism:', {
   position: { x: organism.x, y: organism.y },
@@ -143,9 +143,7 @@ const canvas = document.createElement('canvas');
 canvas.width = 800;
 canvas.height = 600;
 
-const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
-
-console.log('Simulation created with:', simulation.getStats());
+const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Start the simulation
 simulation.start();
@@ -161,10 +159,10 @@ simulation.setMaxPopulation(100);
       'organism-types': `
 // Organism Types Example
 const organismTypes = [
-  ORGANISM_TYPES.bacteria, 
-  ORGANISM_TYPES.yeast, 
-  ORGANISM_TYPES.algae, 
-  ORGANISM_TYPES.virus
+  getOrganismType('bacteria'), 
+  getOrganismType('yeast'), 
+  getOrganismType('algae'), 
+  getOrganismType('virus')
 ];
 
 organismTypes.forEach(type => {
@@ -189,7 +187,7 @@ const canvas = document.createElement('canvas');
 canvas.width = 800;
 canvas.height = 600;
 
-const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Enable optimizations
 simulation.setOptimizationsEnabled(true);
@@ -213,7 +211,7 @@ const canvas = document.createElement('canvas');
 canvas.width = 800;
 canvas.height = 600;
 
-const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Monitor memory usage
 const memoryStats = simulation.getMemoryStats();
@@ -262,7 +260,7 @@ const canvas = document.createElement('canvas');
 canvas.width = 800;
 canvas.height = 600;
 
-const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Handle simulation events (if implemented)
 console.log('Setting up event handling...');
@@ -291,7 +289,7 @@ const canvas = document.createElement('canvas');
 canvas.width = 800;
 canvas.height = 600;
 
-const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Get initial stats
 const initialStats = simulation.getStats();
@@ -390,7 +388,7 @@ console.log('Statistics tracking started');
 
   // Example implementations
   private basicOrganismExample(): void {
-    const organism = new Organism(100, 150, ORGANISM_TYPES.bacteria);
+    const organism = new Organism(100, 150, getOrganismType('bacteria'));
     
     this.logToConsole(`Created organism: ${organism.type.name} at (${organism.x}, ${organism.y})`);
     this.logToConsole(`Age: ${organism.age}, Max Age: ${organism.type.maxAge}`);
@@ -412,7 +410,7 @@ console.log('Statistics tracking started');
 
   private simulationSetupExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
     
     this.logToConsole('Simulation created');
     
@@ -434,7 +432,7 @@ console.log('Statistics tracking started');
   }
 
   private organismTypesExample(): void {
-    const types = [ORGANISM_TYPES.bacteria, ORGANISM_TYPES.yeast, ORGANISM_TYPES.algae, ORGANISM_TYPES.virus];
+    const types = [getOrganismType('bacteria'), getOrganismType('yeast'), getOrganismType('algae'), getOrganismType('virus')];
     
     types.forEach(type => {
       this.logToConsole(`${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`);
@@ -456,7 +454,7 @@ console.log('Statistics tracking started');
 
   private performanceDemoExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
     
     this.logToConsole('Performance test setup (organisms added via placement in real simulation)');
     
@@ -480,7 +478,7 @@ console.log('Statistics tracking started');
 
   private memoryManagementExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
     
     const initialMemory = simulation.getMemoryStats();
     this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
@@ -530,7 +528,7 @@ console.log('Statistics tracking started');
 
   private eventHandlingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
     
     this.logToConsole('Setting up event monitoring...');
     
@@ -556,7 +554,7 @@ console.log('Statistics tracking started');
 
   private statisticsTrackingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
     
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');

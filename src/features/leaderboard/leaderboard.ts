@@ -57,7 +57,7 @@ export class LeaderboardManager {
    * @returns The highest score, or 0 if no entries exist
    */
   getHighScore(): number {
-    return this.entries.length > 0 ? this.entries[0].score : 0;
+    return this.entries.length > 0 ? (this.entries[0]?.score ?? 0) : 0;
   }
 
   /**

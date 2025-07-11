@@ -30,10 +30,10 @@ export class QuadTree {
   private divided: boolean = false;
   
   // Child quadrants
-  private northeast?: QuadTree;
-  private northwest?: QuadTree;
-  private southeast?: QuadTree;
-  private southwest?: QuadTree;
+  private northeast?: QuadTree | undefined;
+  private northwest?: QuadTree | undefined;
+  private southeast?: QuadTree | undefined;
+  private southwest?: QuadTree | undefined;
 
   /**
    * Creates a new QuadTree node

@@ -23,8 +23,7 @@ export interface OrganismType {
  * Collection of predefined organism types
  * @constant ORGANISM_TYPES
  */
-
-export const ORGANISM_TYPES: Record<string, OrganismType> = {
+export const ORGANISM_TYPES = {
   bacteria: {
     name: 'Bacteria',
     color: '#4CAF50',
@@ -61,4 +60,21 @@ export const ORGANISM_TYPES: Record<string, OrganismType> = {
     size: 1,
     description: 'Rapidly replicating infectious agents'
   }
-};
+} as const;
+
+// Type-safe accessors for organism types
+export type OrganismTypeName = keyof typeof ORGANISM_TYPES;
+
+/**
+ * Get an organism type by name with type safety
+ */
+export function getOrganismType(name: OrganismTypeName): OrganismType {
+  return ORGANISM_TYPES[name];
+}
+
+/**
+ * Get all available organism type names
+ */
+export function getOrganismTypeNames(): OrganismTypeName[] {
+  return Object.keys(ORGANISM_TYPES) as OrganismTypeName[];
+}

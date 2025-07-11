@@ -101,7 +101,7 @@ export class Button extends BaseComponent {
     }
   }
 
-  protected setupAccessibility(): void {
+  protected override setupAccessibility(): void {
     this.element.setAttribute('role', 'button');
     this.element.setAttribute('tabindex', '0');
   }

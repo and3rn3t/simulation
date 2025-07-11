@@ -214,7 +214,7 @@ export class Modal extends BaseComponent {
     return this.isOpen;
   }
 
-  protected setupAccessibility(): void {
+  protected override setupAccessibility(): void {
     this.element.setAttribute('role', 'dialog');
     this.element.setAttribute('aria-modal', 'true');
     this.element.setAttribute('tabindex', '-1');
@@ -224,7 +224,7 @@ export class Modal extends BaseComponent {
     }
   }
 
-  protected onUnmount(): void {
+  protected override onUnmount(): void {
     if (this.isOpen) {
       this.close();
     }

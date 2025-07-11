@@ -717,12 +717,15 @@ export class OrganismSimulation {
     if (CHALLENGES.length > 0) {
       const availableChallenges = CHALLENGES.filter(c => !c.completed);
       if (availableChallenges.length > 0) {
-        // For now, just log that a challenge was started
-        console.log('Challenge started:', availableChallenges[0].name);
-        log.logChallenge('Challenge started', {
-          challengeName: availableChallenges[0].name,
-          availableChallenges: availableChallenges.length
-        });
+        const firstChallenge = availableChallenges[0];
+        if (firstChallenge) {
+          // For now, just log that a challenge was started
+          console.log('Challenge started:', firstChallenge.name);
+          log.logChallenge('Challenge started', {
+            challengeName: firstChallenge.name,
+            availableChallenges: availableChallenges.length
+          });
+        }
       }
     }
   }
@@ -958,11 +961,13 @@ export class OrganismSimulation {
       // Check for death (still needs to be done for all organisms)
       for (let i = this.organisms.length - 1; i >= 0; i--) {
         const organism = this.organisms[i];
-        if (organism.shouldDie()) {
+        if (organism && organism.shouldDie()) {
           const removed = this.organisms.splice(i, 1)[0];
-          this.destroyOrganism(removed);
-          this.deathsThisSecond++;
-          this.totalDeaths++;
+          if (removed) {
+            this.destroyOrganism(removed);
+            this.deathsThisSecond++;
+            this.totalDeaths++;
+          }
         }
       }
       
@@ -1000,6 +1005,8 @@ export class OrganismSimulation {
       // Update existing organisms (backwards to allow safe removal)
       for (let i = this.organisms.length - 1; i >= 0; i--) {
         const organism = this.organisms[i];
+        if (!organism) continue;
+        
         organism.update(deltaTime, this.canvas.width, this.canvas.height);
         
         // Check for reproduction
@@ -1029,9 +1036,11 @@ export class OrganismSimulation {
         // Check for death
         if (organism.shouldDie()) {
           const removed = this.organisms.splice(i, 1)[0];
-          this.destroyOrganism(removed); // Return to pool
-          this.deathsThisSecond++;
-          this.totalDeaths++;
+          if (removed) {
+            this.destroyOrganism(removed); // Return to pool
+            this.deathsThisSecond++;
+            this.totalDeaths++;
+          }
         }
       }
       

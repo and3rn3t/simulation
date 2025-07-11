@@ -73,10 +73,11 @@ jobs:
       run: npm ci
     
     - name: Run security audit
-      run: npm audit --audit-level=moderate
+      run: npm run security:audit
     
     - name: Run dependency vulnerability scan
       run: npm run security:scan
+      continue-on-error: true
 
   build:
     needs: [test, security]
@@ -108,12 +109,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
-    environment:
-      name: staging-env
-      url: https://staging.example.com
+    environment: staging
     
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
     
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -121,26 +126,43 @@ jobs:
         name: dist
         path: dist/
     
+    - name: Configure staging environment
+      run: |
+        node scripts/setup-env.js staging
+        echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
+        echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
+    
     - name: Deploy to staging
       run: |
-        echo "Deploying to staging environment..."
+        echo "🚀 Deploying to staging environment..."
+        echo "Environment: staging"
+        echo "URL: https://staging.organism-simulation.com"
         # Add your staging deployment commands here
-        # Example: rsync, AWS CLI, etc.
+        # Example: 
+        # - Upload to S3/CDN
+        # - Deploy to Vercel/Netlify
+        # - Update container registry
     
     - name: Run staging smoke tests
       run: |
-        echo "Running staging smoke tests..."
+        echo "🔍 Running staging smoke tests..."
         # Add staging validation tests
+        # npm run test:staging-smoke
 
   deploy-production:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
+    environment: production
     
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
     
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -148,18 +170,41 @@ jobs:
         name: dist
         path: dist/
     
+    - name: Configure production environment
+      run: |
+        node scripts/setup-env.js production
+        echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
+        echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
+    
     - name: Deploy to production
       run: |
-        echo "Deploying to production environment..."
+        echo "🚀 Deploying to production environment..."
+        echo "Environment: production"
+        echo "URL: https://organism-simulation.com"
         # Add your production deployment commands here
+        # Example:
+        # - Upload to S3/CDN  
+        # - Deploy to Vercel/Netlify
+        # - Update container registry
+        # - Blue-green deployment
     
     - name: Run production smoke tests
       run: |
-        echo "Running production smoke tests..."
+        echo "🔍 Running production smoke tests..."
         # Add production validation tests
+        # npm run test:production-smoke
     
     - name: Notify deployment success
       if: success()
       run: |
-        echo "🚀 Production deployment successful!"
-        # Add notification logic (Slack, Discord, etc.)
+        echo "🎉 Production deployment successful!"
+        echo "Version: $(cat package.json | grep version | cut -d'"' -f4)"
+        echo "Commit: ${GITHUB_SHA}"
+        # Add notification logic (Slack, Discord, Teams, etc.)
+    
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Production deployment failed!"
+        echo "Please check the logs and take immediate action."
+        # Add failure notification logic

@@ -201,6 +201,9 @@ export class AlgorithmWorkerManager {
    */
   private getNextWorker(): Worker {
     const worker = this.workers[this.currentWorkerIndex];
+    if (!worker) {
+      throw new Error('No workers available');
+    }
     this.currentWorkerIndex = (this.currentWorkerIndex + 1) % this.workers.length;
     return worker;
   }

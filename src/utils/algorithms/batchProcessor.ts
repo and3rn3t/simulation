@@ -93,8 +93,11 @@ export class OrganismBatchProcessor {
         }
 
         try {
-          updateFn(organisms[i], deltaTime, canvasWidth, canvasHeight);
-          processed++;
+          const organism = organisms[i];
+          if (organism) {
+            updateFn(organism, deltaTime, canvasWidth, canvasHeight);
+            processed++;
+          }
         } catch (error) {
           ErrorHandler.getInstance().handleError(
             error instanceof Error ? error : new SimulationError('Failed to update organism in batch', 'BATCH_UPDATE_ERROR'),
@@ -185,11 +188,14 @@ export class OrganismBatchProcessor {
         }
 
         try {
-          const newOrganism = reproductionFn(organisms[i]);
-          if (newOrganism) {
-            newOrganisms.push(newOrganism);
+          const organism = organisms[i];
+          if (organism) {
+            const newOrganism = reproductionFn(organism);
+            if (newOrganism) {
+              newOrganisms.push(newOrganism);
+            }
+            processed++;
           }
-          processed++;
         } catch (error) {
           ErrorHandler.getInstance().handleError(
             error instanceof Error ? error : new SimulationError('Failed to process organism reproduction', 'BATCH_REPRODUCTION_ERROR'),
@@ -318,7 +324,7 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
    * @param canvasHeight - Canvas height for bounds checking
    * @returns Batch processing result
    */
-  processBatch(
+  override processBatch(
     organisms: Organism[],
     updateFn: (organism: Organism, deltaTime: number, canvasWidth: number, canvasHeight: number) => void,
     deltaTime: number,

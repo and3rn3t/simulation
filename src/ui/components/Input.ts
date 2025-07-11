@@ -234,7 +234,7 @@ export class Input extends BaseComponent {
     this.element.classList.toggle('ui-input--disabled', disabled);
   }
 
-  protected setupAccessibility(): void {
+  protected override setupAccessibility(): void {
     // Accessibility is handled through proper labeling and ARIA attributes
     // in the setupInput method
   }

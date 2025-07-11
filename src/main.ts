@@ -24,7 +24,6 @@ let performanceProfiler: any = null;
 
 // Simulation state
 let isSimulationRunning = false;
-let simulationInterval: number | null = null;
 let animationFrameId: number | null = null;
 let simulationSpeed = 5;
 let populationLimit = 1000;
@@ -359,6 +358,7 @@ function updateSimulation(): void {
   
   for (let i = 0; i < organisms.length; i++) {
     const organism = organisms[i];
+    if (!organism) continue;
     
     // Age the organism
     organism.age++;
@@ -561,9 +561,9 @@ if (import.meta.env.DEV) {
   if (import.meta.hot) {
     import.meta.hot.accept('./dev/index', (newModule) => {
       if (newModule) {
-        debugMode = newModule.DebugMode.getInstance();
-        devConsole = newModule.DeveloperConsole.getInstance();
-        performanceProfiler = newModule.PerformanceProfiler.getInstance();
+        debugMode = newModule['DebugMode'].getInstance();
+        devConsole = newModule['DeveloperConsole'].getInstance();
+        performanceProfiler = newModule['PerformanceProfiler'].getInstance();
         console.log('🔄 Development tools reloaded');
       }
     });

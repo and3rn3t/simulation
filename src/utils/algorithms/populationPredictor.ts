@@ -136,7 +136,7 @@ export class PopulationPredictor {
       confidence: this.calculateConfidence(organisms),
       peakPopulation: Math.max(...result.logistic),
       peakTime: result.logistic.indexOf(Math.max(...result.logistic)),
-      equilibrium: result.logistic[result.logistic.length - 1]
+      equilibrium: result.logistic[result.logistic.length - 1] ?? 0
     };
   }
 
@@ -165,9 +165,14 @@ export class PopulationPredictor {
       
       organismTypes.forEach(type => {
         const curve = growthCurves[type.name];
-        const population = this.calculatePopulationAtTime(t, curve, organisms.length);
-        populationByType[type.name].push(population);
-        totalPop += population;
+        if (curve) {
+          const population = this.calculatePopulationAtTime(t, curve, organisms.length);
+          const typePopulation = populationByType[type.name];
+          if (typePopulation) {
+            typePopulation.push(population);
+            totalPop += population;
+          }
+        }
       });
       
       totalPopulation.push(totalPop);
@@ -175,7 +180,7 @@ export class PopulationPredictor {
 
     const peakPopulation = Math.max(...totalPopulation);
     const peakTime = totalPopulation.indexOf(peakPopulation);
-    const equilibrium = totalPopulation[totalPopulation.length - 1];
+    const equilibrium = totalPopulation[totalPopulation.length - 1] ?? 0;
 
     return {
       timeSteps,
@@ -370,7 +375,7 @@ export class PopulationPredictor {
       confidence: 0.1,
       peakPopulation: Math.max(...totalPopulation),
       peakTime: totalPopulation.indexOf(Math.max(...totalPopulation)),
-      equilibrium: totalPopulation[totalPopulation.length - 1]
+      equilibrium: totalPopulation[totalPopulation.length - 1] ?? 0
     };
   }
 

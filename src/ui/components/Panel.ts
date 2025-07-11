@@ -155,7 +155,7 @@ export class Panel extends BaseComponent {
     return this.collapsed;
   }
 
-  protected setupAccessibility(): void {
+  protected override setupAccessibility(): void {
     this.element.setAttribute('role', 'region');
   }
 }

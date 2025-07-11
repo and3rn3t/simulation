@@ -119,11 +119,17 @@ export class OrganismSoA {
     // Swap with last element
     const lastIndex = this.size - 1;
     if (index !== lastIndex) {
-      this.x[index] = this.x[lastIndex];
-      this.y[index] = this.y[lastIndex];
-      this.age[index] = this.age[lastIndex];
-      this.typeIndex[index] = this.typeIndex[lastIndex];
-      this.reproduced[index] = this.reproduced[lastIndex];
+      const lastX = this.x[lastIndex];
+      const lastY = this.y[lastIndex];
+      const lastAge = this.age[lastIndex];
+      const lastTypeIndex = this.typeIndex[lastIndex];
+      const lastReproduced = this.reproduced[lastIndex];
+      
+      if (lastX !== undefined) this.x[index] = lastX;
+      if (lastY !== undefined) this.y[index] = lastY;
+      if (lastAge !== undefined) this.age[index] = lastAge;
+      if (lastTypeIndex !== undefined) this.typeIndex[index] = lastTypeIndex;
+      if (lastReproduced !== undefined) this.reproduced[index] = lastReproduced;
     }
     
     this.size--;
@@ -134,8 +140,10 @@ export class OrganismSoA {
    */
   updatePosition(index: number, deltaX: number, deltaY: number): void {
     if (index >= 0 && index < this.size) {
-      this.x[index] += deltaX;
-      this.y[index] += deltaY;
+      const currentX = this.x[index];
+      const currentY = this.y[index];
+      if (currentX !== undefined) this.x[index] = currentX + deltaX;
+      if (currentY !== undefined) this.y[index] = currentY + deltaY;
     }
   }
 
@@ -144,7 +152,8 @@ export class OrganismSoA {
    */
   updateAge(index: number, deltaTime: number): void {
     if (index >= 0 && index < this.size) {
-      this.age[index] += deltaTime;
+      const currentAge = this.age[index];
+      if (currentAge !== undefined) this.age[index] = currentAge + deltaTime;
     }
   }
 
@@ -166,6 +175,9 @@ export class OrganismSoA {
     }
     
     const typeIdx = this.typeIndex[index];
+    if (typeIdx === undefined || typeIdx < 0 || typeIdx >= this.organismTypes.length) {
+      return null;
+    }
     return this.organismTypes[typeIdx] || null;
   }
 

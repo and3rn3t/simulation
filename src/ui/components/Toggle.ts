@@ -173,7 +173,7 @@ export class Toggle extends BaseComponent {
     this.input.focus();
   }
 
-  protected setupAccessibility(): void {
+  protected override setupAccessibility(): void {
     this.input.setAttribute('role', this.config.variant === 'switch' ? 'switch' : 'checkbox');
   }
 }
