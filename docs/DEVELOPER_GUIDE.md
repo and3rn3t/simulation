@@ -6,6 +6,7 @@ Welcome to the Organism Simulation project! This guide will help you get up and 
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [CLI Tools Authentication](#cli-tools-authentication)
 - [Project Structure](#project-structure)
 - [Development Workflow](#development-workflow)
 - [Architecture Overview](#architecture-overview)
@@ -65,6 +66,31 @@ npm run test:coverage
 # Run end-to-end tests
 npm run test:e2e
 ```
+
+## CLI Tools Authentication
+
+This project uses several CLI tools that require authentication for full functionality:
+
+- **Wrangler CLI** - Cloudflare Pages deployment
+- **Snyk CLI** - Security vulnerability scanning  
+- **GitHub CLI** - Repository management (optional)
+
+For detailed authentication instructions, see [CLI Authentication Guide](./CLI_AUTHENTICATION.md).
+
+### Quick Authentication Setup
+
+```bash
+# Authenticate with Cloudflare
+wrangler login
+
+# Authenticate with Snyk
+snyk auth
+
+# Authenticate with GitHub (optional)
+gh auth login
+```
+
+**⚠️ Important**: Store all API tokens as environment variables and never commit them to the repository.
 
 ## Project Structure
 

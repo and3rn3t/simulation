@@ -155,13 +155,15 @@ src/
 └── style.css           # Application styles
 ```
 
-├── main.ts              # Main application entry point
-├── simulation.ts        # Core simulation engine
-├── organism.ts          # Organism class definition
-├── organismTypes.ts     # Organism type configurations
-└── style.css           # Application styles
+## Documentation
 
-```text
+For detailed development and deployment information, see:
+
+- **[Developer Guide](./docs/DEVELOPER_GUIDE.md)** - Complete development setup and workflow
+- **[CLI Authentication Guide](./docs/CLI_AUTHENTICATION.md)** - Setup authentication for Wrangler, Snyk, and other CLI tools
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Deploy to production environments
+- **[Cloudflare Deployment](./docs/CLOUDFLARE_DEPLOYMENT.md)** - Specific Cloudflare Pages setup
+- **[Testing Strategy](./docs/TESTING_STRATEGY_VISUALIZATION.md)** - Comprehensive testing approach
 
 ## Contributing
 

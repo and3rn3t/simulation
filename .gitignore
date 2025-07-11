@@ -22,3 +22,25 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+
+# CLI tool configurations and tokens
+.wrangler/
+.snyk
+wrangler.toml.local
+
+# API tokens and keys (backup safety)
+*token*
+*secret*
+*key*
+!public-key*
+!*.md
+
+# OS generated files
