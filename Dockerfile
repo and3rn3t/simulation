@@ -1,35 +1,77 @@
 # Multi-stage build for optimization
 FROM node:20-alpine AS builder
 
+# Security: Create non-root user for build stage
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Security: Change ownership to non-root user
+RUN chown -R nextjs:nodejs /app
+USER nextjs
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy package files
+COPY --chown=nextjs:nodejs package*.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source code
-COPY . .
+COPY --chown=nextjs:nodejs . .
 
 # Build the application
 RUN npm run build
 
+# Clean up dev dependencies after build
+RUN npm ci --only=production && npm cache clean --force
+
 # Production stage
 FROM nginx:alpine
 
+# Security: The nginx:alpine image already has nginx user (uid:gid 101:101)
+# We just need to ensure proper directory permissions
+
+# Security: Create necessary directories with proper permissions for existing nginx user
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
+
 # Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
-# Add health check
+# Security: Create healthcheck script instead of copying missing file
+RUN echo '#!/bin/sh' > /healthcheck.sh && \
+    echo 'curl -f http://localhost:8080/ || exit 1' >> /healthcheck.sh && \
+    chmod +x /healthcheck.sh && \
+    chown nginx:nginx /healthcheck.sh
+
+# Security: Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Security: Remove unnecessary packages and clean up
+RUN apk del --purge && \
+    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# Security: Set proper file permissions
+RUN find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+    find /usr/share/nginx/html -type d -exec chmod 755 {} \; && \
+    chmod 755 /usr/share/nginx/html && \
+    chmod 644 /etc/nginx/nginx.conf && \
+    chmod 755 /healthcheck.sh && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Security: Switch to non-root user
+USER nginx
+
+# Health check with proper user
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+  CMD ["/bin/sh", "/healthcheck.sh"]
 
 # Expose port
-EXPOSE 80
+EXPOSE 8080
 
-# Start nginx
+# Security: Start nginx as non-root user
 CMD ["nginx", "-g", "daemon off;"]

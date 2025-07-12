@@ -11,6 +11,43 @@ const path = require('path');
  * This script simulates the GitHub Actions workflow
  */
 
+// Security: Whitelist of allowed commands to prevent command injection
+const ALLOWED_COMMANDS = [
+  'npm --version',
+  'node --version',
+  'git --version',
+  'npm ci',
+  'npm run lint',
+  'npm run build',
+  'npm test',
+  'npm run test:unit',
+  'npm run test:coverage',
+  'npm audit',
+  'npm outdated',
+];
+
+/**
+ * Securely execute a whitelisted command
+ * @param {string} command - Command to execute (must be in whitelist)
+ * @param {Object} options - Execution options
+ * @returns {string} Command output
+ */
+function secureExecSync(command, options = {}) {
+  // Security check: Only allow whitelisted commands
+  if (!ALLOWED_COMMANDS.includes(command)) {
+    throw new Error(`Command not allowed: ${command}`);
+  }
+
+  const safeOptions = {
+    encoding: 'utf8',
+    stdio: 'pipe',
+    timeout: 60000, // 60 second timeout for build commands
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 const projectRoot = process.cwd();
 let testsPassed = 0;
 let testsFailed = 0;
@@ -33,7 +70,7 @@ function logSuccess(message) {
 function runCommand(command, description, continueOnError = false) {
   log(`Running: ${description}`);
   try {
-    const output = execSync(command, {
+    const output = secureExecSync(command, {
       cwd: projectRoot,
       stdio: 'pipe',
       encoding: 'utf8',

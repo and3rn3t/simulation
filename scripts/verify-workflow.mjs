@@ -8,13 +8,51 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
+// Security: Whitelist of allowed commands to prevent command injection
+const ALLOWED_COMMANDS = [
+  'npm --version',
+  'node --version',
+  'git --version',
+  'npm run lint',
+  'npm run build',
+  'npm test',
+  'npm run test:unit',
+  'npm run workflow:validate',
+  'npm run env:check',
+  'npm run type-check',
+  'git status --porcelain',
+  'git remote -v',
+];
+
+/**
+ * Securely execute a whitelisted command
+ * @param {string} command - Command to execute (must be in whitelist)
+ * @param {Object} options - Execution options
+ * @returns {string} Command output
+ */
+function secureExecSync(command, options = {}) {
+  // Security check: Only allow whitelisted commands
+  if (!ALLOWED_COMMANDS.includes(command)) {
+    throw new Error(`Command not allowed: ${command}`);
+  }
+
+  const safeOptions = {
+    encoding: 'utf8',
+    stdio: 'pipe',
+    timeout: 30000, // 30 second timeout
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 console.log('🔍 Quick Workflow Verification');
 console.log('==============================\n');
 
 async function runTest(name, command, expectSuccess = true) {
   try {
     console.log(`Testing: ${name}`);
-    const result = execSync(command, { encoding: 'utf8', stdio: 'pipe' });
+    const result = secureExecSync(command);
     if (expectSuccess) {
       console.log(`   ✅ PASS: ${name}`);
       return true;

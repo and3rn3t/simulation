@@ -10,6 +10,44 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Security: Whitelist of allowed commands to prevent command injection
+const ALLOWED_COMMANDS = [
+  'npm --version',
+  'node --version',
+  'git --version',
+  'npm ci',
+  'npm run lint',
+  'npm run build',
+  'npm test',
+  'npm run test:unit',
+  'npm run test:coverage',
+  'npm run test:performance',
+  'npm audit',
+  'npm outdated',
+];
+
+/**
+ * Securely execute a whitelisted command
+ * @param {string} command - Command to execute (must be in whitelist)
+ * @param {Object} options - Execution options
+ * @returns {string} Command output
+ */
+function secureExecSync(command, options = {}) {
+  // Security check: Only allow whitelisted commands
+  if (!ALLOWED_COMMANDS.includes(command)) {
+    throw new Error(`Command not allowed for security reasons: ${command}`);
+  }
+
+  const safeOptions = {
+    encoding: 'utf8',
+    stdio: 'pipe',
+    timeout: 120000, // 2 minute timeout for build commands
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 const projectRoot = path.resolve(__dirname, '../..');
 let testsPassed = 0;
 let testsFailed = 0;
@@ -32,7 +70,7 @@ function logSuccess(message) {
 function runCommand(command, description, continueOnError = false) {
   log(`Running: ${description}`);
   try {
-    const output = execSync(command, {
+    const output = secureExecSync(command, {
       cwd: projectRoot,
       stdio: 'pipe',
       encoding: 'utf8',
@@ -71,7 +109,7 @@ function checkRequiredFiles() {
     'lighthouserc.cjs',
     '.github/codeql/codeql-config.yml',
     'codecov.yml',
-    'sonar-project.properties'
+    'sonar-project.properties',
   ];
 
   for (const file of requiredFiles) {
@@ -100,11 +138,11 @@ function validateWorkflows() {
   }
 
   const workflows = fs.readdirSync(workflowDir).filter(file => file.endsWith('.yml'));
-  
+
   workflows.forEach(workflow => {
     try {
       const content = fs.readFileSync(path.join(workflowDir, workflow), 'utf8');
-      
+
       // Basic YAML validation
       if (content.includes('name:') && content.includes('on:') && content.includes('jobs:')) {
         logSuccess(`${workflow} has valid structure`);
@@ -113,16 +151,15 @@ function validateWorkflows() {
         logError(`${workflow} has invalid structure`);
         testsFailed++;
       }
-      
+
       // Check for security best practices
       if (content.includes('secrets.')) {
         log(`${workflow} uses secrets (good practice)`);
       }
-      
+
       if (content.includes('continue-on-error: true')) {
         log(`${workflow} has error handling configured`);
       }
-      
     } catch (error) {
       logError(`Failed to validate ${workflow}: ${error.message}`);
       testsFailed++;
@@ -140,7 +177,10 @@ function testSecurityConfigs() {
   const dependabotConfig = path.join(projectRoot, '.github/dependabot.yml');
   if (fs.existsSync(dependabotConfig)) {
     const content = fs.readFileSync(dependabotConfig, 'utf8');
-    if (content.includes('package-ecosystem: "npm"') && content.includes('package-ecosystem: "github-actions"')) {
+    if (
+      content.includes('package-ecosystem: "npm"') &&
+      content.includes('package-ecosystem: "github-actions"')
+    ) {
       logSuccess('Dependabot configured for npm and GitHub Actions');
       testsPassed++;
     } else {
@@ -201,11 +241,7 @@ function testPerformanceMonitoring() {
   const packageJson = path.join(projectRoot, 'package.json');
   if (fs.existsSync(packageJson)) {
     const pkg = JSON.parse(fs.readFileSync(packageJson, 'utf8'));
-    const performanceScripts = [
-      'test:performance',
-      'test:e2e',
-      'test:coverage'
-    ];
+    const performanceScripts = ['test:performance', 'test:e2e', 'test:coverage'];
 
     performanceScripts.forEach(script => {
       if (pkg.scripts && pkg.scripts[script]) {
@@ -226,10 +262,7 @@ function testDeploymentConfigs() {
   log('Testing deployment configurations...');
 
   // Check environment files
-  const envFiles = [
-    'environments/staging/.env.staging',
-    'environments/production/.env.production'
-  ];
+  const envFiles = ['environments/staging/.env.staging', 'environments/production/.env.production'];
 
   envFiles.forEach(envFile => {
     const filePath = path.join(projectRoot, envFile);
@@ -245,7 +278,7 @@ function testDeploymentConfigs() {
   const deploymentScripts = [
     'scripts/env/setup-env.cjs',
     'scripts/deploy/deploy.cjs',
-    'scripts/test/smoke-test.cjs'
+    'scripts/test/smoke-test.cjs',
   ];
 
   deploymentScripts.forEach(script => {
@@ -340,7 +373,6 @@ async function runEnhancedTests() {
     }
 
     return testsFailed === 0 ? 0 : 1;
-
   } catch (error) {
     logError(`Pipeline validation failed: ${error.message}`);
     return 1;

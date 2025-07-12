@@ -10,6 +10,45 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
+/**
+ * Secure command execution with allowlist
+ */
+const ALLOWED_GIT_COMMANDS = [
+  'git rev-parse --is-inside-work-tree',
+  'git remote -v',
+  'git branch --show-current',
+  'git show-ref --verify --quiet refs/heads/develop',
+  'git rev-parse --git-dir',
+  'git rev-list --count HEAD',
+];
+
+const ALLOWED_FIND_COMMANDS = [
+  'find . -type f -size +10M -not -path "./node_modules/*" -not -path "./.git/*"',
+];
+
+/**
+ * Securely execute a command from allowlist
+ * @param {string} command - Command to execute
+ * @param {Object} options - Execution options
+ * @returns {string} Command output
+ */
+function secureExecSync(command, options = {}) {
+  const allowedCommands = [...ALLOWED_GIT_COMMANDS, ...ALLOWED_FIND_COMMANDS];
+
+  // Security check: Only allow whitelisted commands
+  if (!allowedCommands.includes(command)) {
+    throw new Error(`Command not allowed for security reasons: ${command}`);
+  }
+
+  const safeOptions = {
+    encoding: 'utf8',
+    timeout: 10000, // 10 second timeout
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 console.log('🔧 Project Management Workflow Troubleshooter');
 console.log('==============================================\n');
 
@@ -168,11 +207,11 @@ class WorkflowTroubleshooter {
 
     try {
       // Check if we're in a git repository
-      execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+      secureExecSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
       console.log('   ✅ Git repository detected');
 
       // Check remote configuration
-      const remotes = execSync('git remote -v', { encoding: 'utf8' });
+      const remotes = secureExecSync('git remote -v');
       if (remotes.includes('github.com')) {
         console.log('   ✅ GitHub remote configured');
       } else {
@@ -180,12 +219,12 @@ class WorkflowTroubleshooter {
       }
 
       // Check current branch
-      const currentBranch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+      const currentBranch = secureExecSync('git branch --show-current').trim();
       console.log(`   📍 Current branch: ${currentBranch}`);
 
       // Check for develop branch (needed for staging deployments)
       try {
-        execSync('git show-ref --verify --quiet refs/heads/develop', { stdio: 'ignore' });
+        secureExecSync('git show-ref --verify --quiet refs/heads/develop', { stdio: 'ignore' });
         console.log('   ✅ Develop branch exists');
       } catch {
         this.warnings.push('No develop branch found - needed for staging deployments');
@@ -242,15 +281,14 @@ class WorkflowTroubleshooter {
     // Simple check for files over 10MB
     const largeFiles = [];
     try {
-      const files = execSync(
-        'find . -type f -size +10M -not -path "./node_modules/*" -not -path "./.git/*"',
-        { encoding: 'utf8' }
+      const files = secureExecSync(
+        'find . -type f -size +10M -not -path "./node_modules/*" -not -path "./.git/*"'
       ).trim();
       if (files) {
         largeFiles.push(...files.split('\n'));
       }
     } catch {
-      // find command not available on Windows
+      // find command not available on Windows or not allowed
     }
     return largeFiles;
   }

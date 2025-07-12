@@ -357,8 +357,6 @@ afterEach(() => {
 - **Memory Cleanup**: Force garbage collection in test environments
 - **Mock Efficiency**: Reuse complex mocks across test suites
 
-````
-
 ## File Organization
 
 - `/src/core/` - Core simulation logic (OrganismSimulation, Organism)
@@ -383,7 +381,7 @@ export const NEW_ORGANISM: OrganismType = {
   size: 5, // pixels
   description: 'Description',
 };
-````
+```
 
 ### Error Handling Template
 
@@ -521,3 +519,102 @@ This project has achieved **74.5% test success rate** through systematic optimiz
 - **Priority 4** (45-55%): Performance optimization, edge cases
 
 **Current Achievement**: 74.5% success rate (187/251 tests) - Production ready infrastructure
+
+## Docker & Containerization Best Practices
+
+### Docker Security Standards
+
+- **Always use non-root users** - Containers must run as non-privileged users
+- **Multi-stage builds** - Separate build and runtime environments for security
+- **Minimal base images** - Use Alpine Linux or distroless images
+- **Security headers** - Implement comprehensive HTTP security headers in nginx
+- **Health checks** - Always include proper health check implementations
+- **File permissions** - Use least-privilege permissions (644 for files, 755 for directories)
+
+### Docker Security Patterns
+
+#### Non-Root Container Template
+
+```dockerfile
+FROM nginx:alpine
+
+# Use existing nginx user (uid:gid 101:101)
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
+
+# Copy with proper ownership
+COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
+COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
+
+# Set proper permissions
+RUN find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+    find /usr/share/nginx/html -type d -exec chmod 755 {} \; && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Switch to non-root user
+USER nginx
+```
+
+#### Secure Health Check Implementation
+
+```dockerfile
+# Create health check script with correct port
+RUN echo '#!/bin/sh' > /healthcheck.sh && \
+    echo 'curl -f http://localhost:8080/ || exit 1' >> /healthcheck.sh && \
+    chmod +x /healthcheck.sh && \
+    chown nginx:nginx /healthcheck.sh
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["/bin/sh", "/healthcheck.sh"]
+```
+
+### nginx Security Configuration
+
+Always implement these security headers in nginx.conf:
+
+```nginx
+# Security headers
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" always;
+
+# Rate limiting
+limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+limit_req zone=one burst=20 nodelay;
+
+# Hide server information
+server_tokens off;
+
+# Non-root compatible PID file
+pid /tmp/nginx.pid;
+```
+
+### Docker Security Checklist
+
+- [ ] **Container runs as non-root user**
+- [ ] **Health check implemented and tested**
+- [ ] **Security headers configured**
+- [ ] **Rate limiting enabled**
+- [ ] **File permissions set correctly (644/755)**
+- [ ] **Package cache cleaned up**
+- [ ] **No secrets in image layers**
+- [ ] **Multi-stage build used**
+- [ ] **Minimal base image (Alpine)**
+- [ ] **Build context optimized**
+
+### Common Docker Security Pitfalls
+
+1. **PID File Permissions**: Use `/tmp/nginx.pid` instead of `/var/run/nginx.pid` for non-root containers
+2. **Health Check Ports**: Use internal port (8080) not exposed port in health checks
+3. **User Creation**: Check if base image already has required users before creating new ones
+4. **Permission Order**: Set file permissions before ownership to avoid conflicts
+5. **Security Headers**: Use `always` directive to ensure headers apply to all responses
+
+### Docker Security Documentation
+
+- Document all security configurations in `docs/security/DOCKER_SECURITY_GUIDE.md`
+- Include vulnerability assessment procedures
+- Maintain security checklists and review schedules
+- Document lessons learned from security implementations
