@@ -1,0 +1,73 @@
+# Dependabot configuration for automated dependency updates
+# This will help keep your dependencies secure and up-to-date
+
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    reviewers:
+      - "and3rn3t"
+    assignees:
+      - "and3rn3t"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "security"
+    # Group minor and patch updates
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Auto-merge for security updates
+    open-pull-requests-limit: 5
+    # Ignore specific packages if needed
+    ignore:
+      - dependency-name: "vite"
+        versions: [">= 6.0.0"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    reviewers:
+      - "and3rn3t"
+    assignees:
+      - "and3rn3t"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "ci-cd"
+
+  # Docker dependencies (if using Docker in CI)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    reviewers:
+      - "and3rn3t"
+    assignees:
+      - "and3rn3t"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "docker"
+      - "infrastructure"

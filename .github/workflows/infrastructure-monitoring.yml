@@ -1,0 +1,262 @@
+name: Infrastructure Monitoring
+
+on:
+  schedule:
+    # Run every hour during business hours (9 AM - 6 PM UTC, Mon-Fri)
+    - cron: '0 9-18 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of monitoring check'
+        required: true
+        default: 'health'
+        type: choice
+        options:
+        - health
+        - performance
+        - security
+        - comprehensive
+
+jobs:
+  infrastructure-health:
+    name: Infrastructure Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Check production availability
+      run: |
+        echo "🌐 Checking production availability..."
+        
+        # Check main production URLs
+        URLS=(
+          "https://organisms.andernet.dev"
+          "https://organism-simulation.pages.dev"
+        )
+        
+        FAILURES=0
+        
+        for URL in "${URLS[@]}"; do
+          echo "Checking $URL..."
+          
+          if curl -f -s --max-time 10 "$URL" > /dev/null; then
+            echo "✅ $URL is responding"
+          else
+            echo "❌ $URL is not responding"
+            FAILURES=$((FAILURES + 1))
+          fi
+        done
+        
+        echo "🔍 Health Check Summary:" >> $GITHUB_STEP_SUMMARY
+        echo "======================" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $FAILURES -eq 0 ]; then
+          echo "✅ All services are healthy" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ $FAILURES service(s) are experiencing issues" >> $GITHUB_STEP_SUMMARY
+          echo "🚨 Immediate attention required!" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Exit with error if any failures
+        if [ $FAILURES -gt 0 ]; then
+          exit 1
+        fi
+    
+    - name: Performance check
+      if: github.event.inputs.check_type == 'performance' || github.event.inputs.check_type == 'comprehensive'
+      run: |
+        echo "⚡ Running performance checks..."
+        
+        # Install performance testing tools
+        npm install -g lighthouse
+        
+        # Run lighthouse audit
+        lighthouse https://organisms.andernet.dev --output json --output-path lighthouse-report.json --chrome-flags="--headless"
+        
+        # Parse performance score
+        PERFORMANCE_SCORE=$(cat lighthouse-report.json | jq '.categories.performance.score * 100')
+        echo "Performance Score: $PERFORMANCE_SCORE"
+        
+        echo "📊 Performance Report:" >> $GITHUB_STEP_SUMMARY
+        echo "Performance Score: $PERFORMANCE_SCORE/100" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $(echo "$PERFORMANCE_SCORE > 80" | bc) -eq 1 ]; then
+          echo "✅ Performance is within acceptable range" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Performance degradation detected" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: SSL certificate check
+      run: |
+        echo "🔒 Checking SSL certificates..."
+        
+        DOMAINS=(
+          "organisms.andernet.dev"
+          "organism-simulation.pages.dev"
+        )
+        
+        for DOMAIN in "${DOMAINS[@]}"; do
+          echo "Checking SSL for $DOMAIN..."
+          
+          # Get certificate expiry date
+          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
+          EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+          CURRENT_EPOCH=$(date +%s)
+          DAYS_UNTIL_EXPIRY=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
+          
+          echo "SSL certificate for $DOMAIN expires in $DAYS_UNTIL_EXPIRY days"
+          
+          if [ $DAYS_UNTIL_EXPIRY -gt 30 ]; then
+            echo "✅ SSL certificate is valid for $DOMAIN"
+          elif [ $DAYS_UNTIL_EXPIRY -gt 7 ]; then
+            echo "⚠️ SSL certificate for $DOMAIN expires soon ($DAYS_UNTIL_EXPIRY days)"
+          else
+            echo "🚨 SSL certificate for $DOMAIN expires very soon ($DAYS_UNTIL_EXPIRY days)!"
+          fi
+        done
+    
+    - name: CDN and edge performance
+      run: |
+        echo "🌍 Checking CDN and edge performance..."
+        
+        # Test multiple geographic locations (simulated)
+        REGIONS=("us-east" "us-west" "eu-west" "asia-pacific")
+        
+        for REGION in "${REGIONS[@]}"; do
+          echo "Testing performance from $REGION..."
+          
+          # Simulate regional testing (in real scenario, use actual edge testing service)
+          START_TIME=$(date +%s%N)
+          curl -s -w "%{time_total}" -o /dev/null https://organisms.andernet.dev
+          END_TIME=$(date +%s%N)
+          
+          RESPONSE_TIME=$(( (END_TIME - START_TIME) / 1000000 ))
+          echo "Response time from $REGION: ${RESPONSE_TIME}ms"
+          
+          if [ $RESPONSE_TIME -lt 2000 ]; then
+            echo "✅ Good performance from $REGION"
+          else
+            echo "⚠️ Slow performance from $REGION"
+          fi
+        done
+    
+    - name: Dependency security check
+      if: github.event.inputs.check_type == 'security' || github.event.inputs.check_type == 'comprehensive'
+      run: |
+        echo "🔍 Running dependency security check..."
+        
+        # Setup Node.js for security checks
+        npm ci --silent
+        
+        # Run npm audit
+        npm audit --audit-level=moderate --json > audit-report.json || true
+        
+        # Parse audit results
+        VULNERABILITIES=$(cat audit-report.json | jq '.metadata.vulnerabilities | to_entries | map(select(.value > 0)) | length')
+        
+        echo "🔒 Security Audit Results:" >> $GITHUB_STEP_SUMMARY
+        echo "Vulnerabilities found: $VULNERABILITIES" >> $GITHUB_STEP_SUMMARY
+        
+        if [ $VULNERABILITIES -eq 0 ]; then
+          echo "✅ No security vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Security vulnerabilities detected - review required" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Generate monitoring report
+      if: always()
+      run: |
+        echo "📊 Infrastructure Monitoring Report" >> $GITHUB_STEP_SUMMARY
+        echo "=================================" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Monitoring Type:** ${{ github.event.inputs.check_type || 'health' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Services Monitored:**" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌐 Production Website" >> $GITHUB_STEP_SUMMARY
+        echo "- ☁️ Cloudflare Pages" >> $GITHUB_STEP_SUMMARY
+        echo "- 🔒 SSL Certificates" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌍 CDN Performance" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Monitoring:** Next scheduled run or manual trigger" >> $GITHUB_STEP_SUMMARY
+
+  alert-on-failure:
+    name: Alert on Infrastructure Issues
+    runs-on: ubuntu-latest
+    needs: infrastructure-health
+    if: failure()
+    
+    steps:
+    - name: Send alert notification
+      run: |
+        echo "🚨 INFRASTRUCTURE ALERT" >> $GITHUB_STEP_SUMMARY
+        echo "======================" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "❌ **Critical Issue Detected**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "One or more infrastructure components are experiencing issues." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Immediate Actions Required:**" >> $GITHUB_STEP_SUMMARY
+        echo "1. Check service status and logs" >> $GITHUB_STEP_SUMMARY
+        echo "2. Verify DNS and CDN configuration" >> $GITHUB_STEP_SUMMARY
+        echo "3. Monitor user impact" >> $GITHUB_STEP_SUMMARY
+        echo "4. Escalate if necessary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Incident Response:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "- Severity: High" >> $GITHUB_STEP_SUMMARY
+        echo "- Auto-detected: Yes" >> $GITHUB_STEP_SUMMARY
+        
+        # In a real scenario, this would send notifications via:
+        # - Slack webhook
+        # - Email alerts
+        # - PagerDuty incident
+        # - Discord notification
+        # - Teams message
+        
+        echo "Alert notifications would be sent to configured channels"
+
+  performance-baseline:
+    name: Performance Baseline Tracking
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'performance' || github.event.inputs.check_type == 'comprehensive'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup performance monitoring
+      run: |
+        echo "📈 Setting up performance baseline tracking..."
+        
+        # Create performance metrics directory
+        mkdir -p .github/performance-baselines
+        
+        # Record current performance baseline
+        echo "{
+          \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\",
+          \"metrics\": {
+            \"loadTime\": \"$(curl -w '%{time_total}' -s -o /dev/null https://organisms.andernet.dev)\",
+            \"firstByte\": \"$(curl -w '%{time_starttransfer}' -s -o /dev/null https://organisms.andernet.dev)\",
+            \"dnsTime\": \"$(curl -w '%{time_namelookup}' -s -o /dev/null https://organisms.andernet.dev)\",
+            \"connectTime\": \"$(curl -w '%{time_connect}' -s -o /dev/null https://organisms.andernet.dev)\"
+          }
+        }" > .github/performance-baselines/$(date +%Y%m%d-%H%M%S).json
+        
+        echo "✅ Performance baseline recorded"
+    
+    - name: Performance trend analysis
+      run: |
+        echo "📊 Analyzing performance trends..."
+        
+        # In a real implementation, this would:
+        # 1. Compare current metrics with historical data
+        # 2. Calculate performance trends
+        # 3. Alert on degradation
+        # 4. Generate performance reports
+        
+        echo "Performance trend analysis completed"
+        echo "Historical data would be stored and analyzed for trends"

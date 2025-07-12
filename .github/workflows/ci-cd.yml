@@ -6,9 +6,18 @@ on:
   pull_request:
     branches: [ main ]
 
+# Cancel in-progress workflows for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     
     steps:
     - uses: actions/checkout@v4
@@ -16,11 +25,21 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
     
     - name: Install dependencies
       run: npm ci
+    
+    - name: Cache build dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
     
     - name: Run linter
       run: npm run lint
