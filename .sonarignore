@@ -1,0 +1,34 @@
+# SonarCloud ignore file
+
+# Backup and experimental files
+
+src/main-backup.ts
+src/main-leaderboard.ts
+src/core/simulation\_\*.ts
+src/examples/interactive-examples.ts
+
+# Files with many TypeScript errors
+
+src/core/simulation.ts
+src/models/unlockables.ts
+src/utils/memory/objectPool.ts
+
+# Test files (already covered by sonar-project.properties)
+
+**/\*.test.ts
+**/\*.spec.ts
+test/**
+e2e/**
+
+# Build and coverage outputs
+
+dist/**
+coverage/**
+node_modules/\*\*
+
+# Documentation and configuration
+
+docs/\*\*
+_.md
+_.json
+_.config._

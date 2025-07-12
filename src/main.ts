@@ -1,8 +1,6 @@
 // Import all CSS styles first
 import './ui/style.css';
 
-console.log('🚀 Starting application initialization...');
-
 // Import essential modules
 import { MemoryPanelComponent } from './ui/components/MemoryPanelComponent';
 import {
@@ -10,6 +8,7 @@ import {
   ErrorSeverity,
   initializeGlobalErrorHandlers,
 } from './utils/system/errorHandler';
+import { log } from './utils/system/logger';
 
 // Import game features
 import { OrganismSimulation } from './core/simulation';
@@ -18,6 +17,8 @@ import { PowerUpManager } from './features/powerups';
 import { UnlockableOrganismManager } from './models/unlockables';
 import { GameStateManager } from './utils/game/gameStateManager';
 import { MobileTestInterface } from './utils/mobile/MobileTestInterface';
+
+log.logSystem('🚀 Starting application initialization...');
 
 // Initialize global error handlers first
 initializeGlobalErrorHandlers();
@@ -50,15 +51,15 @@ let canvas: HTMLCanvasElement | null = null;
 
 // Check if DOM is already loaded
 if (document.readyState === 'loading') {
-  console.log('⏳ DOM is still loading, waiting for DOMContentLoaded...');
+  log.logSystem('⏳ DOM is still loading, waiting for DOMContentLoaded...');
   document.addEventListener('DOMContentLoaded', initializeApplication);
 } else {
-  console.log('✅ DOM already loaded, initializing immediately...');
+  log.logSystem('✅ DOM already loaded, initializing immediately...');
   initializeApplication();
 }
 
 function initializeApplication(): void {
-  console.log('🎯 Starting full application initialization...');
+  log.logSystem('🎯 Starting full application initialization...');
 
   try {
     // Clear any existing error dialogs
@@ -82,9 +83,12 @@ function initializeApplication(): void {
     // Initialize simulation
     initializeSimulation();
 
-    console.log('✅ Application initialized successfully');
+    log.logSystem('✅ Application initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize application:', error);
+    log.logError(
+      error instanceof Error ? error : new Error('Application initialization failed'),
+      'Application startup'
+    );
     // Use HIGH severity instead of CRITICAL to avoid showing error dialog on startup
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Application initialization failed'),
@@ -95,7 +99,7 @@ function initializeApplication(): void {
 }
 
 function initializeBasicElements(): void {
-  console.log('🔧 Initializing basic DOM elements...');
+  log.logSystem('🔧 Initializing basic DOM elements...');
 
   // Check for essential elements
   canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
@@ -106,52 +110,52 @@ function initializeBasicElements(): void {
   const statsPanel = document.getElementById('stats-panel');
 
   if (canvas) {
-    console.log('✅ Canvas found');
+    log.logSystem('✅ Canvas found');
 
     // Make canvas interactive
     canvas.style.cursor = 'crosshair';
 
-    console.log('✅ Canvas setup complete');
+    log.logSystem('✅ Canvas setup complete');
   } else {
-    console.error('❌ Canvas not found');
+    log.logError(new Error('Canvas not found'), 'DOM initialization');
   }
 
   if (startBtn) {
-    console.log('✅ Start button found');
+    log.logSystem('✅ Start button found');
   }
 
   if (pauseBtn) {
-    console.log('✅ Pause button found');
+    log.logSystem('✅ Pause button found');
   }
 
   if (resetBtn) {
-    console.log('✅ Reset button found');
+    log.logSystem('✅ Reset button found');
   }
 
   if (clearBtn) {
-    console.log('✅ Clear button found');
+    log.logSystem('✅ Clear button found');
   }
 
   if (statsPanel) {
-    console.log('✅ Stats panel found');
+    log.logSystem('✅ Stats panel found');
   }
 
-  console.log('✅ Basic elements initialized');
+  log.logSystem('✅ Basic elements initialized');
 }
 
 function initializeMemoryPanel(): void {
-  console.log('🧠 Initializing memory panel...');
+  log.logSystem('🧠 Initializing memory panel...');
 
   try {
     memoryPanelComponent.mount(document.body);
-    console.log('✅ Memory panel mounted successfully');
+    log.logSystem('✅ Memory panel mounted successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize memory panel:', error);
+    log.logError(error, '❌ Failed to initialize memory panel');
   }
 }
 
 function initializeGameSystems(): void {
-  console.log('🎮 Initializing game systems...');
+  log.logSystem('🎮 Initializing game systems...');
 
   try {
     // Initialize managers
@@ -172,17 +176,17 @@ function initializeGameSystems(): void {
         if (powerUpType && simulation) {
           const powerUp = powerUpManager.buyPowerUp(powerUpType);
           if (powerUp) {
-            console.log(`✅ Purchased power-up: ${powerUpType}`);
+            log.logSystem(`✅ Purchased power-up: ${powerUpType}`);
           } else {
-            console.log(`❌ Cannot afford power-up: ${powerUpType}`);
+            log.logSystem(`❌ Cannot afford power-up: ${powerUpType}`);
           }
         }
       });
     });
 
-    console.log('✅ Game systems initialized successfully');
+    log.logSystem('✅ Game systems initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize game systems:', error);
+    log.logError(error, '❌ Failed to initialize game systems');
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Game systems initialization failed'),
       ErrorSeverity.MEDIUM,
@@ -192,7 +196,7 @@ function initializeGameSystems(): void {
 }
 
 function initializeSimulation(): void {
-  console.log('🧬 Initializing simulation...');
+  log.logSystem('🧬 Initializing simulation...');
 
   try {
     if (!canvas) {
@@ -208,9 +212,9 @@ function initializeSimulation(): void {
     // Setup simulation controls
     setupSimulationControls();
 
-    console.log('✅ Simulation initialized successfully');
+    log.logSystem('✅ Simulation initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize simulation:', error);
+    log.logError(error, '❌ Failed to initialize simulation');
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Simulation initialization failed'),
       ErrorSeverity.MEDIUM,
@@ -220,7 +224,7 @@ function initializeSimulation(): void {
 }
 
 function setupSimulationControls(): void {
-  console.log('🎛️ Setting up simulation controls...');
+  log.logSystem('🎛️ Setting up simulation controls...');
 
   try {
     // Get control elements
@@ -273,7 +277,7 @@ function setupSimulationControls(): void {
         const speed = parseInt(speedSlider.value);
         simulation!.setSpeed(speed);
         speedValue.textContent = `${speed}x`;
-        console.log('🏃 Speed changed to:', speed);
+        log.logSystem('🏃 Speed changed to:', speed);
       });
     }
 
@@ -282,31 +286,29 @@ function setupSimulationControls(): void {
         const limit = parseInt(populationLimitSlider.value);
         simulation!.setMaxPopulation(limit);
         populationLimitValue.textContent = limit.toString();
-        console.log('👥 Population limit changed to:', limit);
+        log.logSystem('👥 Population limit changed to:', limit);
       });
     }
 
     if (organismSelect && simulation) {
       organismSelect.addEventListener('change', () => {
-        const selectedType = simulation!.getOrganismTypeById(organismSelect.value);
-        if (selectedType) {
-          simulation!.setOrganismType(selectedType);
-          console.log('🦠 Organism type changed to:', organismSelect.value);
-        }
+        // Use setOrganismType instead of getOrganismTypeById which doesn't exist
+        simulation!.setOrganismType(organismSelect.value);
+        log.logSystem('🦠 Organism type changed to:', organismSelect.value);
       });
     }
 
-    // Setup challenge button
-    const challengeBtn = document.getElementById('start-challenge-btn');
-    if (challengeBtn && simulation) {
-      challengeBtn.addEventListener('click', () => {
-        simulation!.startChallenge();
-      });
-    }
+    // Setup challenge button - remove since startChallenge doesn't exist
+    // const challengeBtn = document.getElementById('start-challenge-btn');
+    // if (challengeBtn && simulation) {
+    //   challengeBtn.addEventListener('click', () => {
+    //     simulation!.startChallenge();
+    //   });
+    // }
 
-    console.log('✅ Simulation controls setup successfully');
+    log.logSystem('✅ Simulation controls setup successfully');
   } catch (error) {
-    console.error('❌ Failed to setup simulation controls:', error);
+    log.logError(error, '❌ Failed to setup simulation controls');
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Simulation controls setup failed'),
       ErrorSeverity.HIGH,
@@ -332,9 +334,9 @@ function handleGameOver(): void {
       timeElapsed: Math.floor(Date.now() / 1000), // Simple time calculation
     });
 
-    console.log('🏁 Game over handled, leaderboard updated with score:', score);
+    log.logSystem('🏁 Game over handled, leaderboard updated with score:', score);
   } catch (error) {
-    console.error('❌ Failed to handle game over:', error);
+    log.logError(error, '❌ Failed to handle game over');
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new Error('Game over handling failed'),
       ErrorSeverity.MEDIUM,
@@ -375,7 +377,7 @@ function setupDevKeyboardShortcuts(): void {
 
 // Lazy load development tools
 if (import.meta.env.DEV) {
-  console.log('🔧 Development mode detected, loading dev tools...');
+  log.logSystem('🔧 Development mode detected, loading dev tools...');
 
   import('./dev/index')
     .then(module => {
@@ -386,10 +388,10 @@ if (import.meta.env.DEV) {
       // Set up keyboard shortcuts
       setupDevKeyboardShortcuts();
 
-      console.log('✅ Development tools loaded successfully');
+      log.logSystem('✅ Development tools loaded successfully');
     })
     .catch(error => {
-      console.error('❌ Failed to load development tools:', error);
+      log.logError(error, '❌ Failed to load development tools');
     });
 
   // Hot reload support
@@ -399,7 +401,7 @@ if (import.meta.env.DEV) {
         debugMode = newModule.DebugMode?.getInstance();
         devConsole = newModule.DeveloperConsole?.getInstance();
         performanceProfiler = newModule.PerformanceProfiler?.getInstance();
-        console.log('🔄 Development tools reloaded');
+        log.logSystem('🔄 Development tools reloaded');
       }
     });
   }
@@ -407,7 +409,7 @@ if (import.meta.env.DEV) {
 
 // Mobile-specific optimizations
 function setupMobileOptimizations(): void {
-  console.log('🔧 Setting up mobile optimizations...');
+  log.logSystem('🔧 Setting up mobile optimizations...');
 
   try {
     // Detect if we're on a mobile device
@@ -416,7 +418,7 @@ function setupMobileOptimizations(): void {
     );
 
     if (isMobile) {
-      console.log('📱 Mobile device detected, applying optimizations...');
+      log.logSystem('📱 Mobile device detected, applying optimizations...');
 
       // Prevent bounce scrolling on iOS
       document.body.style.overscrollBehavior = 'none';
@@ -477,9 +479,9 @@ function setupMobileOptimizations(): void {
         document.querySelectorAll('button').forEach(addHapticFeedback);
       }
 
-      console.log('✅ Mobile optimizations applied');
+      log.logSystem('✅ Mobile optimizations applied');
     }
   } catch (error) {
-    console.error('❌ Failed to setup mobile optimizations:', error);
+    log.logError(error, '❌ Failed to setup mobile optimizations');
   }
 }
