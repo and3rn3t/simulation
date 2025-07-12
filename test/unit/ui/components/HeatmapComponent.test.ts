@@ -1,12 +1,101 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { HeatmapComponent, HeatmapConfig } from '../../../../src/ui/components/HeatmapComponent';
-import { PopulationDensityHeatmap } from '../../../../src/ui/components/HeatmapComponent';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  HeatmapComponent,
+  HeatmapConfig,
+  PopulationDensityHeatmap,
+} from '../../../../src/ui/components/HeatmapComponent';
 
 describe('HeatmapComponent', () => {
   let component: HeatmapComponent;
   let config: HeatmapConfig;
   let mockCanvas: HTMLCanvasElement;
   let mockContext: CanvasRenderingContext2D;
+
+  const createMockElement = (tagName: string, isCanvas = false) => {
+    if (isCanvas) {
+      return {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 400,
+        height: 300,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        getBoundingClientRect: vi.fn().mockReturnValue({
+          left: 0,
+          top: 0,
+          width: 400,
+          height: 300,
+        }),
+      } as any;
+    }
+
+    const mockElement = {
+      tagName: tagName.toUpperCase(),
+      innerHTML: '',
+      style: {
+        display: '',
+        position: '',
+        width: '',
+        height: '',
+        setProperty: vi.fn(),
+        getPropertyValue: vi.fn(() => ''),
+        removeProperty: vi.fn(),
+      },
+      appendChild: vi.fn((child: any) => {
+        mockElement.children.push(child);
+        child.parentElement = mockElement;
+        child.parentNode = mockElement;
+      }),
+      removeChild: vi.fn((child: any) => {
+        const index = mockElement.children.indexOf(child);
+        if (index > -1) {
+          mockElement.children.splice(index, 1);
+        }
+        child.parentElement = null;
+        child.parentNode = null;
+      }),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      querySelector: vi.fn((selector: string) => {
+        if (selector === '.heatmap-canvas') {
+          return mockCanvas;
+        }
+        return null;
+      }),
+      querySelectorAll: vi.fn(() => []),
+      getAttribute: vi.fn(),
+      setAttribute: vi.fn(),
+      removeAttribute: vi.fn(),
+      hasAttribute: vi.fn(() => false),
+      getBoundingClientRect: vi.fn(() => ({
+        left: 0,
+        top: 0,
+        width: 100,
+        height: 100,
+        right: 100,
+        bottom: 100,
+      })),
+      _className: '',
+      get className() {
+        return this._className;
+      },
+      set className(value) {
+        this._className = value;
+      },
+      classList: {
+        add: vi.fn(),
+        remove: vi.fn(),
+        contains: vi.fn(() => false),
+        toggle: vi.fn(),
+      },
+      parentElement: null,
+      parentNode: null,
+      children: [],
+      textContent: '',
+      click: vi.fn(),
+    } as any;
+
+    return mockElement;
+  };
 
   beforeEach(() => {
     // Mock canvas and context
@@ -19,27 +108,16 @@ describe('HeatmapComponent', () => {
       lineWidth: 1,
     } as any;
 
-    mockCanvas = {
-      getContext: vi.fn().mockReturnValue(mockContext),
-      width: 400,
-      height: 300,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      getBoundingClientRect: vi.fn().mockReturnValue({
-        left: 0,
-        top: 0,
-        width: 400,
-        height: 300,
-      }),
-    } as any;
+    mockCanvas = createMockElement('canvas', true);
 
-    // Mock document.createElement for canvas
+    // Mock document.createElement for all elements
     const originalCreateElement = document.createElement;
     document.createElement = vi.fn().mockImplementation((tagName: string) => {
       if (tagName === 'canvas') {
         return mockCanvas;
       }
-      return originalCreateElement.call(document, tagName);
+
+      return createMockElement(tagName);
     });
 
     config = {
@@ -257,7 +335,75 @@ describe('PopulationDensityHeatmap', () => {
       if (tagName === 'canvas') {
         return mockCanvas;
       }
-      return originalCreateElement.call(document, tagName);
+
+      // Create a mock element with all necessary properties (same as main test)
+      const mockElement = {
+        tagName: tagName.toUpperCase(),
+        innerHTML: '',
+        style: {
+          display: '',
+          position: '',
+          width: '',
+          height: '',
+          setProperty: vi.fn(),
+          getPropertyValue: vi.fn(() => ''),
+          removeProperty: vi.fn(),
+        },
+        appendChild: vi.fn((child: any) => {
+          mockElement.children.push(child);
+          child.parentElement = mockElement;
+          child.parentNode = mockElement;
+        }),
+        removeChild: vi.fn((child: any) => {
+          const index = mockElement.children.indexOf(child);
+          if (index > -1) {
+            mockElement.children.splice(index, 1);
+          }
+          child.parentElement = null;
+          child.parentNode = null;
+        }),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        querySelector: vi.fn((selector: string) => {
+          if (selector === '.heatmap-canvas') {
+            return mockCanvas;
+          }
+          return null;
+        }),
+        querySelectorAll: vi.fn(() => []),
+        getAttribute: vi.fn(),
+        setAttribute: vi.fn(),
+        removeAttribute: vi.fn(),
+        hasAttribute: vi.fn(() => false),
+        getBoundingClientRect: vi.fn(() => ({
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 100,
+          right: 100,
+          bottom: 100,
+        })),
+        _className: '',
+        get className() {
+          return this._className;
+        },
+        set className(value) {
+          this._className = value;
+        },
+        classList: {
+          add: vi.fn(),
+          remove: vi.fn(),
+          contains: vi.fn(() => false),
+          toggle: vi.fn(),
+        },
+        parentElement: null,
+        parentNode: null,
+        children: [],
+        textContent: '',
+        click: vi.fn(),
+      } as any;
+
+      return mockElement;
     });
   });
 
@@ -293,7 +439,9 @@ describe('PopulationDensityHeatmap', () => {
     expect(() => component.updateFromPositions([])).not.toThrow();
   });
 
-  it('should start and stop auto updates', () => {
+  it('should start and stop auto updates', async () => {
+    vi.useFakeTimers();
+
     component = new PopulationDensityHeatmap(400, 300);
 
     const getPositions = vi.fn().mockReturnValue([
@@ -303,9 +451,14 @@ describe('PopulationDensityHeatmap', () => {
 
     component.startAutoUpdate(getPositions, 100);
 
+    // Advance timers to trigger the interval
+    vi.advanceTimersByTime(100);
+
     // Should be able to stop without error
     component.stopAutoUpdate();
     expect(getPositions).toHaveBeenCalled();
+
+    vi.useRealTimers();
   });
 
   it('should handle positions outside canvas bounds', () => {

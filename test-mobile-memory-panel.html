@@ -329,7 +329,6 @@
             message += `📱 Mobile Detection: ${isMobile ? 'ACTIVE' : 'INACTIVE'}<br>`;
             
             // Test CSS breakpoints
-            const css = getComputedStyle(document.body);
             message += `🎨 CSS Media Queries:<br>`;
             message += `&nbsp;&nbsp;• Small (≤480px): ${window.innerWidth <= 480 ? 'ACTIVE' : 'inactive'}<br>`;
             message += `&nbsp;&nbsp;• Medium (≤768px): ${window.innerWidth <= 768 ? 'ACTIVE' : 'inactive'}<br>`;

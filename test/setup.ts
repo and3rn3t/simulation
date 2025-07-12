@@ -346,37 +346,321 @@ window.TouchEvent = class TouchEvent extends Event {
   }
 } as any;
 
-// Mock Chart.js (common test failure)
-vi.mock('chart.js', () => ({
-  Chart: {
+// Mock Chart.js
+vi.mock('chart.js', async () => {
+  const mockChart = {
     register: vi.fn(),
-    defaults: {
-      font: {
-        size: 12,
-      },
-      color: '#000',
-    },
-  },
-  CategoryScale: vi.fn(),
-  LinearScale: vi.fn(),
-  PointElement: vi.fn(),
-  LineElement: vi.fn(),
-  Title: vi.fn(),
-  Tooltip: vi.fn(),
-  Legend: vi.fn(),
-  Filler: vi.fn(),
-  registerables: [],
-}));
+    Chart: vi.fn().mockImplementation(() => ({
+      destroy: vi.fn(),
+      update: vi.fn(),
+      resize: vi.fn(),
+      render: vi.fn(),
+      clear: vi.fn(),
+      stop: vi.fn(),
+      reset: vi.fn(),
+      toBase64Image: vi.fn(),
+      generateLegend: vi.fn(),
+      data: { datasets: [] },
+      options: {},
+      canvas: null,
+      ctx: null,
+    })),
+    registerables: [],
+  };
+
+  return {
+    Chart: mockChart.Chart,
+    registerables: mockChart.registerables,
+    default: mockChart.Chart,
+  };
+});
+
+// Mock chartjs-adapter-date-fns
+vi.mock('chartjs-adapter-date-fns', () => ({}));
 
 // Mock DOM element creation to prevent null reference errors
 const originalCreateElement = document.createElement.bind(document);
 document.createElement = vi.fn((tagName: string, options?: ElementCreationOptions) => {
   const element = originalCreateElement(tagName, options);
 
-  // Ensure all elements have basic properties
-  if (!element.style) {
-    element.style = {} as CSSStyleDeclaration;
+  // Mock a canvas element specifically with getContext
+  if (tagName.toLowerCase() === 'canvas') {
+    Object.defineProperty(element, 'width', {
+      get: function () {
+        return this._width || 800;
+      },
+      set: function (value) {
+        this._width = value;
+      },
+      configurable: true,
+    });
+
+    Object.defineProperty(element, 'height', {
+      get: function () {
+        return this._height || 600;
+      },
+      set: function (value) {
+        this._height = value;
+      },
+      configurable: true,
+    });
+
+    (element as any).getContext = vi.fn((type: string) => {
+      if (type === '2d') {
+        return {
+          fillStyle: '',
+          strokeStyle: '',
+          lineWidth: 1,
+          font: '',
+          textAlign: 'start',
+          textBaseline: 'alphabetic',
+          globalAlpha: 1,
+          globalCompositeOperation: 'source-over',
+          shadowBlur: 0,
+          shadowColor: '',
+          shadowOffsetX: 0,
+          shadowOffsetY: 0,
+          lineCap: 'butt',
+          lineJoin: 'miter',
+          miterLimit: 10,
+          lineDashOffset: 0,
+          fillRect: vi.fn(),
+          strokeRect: vi.fn(),
+          clearRect: vi.fn(),
+          fill: vi.fn(),
+          stroke: vi.fn(),
+          beginPath: vi.fn(),
+          closePath: vi.fn(),
+          moveTo: vi.fn(),
+          lineTo: vi.fn(),
+          quadraticCurveTo: vi.fn(),
+          bezierCurveTo: vi.fn(),
+          arc: vi.fn(),
+          arcTo: vi.fn(),
+          ellipse: vi.fn(),
+          rect: vi.fn(),
+          fillText: vi.fn(),
+          strokeText: vi.fn(),
+          measureText: vi.fn(() => ({ width: 100 })),
+          scale: vi.fn(),
+          rotate: vi.fn(),
+          translate: vi.fn(),
+          transform: vi.fn(),
+          setTransform: vi.fn(),
+          resetTransform: vi.fn(),
+          save: vi.fn(),
+          restore: vi.fn(),
+          drawImage: vi.fn(),
+          createImageData: vi.fn(),
+          getImageData: vi.fn(() => ({
+            data: new Uint8ClampedArray(4),
+            width: 1,
+            height: 1,
+          })),
+          putImageData: vi.fn(),
+          createLinearGradient: vi.fn(() => ({
+            addColorStop: vi.fn(),
+          })),
+          createRadialGradient: vi.fn(() => ({
+            addColorStop: vi.fn(),
+          })),
+          createPattern: vi.fn(),
+          clip: vi.fn(),
+          isPointInPath: vi.fn(() => false),
+          isPointInStroke: vi.fn(() => false),
+          setLineDash: vi.fn(),
+          getLineDash: vi.fn(() => []),
+          canvas: element,
+        };
+      }
+      return null;
+    });
   }
+
+  // Ensure all elements have basic properties that might be accessed
+  if (!element.style) {
+    element.style = {
+      display: '',
+      position: '',
+      top: '',
+      left: '',
+      width: '',
+      height: '',
+      visibility: '',
+      opacity: '',
+      transform: '',
+      transition: '',
+      backgroundColor: '',
+      color: '',
+      border: '',
+      borderRadius: '',
+      padding: '',
+      margin: '',
+      fontSize: '',
+      fontFamily: '',
+      textAlign: '',
+      zIndex: '',
+      overflow: '',
+      cursor: '',
+      pointerEvents: '',
+      boxShadow: '',
+      outline: '',
+      setProperty: vi.fn(),
+      getPropertyValue: vi.fn(() => ''),
+      removeProperty: vi.fn(),
+    } as any;
+  }
+
+  // Ensure className property exists
+  if (!element.hasOwnProperty('className')) {
+    Object.defineProperty(element, 'className', {
+      get: function () {
+        return this._className || '';
+      },
+      set: function (value) {
+        this._className = value;
+      },
+      configurable: true,
+    });
+  }
+
+  // Ensure classList exists
+  if (!element.classList) {
+    element.classList = {
+      add: vi.fn(),
+      remove: vi.fn(),
+      contains: vi.fn(() => false),
+      toggle: vi.fn(),
+      replace: vi.fn(),
+      value: '',
+      length: 0,
+      item: vi.fn(),
+      forEach: vi.fn(),
+      [Symbol.iterator]: function* () {},
+    } as any;
+  }
+
+  // Mock innerHTML and querySelector for proper DOM simulation
+  let _innerHTML = '';
+  Object.defineProperty(element, 'innerHTML', {
+    get: function () {
+      return _innerHTML;
+    },
+    set: function (value) {
+      _innerHTML = value;
+      // When innerHTML is set, we need to mock querySelector to return appropriate elements
+      this._innerElements = {};
+
+      // Mock common selectors that HeatmapComponent uses
+      if (value.includes('heatmap-canvas')) {
+        this._innerElements['.heatmap-canvas'] = originalCreateElement('canvas');
+        // Ensure the canvas has proper width/height properties
+        Object.defineProperty(this._innerElements['.heatmap-canvas'], 'width', {
+          get: function () {
+            return this._width || 800;
+          },
+          set: function (value) {
+            this._width = value;
+          },
+          configurable: true,
+        });
+
+        Object.defineProperty(this._innerElements['.heatmap-canvas'], 'height', {
+          get: function () {
+            return this._height || 600;
+          },
+          set: function (value) {
+            this._height = value;
+          },
+          configurable: true,
+        });
+
+        (this._innerElements['.heatmap-canvas'] as any).getContext = vi.fn((type: string) => {
+          if (type === '2d') {
+            return {
+              fillStyle: '',
+              strokeStyle: '',
+              lineWidth: 1,
+              font: '',
+              textAlign: 'start',
+              textBaseline: 'alphabetic',
+              globalAlpha: 1,
+              globalCompositeOperation: 'source-over',
+              shadowBlur: 0,
+              shadowColor: '',
+              shadowOffsetX: 0,
+              shadowOffsetY: 0,
+              lineCap: 'butt',
+              lineJoin: 'miter',
+              miterLimit: 10,
+              lineDashOffset: 0,
+              fillRect: vi.fn(),
+              strokeRect: vi.fn(),
+              clearRect: vi.fn(),
+              fill: vi.fn(),
+              stroke: vi.fn(),
+              beginPath: vi.fn(),
+              closePath: vi.fn(),
+              moveTo: vi.fn(),
+              lineTo: vi.fn(),
+              quadraticCurveTo: vi.fn(),
+              bezierCurveTo: vi.fn(),
+              arc: vi.fn(),
+              arcTo: vi.fn(),
+              ellipse: vi.fn(),
+              rect: vi.fn(),
+              fillText: vi.fn(),
+              strokeText: vi.fn(),
+              measureText: vi.fn(() => ({ width: 100 })),
+              scale: vi.fn(),
+              rotate: vi.fn(),
+              translate: vi.fn(),
+              transform: vi.fn(),
+              setTransform: vi.fn(),
+              resetTransform: vi.fn(),
+              save: vi.fn(),
+              restore: vi.fn(),
+              drawImage: vi.fn(),
+              createImageData: vi.fn(),
+              getImageData: vi.fn(() => ({
+                data: new Uint8ClampedArray(4),
+                width: 1,
+                height: 1,
+              })),
+              putImageData: vi.fn(),
+              createLinearGradient: vi.fn(() => ({
+                addColorStop: vi.fn(),
+              })),
+              createRadialGradient: vi.fn(() => ({
+                addColorStop: vi.fn(),
+              })),
+              createPattern: vi.fn(),
+              clip: vi.fn(),
+              isPointInPath: vi.fn(() => false),
+              isPointInStroke: vi.fn(() => false),
+              setLineDash: vi.fn(),
+              getLineDash: vi.fn(() => []),
+              canvas: this._innerElements['.heatmap-canvas'],
+            };
+          }
+          return null;
+        });
+      }
+
+      if (value.includes('heatmap-legend')) {
+        this._innerElements['.heatmap-legend'] = originalCreateElement('div');
+      }
+    },
+    configurable: true,
+  });
+
+  // Mock querySelector to return the appropriate inner elements
+  element.querySelector = vi.fn((selector: string) => {
+    if (element._innerElements && element._innerElements[selector]) {
+      return element._innerElements[selector];
+    }
+    return null;
+  });
 
   // Add common properties that tests might expect
   Object.defineProperty(element, 'offsetWidth', {
