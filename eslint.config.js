@@ -36,6 +36,7 @@ export default [
         URLSearchParams: 'readonly',
         AbortController: 'readonly',
         screen: 'readonly',
+        crypto: 'readonly',
         // Node.js globals for build tools
         require: 'readonly',
         NodeJS: 'readonly',
