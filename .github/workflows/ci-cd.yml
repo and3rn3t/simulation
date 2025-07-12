@@ -34,13 +34,36 @@ jobs:
       run: npm run test:coverage
       timeout-minutes: 15
       continue-on-error: true
+
+    - name: Verify coverage files
+      run: |
+        echo "📊 Checking coverage files..."
+        if [ -f "./coverage/lcov.info" ]; then
+          echo "✅ LCOV coverage file found"
+          echo "📈 Coverage file size: $(du -h ./coverage/lcov.info | cut -f1)"
+        else
+          echo "❌ LCOV coverage file not found"
+        fi
+        
+        if [ -d "./coverage" ]; then
+          echo "📁 Coverage directory contents:"
+          ls -la ./coverage/
+        else
+          echo "❌ Coverage directory not found"
+        fi
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        file: ./coverage/lcov.info
+        files: ./coverage/lcov.info,./coverage/coverage-final.json
         flags: unittests
         name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true
+        override_branch: ${{ github.head_ref }}
+        override_commit: ${{ github.sha }}
+        override_pr: ${{ github.event.number }}
+        override_build: ${{ github.run_number }}
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       continue-on-error: true
