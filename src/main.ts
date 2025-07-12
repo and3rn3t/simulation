@@ -12,12 +12,12 @@ import {
 } from './utils/system/errorHandler';
 
 // Import game features
+import { OrganismSimulation } from './core/simulation';
 import { LeaderboardManager } from './features/leaderboard';
 import { PowerUpManager } from './features/powerups';
 import { UnlockableOrganismManager } from './models/unlockables';
 import { GameStateManager } from './utils/game/gameStateManager';
-import { OrganismSimulation } from './core/simulation';
-import { ORGANISM_TYPES } from './models/organismTypes';
+import { MobileTestInterface } from './utils/mobile/MobileTestInterface';
 
 // Initialize global error handlers first
 initializeGlobalErrorHandlers();
@@ -200,7 +200,10 @@ function initializeSimulation(): void {
     }
 
     // Initialize simulation with default organism type
-    simulation = new OrganismSimulation(canvas, ORGANISM_TYPES.bacteria);
+    simulation = new OrganismSimulation(canvas);
+
+    // Initialize mobile test interface for mobile devices
+    const mobileTestInterface = new MobileTestInterface(simulation);
 
     // Setup simulation controls
     setupSimulationControls();

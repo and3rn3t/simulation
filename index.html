@@ -207,6 +207,66 @@
       </div>
       
       <canvas id="simulation-canvas" width="800" height="500"></canvas>
+      
+      <!-- Mobile Features Test Section -->
+      <div id="mobile-test-section" class="mobile-test-panel" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; display: none;">
+        <h3>📱 Mobile Features Test</h3>
+        <div id="mobile-status" class="mobile-status">
+          <div>Device Type: <span id="device-type">Unknown</span></div>
+          <div>Touch Support: <span id="touch-support">Unknown</span></div>
+          <div>Screen Size: <span id="screen-size">Unknown</span></div>
+        </div>
+        
+        <div class="mobile-features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+          <div class="feature-test">
+            <h4>🎮 Advanced Gestures</h4>
+            <div id="gesture-status">Not initialized</div>
+            <div id="last-gesture" style="font-size: 0.8em; color: #aaa;">Last: None</div>
+          </div>
+          
+          <div class="feature-test">
+            <h4>✨ Visual Effects</h4>
+            <div id="effects-status">Not initialized</div>
+            <button id="test-effect-btn">Test Effect</button>
+          </div>
+          
+          <div class="feature-test">
+            <h4>📱 PWA Features</h4>
+            <div id="pwa-status">Not initialized</div>
+            <button id="install-btn" style="display: none;">Install App</button>
+          </div>
+          
+          <div class="feature-test">
+            <h4>📊 Analytics</h4>
+            <div id="analytics-status">Not initialized</div>
+            <div id="session-info" style="font-size: 0.8em; color: #aaa;">Session: None</div>
+          </div>
+          
+          <div class="feature-test">
+            <h4>📤 Social Sharing</h4>
+            <div id="social-status">Not initialized</div>
+            <button id="share-btn">Share Screenshot</button>
+          </div>
+          
+          <div class="feature-test">
+            <h4>⚡ Performance</h4>
+            <div>FPS: <span id="fps-counter">--</span></div>
+            <div>Memory: <span id="memory-usage">--</span></div>
+            <div>Battery: <span id="battery-level">--</span></div>
+          </div>
+        </div>
+        
+        <div class="gesture-instructions" style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; font-size: 0.9em;">
+          <strong>Try these gestures on mobile:</strong><br>
+          • Swipe fast (left/right) to change organism type<br>
+          • Swipe fast (up/down) to change speed<br>
+          • 3-finger tap for fullscreen<br>
+          • 4-finger tap to toggle UI<br>
+          • 5-finger tap to reset simulation<br>
+          • Edge swipes for panels<br>
+          • Force touch to place organisms
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

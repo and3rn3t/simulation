@@ -281,7 +281,7 @@ export class OrganismSimulation {
       if (this.mobileAnalyticsManager) {
         this.mobileAnalyticsManager.trackEvent('organism_placed', {
           type: this.currentOrganismType,
-          position,
+          position: position,
           method: 'force_touch',
         });
       }

@@ -10,18 +10,77 @@ export class MemoryPanelComponent {
   private memoryMonitor: MemoryMonitor;
   private updateInterval: number | null = null;
   private isVisible = false; // Panel starts hidden (only toggle button visible)
+  private isMobile = false; // Track if we're on a mobile device
 
   constructor() {
     this.memoryMonitor = MemoryMonitor.getInstance();
+    this.detectMobile();
     this.element = this.createElement();
     this.setupEventListeners();
+    this.handleMobileViewport();
 
     // Set initial visibility state to match CSS default (hidden)
     const panel = this.element.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       panel.classList.remove('visible'); // Ensure it starts hidden
     }
-    console.log('🧠 Memory panel initialized. Initial state: hidden');
+    console.log('🧠 Memory panel initialized. Initial state: hidden, Mobile:', this.isMobile);
+  }
+
+  /**
+   * Detect if we're on a mobile device
+   */
+  private detectMobile(): void {
+    this.isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.innerWidth <= 768;
+  }
+
+  /**
+   * Handle mobile viewport changes and positioning
+   */
+  private handleMobileViewport(): void {
+    if (this.isMobile) {
+      // Add mobile-specific class for easier styling
+      this.element.classList.add('mobile-optimized');
+
+      // Handle orientation changes
+      const handleOrientationChange = () => {
+        setTimeout(() => {
+          this.detectMobile(); // Re-detect in case orientation affects this
+          this.adjustMobilePosition();
+        }, 100);
+      };
+
+      window.addEventListener('orientationchange', handleOrientationChange);
+      window.addEventListener('resize', handleOrientationChange);
+    }
+  }
+
+  /**
+   * Adjust positioning for mobile devices
+   */
+  private adjustMobilePosition(): void {
+    if (!this.isMobile) return;
+
+    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    if (panel) {
+      // Ensure the panel doesn't extend beyond viewport
+      const viewportWidth = window.innerWidth;
+      const panelWidth = panel.offsetWidth;
+
+      if (panelWidth > viewportWidth - 20) {
+        panel.style.width = `${viewportWidth - 30}px`;
+      }
+
+      // Temporarily hide panel if it would cause horizontal scrolling
+      if (this.isVisible && panelWidth > viewportWidth - 60) {
+        console.log('📱 Temporarily hiding memory panel - insufficient screen width');
+        this.setVisible(false);
+      }
+    }
   }
 
   /**
@@ -150,12 +209,31 @@ export class MemoryPanelComponent {
    */
   public toggle(): void {
     console.log('🔄 Memory panel toggle clicked. Current state:', this.isVisible);
+
+    // On mobile, check if we have enough space before showing
+    if (!this.isVisible && this.isMobile) {
+      const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+      if (panel) {
+        const viewportWidth = window.innerWidth;
+        if (viewportWidth < 480) {
+          console.log('📱 Screen too small for memory panel, skipping toggle');
+          return; // Don't show on very small screens
+        }
+      }
+    }
+
     this.isVisible = !this.isVisible;
     console.log('🔄 New state:', this.isVisible);
 
     const panel = this.element.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       panel.classList.toggle('visible', this.isVisible);
+
+      // Apply mobile positioning adjustments if needed
+      if (this.isVisible && this.isMobile) {
+        this.adjustMobilePosition();
+      }
+
       console.log('🔄 Panel classes:', panel.className);
       console.log('🔄 Panel computed style transform:', window.getComputedStyle(panel).transform);
       console.log('🔄 Panel position:', {

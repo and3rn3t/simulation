@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Memory Panel Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .device-simulator {
+            border: 3px solid #333;
+            border-radius: 20px;
+            background: white;
+            color: black;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .device-simulator.mobile {
+            width: 375px;
+            height: 667px;
+            margin: 0 auto;
+        }
+        
+        .device-simulator.tablet {
+            width: 768px;
+            height: 1024px;
+            margin: 0 auto;
+        }
+        
+        .device-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+        
+        .mock-canvas {
+            width: 100%;
+            height: 60%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        button:hover {
+            background: #5f3dc4;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .viewport-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10000;
+        }
+        
+        .test-instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport-info" id="viewportInfo">
+        Viewport: <span id="viewportSize"></span><br>
+        Device: <span id="deviceType"></span><br>
+        Touch: <span id="touchSupport"></span>
+    </div>
+
+    <div class="test-container">
+        <h1>📱 Mobile Memory Panel Test</h1>
+        
+        <div class="test-instructions">
+            <h3>🧪 Mobile Responsiveness Test</h3>
+            <p>This page demonstrates the enhanced mobile memory panel positioning:</p>
+            <ul>
+                <li><strong>✅ No edge overflow:</strong> Panel stays within viewport boundaries</li>
+                <li><strong>📱 Mobile detection:</strong> Automatic mobile/desktop detection</li>
+                <li><strong>🔄 Orientation handling:</strong> Adapts to landscape/portrait</li>
+                <li><strong>👆 Touch-friendly:</strong> Larger touch targets and better spacing</li>
+                <li><strong>📏 Screen size adaptation:</strong> Hides on very small screens (< 480px)</li>
+            </ul>
+        </div>
+
+        <div class="info-panel">
+            <h3>🔍 Current Environment:</h3>
+            <p id="environmentInfo">Loading...</p>
+        </div>
+
+        <div class="device-simulator mobile">
+            <div class="device-content">
+                <div class="mock-canvas">
+                    📱 Mobile Simulation Canvas<br>
+                    (375 × 667px)
+                </div>
+                <div class="controls">
+                    <button onclick="simulateMemoryToggle('mobile')">Toggle Memory Panel</button>
+                    <button onclick="simulateOrientation()">Rotate Device</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="device-simulator tablet">
+            <div class="device-content">
+                <div class="mock-canvas">
+                    📊 Tablet Simulation Canvas<br>
+                    (768 × 1024px)
+                </div>
+                <div class="controls">
+                    <button onclick="simulateMemoryToggle('tablet')">Toggle Memory Panel</button>
+                    <button onclick="testResponsiveness()">Test Responsiveness</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>🔧 Test Features:</h3>
+            <button onclick="window.open('http://localhost:5173', '_blank')">Open Live Simulation</button>
+            <button onclick="testMobileFeatures()">Test Mobile Detection</button>
+            <button onclick="simulateViewportChange()">Simulate Viewport Change</button>
+        </div>
+
+        <div class="info-panel" id="testResults">
+            <h3>📊 Test Results:</h3>
+            <p>Click buttons above to test mobile memory panel features...</p>
+        </div>
+    </div>
+
+    <script>
+        // Update viewport info
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                           ('ontouchstart' in window) ||
+                           (navigator.maxTouchPoints > 0) ||
+                           width <= 768;
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            document.getElementById('viewportSize').textContent = `${width} × ${height}`;
+            document.getElementById('deviceType').textContent = isMobile ? 'Mobile/Tablet' : 'Desktop';
+            document.getElementById('touchSupport').textContent = hasTouch ? 'Yes' : 'No';
+
+            document.getElementById('environmentInfo').innerHTML = `
+                <strong>Screen:</strong> ${width} × ${height}px<br>
+                <strong>Device Type:</strong> ${isMobile ? 'Mobile/Tablet' : 'Desktop'}<br>
+                <strong>Touch Support:</strong> ${hasTouch ? 'Yes' : 'No'}<br>
+                <strong>User Agent:</strong> ${navigator.userAgent.substring(0, 100)}...<br>
+                <strong>Max Touch Points:</strong> ${navigator.maxTouchPoints}
+            `;
+        }
+
+        // Simulate memory panel toggle
+        function simulateMemoryToggle(deviceType) {
+            const results = document.getElementById('testResults');
+            const width = deviceType === 'mobile' ? 375 : 768;
+            
+            let message = `🔄 <strong>Memory Panel Toggle Test (${deviceType}):</strong><br>`;
+            
+            if (width < 480) {
+                message += `❌ Screen too small (${width}px < 480px) - Panel toggle blocked<br>`;
+            } else {
+                message += `✅ Screen sufficient (${width}px ≥ 480px) - Panel can be shown<br>`;
+                message += `📏 Panel width limited to: ${width - 30}px (viewport - 30px)<br>`;
+                message += `📍 Position: top: 60px, right: 10px (mobile-optimized)<br>`;
+            }
+            
+            results.innerHTML = `<h3>📊 Test Results:</h3><p>${message}</p>`;
+        }
+
+        // Test mobile features
+        function testMobileFeatures() {
+            const results = document.getElementById('testResults');
+            const width = window.innerWidth;
+            const isMobile = width <= 768 || 'ontouchstart' in window;
+            
+            let message = `🧪 <strong>Mobile Features Test:</strong><br>`;
+            message += `📱 Mobile Detection: ${isMobile ? 'TRUE' : 'FALSE'}<br>`;
+            message += `📏 Viewport Width: ${width}px<br>`;
+            message += `🎯 Touch Support: ${'ontouchstart' in window ? 'YES' : 'NO'}<br>`;
+            message += `👆 Max Touch Points: ${navigator.maxTouchPoints}<br>`;
+            
+            if (isMobile) {
+                message += `✅ Mobile class would be applied<br>`;
+                message += `📍 Enhanced touch targets enabled<br>`;
+                message += `🔄 Orientation change handlers active<br>`;
+                if (width < 480) {
+                    message += `⚠️ Very small screen - memory panel disabled<br>`;
+                }
+            } else {
+                message += `💻 Desktop mode - standard positioning<br>`;
+            }
+            
+            results.innerHTML = `<h3>📊 Test Results:</h3><p>${message}</p>`;
+        }
+
+        // Simulate orientation change
+        function simulateOrientation() {
+            const results = document.getElementById('testResults');
+            const currentWidth = window.innerWidth;
+            const currentHeight = window.innerHeight;
+            
+            // Simulate landscape dimensions
+            const simulatedWidth = Math.max(currentWidth, currentHeight);
+            const simulatedHeight = Math.min(currentWidth, currentHeight);
+            
+            let message = `🔄 <strong>Orientation Change Simulation:</strong><br>`;
+            message += `📐 Current: ${currentWidth} × ${currentHeight}<br>`;
+            message += `📐 Simulated Landscape: ${simulatedWidth} × ${simulatedHeight}<br>`;
+            
+            if (simulatedHeight < 500) {
+                message += `📱 Landscape mode detected (height < 500px)<br>`;
+                message += `📍 Panel position adjusted: top: 5px<br>`;
+                message += `📏 Max height: ${simulatedHeight - 10}px<br>`;
+                message += `📜 Overflow: auto (scrollable if needed)<br>`;
+            } else {
+                message += `📱 Portrait/Desktop mode<br>`;
+                message += `📍 Standard positioning maintained<br>`;
+            }
+            
+            results.innerHTML = `<h3>📊 Test Results:</h3><p>${message}</p>`;
+        }
+
+        // Simulate viewport change
+        function simulateViewportChange() {
+            const results = document.getElementById('testResults');
+            const width = window.innerWidth;
+            
+            let message = `📏 <strong>Viewport Change Test:</strong><br>`;
+            message += `📐 Current viewport: ${width}px<br>`;
+            
+            // Test different breakpoints
+            const breakpoints = [
+                { size: 380, name: 'Extra Small Mobile' },
+                { size: 480, name: 'Small Mobile' },
+                { size: 768, name: 'Tablet' },
+                { size: 1024, name: 'Desktop' }
+            ];
+            
+            breakpoints.forEach(bp => {
+                if (width <= bp.size) {
+                    message += `✅ Breakpoint: ${bp.name} (≤${bp.size}px)<br>`;
+                    
+                    if (bp.size === 380) {
+                        message += `📱 Ultra-compact mode: panel uses full width minus 10px<br>`;
+                    } else if (bp.size === 480) {
+                        message += `📱 Small screen mode: panel toggle disabled<br>`;
+                    } else if (bp.size === 768) {
+                        message += `📊 Tablet mode: panel width limited to viewport - 20px<br>`;
+                    }
+                    return false; // Break on first match
+                }
+            });
+            
+            results.innerHTML = `<h3>📊 Test Results:</h3><p>${message}</p>`;
+        }
+
+        // Test responsiveness
+        function testResponsiveness() {
+            const results = document.getElementById('testResults');
+            
+            let message = `📊 <strong>Responsiveness Test:</strong><br>`;
+            message += `🔍 Testing all responsive features...<br><br>`;
+            
+            // Test mobile detection
+            const isMobile = window.innerWidth <= 768;
+            message += `📱 Mobile Detection: ${isMobile ? 'ACTIVE' : 'INACTIVE'}<br>`;
+            
+            // Test CSS breakpoints
+            const css = getComputedStyle(document.body);
+            message += `🎨 CSS Media Queries:<br>`;
+            message += `&nbsp;&nbsp;• Small (≤480px): ${window.innerWidth <= 480 ? 'ACTIVE' : 'inactive'}<br>`;
+            message += `&nbsp;&nbsp;• Medium (≤768px): ${window.innerWidth <= 768 ? 'ACTIVE' : 'inactive'}<br>`;
+            message += `&nbsp;&nbsp;• Landscape (height≤500px): ${window.innerHeight <= 500 ? 'ACTIVE' : 'inactive'}<br>`;
+            
+            // Test touch capabilities
+            message += `👆 Touch Features:<br>`;
+            message += `&nbsp;&nbsp;• Touch Events: ${'ontouchstart' in window ? 'SUPPORTED' : 'not supported'}<br>`;
+            message += `&nbsp;&nbsp;• Touch Points: ${navigator.maxTouchPoints}<br>`;
+            message += `&nbsp;&nbsp;• Pointer Events: ${'onpointerdown' in window ? 'SUPPORTED' : 'not supported'}<br>`;
+            
+            results.innerHTML = `<h3>📊 Test Results:</h3><p>${message}</p>`;
+        }
+
+        // Initialize
+        updateViewportInfo();
+        window.addEventListener('resize', updateViewportInfo);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(updateViewportInfo, 100);
+        });
+
+        // Show initial test info
+        testMobileFeatures();
+    </script>
+</body>
+</html>

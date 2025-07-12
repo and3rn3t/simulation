@@ -1,3 +1,4 @@
+import { CanvasManager } from '../canvas/CanvasManager.js';
 import { Position } from '../types/Position.js';
 import { SimulationStats } from '../types/SimulationStats.js';
 import { StatisticsManager } from '../utils/game/statisticsManager.js';
@@ -13,8 +14,7 @@ import { MobileSocialManager } from '../utils/mobile/MobileSocialManager.js';
 import { MobileVisualEffects } from '../utils/mobile/MobileVisualEffects.js';
 
 export class OrganismSimulation {
-  private canvas: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
+  private canvasManager: CanvasManager;
   private statisticsManager: StatisticsManager;
   private mobileCanvasManager: MobileCanvasManager;
 
@@ -36,22 +36,9 @@ export class OrganismSimulation {
 
   constructor(canvasElement?: HTMLCanvasElement | string) {
     try {
-      // Get or create canvas
-      if (typeof canvasElement === 'string') {
-        this.canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
-      } else if (canvasElement instanceof HTMLCanvasElement) {
-        this.canvas = canvasElement;
-      } else {
-        this.canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
-      }
-
-      if (!this.canvas) {
-        throw new Error('Canvas element not found');
-      }
-
-      this.context = this.canvas.getContext('2d')!;
+      this.canvasManager = new CanvasManager(canvasElement);
       this.statisticsManager = new StatisticsManager();
-      this.mobileCanvasManager = new MobileCanvasManager(this.canvas);
+      this.mobileCanvasManager = new MobileCanvasManager(this.canvasManager);
 
       this.initializeAdvancedMobileFeatures();
       this.initializeEventListeners();
@@ -71,7 +58,7 @@ export class OrganismSimulation {
         Logger.getInstance().logSystem('Initializing advanced mobile features');
 
         // Initialize Advanced Mobile Gestures
-        this.advancedMobileGestures = new AdvancedMobileGestures(this.canvas, {
+        this.advancedMobileGestures = new AdvancedMobileGestures(this.canvasManager.canvas, {
           onSwipe: (direction, velocity) => {
             Logger.getInstance().logUserAction(
               `Advanced swipe detected: ${direction} at ${velocity}px/s`
@@ -99,7 +86,7 @@ export class OrganismSimulation {
         });
 
         // Initialize Mobile Visual Effects
-        this.mobileVisualEffects = new MobileVisualEffects(this.context, {
+        this.mobileVisualEffects = new MobileVisualEffects(this.canvasManager.context, {
           quality: 'medium',
           maxParticles: 50,
           enableBloom: true,
@@ -122,7 +109,7 @@ export class OrganismSimulation {
         });
 
         // Initialize Social Manager
-        this.mobileSocialManager = new MobileSocialManager(this.canvas);
+        this.mobileSocialManager = new MobileSocialManager(this.canvasManager.canvas);
 
         // Start tracking user interaction
         this.mobileAnalyticsManager.trackEvent('mobile_features_initialized', {
@@ -250,13 +237,18 @@ export class OrganismSimulation {
    * Toggle UI visibility
    */
   private toggleUI(): void {
-    const controls = document.querySelector('.controls') as HTMLElement;
-    const stats = document.querySelector('.stats') as HTMLElement;
+    const controls = document.querySelector('.controls');
+    const stats = document.querySelector('.stats');
 
     if (controls && stats) {
-      const isHidden = controls.style.display === 'none';
-      controls.style.display = isHidden ? 'block' : 'none';
-      stats.style.display = isHidden ? 'block' : 'none';
+      const isHidden = controls.classList.contains('hidden');
+      if (isHidden) {
+        controls.classList.remove('hidden');
+        stats.classList.remove('hidden');
+      } else {
+        controls.classList.add('hidden');
+        stats.classList.add('hidden');
+      }
     }
   }
 
@@ -281,7 +273,7 @@ export class OrganismSimulation {
       if (this.mobileAnalyticsManager) {
         this.mobileAnalyticsManager.trackEvent('organism_placed', {
           type: this.currentOrganismType,
-          position,
+          position: position,
           method: 'force_touch',
         });
       }
@@ -311,14 +303,14 @@ export class OrganismSimulation {
   }
 
   private initializeEventListeners(): void {
-    this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+    this.canvasManager.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
   }
 
   private logInitialization(): void {
     Logger.getInstance().logSystem('OrganismSimulation initialized successfully', {
       canvasSize: {
-        width: this.canvas.width,
-        height: this.canvas.height,
+        width: this.canvasManager.canvas.width,
+        height: this.canvasManager.canvas.height,
       },
       isMobile: this.mobileCanvasManager.isMobileDevice(),
       advancedMobileFeaturesEnabled: !!this.advancedMobileGestures,
@@ -327,7 +319,7 @@ export class OrganismSimulation {
 
   private handleCanvasClick(event: MouseEvent): void {
     try {
-      const rect = this.canvas.getBoundingClientRect();
+      const rect = this.canvasManager.canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
 
@@ -343,8 +335,8 @@ export class OrganismSimulation {
       for (let i = 0; i < this.maxPopulation; i++) {
         const organism = {
           id: Date.now() + i,
-          x: Math.random() * this.canvas.width,
-          y: Math.random() * this.canvas.height,
+          x: Math.random() * this.canvasManager.canvas.width,
+          y: Math.random() * this.canvasManager.canvas.height,
           type: this.currentOrganismType,
           energy: 50 + Math.random() * 50,
           age: 0,
@@ -399,7 +391,7 @@ export class OrganismSimulation {
       this.pause();
 
       this.organisms = [];
-      this.clearCanvas();
+      this.canvasManager.clear();
       this.currentSpeed = 1;
 
       // Track reset event
@@ -423,15 +415,11 @@ export class OrganismSimulation {
   clear(): void {
     try {
       this.organisms = [];
-      this.clearCanvas();
+      this.canvasManager.clear();
       Logger.getInstance().logSystem('Simulation cleared');
     } catch (error) {
       ErrorHandler.getInstance().handleError(error as Error);
     }
-  }
-
-  private clearCanvas(): void {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   setSpeed(speed: number): void {
@@ -511,19 +499,20 @@ export class OrganismSimulation {
         organism.y += (Math.random() - 0.5) * 2;
 
         // Keep organisms in bounds
-        organism.x = Math.max(0, Math.min(this.canvas.width, organism.x));
-        organism.y = Math.max(0, Math.min(this.canvas.height, organism.y));
+        organism.x = Math.max(0, Math.min(this.canvasManager.canvas.width, organism.x));
+        organism.y = Math.max(0, Math.min(this.canvasManager.canvas.height, organism.y));
       });
 
       // Clear and render
-      this.clearCanvas();
+      this.canvasManager.clear();
 
       // Render organisms
+      const ctx = this.canvasManager.context;
       this.organisms.forEach(organism => {
-        this.context.fillStyle = this.getOrganismColor(organism.type);
-        this.context.beginPath();
-        this.context.arc(organism.x, organism.y, 3, 0, Math.PI * 2);
-        this.context.fill();
+        ctx.fillStyle = this.getOrganismColor(organism.type);
+        ctx.beginPath();
+        ctx.arc(organism.x, organism.y, 3, 0, Math.PI * 2);
+        ctx.fill();
       });
 
       // Render mobile visual effects if available

@@ -84,7 +84,7 @@ export class MobileCanvasManager {
   /**
    * Check if device is mobile
    */
-  private isMobileDevice(): boolean {
+  public isMobileDevice(): boolean {
     return (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
       window.innerWidth < 768
