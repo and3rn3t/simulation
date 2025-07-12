@@ -62,6 +62,7 @@
     "ci:validate": "node scripts/test/validate-pipeline.cjs",
     "ci:validate:enhanced": "node scripts/test/validate-enhanced-pipeline.cjs",
     "security:check": "node scripts/security/security-check.cjs",
+    "security:validate": "node scripts/security/validate-security-workflow.cjs",
     "security:advanced": "npm run security:audit && npm run security:scan && npm run security:check",
     "performance:lighthouse": "lighthouse http://localhost:8080 --output json --output-path lighthouse-report.json",
     "quality:gate": "npm run lint && npm run type-check && npm run test:coverage && npm run security:check",

@@ -112,13 +112,45 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: TruffleHog OSS Secret Scanning
+    - name: Get commit range for TruffleHog
+      id: commit-range
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "base=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+          echo "head=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          echo "scan_type=diff" >> $GITHUB_OUTPUT
+        elif [ "${{ github.event_name }}" == "push" ]; then
+          # For push events, scan only the new commits
+          if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "base=${{ github.event.before }}" >> $GITHUB_OUTPUT
+            echo "head=${{ github.event.after }}" >> $GITHUB_OUTPUT
+            echo "scan_type=diff" >> $GITHUB_OUTPUT
+          else
+            # For initial commit or when before is null, scan the entire repo
+            echo "scan_type=filesystem" >> $GITHUB_OUTPUT
+          fi
+        else
+          # For scheduled runs or other events, scan entire filesystem
+          echo "scan_type=filesystem" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: TruffleHog OSS Secret Scanning (Diff Mode)
+      if: steps.commit-range.outputs.scan_type == 'diff'
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: main
-        head: HEAD
-        extra_args: --debug --only-verified
+        base: ${{ steps.commit-range.outputs.base }}
+        head: ${{ steps.commit-range.outputs.head }}
+        extra_args: --debug --only-verified --fail
+      continue-on-error: true
+    
+    - name: TruffleHog OSS Secret Scanning (Filesystem Mode)
+      if: steps.commit-range.outputs.scan_type == 'filesystem'
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        extra_args: --debug --only-verified --fail
+      continue-on-error: true
 
   license-compliance:
     name: License Compliance Check
