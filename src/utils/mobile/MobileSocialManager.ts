@@ -626,6 +626,16 @@ export class MobileSocialManager {
    * Utility functions
    */
   private async dataURLToBlob(dataURL: string): Promise<Blob> {
+    // Validate that the dataURL is actually a data URL to prevent SSRF
+    if (!dataURL.startsWith('data:')) {
+      throw new Error('Invalid data URL: must start with "data:"');
+    }
+    
+    // Additional validation for image data URLs
+    if (!dataURL.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/)) {
+      throw new Error('Invalid image data URL format');
+    }
+    
     const response = await fetch(dataURL);
     return response.blob();
   }

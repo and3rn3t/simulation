@@ -70,10 +70,29 @@ export class MobileAnalyticsManager {
   }
 
   /**
-   * Generate unique session ID
+   * Generate unique session ID using cryptographically secure random values
    */
   private generateSessionId(): string {
-    return `mobile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+    
+    // Use crypto.getRandomValues for secure random generation
+    const randomBytes = new Uint8Array(6);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(randomBytes);
+    } else {
+      // Fallback for environments without crypto API
+      for (let i = 0; i < randomBytes.length; i++) {
+        randomBytes[i] = Math.floor(Math.random() * 256);
+      }
+    }
+    
+    // Convert to base36 string
+    const randomStr = Array.from(randomBytes)
+      .map(byte => byte.toString(36))
+      .join('')
+      .substr(0, 9);
+    
+    return `mobile_${timestamp}_${randomStr}`;
   }
 
   /**
@@ -578,7 +597,20 @@ export class MobileAnalyticsManager {
 
     // Store in localStorage for offline mode
     const storedEvents = localStorage.getItem('offline_analytics') || '[]';
-    const allEvents = [...JSON.parse(storedEvents), ...events];
+    let parsedEvents: any[] = [];
+    
+    try {
+      parsedEvents = JSON.parse(storedEvents);
+      // Validate that it's actually an array
+      if (!Array.isArray(parsedEvents)) {
+        parsedEvents = [];
+      }
+    } catch (error) {
+      console.warn('Failed to parse stored analytics events, resetting:', error);
+      parsedEvents = [];
+    }
+    
+    const allEvents = [...parsedEvents, ...events];
     localStorage.setItem('offline_analytics', JSON.stringify(allEvents));
   }
 

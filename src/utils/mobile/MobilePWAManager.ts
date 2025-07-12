@@ -271,7 +271,24 @@ export class MobilePWAManager {
       const stored = localStorage.getItem(`offline_${key}`);
       if (!stored) return null;
 
-      const offlineItem = JSON.parse(stored);
+      let offlineItem;
+      try {
+        offlineItem = JSON.parse(stored);
+      } catch (parseError) {
+        console.warn(`Failed to parse offline data for key ${key}:`, parseError);
+        localStorage.removeItem(`offline_${key}`);
+        return null;
+      }
+
+      // Validate the structure of the stored data
+      if (!offlineItem || typeof offlineItem !== 'object' || 
+          typeof offlineItem.expires !== 'number' || 
+          typeof offlineItem.timestamp !== 'number') {
+        console.warn(`Invalid offline data structure for key ${key}`);
+        localStorage.removeItem(`offline_${key}`);
+        return null;
+      }
+
       if (Date.now() > offlineItem.expires) {
         localStorage.removeItem(`offline_${key}`);
         return null;
