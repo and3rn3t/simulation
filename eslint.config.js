@@ -124,10 +124,12 @@ export default [
       'node_modules/**',
       'public/**',
       'src/main-backup.ts',
+      'src/main-leaderboard.ts',
       'src/core/simulation_clean.ts',
       'src/core/simulation_final.ts',
       'src/core/simulation_minimal.ts',
       'src/core/simulation_simple.ts',
+      'src/examples/interactive-examples.ts',
     ],
   },
 ];
