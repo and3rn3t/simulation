@@ -39,5 +39,19 @@
     }
   },
   "include": ["src", "test", "e2e"],
-  "exclude": ["node_modules", "dist", "coverage"]
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "coverage",
+    "src/**/main-backup.ts",
+    "src/**/main-leaderboard.ts",
+    "src/**/simulation_*.ts",
+    "src/examples/interactive-examples.ts",
+    "src/core/simulation.ts",
+    "src/models/unlockables.ts",
+    "src/utils/memory/objectPool.ts",
+    "test/integration/organismSimulation.test.ts",
+    "test/unit/core/organism.test.ts",
+    "test/unit/models/behaviorTypes.test.ts"
+  ]
 }
