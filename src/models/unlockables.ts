@@ -1,5 +1,4 @@
-import type { OrganismType } from './organismTypes';
-import { BehaviorType } from './organismTypes';
+import { BehaviorType, type OrganismType } from './organismTypes';
 
 /**
  * Represents an organism type that can be unlocked through gameplay
@@ -119,10 +118,11 @@ export class UnlockableOrganismManager {
       let shouldUnlock = false;
 
       switch (organism.unlockCondition.type) {
-        case 'achievement':
+        case 'achievement': {
           const achievement = achievements.find(a => a.id === organism.unlockCondition.value);
           shouldUnlock = achievement && achievement.unlocked;
           break;
+        }
         case 'score':
           shouldUnlock = score >= (organism.unlockCondition.value as number);
           break;

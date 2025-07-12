@@ -84,7 +84,7 @@ export class AdvancedMobileGestures {
   /**
    * Handle advanced touch end
    */
-  private handleAdvancedTouchEnd(event: TouchEvent): void {
+  private handleAdvancedTouchEnd(_event: TouchEvent): void {
     // Detect swipe gestures
     if (this.touchHistory.length >= 2) {
       this.detectSwipeGesture();

@@ -50,7 +50,14 @@ export default [
     },
     rules: {
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': 'warn', // Changed from error to warn
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ], // Allow underscore-prefixed unused vars
       '@typescript-eslint/no-explicit-any': 'off', // Disabled for now
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -71,7 +78,6 @@ export default [
       'no-unused-vars': 'off', // Let TypeScript handle this
       'no-redeclare': 'warn', // Changed from error
       'no-case-declarations': 'warn', // Changed from error
-      'no-return-await': 'warn', // Changed from error
 
       // Code complexity rules - very relaxed for now
       complexity: 'off', // Disabled
@@ -112,6 +118,16 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**', 'public/**'],
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      'public/**',
+      'src/main-backup.ts',
+      'src/core/simulation_clean.ts',
+      'src/core/simulation_final.ts',
+      'src/core/simulation_minimal.ts',
+      'src/core/simulation_simple.ts',
+    ],
   },
 ];

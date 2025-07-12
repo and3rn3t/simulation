@@ -1,14 +1,9 @@
 import { BaseComponent } from './BaseComponent';
-import { Button } from './Button';
-import { Panel } from './Panel';
-import { Modal } from './Modal';
-import { Input } from './Input';
-import { Toggle } from './Toggle';
-import type { ButtonConfig } from './Button';
-import type { PanelConfig } from './Panel';
-import type { ModalConfig } from './Modal';
-import type { InputConfig } from './Input';
-import type { ToggleConfig } from './Toggle';
+import { Button, type ButtonConfig } from './Button';
+import { Input, type InputConfig } from './Input';
+import { Modal, type ModalConfig } from './Modal';
+import { Panel, type PanelConfig } from './Panel';
+import { Toggle, type ToggleConfig } from './Toggle';
 
 /**
  * UI Component Factory

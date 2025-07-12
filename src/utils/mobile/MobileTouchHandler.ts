@@ -178,7 +178,7 @@ export class MobileTouchHandler {
   /**
    * Handle touch cancel
    */
-  private handleTouchCancel(event: TouchEvent): void {
+  private handleTouchCancel(_event: TouchEvent): void {
     this.clearLongPressTimer();
     this.isPanning = false;
     this.touches = [];

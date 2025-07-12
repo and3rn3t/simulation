@@ -197,7 +197,7 @@ export class OrganismSimulation extends EventEmitter {
   /**
    * Handle multi-finger gestures
    */
-  private handleMultiFingerGesture(fingerCount: number, center: Position): void {
+  private handleMultiFingerGesture(fingerCount: number, _center: Position): void {
     switch (fingerCount) {
       case 3:
         // Three finger tap - toggle fullscreen
@@ -217,7 +217,7 @@ export class OrganismSimulation extends EventEmitter {
   /**
    * Handle edge swipes
    */
-  private handleEdgeSwipe(edge: string, startPosition: Position): void {
+  private handleEdgeSwipe(edge: string, _startPosition: Position): void {
     switch (edge) {
       case 'left':
         // Show statistics panel

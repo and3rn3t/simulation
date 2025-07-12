@@ -80,7 +80,7 @@ export class MobileTestInterface {
     });
   }
 
-  private updateFeatureStatus(status?: any): void {
+  private updateFeatureStatus(_status?: any): void {
     if (this.simulation?.getMobileFeatureStatus) {
       const featureStatus = this.simulation.getMobileFeatureStatus();
 

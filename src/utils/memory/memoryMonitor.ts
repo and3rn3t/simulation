@@ -1,5 +1,5 @@
-import { log } from '../system/logger';
 import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
+import { log } from '../system/logger';
 
 /**
  * Memory usage information interface
@@ -223,7 +223,7 @@ export class MemoryMonitor {
       try {
         (window as any).gc();
         log.logSystem('Forced garbage collection');
-      } catch (error) {
+      } catch (_error) {
         // Ignore errors
       }
     }

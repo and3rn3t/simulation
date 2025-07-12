@@ -626,7 +626,7 @@ export class OrganismSimulation {
     }
   }
 
-  private placeOrganism(x: number, y: number): void {
+  private placeOrganism(_x: number, _y: number): void {
     // TODO: Implement organism placement
   }
 
@@ -722,7 +722,7 @@ export class OrganismSimulation {
     // TODO: Implement stats update logic
   }
 
-  private updateWithOptimizations(deltaTime: number): void {
+  private updateWithOptimizations(_deltaTime: number): void {
     // TODO: Implement optimized update logic
   }
 

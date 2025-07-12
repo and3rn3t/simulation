@@ -49,7 +49,7 @@ export class MobilePerformanceManager {
 
     // Mobile device optimization
     const memory = (navigator as any).deviceMemory || 4; // GB, fallback to 4GB
-    const cores = navigator.hardwareConcurrency || 4;
+    const _cores = navigator.hardwareConcurrency || 4;
 
     // Calculate based on device specs
     if (memory <= 2) return 200; // Low-end device

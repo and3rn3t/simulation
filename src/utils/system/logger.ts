@@ -16,7 +16,7 @@ export const LogLevel = {
   SYSTEM: 'system',
 } as const;
 
-export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
+export type LogLevelType = (typeof LogLevel)[keyof typeof LogLevel];
 
 /**
  * Log categories for organizing different types of logs
@@ -52,15 +52,15 @@ export const LogCategory = {
   ERROR: 'error',
 } as const;
 
-export type LogCategory = (typeof LogCategory)[keyof typeof LogCategory];
+export type LogCategoryType = (typeof LogCategory)[keyof typeof LogCategory];
 
 /**
  * Structured log entry interface
  */
 export interface LogEntry {
   timestamp: Date;
-  level: LogLevel;
-  category: LogCategory;
+  level: LogLevelType;
+  category: LogCategoryType;
   message: string;
   data?: any;
   context?: string;
@@ -79,7 +79,7 @@ export class Logger {
   private maxLogSize = 1000;
   private sessionId: string;
   private isEnabled = true;
-  private logLevels: Set<LogLevel> = new Set([
+  private logLevels: Set<LogLevelType> = new Set([
     LogLevel.INFO,
     LogLevel.WARN,
     LogLevel.ERROR,
@@ -112,7 +112,13 @@ export class Logger {
   /**
    * Main logging method
    */
-  log(level: LogLevel, category: LogCategory, message: string, data?: any, context?: string): void {
+  log(
+    level: LogLevelType,
+    category: LogCategoryType,
+    message: string,
+    data?: any,
+    context?: string
+  ): void {
     if (!this.isEnabled || !this.logLevels.has(level)) {
       return;
     }
@@ -276,14 +282,14 @@ export class Logger {
   /**
    * Get logs by category
    */
-  getLogsByCategory(category: LogCategory): LogEntry[] {
+  getLogsByCategory(category: LogCategoryType): LogEntry[] {
     return this.logs.filter(log => log.category === category);
   }
 
   /**
    * Get logs by level
    */
-  getLogsByLevel(level: LogLevel): LogEntry[] {
+  getLogsByLevel(level: LogLevelType): LogEntry[] {
     return this.logs.filter(log => log.level === level);
   }
 
@@ -304,7 +310,7 @@ export class Logger {
   /**
    * Set which log levels to output
    */
-  setLogLevels(levels: LogLevel[]): void {
+  setLogLevels(levels: LogLevelType[]): void {
     this.logLevels = new Set(levels);
   }
 

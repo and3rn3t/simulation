@@ -495,10 +495,11 @@ export class MobileSocialManager {
       case 'email':
         window.location.href = `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`;
         break;
-      case 'download':
+      case 'download': {
         const screenshot = await this.captureCanvas();
         this.downloadImage(screenshot, 'simulation.png');
         break;
+      }
     }
 
     this.trackShareEvent(platform, 'success');

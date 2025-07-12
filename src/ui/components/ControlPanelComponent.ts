@@ -1,5 +1,4 @@
-import { Panel, Button, ComponentFactory } from './index';
-import type { PanelConfig } from './index';
+import { Button, ComponentFactory, Panel, type PanelConfig } from './index';
 
 export interface ControlPanelConfig {
   title?: string;

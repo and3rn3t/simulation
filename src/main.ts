@@ -203,7 +203,7 @@ function initializeSimulation(): void {
     simulation = new OrganismSimulation(canvas);
 
     // Initialize mobile test interface for mobile devices
-    const mobileTestInterface = new MobileTestInterface(simulation);
+    const _mobileTestInterface = new MobileTestInterface(simulation);
 
     // Setup simulation controls
     setupSimulationControls();

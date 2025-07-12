@@ -182,7 +182,7 @@ export class OrganismSimulation {
   /**
    * Handle multi-finger gestures
    */
-  private handleMultiFingerGesture(fingerCount: number, center: Position): void {
+  private handleMultiFingerGesture(fingerCount: number, _center: Position): void {
     switch (fingerCount) {
       case 3:
         // Three finger tap - toggle fullscreen
@@ -581,7 +581,7 @@ export class OrganismSimulation {
   /**
    * Capture and share simulation state
    */
-  async captureAndShare(options?: { includeVideo?: boolean }): Promise<void> {
+  async captureAndShare(_options?: { includeVideo?: boolean }): Promise<void> {
     if (this.mobileSocialManager) {
       try {
         const screenshot = await this.mobileSocialManager.captureScreenshot();
