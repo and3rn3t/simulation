@@ -1,29 +1,33 @@
-import { Organism } from './organism';
-import type { OrganismType } from '../models/organismTypes';
 import { ACHIEVEMENTS, type Achievement } from '../features/achievements';
 import { CHALLENGES } from '../features/challenges';
-import type { GameStats } from '../types/gameTypes';
+import type { OrganismType } from '../models/organismTypes';
 import { UNLOCKABLE_ORGANISMS } from '../models/unlockables';
-import { CanvasUtils } from '../utils/canvas/canvasUtils';
+import type { GameStats } from '../types/gameTypes';
 import { showNotification } from '../ui/domHelpers';
 import {
-  ErrorHandler,
-  ErrorSeverity,
-  CanvasError,
-  ConfigurationError,
-  SimulationError,
-} from '../utils/system/errorHandler';
-import { log, perf } from '../utils/system/logger';
-import { CanvasManager } from '../utils/canvas/canvasManager';
-import { OrganismPool, MemoryMonitor, OrganismSoA } from '../utils/memory';
-import {
-  SpatialPartitioningManager,
   AdaptiveBatchProcessor,
   PopulationPredictor,
+  SpatialPartitioningManager,
   algorithmWorkerManager,
   type EnvironmentalFactors,
   type PopulationPrediction,
 } from '../utils/algorithms';
+import { CanvasManager } from '../utils/canvas/canvasManager';
+import { CanvasUtils } from '../utils/canvas/canvasUtils';
+import { MemoryMonitor, OrganismPool, OrganismSoA } from '../utils/memory';
+import { MobileCanvasManager } from '../utils/mobile/MobileCanvasManager';
+import { MobilePerformanceManager } from '../utils/mobile/MobilePerformanceManager';
+import { MobileTouchHandler } from '../utils/mobile/MobileTouchHandler';
+import { MobileUIEnhancer } from '../utils/mobile/MobileUIEnhancer';
+import {
+  CanvasError,
+  ConfigurationError,
+  ErrorHandler,
+  ErrorSeverity,
+  SimulationError,
+} from '../utils/system/errorHandler';
+import { log, perf } from '../utils/system/logger';
+import { Organism } from './organism';
 
 /**
  * Main simulation class that manages organisms, rendering, and game state
@@ -103,6 +107,12 @@ export class OrganismSimulation {
     pH: 0.5,
   };
 
+  // Mobile optimizations
+  private mobileCanvasManager?: MobileCanvasManager;
+  private mobileTouchHandler?: MobileTouchHandler;
+  private mobilePerformanceManager: MobilePerformanceManager;
+  private mobileUIEnhancer?: MobileUIEnhancer;
+
   /**
    * Creates a new simulation instance
    * @param canvas - HTML canvas element for rendering
@@ -179,6 +189,13 @@ export class OrganismSimulation {
       algorithmWorkerManager.initialize().catch(error => {
         console.warn('Failed to initialize algorithm workers:', error);
       });
+
+      // Initialize mobile optimizations
+      this.mobilePerformanceManager = new MobilePerformanceManager();
+      this.initializeMobileOptimizations();
+
+      // Initialize mobile UI enhancements
+      this.mobileUIEnhancer = new MobileUIEnhancer();
 
       this.initializeBackground();
 
@@ -410,6 +427,12 @@ export class OrganismSimulation {
     if (!this.isRunning) return;
 
     try {
+      // Check if we should skip this frame for mobile performance
+      if (this.mobilePerformanceManager.shouldSkipFrame()) {
+        requestAnimationFrame(() => this.animate());
+        return;
+      }
+
       this.update();
       this.draw();
       this.updateStats();
@@ -1213,5 +1236,148 @@ export class OrganismSimulation {
       batchProcessor: this.batchProcessor.getPerformanceStats(),
       workerManager: algorithmWorkerManager.getPerformanceStats(),
     };
+  }
+
+  /**
+   * Initialize mobile-specific optimizations
+   */
+  private initializeMobileOptimizations(): void {
+    try {
+      // Setup responsive canvas management
+      this.mobileCanvasManager = new MobileCanvasManager(this.canvas);
+
+      // Setup advanced touch gestures
+      this.mobileTouchHandler = new MobileTouchHandler(this.canvas, {
+        onTap: (x, y) => {
+          if (this.placementMode) {
+            this.placeOrganismAtPosition(x, y);
+          }
+        },
+        onDoubleTap: (x, y) => {
+          // Double tap to place multiple organisms
+          if (this.placementMode) {
+            this.placeOrganismCluster(x, y, 3);
+          }
+        },
+        onLongPress: (x, y) => {
+          // Long press to place premium organism
+          if (this.placementMode) {
+            this.placeOrganismAtPosition(x, y);
+            showNotification('Organism placed! 🧬', 'success');
+          }
+        },
+        onPinch: (scale, centerX, centerY) => {
+          // Future: Implement zoom functionality
+          console.log(`Pinch gesture: scale=${scale} at (${centerX}, ${centerY})`);
+        },
+        onPan: (deltaX, deltaY) => {
+          // Future: Implement pan functionality for large simulations
+          console.log(`Pan gesture: delta=(${deltaX}, ${deltaY})`);
+        },
+      });
+
+      // Apply mobile performance settings
+      const performanceConfig = this.mobilePerformanceManager.getConfig();
+      this.maxPopulation = Math.min(this.maxPopulation, performanceConfig.maxOrganisms);
+
+      // Listen for canvas resize events
+      this.canvas.addEventListener('canvasResize', () => {
+        // Reinitialize background for new canvas size
+        this.initializeBackground();
+      });
+
+      log.logSystem('Mobile optimizations initialized', {
+        maxOrganisms: performanceConfig.maxOrganisms,
+        targetFPS: performanceConfig.targetFPS,
+        batterySaverMode: performanceConfig.batterySaverMode,
+      });
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error('Failed to initialize mobile optimizations'),
+        ErrorSeverity.MEDIUM,
+        'Mobile optimization setup'
+      );
+    }
+  }
+
+  /**
+   * Place organism at specific position (mobile-optimized)
+   */
+  private placeOrganismAtPosition(x: number, y: number): void {
+    try {
+      if (this.organisms.length >= this.maxPopulation) {
+        showNotification('Population limit reached! 🚫', 'warning');
+        return;
+      }
+
+      const organism = this.createOrganism(x, y, this.selectedOrganismType);
+      this.organisms.push(organism);
+      this.draw();
+
+      // Haptic feedback is handled by MobileTouchHandler
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error('Failed to place organism'),
+        ErrorSeverity.MEDIUM,
+        'Mobile organism placement'
+      );
+    }
+  }
+
+  /**
+   * Place a cluster of organisms (for double-tap)
+   */
+  private placeOrganismCluster(centerX: number, centerY: number, count: number): void {
+    try {
+      if (this.organisms.length + count > this.maxPopulation) {
+        showNotification('Not enough space for cluster! 🚫', 'warning');
+        return;
+      }
+
+      const radius = 20;
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * 2 * Math.PI;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+
+        // Check bounds
+        if (x >= 0 && x < this.canvas.width && y >= 0 && y < this.canvas.height) {
+          const organism = this.createOrganism(x, y, this.selectedOrganismType);
+          this.organisms.push(organism);
+        }
+      }
+
+      this.draw();
+      showNotification(`Placed ${count} organisms! 🧬`, 'success');
+    } catch (error) {
+      ErrorHandler.getInstance().handleError(
+        error instanceof Error ? error : new Error('Failed to place organism cluster'),
+        ErrorSeverity.MEDIUM,
+        'Mobile cluster placement'
+      );
+    }
+  }
+
+  public destroy(): void {
+    // Return all organisms to pool
+    this.organisms.forEach(organism => this.destroyOrganism(organism));
+    this.organisms = [];
+
+    // Cleanup memory management
+    this.organismPool.clear();
+    this.organismSoA.clear();
+
+    // Stop memory monitoring
+    this.memoryMonitor.stopMonitoring();
+
+    // Remove canvas event listeners
+    this.canvas.removeEventListener('click', this.placeOrganism);
+    this.canvas.removeEventListener('mousemove', this.showPreview);
+    this.canvas.removeEventListener('touchstart', this.placeOrganismTouch);
+    this.canvas.removeEventListener('touchmove', this.showPreviewTouch);
+    this.canvas.removeEventListener('contextmenu', e => e.preventDefault());
+
+    // Destroy mobile UI enhancer
+    this.mobileUIEnhancer?.destroy();
   }
 }
