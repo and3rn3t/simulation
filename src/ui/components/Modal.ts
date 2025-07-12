@@ -219,7 +219,7 @@ export class Modal extends BaseComponent {
     this.element.setAttribute('aria-modal', 'true');
     this.element.setAttribute('tabindex', '-1');
 
-    if (this.config.title) {
+    if (this.config && this.config.title) {
       this.element.setAttribute('aria-labelledby', 'modal-title');
     }
   }

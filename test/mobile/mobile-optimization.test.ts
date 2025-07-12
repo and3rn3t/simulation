@@ -179,6 +179,10 @@ describe('Mobile Performance Manager', () => {
     performanceManager = new MobilePerformanceManager();
   });
 
+  afterEach(() => {
+    performanceManager.destroy();
+  });
+
   it('should adjust quality based on FPS', () => {
     // Test that performance manager has proper config
     const config = performanceManager.getConfig();

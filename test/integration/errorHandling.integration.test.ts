@@ -1,8 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrganismSimulation } from '../../src/core/simulation';
-import { ORGANISM_TYPES } from '../../src/models/organismTypes';
 import { ErrorHandler } from '../../src/utils/system/errorHandler';
-import { CanvasManager } from '../../src/utils/canvas/canvasManager';
 
 // Mock HTML elements for testing
 const mockCanvas = {
@@ -79,6 +77,13 @@ describe('Error Handling Integration', () => {
     const container = document.createElement('div');
     container.id = 'canvas-container';
     document.body.appendChild(container);
+
+    // Create the canvas element that OrganismSimulation expects
+    const canvas = document.createElement('canvas');
+    canvas.id = 'simulation-canvas';
+    canvas.width = 800;
+    canvas.height = 600;
+    container.appendChild(canvas);
   });
 
   afterEach(() => {
@@ -90,7 +95,7 @@ describe('Error Handling Integration', () => {
 
   it('should handle invalid canvas gracefully', () => {
     expect(() => {
-      new OrganismSimulation(null as any, ORGANISM_TYPES.bacteria);
+      new OrganismSimulation(null as any);
     }).toThrow();
 
     const errors = errorHandler.getRecentErrors();
@@ -100,7 +105,7 @@ describe('Error Handling Integration', () => {
 
   it('should handle invalid organism type gracefully', () => {
     expect(() => {
-      new OrganismSimulation(mockCanvas, null as any);
+      new OrganismSimulation(mockCanvas);
     }).toThrow();
 
     const errors = errorHandler.getRecentErrors();
@@ -109,7 +114,7 @@ describe('Error Handling Integration', () => {
   });
 
   it('should handle invalid speed values', () => {
-    const simulation = new OrganismSimulation(mockCanvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(mockCanvas);
 
     simulation.setSpeed(-1); // Invalid speed
     simulation.setSpeed(15); // Invalid speed
@@ -121,7 +126,7 @@ describe('Error Handling Integration', () => {
   });
 
   it('should handle invalid population limits', () => {
-    const simulation = new OrganismSimulation(mockCanvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(mockCanvas);
 
     simulation.setMaxPopulation(0); // Invalid limit
     simulation.setMaxPopulation(10000); // Invalid limit
@@ -133,7 +138,7 @@ describe('Error Handling Integration', () => {
   });
 
   it('should continue working despite minor errors', () => {
-    const simulation = new OrganismSimulation(mockCanvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(mockCanvas);
 
     // These should not crash the simulation
     simulation.setSpeed(-1);
@@ -147,7 +152,7 @@ describe('Error Handling Integration', () => {
   });
 
   it('should provide error statistics', () => {
-    const simulation = new OrganismSimulation(mockCanvas, ORGANISM_TYPES.bacteria);
+    const simulation = new OrganismSimulation(mockCanvas);
 
     // Generate some errors
     simulation.setSpeed(-1);

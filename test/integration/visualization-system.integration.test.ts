@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the required services and components
 vi.mock('../../src/services/UserPreferencesManager', () => ({
@@ -21,16 +21,7 @@ vi.mock('../../src/services/UserPreferencesManager', () => ({
   },
 }));
 
-vi.mock('chart.js', () => ({
-  Chart: vi.fn().mockImplementation(() => ({
-    destroy: vi.fn(),
-    update: vi.fn(),
-    resize: vi.fn(),
-    data: { labels: [], datasets: [] },
-    options: {},
-  })),
-  registerables: [],
-}));
+// Use the global Chart.js mock from setup.ts - no local override needed
 
 vi.mock('chartjs-adapter-date-fns', () => ({}));
 
@@ -38,7 +29,22 @@ describe('Visualization System Integration Tests', () => {
   let mockCanvas: HTMLCanvasElement;
 
   beforeEach(() => {
-    // Mock canvas element
+    // Ensure window.matchMedia is mocked
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    // Mock canvas element for Chart.js
     mockCanvas = {
       getContext: vi.fn(() => ({
         clearRect: vi.fn(),
@@ -60,14 +66,83 @@ describe('Visualization System Integration Tests', () => {
       })),
     } as any;
 
-    // Mock document.createElement
+    // Ensure global createElement mock returns our specific canvas
     const originalCreateElement = document.createElement;
-    document.createElement = vi.fn().mockImplementation((tagName: string) => {
-      if (tagName === 'canvas') {
-        return mockCanvas;
-      }
-      return originalCreateElement.call(document, tagName);
-    });
+    document.createElement = vi
+      .fn()
+      .mockImplementation((tagName: string, options?: ElementCreationOptions) => {
+        const element = originalCreateElement.call(document, tagName, options);
+
+        if (!element) {
+          // If element creation failed, create a basic mock element
+          const mockElement = {
+            tagName: tagName.toUpperCase(),
+            className: '',
+            innerHTML: '',
+            style: {},
+            appendChild: vi.fn(),
+            removeChild: vi.fn(),
+            querySelector: vi.fn(selector => {
+              if (selector === 'canvas' || selector === '.heatmap-canvas') return mockCanvas;
+              return null;
+            }),
+            querySelectorAll: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+            setAttribute: vi.fn(),
+            getAttribute: vi.fn(),
+            hasAttribute: vi.fn(),
+            removeAttribute: vi.fn(),
+            getBoundingClientRect: vi.fn(() => ({ left: 0, top: 0, width: 0, height: 0 })),
+            parentNode: null,
+            children: [],
+            hasOwnProperty: function (prop) {
+              return prop in this;
+            },
+          } as any;
+
+          if (tagName === 'canvas') {
+            Object.assign(mockElement, mockCanvas);
+          }
+
+          return mockElement;
+        }
+
+        if (tagName === 'canvas') {
+          // Copy our mock canvas properties to the real element
+          Object.assign(element, mockCanvas);
+        }
+
+        // Ensure all elements have querySelector that returns canvas
+        if (element && typeof element.querySelector !== 'function') {
+          element.querySelector = vi.fn(selector => {
+            if (selector === 'canvas' || selector === '.heatmap-canvas') return mockCanvas;
+            return null;
+          });
+        } else if (element && element.querySelector) {
+          const originalQuerySelector = element.querySelector.bind(element);
+          element.querySelector = vi.fn(selector => {
+            if (selector === 'canvas' || selector === '.heatmap-canvas') return mockCanvas;
+            return originalQuerySelector(selector);
+          });
+        }
+
+        // Ensure all elements have proper property setters (from global setup)
+        if (element && !element.hasOwnProperty('className')) {
+          Object.defineProperty(element, 'className', {
+            get: function () {
+              return this._className || '';
+            },
+            set: function (value) {
+              this._className = value;
+            },
+            configurable: true,
+          });
+        }
+
+        return element;
+      });
   });
 
   afterEach(() => {

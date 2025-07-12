@@ -26,8 +26,9 @@ describe('OrganismSimulation', () => {
     mockCanvasContainer.id = 'canvas-container';
     document.body.appendChild(mockCanvasContainer);
 
-    // Create a mock canvas element with proper methods
+    // Create a mock canvas element with proper methods and correct ID
     mockCanvas = document.createElement('canvas');
+    mockCanvas.id = 'simulation-canvas'; // Add the expected ID
     mockCanvas.width = 800;
     mockCanvas.height = 600;
 

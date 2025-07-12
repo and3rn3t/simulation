@@ -12,7 +12,10 @@ export interface MobilePerformanceConfig {
 }
 
 export class MobilePerformanceManager {
+  private static instance: MobilePerformanceManager | null = null;
   private config: MobilePerformanceConfig;
+  private performanceMonitoringId: number | null = null;
+  private isDestroyed = false;
   private frameTime: number = 0;
   private lastFrameTime: number = 0;
   private frameSkipCounter: number = 0;
@@ -137,10 +140,12 @@ export class MobilePerformanceManager {
         this.adjustPerformanceForFPS(fps);
       }
 
-      requestAnimationFrame(measurePerformance);
+      if (!this.isDestroyed) {
+        this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
+      }
     };
 
-    requestAnimationFrame(measurePerformance);
+    this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
   }
 
   /**
@@ -264,5 +269,16 @@ export class MobilePerformanceManager {
       userAgent: navigator.userAgent,
       currentConfig: this.config,
     };
+  }
+
+  /**
+   * Stop performance monitoring and cleanup resources
+   */
+  public destroy(): void {
+    this.isDestroyed = true;
+    if (this.performanceMonitoringId) {
+      cancelAnimationFrame(this.performanceMonitoringId);
+      this.performanceMonitoringId = null;
+    }
   }
 }
