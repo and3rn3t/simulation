@@ -30,32 +30,52 @@ jobs:
       timeout-minutes: 10
       continue-on-error: true
     
-    - name: Run unit tests
-      run: npm run test:coverage
+    - name: Run unit tests with coverage
+      run: npm run test:coverage -- --reporter=verbose
       timeout-minutes: 15
       continue-on-error: true
 
     - name: Verify coverage files
       run: |
         echo "📊 Checking coverage files..."
-        if [ -f "./coverage/lcov.info" ]; then
-          echo "✅ LCOV coverage file found"
-          echo "📈 Coverage file size: $(du -h ./coverage/lcov.info | cut -f1)"
-        else
-          echo "❌ LCOV coverage file not found"
-        fi
         
+        # Check if coverage directory exists
         if [ -d "./coverage" ]; then
+          echo "✅ Coverage directory found"
           echo "📁 Coverage directory contents:"
           ls -la ./coverage/
+          
+          # Check specific files
+          if [ -f "./coverage/lcov.info" ]; then
+            echo "✅ LCOV coverage file found"
+            echo "📈 LCOV file size: $(du -h ./coverage/lcov.info | cut -f1)"
+            echo "📄 First few lines of LCOV file:"
+            head -10 ./coverage/lcov.info
+          else
+            echo "❌ LCOV coverage file not found"
+          fi
+          
+          if [ -f "./coverage/coverage-final.json" ]; then
+            echo "✅ JSON coverage file found"
+            echo "📈 JSON file size: $(du -h ./coverage/coverage-final.json | cut -f1)"
+          else
+            echo "❌ JSON coverage file not found"
+          fi
         else
           echo "❌ Coverage directory not found"
+          echo "📂 Current directory contents:"
+          ls -la ./
         fi
+        
+        # Check if test command worked
+        echo "🧪 Test exit code was: $?"
     
     - name: Upload coverage to Codecov
+      if: always()
       uses: codecov/codecov-action@v4
       with:
         files: ./coverage/lcov.info,./coverage/coverage-final.json
+        directory: ./coverage
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
