@@ -303,6 +303,23 @@ export class QuadTree {
   }
 
   /**
+   * Gets the total number of nodes in this quadtree and all children
+   * @returns Total node count
+   */
+  getNodeCount(): number {
+    let count = 1; // This node
+
+    if (this.divided) {
+      count += this.northeast!.getNodeCount();
+      count += this.northwest!.getNodeCount();
+      count += this.southeast!.getNodeCount();
+      count += this.southwest!.getNodeCount();
+    }
+
+    return count;
+  }
+
+  /**
    * Gets debug information about the quadtree structure
    * @returns Object containing debug information
    */
@@ -312,6 +329,7 @@ export class QuadTree {
       organismCount: this.organisms.length,
       divided: this.divided,
       totalOrganisms: this.getOrganismCount(),
+      totalNodes: this.getNodeCount(),
       children: this.divided
         ? {
             northeast: this.northeast!.getDebugInfo(),
@@ -332,6 +350,9 @@ export class SpatialPartitioningManager {
   private canvasWidth: number;
   private canvasHeight: number;
   private capacity: number;
+  private lastRebuildTime: number = 0;
+  private rebuildTimes: number[] = [];
+  private totalRebuildOperations: number = 0;
 
   /**
    * Creates a new spatial partitioning manager
@@ -356,6 +377,8 @@ export class SpatialPartitioningManager {
    */
   rebuild(organisms: Organism[]): void {
     try {
+      const startTime = performance.now();
+
       this.quadTree.clear();
       this.quadTree = new QuadTree(
         { x: 0, y: 0, width: this.canvasWidth, height: this.canvasHeight },
@@ -364,6 +387,17 @@ export class SpatialPartitioningManager {
 
       for (const organism of organisms) {
         this.quadTree.insert(organism);
+      }
+
+      // Track performance metrics
+      const rebuildTime = performance.now() - startTime;
+      this.lastRebuildTime = rebuildTime;
+      this.rebuildTimes.push(rebuildTime);
+      this.totalRebuildOperations++;
+
+      // Keep only the last 100 rebuild times for average calculation
+      if (this.rebuildTimes.length > 100) {
+        this.rebuildTimes.shift();
       }
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -403,10 +437,21 @@ export class SpatialPartitioningManager {
    * @returns Object containing debug information
    */
   getDebugInfo(): any {
+    const quadTreeDebug = this.quadTree.getDebugInfo();
+    const averageRebuildTime =
+      this.rebuildTimes.length > 0
+        ? this.rebuildTimes.reduce((sum, time) => sum + time, 0) / this.rebuildTimes.length
+        : 0;
+
     return {
       canvasSize: { width: this.canvasWidth, height: this.canvasHeight },
       capacity: this.capacity,
-      quadTree: this.quadTree.getDebugInfo(),
+      totalNodes: quadTreeDebug.totalNodes,
+      totalElements: quadTreeDebug.totalOrganisms,
+      lastRebuildTime: this.lastRebuildTime,
+      averageRebuildTime,
+      totalRebuildOperations: this.totalRebuildOperations,
+      quadTree: quadTreeDebug,
     };
   }
 }

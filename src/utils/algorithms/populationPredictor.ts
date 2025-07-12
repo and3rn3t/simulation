@@ -308,6 +308,11 @@ export class PopulationPredictor {
    * @returns Confidence score (0-1)
    */
   private calculateConfidence(organisms: Organism[]): number {
+    // No organisms = no confidence
+    if (organisms.length === 0) {
+      return 0;
+    }
+
     let confidence = 0.5; // Base confidence
 
     // More organisms = higher confidence

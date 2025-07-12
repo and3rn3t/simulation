@@ -410,9 +410,10 @@ export class OrganismSimulation {
         });
       }
 
-      if (wasRunning) {
-        this.start();
-      }
+      // Reset should leave the simulation in stopped state
+      // if (wasRunning) {
+      //   this.start();
+      // }
 
       Logger.getInstance().logSystem('Simulation reset');
     } catch (error) {
@@ -478,6 +479,9 @@ export class OrganismSimulation {
           this.organisms.reduce((sum, org) => sum + org.energy, 0) /
           Math.max(this.organisms.length, 1),
         time: performance.now(),
+        generation: 0,
+        isRunning: this.isRunning,
+        placementMode: !this.isRunning,
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(error as Error);
@@ -488,6 +492,9 @@ export class OrganismSimulation {
         averageAge: 0,
         averageEnergy: 0,
         time: 0,
+        generation: 0,
+        isRunning: false,
+        placementMode: true,
       };
     }
   }

@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { StatisticsManager } from '../../../src/utils/game/statisticsManager';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as domHelpers from '../../../src/ui/domHelpers';
+import { StatisticsManager } from '../../../src/utils/game/statisticsManager';
 
 // Mock domHelpers
-vi.mock('../src/ui/domHelpers', () => ({
+vi.mock('../../../src/ui/domHelpers', () => ({
   updateElementText: vi.fn(),
 }));
 
