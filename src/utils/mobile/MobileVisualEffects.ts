@@ -1,3 +1,5 @@
+import { isMobileDevice } from '../system/mobileDetection';
+
 /**
  * Mobile Visual Effects - Optimized visual effects for mobile devices
  */
@@ -39,9 +41,7 @@ export class MobileVisualEffects {
    * Get optimal particle count based on device
    */
   private getOptimalParticleCount(): number {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
     if (!isMobile) return 50;
 
     // Mobile optimization
@@ -55,9 +55,7 @@ export class MobileVisualEffects {
    * Determine if blur effects should be enabled
    */
   private shouldEnableBlur(): boolean {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
     if (!isMobile) return true;
 
     // Disable blur on older/slower devices
@@ -69,9 +67,7 @@ export class MobileVisualEffects {
    * Determine if glow effects should be enabled
    */
   private shouldEnableGlow(): boolean {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
     if (!isMobile) return true;
 
     // Enable glow on mid-range+ devices
@@ -83,9 +79,7 @@ export class MobileVisualEffects {
    * Determine if trail effects should be enabled
    */
   private shouldEnableTrails(): boolean {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
     return !isMobile || this.config.quality !== 'low';
   }
 
@@ -93,9 +87,7 @@ export class MobileVisualEffects {
    * Get optimal quality setting
    */
   private getOptimalQuality(): 'low' | 'medium' | 'high' {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
     if (!isMobile) return 'high';
 
     const memory = (navigator as any).deviceMemory || 4;

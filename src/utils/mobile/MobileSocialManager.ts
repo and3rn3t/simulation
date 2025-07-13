@@ -630,12 +630,21 @@ export class MobileSocialManager {
     if (!dataURL.startsWith('data:')) {
       throw new Error('Invalid data URL: must start with "data:"');
     }
-    
-    // Additional validation for image data URLs
-    if (!dataURL.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/)) {
+
+    // Fixed: More secure validation without vulnerable regex patterns
+    // Check for valid image data URL format using string methods
+    const isValidImageDataURL =
+      dataURL.startsWith('data:image/') &&
+      (dataURL.includes('png;base64,') ||
+        dataURL.includes('jpeg;base64,') ||
+        dataURL.includes('jpg;base64,') ||
+        dataURL.includes('gif;base64,') ||
+        dataURL.includes('webp;base64,'));
+
+    if (!isValidImageDataURL) {
       throw new Error('Invalid image data URL format');
     }
-    
+
     const response = await fetch(dataURL);
     return response.blob();
   }

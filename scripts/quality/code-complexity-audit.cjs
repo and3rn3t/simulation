@@ -121,7 +121,8 @@ function calculateCyclomaticComplexity(functionCode) {
     /\bcase\s+/g, // case statements
     /\bcatch\s*\(/g, // catch blocks
     /\bdo\s*{/g, // do-while loops
-    /\?\s*.*?\s*:/g, // ternary operators
+    // Fixed: More efficient ternary operator detection without nested quantifiers
+    /\?\s*[^:]*:/g, // ternary operators - simplified to avoid ReDoS
     /&&/g, // logical AND
     /\|\|/g, // logical OR
   ];

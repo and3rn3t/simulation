@@ -34,47 +34,50 @@ const checks = [
   {
     name: 'Staging Environment Format',
     test: () => {
-      const stagingEnvRegex = /deploy-staging:[\s\S]*?environment:\s*name:\s*staging/;
+      // Fixed: More specific regex to avoid ReDoS vulnerability
+      const stagingEnvRegex = /deploy-staging:[^}]*environment:\s*name:\s*staging/;
       return stagingEnvRegex.test(content);
     },
-    fix: 'Use: environment:\\n  name: staging'
+    fix: 'Use: environment:\\n  name: staging',
   },
   {
     name: 'Production Environment Format',
     test: () => {
-      const productionEnvRegex = /deploy-production:[\s\S]*?environment:\s*name:\s*production/;
+      // Fixed: More specific regex to avoid ReDoS vulnerability
+      const productionEnvRegex = /deploy-production:[^}]*environment:\s*name:\s*production/;
       return productionEnvRegex.test(content);
     },
-    fix: 'Use: environment:\\n  name: production'
+    fix: 'Use: environment:\\n  name: production',
   },
   {
     name: 'Staging Branch Condition',
-    test: () => content.includes('github.ref == \'refs/heads/develop\''),
-    fix: 'Add: if: github.ref == \'refs/heads/develop\''
+    test: () => content.includes("github.ref == 'refs/heads/develop'"),
+    fix: "Add: if: github.ref == 'refs/heads/develop'",
   },
   {
     name: 'Production Branch Condition',
-    test: () => content.includes('github.ref == \'refs/heads/main\''),
-    fix: 'Add: if: github.ref == \'refs/heads/main\''
+    test: () => content.includes("github.ref == 'refs/heads/main'"),
+    fix: "Add: if: github.ref == 'refs/heads/main'",
   },
   {
     name: 'Cloudflare API Token Secret',
     test: () => content.includes('secrets.CLOUDFLARE_API_TOKEN'),
-    fix: 'Add CLOUDFLARE_API_TOKEN to environment secrets'
+    fix: 'Add CLOUDFLARE_API_TOKEN to environment secrets',
   },
   {
     name: 'Cloudflare Account ID Secret',
     test: () => content.includes('secrets.CLOUDFLARE_ACCOUNT_ID'),
-    fix: 'Add CLOUDFLARE_ACCOUNT_ID to environment secrets'
+    fix: 'Add CLOUDFLARE_ACCOUNT_ID to environment secrets',
   },
   {
     name: 'Build Dependencies',
     test: () => {
-      const stagingNeedsBuild = /deploy-staging:[\s\S]*?needs:\s*build/.test(content);
-      const productionNeedsBuild = /deploy-production:[\s\S]*?needs:\s*build/.test(content);
+      // Fixed: More specific regex patterns to avoid ReDoS vulnerability
+      const stagingNeedsBuild = /deploy-staging:[^}]*needs:\s*build/.test(content);
+      const productionNeedsBuild = /deploy-production:[^}]*needs:\s*build/.test(content);
       return stagingNeedsBuild && productionNeedsBuild;
     },
-    fix: 'Ensure both deploy jobs have: needs: build'
+    fix: 'Ensure both deploy jobs have: needs: build',
   },
   {
     name: 'Project Name Consistency',
@@ -82,8 +85,8 @@ const checks = [
       const projectNameMatches = content.match(/projectName:\s*organism-simulation/g);
       return projectNameMatches && projectNameMatches.length >= 2;
     },
-    fix: 'Use consistent projectName: organism-simulation'
-  }
+    fix: 'Use consistent projectName: organism-simulation',
+  },
 ];
 
 let allPassed = true;

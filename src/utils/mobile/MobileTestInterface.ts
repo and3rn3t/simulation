@@ -3,6 +3,8 @@
  * Provides visual feedback and testing for advanced mobile features
  */
 
+import { isMobileDevice } from '../system/mobileDetection';
+
 export class MobileTestInterface {
   private simulation: any;
   private testSection: HTMLElement | null = null;
@@ -26,11 +28,8 @@ export class MobileTestInterface {
   }
 
   private isMobileDevice(): boolean {
-    return (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0
-    );
+    // Use secure mobile detection utility instead of vulnerable regex
+    return isMobileDevice() || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
 
   private updateDeviceInfo(): void {

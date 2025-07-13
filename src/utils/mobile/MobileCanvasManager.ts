@@ -1,3 +1,5 @@
+import { isMobileDevice } from '../system/mobileDetection';
+
 /**
  * Mobile Canvas Manager - Handles responsive canvas sizing and mobile optimizations
  */
@@ -85,10 +87,7 @@ export class MobileCanvasManager {
    * Check if device is mobile
    */
   public isMobileDevice(): boolean {
-    return (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      window.innerWidth < 768
-    );
+    return isMobileDevice() || window.innerWidth < 768;
   }
 
   /**

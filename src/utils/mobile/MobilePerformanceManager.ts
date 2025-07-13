@@ -1,3 +1,5 @@
+import { isMobileDevice } from '../system/mobileDetection';
+
 /**
  * Mobile Performance Manager - Optimizes simulation performance for mobile devices
  */
@@ -41,9 +43,7 @@ export class MobilePerformanceManager {
    * Get optimal organism count based on device capabilities
    */
   private getOptimalOrganismCount(): number {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return 1000; // Desktop default
 
@@ -62,9 +62,7 @@ export class MobilePerformanceManager {
    * Get optimal target FPS based on device and battery
    */
   private getOptimalTargetFPS(): number {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return 60; // Desktop default
 
@@ -82,9 +80,7 @@ export class MobilePerformanceManager {
    * Check if effects should be reduced
    */
   private shouldReduceEffects(): boolean {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return false;
 
