@@ -23,7 +23,7 @@ jobs:
       
       - name: Auto-assign issues to project
         if: github.event.action == 'opened' && github.event_name == 'issues'
-        uses: actions/add-to-project@v0.5.0
+        uses: actions/add-to-project@v0.6.1
         with:
           project-url: https://github.com/users/and3rn3t/projects/1
           github-token: ${{ secrets.GITHUB_TOKEN }}
