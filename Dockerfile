@@ -12,13 +12,21 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Copy package files
-COPY --chown=nextjs:nodejs package*.json ./
+COPY package*.json ./
+RUN chown nextjs:nodejs package*.json
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci
+RUN npm config set cache /app/.npm-cache --global && \
+    npm ci
 
-# Copy source code
-COPY --chown=nextjs:nodejs . .
+# Copy only necessary source files for build (exclude node_modules, .git, Dockerfile, .dockerignore)
+COPY --chown=nextjs:nodejs ./src /app/src
+COPY --chown=nextjs:nodejs public /app/public
+RUN chmod -R 755 /app/public && chown -R nextjs:nodejs /app/public
+COPY --chown=nextjs:nodejs vite.config.ts /app/vite.config.ts
+COPY --chown=nextjs:nodejs tsconfig.json /app/
+COPY --chown=nextjs:nodejs tsconfig.node.json /app/
+# No need to remove unwanted files after copy
 
 # Build the application
 RUN npm run build
@@ -41,6 +49,7 @@ COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration with secure permissions
 COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
+RUN chmod 644 /etc/nginx/nginx.conf
 
 # Security: Create healthcheck script, install curl, and set all permissions
 RUN echo '#!/bin/sh' > /healthcheck.sh && \
@@ -51,7 +60,6 @@ RUN echo '#!/bin/sh' > /healthcheck.sh && \
     rm -rf /var/cache/apk/* /tmp/* /var/tmp/* && \
     find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
     find /usr/share/nginx/html -type d -exec chmod 755 {} \; && \
-    chmod 644 /etc/nginx/nginx.conf && \
     chown -R nginx:nginx /usr/share/nginx/html
 
 # Security: Switch to non-root user
