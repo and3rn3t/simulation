@@ -554,7 +554,7 @@ function generateComplexityReport(functionReport, classReport, healthScore) {
       healthScore: {
         overall: Math.round(healthScore.overall * 10) / 10,
         functions: Math.round(healthScore.functions * 10) / 10,
-        classes: Math.round(healthScore.classes * 10) / 10
+        classes: Math.round(healthScore.classes * 10) / 10,
       },
       functions: functionReport.summary,
       classes: classReport.summary,

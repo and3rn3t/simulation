@@ -6,10 +6,8 @@
     ":semanticCommits",
     ":separateMultipleMajorReleases"
   ],
-  "schedule": [
-    "before 6am on monday"
-  ],
-  "timezone": "America/New_York",
+  "schedule": ["before 6am on monday"],
+  "timezone": "America/Chicago",
   "prHourlyLimit": 3,
   "prConcurrentLimit": 5,
   "packageRules": [
