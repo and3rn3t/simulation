@@ -133,7 +133,7 @@ export class OrganismSimulation {
         Logger.getInstance().logSystem('Advanced mobile features initialized successfully');
       }
     } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
+      this.handleError(error);
     }
   }
 
@@ -286,7 +286,7 @@ export class OrganismSimulation {
         });
       }
     } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
+      this.handleError(error);
     }
   }
 
@@ -613,7 +613,14 @@ export class OrganismSimulation {
 
       Logger.getInstance().logSystem('OrganismSimulation disposed successfully');
     } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
+      this.handleError(error);
     }
+  }
+
+  /**
+   * Centralized error handling for simulation operations
+   */
+  private handleError(error: unknown): void {
+    ErrorHandler.getInstance().handleError(error as Error);
   }
 }

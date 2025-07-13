@@ -1,19 +1,18 @@
 import type { MemoryStats } from './index';
 
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Memory tracking and monitoring utility
  */
-export class MemoryTracker {
-  private static instance: MemoryTracker;
+export class MemoryTracker extends BaseSingleton {
   private samples: MemoryStats[] = [];
   private maxSamples: number = 100;
 
-  private constructor() {}
+  protected constructor() {}
 
-  public static getInstance(): MemoryTracker {
-    if (!MemoryTracker.instance) {
-      MemoryTracker.instance = new MemoryTracker();
-    }
+  public   static getInstance(): MemoryTracker {
+    return super.getInstance(MemoryTracker, 'MemoryTracker');
+  }
     return MemoryTracker.instance;
   }
 

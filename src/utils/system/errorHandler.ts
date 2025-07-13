@@ -1,3 +1,4 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Error handling utilities for the organism simulation
  */
@@ -70,21 +71,19 @@ export interface ErrorInfo {
 /**
  * Global error handler for the simulation
  */
-export class ErrorHandler {
-  private static instance: ErrorHandler;
+export class ErrorHandler extends BaseSingleton {
   private errorQueue: ErrorInfo[] = [];
   private maxQueueSize = 50;
   private isLoggingEnabled = true;
 
-  private constructor() {}
+  protected constructor() {}
 
   /**
    * Get the singleton instance of ErrorHandler
    */
-  static getInstance(): ErrorHandler {
-    if (!ErrorHandler.instance) {
-      ErrorHandler.instance = new ErrorHandler();
-    }
+    static getInstance(): SimulationError {
+    return super.getInstance(SimulationError, 'SimulationError');
+  }
     return ErrorHandler.instance;
   }
 

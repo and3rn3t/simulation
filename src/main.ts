@@ -12,7 +12,7 @@ import { log } from './utils/system/logger';
 
 // Import game features
 import { OrganismSimulation } from './core/simulation';
-import { LeaderboardManager } from './features/leaderboard';
+import { LeaderboardManager } from './features/leaderboard/leaderboard.js';
 import { PowerUpManager } from './features/powerups';
 import { UnlockableOrganismManager } from './models/unlockables';
 import { GameStateManager } from './utils/game/gameStateManager';

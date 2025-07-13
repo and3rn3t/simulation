@@ -1,3 +1,4 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Enhanced logging system for the organism simulation
  * Provides structured logging with different categories and levels
@@ -75,8 +76,7 @@ export interface LogEntry {
 /**
  * Enhanced logger class with structured logging capabilities
  */
-export class Logger {
-  private static instance: Logger;
+export class Logger extends BaseSingleton {
   private logs: LogEntry[] = [];
   private maxLogSize = 1000;
   private sessionId: string;
@@ -90,7 +90,8 @@ export class Logger {
     LogLevel.SYSTEM,
   ]);
 
-  private constructor() {
+  protected constructor() {
+    super();
     this.sessionId = this.generateSessionId();
   }
 
@@ -98,10 +99,7 @@ export class Logger {
    * Get the singleton instance
    */
   static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
-    }
-    return Logger.instance;
+    return super.getInstance('Logger') as Logger;
   }
 
   /**
@@ -369,20 +367,17 @@ export class Logger {
 /**
  * Performance monitoring utilities
  */
-export class PerformanceLogger {
-  private static instance: PerformanceLogger;
+export class PerformanceLogger extends BaseSingleton {
   private logger: Logger;
   private performanceMarks: Map<string, number> = new Map();
 
-  private constructor() {
+  protected constructor() {
+    super();
     this.logger = Logger.getInstance();
   }
 
   static getInstance(): PerformanceLogger {
-    if (!PerformanceLogger.instance) {
-      PerformanceLogger.instance = new PerformanceLogger();
-    }
-    return PerformanceLogger.instance;
+    return super.getInstance('PerformanceLogger') as PerformanceLogger;
   }
 
   /**

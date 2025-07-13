@@ -1,3 +1,4 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Debug Mode System
  * Provides detailed simulation information and debugging capabilities
@@ -13,8 +14,7 @@ export interface DebugInfo {
   lastUpdate: number;
 }
 
-export class DebugMode {
-  private static instance: DebugMode;
+export class DebugMode extends BaseSingleton {
   private isEnabled = false;
   private debugPanel: HTMLElement | null = null;
   private debugInfo: DebugInfo = {
@@ -32,10 +32,9 @@ export class DebugMode {
   private lastFrameTime = performance.now();
   private updateInterval: number | null = null;
 
-  static getInstance(): DebugMode {
-    if (!DebugMode.instance) {
-      DebugMode.instance = new DebugMode();
-    }
+    static getInstance(): DebugMode {
+    return super.getInstance(DebugMode, 'DebugMode');
+  }
     return DebugMode.instance;
   }
 

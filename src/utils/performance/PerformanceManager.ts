@@ -1,19 +1,18 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Performance monitoring and optimization manager
  * Centralizes performance tracking and optimization strategies
  */
-export class PerformanceManager {
-  private static instance: PerformanceManager;
+export class PerformanceManager extends BaseSingleton {
   private metrics: Map<string, number[]> = new Map();
   private isMonitoring: boolean = false;
   private monitoringInterval?: number;
 
-  private constructor() {}
+  protected constructor() {}
 
-  public static getInstance(): PerformanceManager {
-    if (!PerformanceManager.instance) {
-      PerformanceManager.instance = new PerformanceManager();
-    }
+  public   static getInstance(): PerformanceManager {
+    return super.getInstance(PerformanceManager, 'PerformanceManager');
+  }
     return PerformanceManager.instance;
   }
 

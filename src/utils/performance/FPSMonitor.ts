@@ -1,24 +1,23 @@
 import type { FPSStats } from './index';
 
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * FPS monitoring utility
  */
-export class FPSMonitor {
-  private static instance: FPSMonitor;
+export class FPSMonitor extends BaseSingleton {
   private frames: number[] = [];
   private lastFrameTime: number = 0;
   private frameCount: number = 0;
   private startTime: number = 0;
   private maxSamples: number = 100;
 
-  private constructor() {
+  protected constructor() {
     this.startTime = performance.now();
   }
 
-  public static getInstance(): FPSMonitor {
-    if (!FPSMonitor.instance) {
-      FPSMonitor.instance = new FPSMonitor();
-    }
+  public   static getInstance(): FPSMonitor {
+    return super.getInstance(FPSMonitor, 'FPSMonitor');
+  }
     return FPSMonitor.instance;
   }
 

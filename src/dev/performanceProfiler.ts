@@ -1,3 +1,4 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Performance Profiling Tools
  * Provides detailed performance analysis and optimization recommendations
@@ -27,8 +28,7 @@ export interface ProfileSession {
   recommendations: string[];
 }
 
-export class PerformanceProfiler {
-  private static instance: PerformanceProfiler;
+export class PerformanceProfiler extends BaseSingleton {
   private isProfilering = false;
   private currentSession: ProfileSession | null = null;
   private sessions: ProfileSession[] = [];
@@ -39,10 +39,9 @@ export class PerformanceProfiler {
   private frameCounter = 0;
   private lastFrameTime = performance.now();
 
-  static getInstance(): PerformanceProfiler {
-    if (!PerformanceProfiler.instance) {
-      PerformanceProfiler.instance = new PerformanceProfiler();
-    }
+    static getInstance(): PerformanceProfiler {
+    return super.getInstance(PerformanceProfiler, 'PerformanceProfiler');
+  }
     return PerformanceProfiler.instance;
   }
 
