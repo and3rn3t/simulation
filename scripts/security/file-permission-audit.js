@@ -90,6 +90,67 @@ function findFiles(
 }
 
 /**
+ * Check if file has secure wrapper patterns
+ */
+function hasSecureWrapperPatterns(content) {
+  return (
+    content.includes('secureFileCreation') ||
+    content.includes('secureFileCopy') ||
+    content.includes('secure')
+  );
+}
+
+/**
+ * Detect file operations in content
+ */
+function detectFileOperations(content) {
+  return {
+    writeFileSync: content.includes('writeFileSync'),
+    copyFileSync: content.includes('copyFileSync'),
+    createWriteStream: content.includes('createWriteStream'),
+    chmodSync: content.includes('chmodSync'),
+  };
+}
+
+/**
+ * Check if file operations are secure
+ */
+function hasInsecureFileOperations(operations, content) {
+  const hasFileOps =
+    operations.writeFileSync || operations.copyFileSync || operations.createWriteStream;
+  const hasPermissionSetting = operations.chmodSync;
+  const hasSecureWrapper = hasSecureWrapperPatterns(content);
+
+  return hasFileOps && !hasPermissionSetting && !hasSecureWrapper;
+}
+
+/**
+ * Audit a single file for insecure operations
+ */
+function auditSingleFile(file) {
+  try {
+    const content = fs.readFileSync(file, 'utf8');
+    const operations = detectFileOperations(content);
+
+    if (hasInsecureFileOperations(operations, content)) {
+      return {
+        file: path.relative(PROJECT_ROOT, file),
+        operations: {
+          writeFileSync: operations.writeFileSync,
+          copyFileSync: operations.copyFileSync,
+          createWriteStream: operations.createWriteStream,
+        },
+      };
+    }
+
+    return null;
+  } catch (error) {
+    log(`Error reading ${file}: ${error.message}`, 'warning');
+    return null;
+  }
+}
+
+/**
  * Check for file operations without permission setting
  */
 function auditFileOperations() {
@@ -99,35 +160,9 @@ function auditFileOperations() {
   const vulnerableFiles = [];
 
   for (const file of jsFiles) {
-    try {
-      const content = fs.readFileSync(file, 'utf8');
-
-      // Check for file creation without permission setting
-      const hasWriteFileSync = content.includes('writeFileSync');
-      const hasCopyFileSync = content.includes('copyFileSync');
-      const hasCreateWriteStream = content.includes('createWriteStream');
-      const hasChmodSync = content.includes('chmodSync');
-
-      if ((hasWriteFileSync || hasCopyFileSync || hasCreateWriteStream) && !hasChmodSync) {
-        // Additional check: exclude files that might be using secure wrappers
-        const hasSecureWrapper =
-          content.includes('secureFileCreation') ||
-          content.includes('secureFileCopy') ||
-          content.includes('secure');
-
-        if (!hasSecureWrapper) {
-          vulnerableFiles.push({
-            file: path.relative(PROJECT_ROOT, file),
-            operations: {
-              writeFileSync: hasWriteFileSync,
-              copyFileSync: hasCopyFileSync,
-              createWriteStream: hasCreateWriteStream,
-            },
-          });
-        }
-      }
-    } catch (error) {
-      log(`Error reading ${file}: ${error.message}`, 'warning');
+    const result = auditSingleFile(file);
+    if (result) {
+      vulnerableFiles.push(result);
     }
   }
 
@@ -149,6 +184,82 @@ function auditFileOperations() {
 }
 
 /**
+ * Check for overly broad permissions in Docker content
+ */
+function checkDockerPermissions(content, fileName) {
+  const issues = [];
+
+  if (content.includes('chmod -R 755') || content.includes('chmod -R 777')) {
+    issues.push({
+      file: fileName,
+      issue: 'Overly broad permission setting (chmod -R)',
+      severity: 'high',
+    });
+  }
+
+  return issues;
+}
+
+/**
+ * Check for missing user directives in Docker content
+ */
+function checkDockerUserSecurity(content, fileName) {
+  const issues = [];
+
+  if (content.includes('FROM') && !content.includes('USER ')) {
+    issues.push({
+      file: fileName,
+      issue: 'Running as root user (missing USER directive)',
+      severity: 'high',
+    });
+  }
+
+  return issues;
+}
+
+/**
+ * Check for proper ownership settings in Docker content
+ */
+function checkDockerOwnership(content, fileName) {
+  const issues = [];
+
+  if (content.includes('COPY') && !content.includes('chown')) {
+    issues.push({
+      file: fileName,
+      issue: 'COPY without proper ownership setting',
+      severity: 'medium',
+    });
+  }
+
+  return issues;
+}
+
+/**
+ * Audit a single Docker file for security issues
+ */
+function auditSingleDockerFile(dockerFile) {
+  const filePath = path.join(PROJECT_ROOT, dockerFile);
+  const issues = [];
+
+  if (!fs.existsSync(filePath)) {
+    return issues;
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    // Run all security checks
+    issues.push(...checkDockerPermissions(content, dockerFile));
+    issues.push(...checkDockerUserSecurity(content, dockerFile));
+    issues.push(...checkDockerOwnership(content, dockerFile));
+  } catch (error) {
+    log(`Error reading ${dockerFile}: ${error.message}`, 'warning');
+  }
+
+  return issues;
+}
+
+/**
  * Check Docker files for security issues
  */
 function auditDockerFiles() {
@@ -160,53 +271,22 @@ function auditDockerFiles() {
     'docker-compose.yml',
     'docker-compose.override.yml',
   ];
-  const issues = [];
 
+  const allIssues = [];
+
+  // Audit each Docker file
   for (const dockerFile of dockerFiles) {
-    const filePath = path.join(PROJECT_ROOT, dockerFile);
-
-    if (fs.existsSync(filePath)) {
-      try {
-        const content = fs.readFileSync(filePath, 'utf8');
-
-        // Check for overly broad permissions
-        if (content.includes('chmod -R 755') || content.includes('chmod -R 777')) {
-          issues.push({
-            file: dockerFile,
-            issue: 'Overly broad permission setting (chmod -R)',
-            severity: 'high',
-          });
-        }
-
-        // Check for missing user switching
-        if (content.includes('FROM') && !content.includes('USER ')) {
-          issues.push({
-            file: dockerFile,
-            issue: 'Running as root user (missing USER directive)',
-            severity: 'high',
-          });
-        }
-
-        // Check for proper permission setting patterns
-        if (content.includes('COPY') && !content.includes('chown')) {
-          issues.push({
-            file: dockerFile,
-            issue: 'COPY without proper ownership setting',
-            severity: 'medium',
-          });
-        }
-      } catch (error) {
-        log(`Error reading ${dockerFile}: ${error.message}`, 'warning');
-      }
-    }
+    const issues = auditSingleDockerFile(dockerFile);
+    allIssues.push(...issues);
   }
 
-  if (issues.length === 0) {
+  // Report results
+  if (allIssues.length === 0) {
     log('✅ Docker files follow security best practices', 'success');
     return true;
   } else {
-    log(`❌ Found ${issues.length} Docker security issues:`, 'error');
-    issues.forEach(issue => {
+    log(`❌ Found ${allIssues.length} Docker security issues:`, 'error');
+    allIssues.forEach(issue => {
       const severity = issue.severity === 'high' ? 'critical' : 'warning';
       log(`  ${issue.file}: ${issue.issue}`, severity);
     });

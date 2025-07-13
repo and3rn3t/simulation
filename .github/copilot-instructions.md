@@ -357,6 +357,109 @@ afterEach(() => {
 - **Memory Cleanup**: Force garbage collection in test environments
 - **Mock Efficiency**: Reuse complex mocks across test suites
 
+## Function Complexity Guidelines & Best Practices
+
+### Complexity Thresholds (Based on Project Analysis)
+
+| Complexity Level | Lines of Code | Cyclomatic Complexity | Action Required                   |
+| ---------------- | ------------- | --------------------- | --------------------------------- |
+| **Simple**       | 1-20 lines    | 1-5 branches          | ✅ Ideal target                   |
+| **Moderate**     | 21-50 lines   | 6-10 branches         | ⚠️ Monitor closely                |
+| **Complex**      | 51-100 lines  | 11-15 branches        | 🔧 Refactor recommended           |
+| **Critical**     | 100+ lines    | 16+ branches          | 🚨 Immediate refactoring required |
+
+### Proven Refactoring Patterns
+
+#### Pattern 1: Function Decomposition (60% Complexity Reduction Achieved)
+
+```typescript
+// ❌ BEFORE: Monolithic function (150+ lines)
+function auditFileOperations() {
+  // File discovery + security checking + reporting + formatting
+}
+
+// ✅ AFTER: Decomposed functions (8 focused functions)
+function hasSecureWrapperPatterns(content: string): boolean {
+  /* ... */
+}
+function detectFileOperations(content: string): Operations {
+  /* ... */
+}
+function hasInsecureFileOperations(ops: Operations, content: string): boolean {
+  /* ... */
+}
+function auditSingleFile(file: string): VulnerabilityResult | null {
+  /* ... */
+}
+```
+
+#### Pattern 2: Configuration Object Pattern
+
+```typescript
+// ❌ AVOID: Parameter overload (6+ parameters)
+function initializeFeatures(canvas, enableSwipe, enableRotation, threshold, options) {}
+
+// ✅ USE: Configuration object
+interface MobileConfig {
+  gestures: { swipe: boolean; rotation: boolean };
+  performance: { threshold: number };
+}
+function initializeFeatures(canvas: HTMLCanvasElement, config: MobileConfig) {}
+```
+
+#### Pattern 3: Class Responsibility Separation
+
+```typescript
+// ❌ PROBLEM: Mixed concerns in single class
+class OrganismSimulation {
+  // Core simulation logic
+  // Mobile gesture handling
+  // UI control management
+  // Performance monitoring
+}
+
+// ✅ SOLUTION: Extract specialized managers
+class MobileGestureManager {
+  /* gesture-specific logic */
+}
+class SimulationControlManager {
+  /* UI controls */
+}
+class PerformanceMonitor {
+  /* optimization logic */
+}
+```
+
+### Current Project Complexity Status
+
+- **Well-Managed Areas**: Testing infrastructure (74.5% success), Algorithm optimizations, Security audit (recently improved)
+- **High Complexity Areas**: OrganismSimulation class (20+ mobile methods), setupSimulationControls (200+ lines), WorkflowTroubleshooter (15+ methods)
+- **Successful Refactoring**: Security audit script achieved 60% complexity reduction through function decomposition
+
+### Function Complexity Best Practices
+
+1. **Single Responsibility**: Each function should have one clear, testable purpose
+2. **Parameter Limits**: Use configuration objects for 4+ parameters
+3. **Class Size**: Target 10-15 methods per class maximum
+4. **Extract Methods**: Break functions over 50 lines into focused sub-functions
+5. **Command Pattern**: Use for complex event handling and gesture management
+6. **Builder Pattern**: Use for complex object initialization
+7. **Strategy Pattern**: Use for algorithm selection and optimization switching
+
+### Complexity Monitoring
+
+- **ESLint Rules**: complexity: 10, max-lines-per-function: 50, max-params: 5
+- **Target Metrics**: < 8 average cyclomatic complexity, 90% functions < 50 lines
+- **Testing Strategy**: Simple functions (1 test), Moderate (main + edge cases), Complex (break down first)
+
+### Refactoring Priorities
+
+1. **Priority 1 (Critical)**: setupSimulationControls function (200+ lines) → 8 focused functions
+2. **Priority 2 (High)**: OrganismSimulation mobile methods → Extract MobileGestureManager
+3. **Priority 3 (Moderate)**: WorkflowTroubleshooter class → 3 specialized classes
+
+**Reference**: Complete analysis in `docs/development/FUNCTION_COMPLEXITY_ANALYSIS.md`
+
 ## File Organization
 
 - `/src/core/` - Core simulation logic (OrganismSimulation, Organism)

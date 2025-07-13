@@ -94,7 +94,6 @@ jobs:
         name: bundle-analysis
         path: bundle-report.json
         retention-days: 30
-
   accessibility-audit:
     name: Accessibility Audit
     runs-on: ubuntu-latest
@@ -126,30 +125,110 @@ jobs:
     
     - name: Run accessibility audit
       run: |
-        echo "🌐 Running accessibility audit..."
-        axe http://localhost:8080 --tags wcag2a,wcag2aa --save axe-results.json
+        axe http://localhost:8080 --exit
+      continue-on-error: true
+
+  code-complexity:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run complexity audit (full report)
+      run: npm run complexity:audit
+      continue-on-error: true
+    
+    - name: Upload complexity report
+      uses: actions/upload-artifact@v4
+      with:
+        name: complexity-report
+        path: code-complexity-report.json
+        retention-days: 30
+      if: always()
+    
+    - name: Complexity summary
+      run: |
+        echo "📊 Code Complexity Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "==========================" >> $GITHUB_STEP_SUMMARY
         
-        echo "♿ Accessibility Audit Results" >> $GITHUB_STEP_SUMMARY
-        echo "=============================" >> $GITHUB_STEP_SUMMARY
-        
-        # Parse results and add to summary
-        if [ -f axe-results.json ]; then
-          VIOLATIONS=$(jq '.violations | length' axe-results.json)
-          echo "Violations found: $VIOLATIONS" >> $GITHUB_STEP_SUMMARY
+        # Extract key metrics from the report if it exists
+        if [ -f "code-complexity-report.json" ]; then
+          HEALTH_SCORE=$(jq -r '.summary.healthScore.overall' code-complexity-report.json)
+          CRITICAL_FUNCTIONS=$(jq -r '.summary.functions.critical' code-complexity-report.json)
+          CRITICAL_CLASSES=$(jq -r '.summary.classes.critical' code-complexity-report.json)
           
-          if [ $VIOLATIONS -gt 0 ]; then
-            echo "❌ Accessibility issues found. Please review and fix." >> $GITHUB_STEP_SUMMARY
+          echo "🎯 Overall Health Score: ${HEALTH_SCORE}%" >> $GITHUB_STEP_SUMMARY
+          echo "🚨 Critical Functions: ${CRITICAL_FUNCTIONS}" >> $GITHUB_STEP_SUMMARY
+          echo "🏗️ Critical Classes: ${CRITICAL_CLASSES}" >> $GITHUB_STEP_SUMMARY
+          
+          # Add recommendations
+          if (( $(echo "$HEALTH_SCORE < 80" | bc -l) )); then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Action Required**: Code complexity is above recommended thresholds" >> $GITHUB_STEP_SUMMARY
+            echo "- Review the complexity report artifact for detailed analysis" >> $GITHUB_STEP_SUMMARY
+            echo "- Focus on refactoring critical complexity items first" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ No accessibility violations found!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Code complexity is within acceptable limits" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ Complexity report could not be generated" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run security audit
+      run: |
+        echo "🔒 Running security audit..."
+        npm audit --audit-level moderate --json > security-audit.json || true
+        
+        echo "🔐 Security Audit Results" >> $GITHUB_STEP_SUMMARY
+        echo "========================" >> $GITHUB_STEP_SUMMARY
+        
+        # Parse security audit results
+        if [ -f security-audit.json ]; then
+          VULNERABILITIES=$(jq '.metadata.vulnerabilities.total' security-audit.json)
+          echo "Total vulnerabilities: $VULNERABILITIES" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $VULNERABILITIES -gt 0 ]; then
+            echo "⚠️ Security vulnerabilities found. Please review and fix." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
           fi
         fi
       continue-on-error: true
     
-    - name: Upload accessibility results
+    - name: Upload security results
       uses: actions/upload-artifact@v4
       with:
-        name: accessibility-results
-        path: axe-results.json
+        name: security-audit
+        path: security-audit.json
         retention-days: 30
 
   code-quality:
