@@ -1,4 +1,4 @@
-import { BaseSingleton } from './BaseSingleton.js';
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Developer Console System
  * Provides a command-line interface for debugging and development
@@ -21,10 +21,11 @@ export class DeveloperConsole extends BaseSingleton {
   private historyIndex = -1;
 
   static getInstance(): DeveloperConsole {
-    return super.getInstance(DeveloperConsole, 'DeveloperConsole');
+    return super.getInstance.call(this, 'DeveloperConsole');
   }
 
-  constructor() {
+  protected constructor() {
+    super();
     this.initializeDefaultCommands();
     this.setupKeyboardShortcuts();
   }

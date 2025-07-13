@@ -63,7 +63,10 @@ vi.mock('../src/services/UserPreferencesManager', () => ({
           accent: '#FF9800',
         },
       })),
+      updatePreference: vi.fn(), // Added missing method
       updatePreferences: vi.fn(),
+      addChangeListener: vi.fn(), // Added missing method
+      removeChangeListener: vi.fn(), // Added missing method
       applyTheme: vi.fn(),
       setLanguage: vi.fn(),
       getAvailableLanguages: vi.fn(() => [

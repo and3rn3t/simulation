@@ -1,4 +1,4 @@
-import { BaseSingleton } from './BaseSingleton.js';
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Debug Mode System
  * Provides detailed simulation information and debugging capabilities
@@ -32,8 +32,12 @@ export class DebugMode extends BaseSingleton {
   private lastFrameTime = performance.now();
   private updateInterval: number | null = null;
 
-    static getInstance(): DebugMode {
-    return super.getInstance(DebugMode, 'DebugMode');
+  protected constructor() {
+    super();
+  }
+
+  static getInstance(): DebugMode {
+    return super.getInstance.call(this, 'DebugMode');
   }
 
   enable(): void {
@@ -42,7 +46,7 @@ export class DebugMode extends BaseSingleton {
     this.isEnabled = true;
     this.createDebugPanel();
     this.startUpdating();
-    }
+  }
 
   disable(): void {
     if (!this.isEnabled) return;
@@ -50,7 +54,7 @@ export class DebugMode extends BaseSingleton {
     this.isEnabled = false;
     this.removeDebugPanel();
     this.stopUpdating();
-    }
+  }
 
   toggle(): void {
     if (this.isEnabled) {
@@ -300,7 +304,7 @@ export class DebugMode extends BaseSingleton {
     };
 
     console.group('🔍 State Dump');
-    );
+    console.log('Debug State:', state);
     console.groupEnd();
 
     // Also save to localStorage for debugging
@@ -317,7 +321,7 @@ export class DebugMode extends BaseSingleton {
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {
-        }ms`);
+        console.log(`${entry.name}: ${entry.duration.toFixed(2)}ms`);
       });
       console.groupEnd();
     }, 5000); // Profile for 5 seconds
@@ -326,8 +330,11 @@ export class DebugMode extends BaseSingleton {
   private forceGarbageCollection(): void {
     if ((window as any).gc) {
       (window as any).gc();
-      } else {
-      ');
+      console.log('🗑️ Forced garbage collection');
+    } else {
+      console.log(
+        '⚠️ Garbage collection not available (Chrome with --js-flags="--expose-gc" required)'
+      );
     }
   }
 }

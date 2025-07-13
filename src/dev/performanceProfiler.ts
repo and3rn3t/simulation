@@ -1,4 +1,4 @@
-import { BaseSingleton } from './BaseSingleton.js';
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Performance Profiling Tools
  * Provides detailed performance analysis and optimization recommendations
@@ -40,9 +40,11 @@ export class PerformanceProfiler extends BaseSingleton {
   private lastFrameTime = performance.now();
 
     static getInstance(): PerformanceProfiler {
-    return super.getInstance(PerformanceProfiler, 'PerformanceProfiler');
+    return super.getInstance.call(this, 'PerformanceProfiler');
   }
-    return PerformanceProfiler.instance;
+
+  protected constructor() {
+    super();
   }
 
   startProfiling(duration: number = 10000): string {
