@@ -3,7 +3,7 @@
  * Tests preference management, persistence, validation, and event handling
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserPreferencesManager } from '../../../src/services/UserPreferencesManager';
 
 // Mock localStorage
@@ -24,7 +24,7 @@ Object.defineProperty(global, 'localStorage', {
 Object.defineProperty(global, 'window', {
   value: {
     matchMedia: vi.fn().mockImplementation(query => ({
-      matches: query.includes('dark'),
+      matches: false, // Always return false to simulate light mode
       media: query,
       onchange: null,
       addListener: vi.fn(),

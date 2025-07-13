@@ -20,10 +20,8 @@ export class DeveloperConsole extends BaseSingleton {
   private commandHistory: string[] = [];
   private historyIndex = -1;
 
-    static getInstance(): DeveloperConsole {
+  static getInstance(): DeveloperConsole {
     return super.getInstance(DeveloperConsole, 'DeveloperConsole');
-  }
-    return DeveloperConsole.instance;
   }
 
   constructor() {

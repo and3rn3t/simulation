@@ -145,12 +145,16 @@ export class ErrorHandler {
 
     switch (errorInfo.severity) {
       case ErrorSeverity.LOW:
+        console.info(logMessage + contextMessage);
         break;
       case ErrorSeverity.MEDIUM:
+        console.warn(logMessage + contextMessage);
         break;
       case ErrorSeverity.HIGH:
       case ErrorSeverity.CRITICAL:
+        console.error(logMessage + contextMessage);
         if (errorInfo.stackTrace) {
+          console.error(errorInfo.stackTrace);
         }
         break;
     }

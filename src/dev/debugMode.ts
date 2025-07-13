@@ -35,8 +35,6 @@ export class DebugMode extends BaseSingleton {
     static getInstance(): DebugMode {
     return super.getInstance(DebugMode, 'DebugMode');
   }
-    return DebugMode.instance;
-  }
 
   enable(): void {
     if (this.isEnabled) return;
