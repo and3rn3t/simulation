@@ -1,4 +1,4 @@
-import { ComponentFactory, ThemeManager, AccessibilityManager } from './index';
+import { AccessibilityManager, ComponentFactory, ThemeManager } from './index';
 import './ui-components.css';
 
 /**
@@ -62,7 +62,7 @@ export class ComponentDemo {
           ...config,
           onClick: () => {
             AccessibilityManager.announceToScreenReader(`Button "${config.text}" clicked`);
-            },
+          },
         },
         `demo-button-${index}`
       );
@@ -116,8 +116,7 @@ export class ComponentDemo {
       const input = ComponentFactory.createInput(
         {
           ...config,
-          onChange: value => {
-            },
+          onChange: value => {},
         },
         `demo-input-${index}`
       );
@@ -157,7 +156,7 @@ export class ComponentDemo {
             AccessibilityManager.announceToScreenReader(
               `${config.label} ${checked ? 'enabled' : 'disabled'}`
             );
-            },
+          },
         },
         `demo-toggle-${index}`
       );
@@ -187,7 +186,7 @@ export class ComponentDemo {
         closable: true,
         onClose: () => {
           AccessibilityManager.announceToScreenReader('Panel closed');
-          },
+        },
       },
       'demo-panel-basic'
     );
@@ -199,8 +198,7 @@ export class ComponentDemo {
       {
         title: 'Collapsible Panel',
         collapsible: true,
-        onToggle: collapsed => {
-          },
+        onToggle: collapsed => {},
       },
       'demo-panel-collapsible'
     );

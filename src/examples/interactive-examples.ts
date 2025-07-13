@@ -7,7 +7,7 @@
 
 import { Organism } from '../core/organism';
 import { OrganismSimulation } from '../core/simulation';
-import { getOrganismType, type OrganismType } from '../models/organismTypes';
+import { BehaviorType, getOrganismType, type OrganismType } from '../models/organismTypes';
 
 /**
  * Collection of interactive examples for learning the simulation API
@@ -374,7 +374,7 @@ setInterval(trackStats, 1000);
 
   private simulationSetupExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Simulation created');
 
@@ -425,7 +425,7 @@ setInterval(trackStats, 1000);
 
   private performanceDemoExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Performance test setup (organisms added via placement in real simulation)');
 
@@ -436,9 +436,10 @@ setInterval(trackStats, 1000);
 
     this.logToConsole(`Performance test completed in ${(endTime - startTime).toFixed(2)}ms`);
 
-    // Enable optimizations
-    simulation.setOptimizationsEnabled(true);
-    this.logToConsole('Enabled algorithm optimizations');
+    // Enable optimizations (commented out - method doesn't exist yet)
+    // TODO: Implement setOptimizationsEnabled method in OrganismSimulation
+    // simulation.setOptimizationsEnabled(true);
+    this.logToConsole('Optimizations would be enabled here');
 
     const stats = simulation.getStats();
     this.logToConsole(`Current population: ${stats.population}`);
@@ -449,24 +450,28 @@ setInterval(trackStats, 1000);
 
   private memoryManagementExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
-    const initialMemory = simulation.getMemoryStats();
-    this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const initialMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
+    this.logToConsole('Memory management example - methods not yet implemented');
 
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
 
-    const afterMemory = simulation.getMemoryStats();
-    this.logToConsole(`Memory stats - Pool size: ${afterMemory.organismPool.poolSize}`);
-    this.logToConsole(`Total organisms: ${afterMemory.totalOrganisms}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const afterMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Memory stats - Pool size: ${afterMemory.organismPool.poolSize}`);
+    // this.logToConsole(`Total organisms: ${afterMemory.totalOrganisms}`);
 
-    // Toggle SoA optimization
-    simulation.toggleSoAOptimization(true);
-    this.logToConsole('Enabled Structure of Arrays optimization');
+    // TODO: Implement toggleSoAOptimization method in OrganismSimulation
+    // simulation.toggleSoAOptimization(true);
+    this.logToConsole('SoA optimization would be enabled here');
 
-    const optimizedMemory = simulation.getMemoryStats();
-    this.logToConsole(`Using SoA: ${optimizedMemory.usingSoA}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const optimizedMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Using SoA: ${optimizedMemory.usingSoA}`);
   }
 
   private customOrganismExample(): void {
@@ -478,6 +483,10 @@ setInterval(trackStats, 1000);
       deathRate: 0.01,
       maxAge: 200,
       description: 'Custom example organism',
+      behaviorType: BehaviorType.PRODUCER, // Required property
+      initialEnergy: 100, // Required property
+      maxEnergy: 200, // Required property
+      energyConsumption: 1, // Required property
     };
 
     this.logToConsole(`Created custom organism type: ${customType.name}`);
@@ -499,7 +508,7 @@ setInterval(trackStats, 1000);
 
   private eventHandlingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Setting up event monitoring...');
 
@@ -525,7 +534,7 @@ setInterval(trackStats, 1000);
 
   private statisticsTrackingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');

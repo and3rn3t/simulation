@@ -210,10 +210,15 @@ export class AlgorithmWorkerManager {
    * @returns Next worker instance
    */
   private getNextWorker(): Worker {
-    const worker = this.workers[this.currentWorkerIndex];
-    if (!worker) {
+    if (this.workers.length === 0) {
       throw new Error('No workers available');
     }
+
+    const worker = this.workers[this.currentWorkerIndex];
+    if (!worker) {
+      throw new Error('Worker at current index is undefined');
+    }
+
     this.currentWorkerIndex = (this.currentWorkerIndex + 1) % this.workers.length;
     return worker;
   }
@@ -258,7 +263,9 @@ export class AlgorithmWorkerManager {
 
       this.pendingTasks.clear();
       this.isInitialized = false;
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**

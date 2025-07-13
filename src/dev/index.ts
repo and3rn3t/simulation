@@ -19,7 +19,6 @@ import { PerformanceProfiler } from './performanceProfiler';
  * Should be called in development mode only
  */
 export function initializeDevTools(): void {
-
   const debugMode = DebugMode.getInstance();
   const devConsole = DeveloperConsole.getInstance();
   const profiler = PerformanceProfiler.getInstance();
@@ -77,14 +76,19 @@ export function initializeDevTools(): void {
       if (args.length === 0) {
         return 'Usage: export <sessionId>';
       }
+
+      const sessionId = args[0];
+      if (!sessionId) {
+        return 'Session ID is required';
+      }
+
       try {
-        const data = profiler.exportSession(args[0]);
+        const data = profiler.exportSession(sessionId);
         // Save to clipboard if available
         if (navigator.clipboard) {
           navigator.clipboard.writeText(data);
-          return `Exported session ${args[0]} to clipboard`;
+          return `Exported session ${sessionId} to clipboard`;
         } else {
-
           return `Session data logged to console (clipboard not available)`;
         }
       } catch (error) {
@@ -101,11 +105,6 @@ export function initializeDevTools(): void {
       debugMode.toggle();
     }
   });
-
-
-
-
-
 }
 
 /**

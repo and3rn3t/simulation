@@ -1,4 +1,3 @@
-import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Enhanced logging system for the organism simulation
  * Provides structured logging with different categories and levels
@@ -76,7 +75,8 @@ export interface LogEntry {
 /**
  * Enhanced logger class with structured logging capabilities
  */
-export class Logger extends BaseSingleton {
+export class Logger {
+  private static instance: Logger;
   private logs: LogEntry[] = [];
   private maxLogSize = 1000;
   private sessionId: string;
@@ -90,8 +90,7 @@ export class Logger extends BaseSingleton {
     LogLevel.SYSTEM,
   ]);
 
-  protected constructor() {
-    super();
+  private constructor() {
     this.sessionId = this.generateSessionId();
   }
 
@@ -99,7 +98,10 @@ export class Logger extends BaseSingleton {
    * Get the singleton instance
    */
   static getInstance(): Logger {
-    return super.getInstance('Logger') as Logger;
+    if (!Logger.instance) {
+      Logger.instance = new Logger();
+    }
+    return Logger.instance;
   }
 
   /**
@@ -130,7 +132,7 @@ export class Logger extends BaseSingleton {
       category,
       message,
       data,
-      context,
+      context: context ?? '',
       sessionId: this.sessionId,
       userAgent: navigator?.userAgent,
       url: window?.location?.href,
@@ -245,8 +247,8 @@ export class Logger extends BaseSingleton {
    */
   private outputToConsole(logEntry: LogEntry): void {
     const timestamp = logEntry.timestamp.toISOString();
-    const prefix = `[${timestamp}] [${logEntry.level.toUpperCase()}] [${logEntry.category.toUpperCase()}]`;
-    const message = logEntry.context
+    const _prefix = `[${timestamp}] [${logEntry.level.toUpperCase()}] [${logEntry.category.toUpperCase()}]`;
+    const _message = logEntry.context
       ? `${logEntry.message} (${logEntry.context})`
       : logEntry.message;
 
@@ -361,17 +363,20 @@ export class Logger extends BaseSingleton {
 /**
  * Performance monitoring utilities
  */
-export class PerformanceLogger extends BaseSingleton {
+export class PerformanceLogger {
+  private static instance: PerformanceLogger;
   private logger: Logger;
   private performanceMarks: Map<string, number> = new Map();
 
-  protected constructor() {
-    super();
+  private constructor() {
     this.logger = Logger.getInstance();
   }
 
   static getInstance(): PerformanceLogger {
-    return super.getInstance('PerformanceLogger') as PerformanceLogger;
+    if (!PerformanceLogger.instance) {
+      PerformanceLogger.instance = new PerformanceLogger();
+    }
+    return PerformanceLogger.instance;
   }
 
   /**

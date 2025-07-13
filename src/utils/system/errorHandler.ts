@@ -102,7 +102,7 @@ export class ErrorHandler {
     const errorInfo: ErrorInfo = {
       error,
       severity,
-      context,
+      context: context ?? '',
       timestamp: new Date(),
       userAgent: navigator?.userAgent,
       stackTrace: error.stack,

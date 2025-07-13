@@ -24,6 +24,7 @@ docs/
 - [Architecture Overview](./architecture/OVERVIEW.md)
 - [API Reference](./API.md)
 - [Developer Guide](./DEVELOPER_GUIDE.md)
+- [TypeScript Error Cleanup](./development/TYPESCRIPT_ERROR_CLEANUP_LESSONS.md)
 - [Error Handling Strategy](./development/ERROR_HANDLING_SUMMARY.md)
 - [Memory Management](./development/MEMORY_MANAGEMENT_SUMMARY.md)
 - [Logging Strategy](./development/LOGGING_STRATEGY.md)
@@ -65,3 +66,4 @@ Documentation should be updated when:
 - Architecture changes are made
 - Deployment processes change
 - API changes occur
+- TypeScript compilation issues arise (reference cleanup methodology)

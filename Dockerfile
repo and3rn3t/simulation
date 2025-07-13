@@ -1,10 +1,13 @@
+# syntax=docker/dockerfile:1.4
+
 # Multi-stage build for optimization
 FROM node:20-alpine AS base
 
-# Install security updates and minimize attack surface
-RUN apk update && apk upgrade && \
+# Install security updates and minimize attack surface with optimized caching
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk update && apk upgrade && \
     apk add --no-cache dumb-init && \
-    rm -rf /var/cache/apk/*
+    rm -rf /tmp/* /var/tmp/*
 
 # Security: Create non-root user for build stage
 RUN addgroup -g 1001 -S nodejs && \
@@ -40,19 +43,17 @@ ENV NODE_ENV=${NODE_ENV}
 COPY --chown=nextjs:nodejs package*.json ./
 
 # Install all dependencies (including dev dependencies for build)
-# Use npm ci with frozen lockfile for reproducible builds
-RUN npm ci --frozen-lockfile --only-if-present
+# Use npm ci with frozen lockfile and BuildKit cache mount for faster builds
+# Fix cache ownership first, then install dependencies
+RUN --mount=type=cache,target=/home/nextjs/.npm,uid=1001,gid=1001 \
+    npm ci --frozen-lockfile --only-if-present
 
-# Copy only necessary source files for build (exclude node_modules, .git, Dockerfile, .dockerignore)
-# Copy configuration files first (better caching)
+# Copy configuration files and source files in optimized order for better caching
 COPY --chown=nextjs:nodejs tsconfig.json vite.config.ts index.html ./
-
-# Copy source files
 COPY --chown=nextjs:nodejs ./src /app/src
 COPY --chown=nextjs:nodejs ./public /app/public
 
-# Security: Set proper permissions on all copied files (read-only for non-owners)
-# Combine into fewer RUN commands to reduce layers
+# Security: Set proper permissions on all copied files in single layer for better performance
 RUN find /app/src /app/public -type f -exec chmod 644 {} + && \
     find /app/src /app/public -type d -exec chmod 755 {} + && \
     chmod 644 /app/index.html /app/vite.config.ts /app/tsconfig.json
@@ -61,10 +62,11 @@ RUN find /app/src /app/public -type f -exec chmod 644 {} + && \
 ENV NODE_ENV=production
 RUN npm run build
 
-# Clean up dev dependencies and cache in single layer
-RUN npm ci --frozen-lockfile --omit=dev && \
+# Clean up dev dependencies and cache in single layer with BuildKit cache mount
+RUN --mount=type=cache,target=/home/nextjs/.npm,uid=1001,gid=1001 \
+    npm ci --frozen-lockfile --omit=dev && \
     npm cache clean --force && \
-    rm -rf /tmp/* /home/nextjs/.npm
+    rm -rf /tmp/*
 
 # Production stage
 FROM nginx:alpine AS production
@@ -93,6 +95,7 @@ LABEL maintainer="simulation-team" \
 
 # Security: Create necessary directories with proper permissions for existing nginx user
 RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    touch /var/log/nginx/error.log /var/log/nginx/access.log && \
     chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
 
 # Copy built assets from builder stage with secure permissions
@@ -102,13 +105,14 @@ COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
 # Security: Create healthcheck script, install curl, and set all permissions
-# Use specific curl version for security and combine operations
-RUN chmod 644 /etc/nginx/nginx.conf && \
+# Use specific curl version for security and combine operations  
+RUN --mount=type=cache,target=/var/cache/apk \
+    chmod 644 /etc/nginx/nginx.conf && \
     echo '#!/bin/sh\ncurl -f http://localhost:8080/ || exit 1' > /healthcheck.sh && \
     chmod 755 /healthcheck.sh && \
     chown nginx:nginx /healthcheck.sh && \
     apk add --no-cache curl && \
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /var/log/* && \
+    rm -rf /tmp/* /var/tmp/* /var/log/* && \
     find /usr/share/nginx/html -type f -exec chmod 644 {} + && \
     find /usr/share/nginx/html -type d -exec chmod 755 {} + && \
     chown -R nginx:nginx /usr/share/nginx/html

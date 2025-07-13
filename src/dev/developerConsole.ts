@@ -1,4 +1,3 @@
-import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Developer Console System
  * Provides a command-line interface for debugging and development
@@ -11,7 +10,8 @@ export interface ConsoleCommand {
   execute: (args: string[]) => Promise<string> | string;
 }
 
-export class DeveloperConsole extends BaseSingleton {
+export class DeveloperConsole {
+  private static instance: DeveloperConsole;
   private isVisible = false;
   private consoleElement: HTMLElement | null = null;
   private inputElement: HTMLInputElement | null = null;
@@ -20,12 +20,19 @@ export class DeveloperConsole extends BaseSingleton {
   private commandHistory: string[] = [];
   private historyIndex = -1;
 
-  static getInstance(): DeveloperConsole {
-    return super.getInstance.call(this, 'DeveloperConsole');
+  private constructor() {
+    // Private constructor for singleton
+    this.initializeConsole();
   }
 
-  protected constructor() {
-    super();
+  static getInstance(): DeveloperConsole {
+    if (!DeveloperConsole.instance) {
+      DeveloperConsole.instance = new DeveloperConsole();
+    }
+    return DeveloperConsole.instance;
+  }
+
+  private initializeConsole(): void {
     this.initializeDefaultCommands();
     this.setupKeyboardShortcuts();
   }
@@ -238,7 +245,7 @@ export class DeveloperConsole extends BaseSingleton {
       if (this.historyIndex < this.commandHistory.length - 1) {
         this.historyIndex++;
         const historyValue = this.commandHistory[this.historyIndex];
-        if (this.inputElement && historyValue) {
+        if (this.inputElement && historyValue !== undefined) {
           this.inputElement.value = historyValue;
         }
       }
@@ -247,7 +254,7 @@ export class DeveloperConsole extends BaseSingleton {
       if (this.historyIndex > 0) {
         this.historyIndex--;
         const historyValue = this.commandHistory[this.historyIndex];
-        if (this.inputElement && historyValue) {
+        if (this.inputElement && historyValue !== undefined) {
           this.inputElement.value = historyValue;
         }
       } else if (this.historyIndex === 0) {
@@ -263,7 +270,7 @@ export class DeveloperConsole extends BaseSingleton {
     const [commandName, ...args] = input.split(' ');
     this.log(`> ${input}`, 'info');
 
-    if (!commandName) {
+    if (!commandName || commandName.trim() === '') {
       this.log('Empty command entered.', 'error');
       return;
     }
@@ -312,7 +319,11 @@ export class DeveloperConsole extends BaseSingleton {
           output += '\nType "help <command>" for detailed usage.';
           return output;
         } else {
-          const cmd = this.commands.get(args[0]);
+          const commandToHelp = args[0];
+          if (!commandToHelp) {
+            return 'Invalid command name provided.';
+          }
+          const cmd = this.commands.get(commandToHelp);
           if (cmd) {
             return `${cmd.name}: ${cmd.description}\nUsage: ${cmd.usage}`;
           } else {
@@ -372,22 +383,35 @@ export class DeveloperConsole extends BaseSingleton {
         }
 
         const action = args[0];
+        if (!action) {
+          return 'Action is required. Usage: localStorage [get|set|remove|clear] [key] [value]';
+        }
+
         switch (action) {
           case 'get': {
             if (args.length < 2) return 'Usage: localStorage get <key>';
-            const value = localStorage.getItem(args[1]);
-            return value !== null ? `${args[1]}: ${value}` : `Key "${args[1]}" not found`;
+            const key = args[1];
+            if (!key) return 'Key is required for get operation';
+            const value = localStorage.getItem(key);
+            return value !== null ? `${key}: ${value}` : `Key "${key}" not found`;
           }
 
-          case 'set':
+          case 'set': {
             if (args.length < 3) return 'Usage: localStorage set <key> <value>';
-            localStorage.setItem(args[1], args.slice(2).join(' '));
-            return `Set ${args[1]} = ${args.slice(2).join(' ')}`;
+            const key = args[1];
+            if (!key) return 'Key is required for set operation';
+            const value = args.slice(2).join(' ');
+            localStorage.setItem(key, value);
+            return `Set ${key} = ${value}`;
+          }
 
-          case 'remove':
+          case 'remove': {
             if (args.length < 2) return 'Usage: localStorage remove <key>';
-            localStorage.removeItem(args[1]);
-            return `Removed ${args[1]}`;
+            const key = args[1];
+            if (!key) return 'Key is required for remove operation';
+            localStorage.removeItem(key);
+            return `Removed ${key}`;
+          }
 
           case 'clear':
             localStorage.clear();

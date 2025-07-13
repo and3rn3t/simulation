@@ -1,5 +1,5 @@
-import { log } from '../system/logger';
 import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
+import { log } from '../system/logger';
 import { MemoryMonitor } from './memoryMonitor';
 
 /**
@@ -346,7 +346,7 @@ export class UnlockableOrganismLazyLoader {
       id: `organism_${id}`,
       isLoaded: false,
       loader,
-      dependencies: dependencies?.map(dep => `organism_${dep}`),
+      dependencies: dependencies?.map(dep => `organism_${dep}`) ?? [],
     });
   }
 

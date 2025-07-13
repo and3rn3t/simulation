@@ -118,7 +118,7 @@ class PopulationPredictor {
 
       organismTypes.forEach(type => {
         const currentPop = typePopulations[type.name];
-        if (currentPop !== undefined) {
+        if (currentPop !== undefined && currentPop !== null) {
           const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
           const competitionEffect = (totalCompetition / carryingCapacity) * currentPop;
           const deathEffect = type.deathRate * 0.01 * currentPop;
@@ -248,7 +248,7 @@ class StatisticsCalculator {
     });
 
     // Calculate statistics
-    const mean = ages.reduce((sum, age) => sum + age, 0) / ages.length;
+    const mean = ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;
     const sortedAges = [...ages].sort((a, b) => a - b);
     const median = sortedAges[Math.floor(sortedAges.length / 2)] ?? 0;
     const variance = ages.reduce((sum, age) => sum + Math.pow(age - mean, 2), 0) / ages.length;
@@ -400,4 +400,4 @@ self.onmessage = function (e: MessageEvent<WorkerMessage>) {
 };
 
 // Export types for TypeScript support
-export type { WorkerMessage, WorkerResponse, PopulationPredictionData, StatisticsData };
+export type { PopulationPredictionData, StatisticsData, WorkerMessage, WorkerResponse };

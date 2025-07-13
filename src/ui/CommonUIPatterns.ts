@@ -14,7 +14,7 @@ export const CommonUIPatterns = {
         element.className = className;
       }
       return element;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   },
@@ -22,11 +22,7 @@ export const CommonUIPatterns = {
   /**
    * Standard event listener with error handling
    */
-  addEventListenerSafe(
-    element: Element,
-    event: string,
-    handler: EventListener
-  ): boolean {
+  addEventListenerSafe(element: Element, event: string, handler: EventListener): boolean {
     try {
       element.addEventListener(event, handler);
       return true;
@@ -59,5 +55,5 @@ export const CommonUIPatterns = {
     } catch (error) {
       return false;
     }
-  }
+  },
 };

@@ -223,7 +223,9 @@ export class MemoryMonitor {
       try {
         (window as any).gc();
         log.logSystem('Forced garbage collection');
-      } catch { /* handled */ }
+      } catch {
+        /* handled */
+      }
     }
 
     // Notify other systems to do aggressive cleanup
@@ -418,8 +420,11 @@ export class MemoryAwareCache<K, V> {
     const evictCount = Math.max(1, Math.floor(entries.length * 0.25)); // Evict 25%
 
     for (let i = 0; i < evictCount; i++) {
-      const [key] = entries[i];
-      this.cache.delete(key);
+      const entry = entries[i];
+      if (entry) {
+        const [key] = entry;
+        this.cache.delete(key);
+      }
     }
 
     log.logSystem('Cache evicted entries', { evictCount, remainingSize: this.cache.size });

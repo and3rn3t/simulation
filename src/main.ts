@@ -387,9 +387,9 @@ if (import.meta.env.DEV) {
 
   import('./dev/index')
     .then(module => {
-      debugMode = module.DebugMode?.getInstance();
-      devConsole = module.DeveloperConsole?.getInstance();
-      performanceProfiler = module.PerformanceProfiler?.getInstance();
+      debugMode = module['DebugMode']?.getInstance();
+      devConsole = module['DeveloperConsole']?.getInstance();
+      performanceProfiler = module['PerformanceProfiler']?.getInstance();
 
       // Set up keyboard shortcuts
       setupDevKeyboardShortcuts();
@@ -404,9 +404,9 @@ if (import.meta.env.DEV) {
   if (import.meta.hot) {
     import.meta.hot.accept('./dev/index', newModule => {
       if (newModule) {
-        debugMode = newModule.DebugMode?.getInstance();
-        devConsole = newModule.DeveloperConsole?.getInstance();
-        performanceProfiler = newModule.PerformanceProfiler?.getInstance();
+        debugMode = newModule['DebugMode']?.getInstance();
+        devConsole = newModule['DeveloperConsole']?.getInstance();
+        performanceProfiler = newModule['PerformanceProfiler']?.getInstance();
         log.logSystem('🔄 Development tools reloaded');
       }
     });

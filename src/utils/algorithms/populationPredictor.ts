@@ -1,6 +1,5 @@
 import { Organism } from '../../core/organism';
 import type { OrganismType } from '../../models/organismTypes';
-import { ErrorHandler, ErrorSeverity, SimulationError } from '../system/errorHandler';
 import { algorithmWorkerManager } from './workerManager';
 
 /**
@@ -95,7 +94,9 @@ export class PopulationPredictor {
       }
 
       return prediction;
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -162,7 +163,7 @@ export class PopulationPredictor {
 
       organismTypes.forEach(type => {
         const curve = growthCurves[type.name];
-        if (curve) {
+        if (curve && curve.parameters) {
           const population = this.calculatePopulationAtTime(t, curve, organisms.length);
           const typePopulation = populationByType[type.name];
           if (typePopulation) {
@@ -390,8 +391,9 @@ export class PopulationPredictor {
       totalPopulation,
       populationByType: {},
       confidence: 0.1,
-      peakPopulation: Math.max(...totalPopulation),
-      peakTime: totalPopulation.indexOf(Math.max(...totalPopulation)),
+      peakPopulation: totalPopulation.length > 0 ? Math.max(...totalPopulation) : 0,
+      peakTime:
+        totalPopulation.length > 0 ? totalPopulation.indexOf(Math.max(...totalPopulation)) : 0,
       equilibrium: totalPopulation[totalPopulation.length - 1] ?? 0,
     };
   }

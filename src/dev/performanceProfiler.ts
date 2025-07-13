@@ -1,4 +1,3 @@
-import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Performance Profiling Tools
  * Provides detailed performance analysis and optimization recommendations
@@ -28,7 +27,8 @@ export interface ProfileSession {
   recommendations: string[];
 }
 
-export class PerformanceProfiler extends BaseSingleton {
+export class PerformanceProfiler {
+  private static instance: PerformanceProfiler;
   private isProfilering = false;
   private currentSession: ProfileSession | null = null;
   private sessions: ProfileSession[] = [];
@@ -39,12 +39,15 @@ export class PerformanceProfiler extends BaseSingleton {
   private frameCounter = 0;
   private lastFrameTime = performance.now();
 
-  static getInstance(): PerformanceProfiler {
-    return super.getInstance.call(this, 'PerformanceProfiler');
+  private constructor() {
+    // Private constructor for singleton
   }
 
-  protected constructor() {
-    super();
+  static getInstance(): PerformanceProfiler {
+    if (!PerformanceProfiler.instance) {
+      PerformanceProfiler.instance = new PerformanceProfiler();
+    }
+    return PerformanceProfiler.instance;
   }
 
   startProfiling(duration: number = 10000): string {
@@ -157,14 +160,20 @@ export class PerformanceProfiler extends BaseSingleton {
   // Call this to track canvas operations
   trackCanvasOperation(): void {
     if (this.currentSession && this.metricsBuffer.length > 0) {
-      this.metricsBuffer[this.metricsBuffer.length - 1].canvasOperations++;
+      const lastMetric = this.metricsBuffer[this.metricsBuffer.length - 1];
+      if (lastMetric) {
+        lastMetric.canvasOperations++;
+      }
     }
   }
 
   // Call this to track draw calls
   trackDrawCall(): void {
     if (this.currentSession && this.metricsBuffer.length > 0) {
-      this.metricsBuffer[this.metricsBuffer.length - 1].drawCalls++;
+      const lastMetric = this.metricsBuffer[this.metricsBuffer.length - 1];
+      if (lastMetric) {
+        lastMetric.drawCalls++;
+      }
     }
   }
 
