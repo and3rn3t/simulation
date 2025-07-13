@@ -44,6 +44,7 @@ export class DebugMode extends BaseSingleton {
     if (this.isEnabled) return;
 
     this.isEnabled = true;
+    console.log('🐛 Debug mode enabled');
     this.createDebugPanel();
     this.startUpdating();
   }
@@ -52,6 +53,7 @@ export class DebugMode extends BaseSingleton {
     if (!this.isEnabled) return;
 
     this.isEnabled = false;
+    console.log('🐛 Debug mode disabled');
     this.removeDebugPanel();
     this.stopUpdating();
   }

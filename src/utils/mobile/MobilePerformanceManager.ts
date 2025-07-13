@@ -110,7 +110,9 @@ export class MobilePerformanceManager {
           this.adjustPerformanceForBattery();
         });
       }
-    } catch (error) { /* handled */ }
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   /**
@@ -175,8 +177,6 @@ export class MobilePerformanceManager {
       // Reduce quality settings
       this.config.maxOrganisms = Math.max(100, Math.floor(this.config.maxOrganisms * 0.9));
       this.config.reducedEffects = true;
-
-      `);
     } else if (fpsRatio > 1.2 && actualFPS > targetFPS) {
       // Performance is good
       // Can potentially increase quality

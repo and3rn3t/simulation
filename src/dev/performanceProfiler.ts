@@ -39,7 +39,7 @@ export class PerformanceProfiler extends BaseSingleton {
   private frameCounter = 0;
   private lastFrameTime = performance.now();
 
-    static getInstance(): PerformanceProfiler {
+  static getInstance(): PerformanceProfiler {
     return super.getInstance.call(this, 'PerformanceProfiler');
   }
 
@@ -124,7 +124,6 @@ export class PerformanceProfiler extends BaseSingleton {
 
   clearSessions(): void {
     this.sessions = [];
-
   }
 
   isProfiling(): boolean {
@@ -150,7 +149,6 @@ export class PerformanceProfiler extends BaseSingleton {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
       if (currentHeap < this.lastGCTime) {
         // Potential GC detected
-
       }
       this.lastGCTime = currentHeap;
     }
@@ -313,23 +311,23 @@ export class PerformanceProfiler extends BaseSingleton {
 
   private logSessionSummary(session: ProfileSession): void {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
-    .toFixed(2)}s`);
+    console.log(`Duration: ${(session.endTime - session.startTime).toFixed(2)}ms`);
 
     console.group('Averages');
-    }`);
-    }ms`);
-    .toFixed(2)}MB`);
-    }%`);
+    console.log(`FPS: ${session.averages.fps.toFixed(2)}`);
+    console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
+    console.log(`Memory: ${session.averages.memoryUsage.toFixed(2)}MB`);
+    console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
     console.groupEnd();
 
     console.group('Peaks');
-    }ms`);
-    .toFixed(2)}MB`);
-    }%`);
+    console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
+    console.log(`Peak Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
+    console.log(`Peak GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => );
+    session.recommendations.forEach(rec => console.log(`💡 ${rec}`));
     console.groupEnd();
 
     console.groupEnd();
@@ -350,7 +348,6 @@ export class PerformanceProfiler extends BaseSingleton {
     try {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
-
     } catch (error) {
       throw new Error(`Failed to import session: ${error}`);
     }

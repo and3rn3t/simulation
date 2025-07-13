@@ -5,26 +5,27 @@ import { vi } from 'vitest';
 // Mock Chart.js immediately
 vi.mock('chart.js', () => {
   const mockRegister = vi.fn();
-  const mockChart = vi.fn().mockImplementation(function (ctx, config) {
-    // Use function() to get proper 'this' binding
-    this.destroy = vi.fn();
-    this.update = vi.fn((mode?: string) => Promise.resolve());
-    this.resize = vi.fn();
-    this.render = vi.fn();
-    this.clear = vi.fn();
-    this.stop = vi.fn();
-    this.reset = vi.fn();
-    this.toBase64Image = vi.fn(() => 'data:image/png;base64,mock');
-    this.generateLegend = vi.fn();
 
-    // Ensure data property is properly managed
-    this.data = config?.data || { datasets: [] };
-    this.options = config?.options || {};
-    this.canvas = ctx || null;
-    this.ctx = ctx || null;
+  const createChartInstance = function (ctx: any, config: any) {
+    const instance = {
+      destroy: vi.fn(),
+      update: vi.fn((mode?: string) => Promise.resolve()),
+      resize: vi.fn(),
+      render: vi.fn(),
+      clear: vi.fn(),
+      stop: vi.fn(),
+      reset: vi.fn(),
+      toBase64Image: vi.fn(() => 'data:image/png;base64,mock'),
+      generateLegend: vi.fn(),
+      data: config?.data || { datasets: [] },
+      options: config?.options || {},
+      canvas: ctx || null,
+      ctx: ctx || null,
+    };
+    return instance;
+  };
 
-    return this;
-  }) as any;
+  const mockChart = vi.fn().mockImplementation(createChartInstance);
 
   // Assign register method to Chart function
   (mockChart as any).register = mockRegister;
