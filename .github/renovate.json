@@ -1,0 +1,64 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":separateMultipleMajorReleases"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "America/New_York",
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "matchUpdateTypes": ["patch", "minor"]
+    },
+    {
+      "matchPackageNames": ["@types/*", "typescript"],
+      "groupName": "TypeScript ecosystem",
+      "automerge": true,
+      "matchUpdateTypes": ["patch", "minor"]
+    },
+    {
+      "matchPackageNames": ["vite", "@vitejs/*"],
+      "groupName": "Vite ecosystem",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/*"],
+      "groupName": "Vitest ecosystem"
+    },
+    {
+      "matchPackageNames": ["playwright", "@playwright/*"],
+      "groupName": "Playwright ecosystem"
+    },
+    {
+      "matchPackageNames": ["eslint", "@typescript-eslint/*"],
+      "groupName": "ESLint ecosystem",
+      "automerge": true,
+      "matchUpdateTypes": ["patch", "minor"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "commitMessagePrefix": "chore:",
+  "commitMessageAction": "update",
+  "commitMessageExtra": "to {{newVersion}}",
+  "commitMessageTopic": "{{depName}}",
+  "labels": ["dependencies", "renovate"],
+  "assignees": ["and3rn3t"],
+  "reviewers": ["and3rn3t"]
+}
