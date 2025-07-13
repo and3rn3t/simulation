@@ -117,8 +117,11 @@ export class App {
    */
   private logConfigurationSummary(): void {
     const config = this.configManager.exportConfig();
-    .filter(([, enabled]) => enabled)
-        .map(([feature]) => feature),
+    const enabledFeatures = Object.entries(config.features)
+      .filter(([, enabled]) => enabled)
+      .map(([feature]) => feature);
+    console.log({
+      enabledFeatures,
       simulation: config.simulation,
       ui: config.ui,
     });
