@@ -252,23 +252,17 @@ export class Logger extends BaseSingleton {
 
     switch (logEntry.level) {
       case LogLevel.DEBUG:
-        console.debug(prefix, message, logEntry.data);
         break;
       case LogLevel.INFO:
       case LogLevel.SYSTEM:
-        console.info(prefix, message, logEntry.data);
         break;
       case LogLevel.WARN:
-        console.warn(prefix, message, logEntry.data);
         break;
       case LogLevel.ERROR:
-        console.error(prefix, message, logEntry.data);
         break;
       case LogLevel.PERFORMANCE:
-        console.info(`⚡ ${prefix}`, message, logEntry.data);
         break;
       case LogLevel.USER_ACTION:
-        console.info(`👤 ${prefix}`, message, logEntry.data);
         break;
     }
   }

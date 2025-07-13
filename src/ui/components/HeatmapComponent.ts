@@ -276,7 +276,7 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
           '#f44336', // Red (high density)
         ],
         onCellClick: (x, y, value) => {
-          console.log(`Cell (${x}, ${y}) has ${value} organisms`);
+          has ${value} organisms`);
         },
       },
       id

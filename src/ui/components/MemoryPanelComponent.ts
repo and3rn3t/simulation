@@ -24,7 +24,6 @@ export class MemoryPanelComponent {
     if (panel) {
       panel.classList.remove('visible'); // Ensure it starts hidden
     }
-    console.log('🧠 Memory panel initialized. Initial state: hidden, Mobile:', this.isMobile);
   }
 
   /**
@@ -77,7 +76,6 @@ export class MemoryPanelComponent {
 
       // Temporarily hide panel if it would cause horizontal scrolling
       if (this.isVisible && panelWidth > viewportWidth - 60) {
-        console.log('📱 Temporarily hiding memory panel - insufficient screen width');
         this.setVisible(false);
       }
     }
@@ -208,22 +206,18 @@ export class MemoryPanelComponent {
    * Toggle panel visibility
    */
   public toggle(): void {
-    console.log('🔄 Memory panel toggle clicked. Current state:', this.isVisible);
-
     // On mobile, check if we have enough space before showing
     if (!this.isVisible && this.isMobile) {
       const panel = this.element.querySelector('.memory-panel') as HTMLElement;
       if (panel) {
         const viewportWidth = window.innerWidth;
         if (viewportWidth < 480) {
-          console.log('📱 Screen too small for memory panel, skipping toggle');
           return; // Don't show on very small screens
         }
       }
     }
 
     this.isVisible = !this.isVisible;
-    console.log('🔄 New state:', this.isVisible);
 
     const panel = this.element.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
@@ -233,15 +227,6 @@ export class MemoryPanelComponent {
       if (this.isVisible && this.isMobile) {
         this.adjustMobilePosition();
       }
-
-      console.log('🔄 Panel classes:', panel.className);
-      console.log('🔄 Panel computed style transform:', window.getComputedStyle(panel).transform);
-      console.log('🔄 Panel position:', {
-        top: panel.offsetTop,
-        left: panel.offsetLeft,
-        width: panel.offsetWidth,
-        height: panel.offsetHeight,
-      });
     }
 
     if (this.isVisible) {
@@ -336,13 +321,9 @@ export class MemoryPanelComponent {
    */
   public mount(parent: HTMLElement): void {
     parent.appendChild(this.element);
-    console.log('Memory panel mounted to:', parent.tagName);
-    console.log('Memory panel element:', this.element);
-    console.log('Memory panel classes:', this.element.className);
 
     // Start with the panel hidden (toggle button visible)
     this.setVisible(false);
-    console.log('✅ Memory panel mounted and initialized as hidden');
   }
 
   /**
@@ -371,13 +352,11 @@ export class MemoryPanelComponent {
    */
   public setVisible(visible: boolean): void {
     if (visible !== this.isVisible) {
-      console.log(`🔄 Setting memory panel visibility: ${visible}`);
       this.isVisible = visible;
 
       const panel = this.element.querySelector('.memory-panel') as HTMLElement;
       if (panel) {
         panel.classList.toggle('visible', this.isVisible);
-        console.log('🔄 Panel classes after toggle:', panel.className);
       }
 
       if (this.isVisible) {

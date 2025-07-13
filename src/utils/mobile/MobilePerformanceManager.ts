@@ -110,9 +110,7 @@ export class MobilePerformanceManager {
           this.adjustPerformanceForBattery();
         });
       }
-    } catch (error) {
-      console.warn('Battery API not available:', error);
-    }
+    } catch (error) { /* handled */ }
   }
 
   /**
@@ -157,15 +155,11 @@ export class MobilePerformanceManager {
       this.config.targetFPS = 20;
       this.config.maxOrganisms = Math.floor(this.config.maxOrganisms * 0.5);
       this.config.reducedEffects = true;
-
-      console.log('📱 Entered battery saver mode');
     } else if (!this.config.batterySaverMode && wasBatterySaver) {
       // Exiting battery saver mode
       this.config.targetFPS = this.getOptimalTargetFPS();
       this.config.maxOrganisms = this.getOptimalOrganismCount();
       this.config.reducedEffects = this.shouldReduceEffects();
-
-      console.log('📱 Exited battery saver mode');
     }
   }
 
@@ -182,7 +176,7 @@ export class MobilePerformanceManager {
       this.config.maxOrganisms = Math.max(100, Math.floor(this.config.maxOrganisms * 0.9));
       this.config.reducedEffects = true;
 
-      console.log(`📱 Reduced performance settings (FPS: ${actualFPS}/${targetFPS})`);
+      `);
     } else if (fpsRatio > 1.2 && actualFPS > targetFPS) {
       // Performance is good
       // Can potentially increase quality

@@ -1,4 +1,3 @@
-import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Error handling utilities for the organism simulation
  */
@@ -71,19 +70,21 @@ export interface ErrorInfo {
 /**
  * Global error handler for the simulation
  */
-export class ErrorHandler extends BaseSingleton {
+export class ErrorHandler {
+  private static instance: ErrorHandler;
   private errorQueue: ErrorInfo[] = [];
   private maxQueueSize = 50;
   private isLoggingEnabled = true;
 
-  protected constructor() {}
+  private constructor() {}
 
   /**
    * Get the singleton instance of ErrorHandler
    */
-    static getInstance(): SimulationError {
-    return super.getInstance(SimulationError, 'SimulationError');
-  }
+  static getInstance(): ErrorHandler {
+    if (!ErrorHandler.instance) {
+      ErrorHandler.instance = new ErrorHandler();
+    }
     return ErrorHandler.instance;
   }
 
@@ -144,16 +145,12 @@ export class ErrorHandler extends BaseSingleton {
 
     switch (errorInfo.severity) {
       case ErrorSeverity.LOW:
-        console.info(logMessage + contextMessage);
         break;
       case ErrorSeverity.MEDIUM:
-        console.warn(logMessage + contextMessage);
         break;
       case ErrorSeverity.HIGH:
       case ErrorSeverity.CRITICAL:
-        console.error(logMessage + contextMessage);
         if (errorInfo.stackTrace) {
-          console.error('Stack trace:', errorInfo.stackTrace);
         }
         break;
     }
@@ -168,17 +165,18 @@ export class ErrorHandler extends BaseSingleton {
     try {
       const notification = document.createElement('div');
       notification.className = 'error-notification critical';
-      
+
       // Create elements safely without innerHTML
       const content = document.createElement('div');
       content.className = 'error-content';
-      
+
       const title = document.createElement('h3');
       title.textContent = '⚠️ Critical Error';
-      
+
       const description = document.createElement('p');
-      description.textContent = 'The simulation encountered a critical error and may not function properly.';
-      
+      description.textContent =
+        'The simulation encountered a critical error and may not function properly.';
+
       const errorMessage = document.createElement('p');
       const errorLabel = document.createElement('strong');
       errorLabel.textContent = 'Error: ';
@@ -186,26 +184,26 @@ export class ErrorHandler extends BaseSingleton {
       // Safely set error message to prevent XSS
       const errorText = document.createTextNode(errorInfo.error.message || 'Unknown error');
       errorMessage.appendChild(errorText);
-      
+
       const actions = document.createElement('div');
       actions.className = 'error-actions';
-      
+
       const dismissBtn = document.createElement('button');
       dismissBtn.textContent = 'Dismiss';
       dismissBtn.addEventListener('click', () => notification.remove());
-      
+
       const reloadBtn = document.createElement('button');
       reloadBtn.textContent = 'Reload Page';
       reloadBtn.addEventListener('click', () => window.location.reload());
-      
+
       actions.appendChild(dismissBtn);
       actions.appendChild(reloadBtn);
-      
+
       content.appendChild(title);
       content.appendChild(description);
       content.appendChild(errorMessage);
       content.appendChild(actions);
-      
+
       notification.appendChild(content);
 
       // Add styles
@@ -383,6 +381,4 @@ export function initializeGlobalErrorHandlers(): void {
     // Prevent the default browser behavior
     event.preventDefault();
   });
-
-  console.log('Global error handlers initialized');
 }

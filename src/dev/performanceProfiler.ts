@@ -75,13 +75,11 @@ export class PerformanceProfiler extends BaseSingleton {
       }
     }, duration);
 
-    console.log(`🚀 Started performance profiling session: ${sessionId}`);
     return sessionId;
   }
 
   stopProfiling(): ProfileSession | null {
     if (!this.isProfilering || !this.currentSession) {
-      console.warn('No profiling session in progress');
       return null;
     }
 
@@ -109,7 +107,6 @@ export class PerformanceProfiler extends BaseSingleton {
     const session = this.currentSession;
     this.currentSession = null;
 
-    console.log(`✅ Completed performance profiling session: ${session.id}`);
     this.logSessionSummary(session);
 
     return session;
@@ -125,7 +122,7 @@ export class PerformanceProfiler extends BaseSingleton {
 
   clearSessions(): void {
     this.sessions = [];
-    console.log('🗑️ Cleared all profiling sessions');
+
   }
 
   isProfiling(): boolean {
@@ -151,7 +148,7 @@ export class PerformanceProfiler extends BaseSingleton {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
       if (currentHeap < this.lastGCTime) {
         // Potential GC detected
-        console.log('🗑️ Garbage collection detected');
+
       }
       this.lastGCTime = currentHeap;
     }
@@ -314,24 +311,23 @@ export class PerformanceProfiler extends BaseSingleton {
 
   private logSessionSummary(session: ProfileSession): void {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
-    console.log(`Duration: ${(session.duration! / 1000).toFixed(2)}s`);
-    console.log(`Samples: ${session.metrics.length}`);
+    .toFixed(2)}s`);
 
     console.group('Averages');
-    console.log(`FPS: ${session.averages.fps.toFixed(1)}`);
-    console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
-    console.log(`Memory: ${(session.averages.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
-    console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
+    }`);
+    }ms`);
+    .toFixed(2)}MB`);
+    }%`);
     console.groupEnd();
 
     console.group('Peaks');
-    console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
-    console.log(`Max Memory: ${(session.peaks.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
-    console.log(`Max GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
+    }ms`);
+    .toFixed(2)}MB`);
+    }%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => console.log(rec));
+    session.recommendations.forEach(rec => );
     console.groupEnd();
 
     console.groupEnd();
@@ -352,7 +348,7 @@ export class PerformanceProfiler extends BaseSingleton {
     try {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
-      console.log(`📥 Imported performance session: ${session.id}`);
+
     } catch (error) {
       throw new Error(`Failed to import session: ${error}`);
     }

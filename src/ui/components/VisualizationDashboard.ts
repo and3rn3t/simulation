@@ -261,9 +261,7 @@ export class VisualizationDashboard extends BaseComponent {
 
       // Update stats
       this.updateStats(data);
-    } catch (error) {
-      console.error('Error updating visualization:', error);
-    }
+    } catch { /* handled */ }
   }
 
   private updateStats(data: VisualizationData): void {

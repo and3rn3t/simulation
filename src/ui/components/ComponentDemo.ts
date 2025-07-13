@@ -62,8 +62,7 @@ export class ComponentDemo {
           ...config,
           onClick: () => {
             AccessibilityManager.announceToScreenReader(`Button "${config.text}" clicked`);
-            console.log(`Button "${config.text}" clicked`);
-          },
+            },
         },
         `demo-button-${index}`
       );
@@ -118,8 +117,7 @@ export class ComponentDemo {
         {
           ...config,
           onChange: value => {
-            console.log(`Input "${config.label}" changed to: ${value}`);
-          },
+            },
         },
         `demo-input-${index}`
       );
@@ -159,8 +157,7 @@ export class ComponentDemo {
             AccessibilityManager.announceToScreenReader(
               `${config.label} ${checked ? 'enabled' : 'disabled'}`
             );
-            console.log(`${config.label} ${checked ? 'enabled' : 'disabled'}`);
-          },
+            },
         },
         `demo-toggle-${index}`
       );
@@ -190,8 +187,7 @@ export class ComponentDemo {
         closable: true,
         onClose: () => {
           AccessibilityManager.announceToScreenReader('Panel closed');
-          console.log('Basic panel closed');
-        },
+          },
       },
       'demo-panel-basic'
     );
@@ -204,8 +200,7 @@ export class ComponentDemo {
         title: 'Collapsible Panel',
         collapsible: true,
         onToggle: collapsed => {
-          console.log(`Panel ${collapsed ? 'collapsed' : 'expanded'}`);
-        },
+          },
       },
       'demo-panel-collapsible'
     );

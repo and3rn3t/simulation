@@ -7,6 +7,5 @@ export class StatisticsService {
   }
 
   logStatistics(): void {
-    console.log('Statistics logged');
-  }
+    }
 }

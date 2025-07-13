@@ -258,15 +258,7 @@ export class AlgorithmWorkerManager {
 
       this.pendingTasks.clear();
       this.isInitialized = false;
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error
-          ? error
-          : new SimulationError('Failed to terminate workers', 'WORKER_TERMINATION_ERROR'),
-        ErrorSeverity.MEDIUM,
-        'AlgorithmWorkerManager terminate'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**

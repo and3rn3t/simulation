@@ -238,10 +238,7 @@ export class MobileSocialManager {
       };
 
       await this.share(shareData);
-    } catch (error) {
-      console.error('Failed to share:', error);
-      this.showShareFallback();
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -270,10 +267,7 @@ export class MobileSocialManager {
 
       // Haptic feedback
       this.vibrate(50);
-    } catch (error) {
-      console.error('Failed to take screenshot:', error);
-      this.showError('Failed to capture screenshot');
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -334,10 +328,7 @@ export class MobileSocialManager {
           this.stopRecording();
         }
       }, this.config.maxVideoLength * 1000);
-    } catch (error) {
-      console.error('Failed to start recording:', error);
-      this.showError('Recording not supported');
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -373,7 +364,6 @@ export class MobileSocialManager {
         this.trackShareEvent('native', 'success');
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error('Native share failed:', error);
           this.showShareFallback();
         }
       }
@@ -771,7 +761,6 @@ export class MobileSocialManager {
   }
 
   private showError(message: string): void {
-    console.error(message);
     this.showToast(`Error: ${message}`);
   }
 
@@ -782,7 +771,6 @@ export class MobileSocialManager {
   }
 
   private trackShareEvent(platform: string, status: string): void {
-    console.log(`Share event: ${platform} - ${status}`);
   }
 
   /**

@@ -241,7 +241,6 @@ export function withPerformanceCriticalErrorHandling<T extends any[], R>(
       return operation(...args);
     } catch (error) {
       // Only log to console for performance-critical operations
-      console.warn(`Performance operation failed: ${operationName}`, error);
       return fallback;
     }
   };

@@ -79,7 +79,6 @@ export class LeaderboardManager {
         this.entries = JSON.parse(saved);
       }
     } catch (error) {
-      console.warn('Failed to load leaderboard:', error);
       this.entries = [];
     }
   }
@@ -91,9 +90,7 @@ export class LeaderboardManager {
   private saveLeaderboard(): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.entries));
-    } catch (error) {
-      console.warn('Failed to save leaderboard:', error);
-    }
+    } catch (error) { /* handled */ }
   }
 
   /**

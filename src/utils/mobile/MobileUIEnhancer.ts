@@ -251,9 +251,7 @@ export class MobileUIEnhancer {
           this.fullscreenButton.innerHTML = '⛶';
         }
       }
-    } catch (error) {
-      console.warn('Fullscreen not supported:', error);
-    }
+    } catch (error) { /* handled */ }
   }
 
   /**

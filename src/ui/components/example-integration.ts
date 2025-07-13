@@ -63,14 +63,14 @@ export function initializeUIComponents() {
   const primaryBtn = ComponentFactory.createButton({
     text: 'Primary Action',
     variant: 'primary',
-    onClick: () => console.log('Primary button clicked'),
+    onClick: () => ,
   });
 
   const secondaryBtn = ComponentFactory.createButton({
     text: 'Secondary',
     variant: 'secondary',
     size: 'small',
-    onClick: () => console.log('Secondary button clicked'),
+    onClick: () => ,
   });
 
   primaryBtn.mount(buttonContainer);
@@ -86,7 +86,7 @@ export function initializeUIComponents() {
     label: 'Example Input',
     placeholder: 'Type something...',
     helperText: 'This is a helper text',
-    onChange: (value: string) => console.log('Input changed:', value),
+    onChange: (value: string) => ,
   });
 
   exampleInput.mount(inputContainer);

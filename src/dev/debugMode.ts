@@ -44,8 +44,7 @@ export class DebugMode extends BaseSingleton {
     this.isEnabled = true;
     this.createDebugPanel();
     this.startUpdating();
-    console.log('🐛 Debug mode enabled');
-  }
+    }
 
   disable(): void {
     if (!this.isEnabled) return;
@@ -53,8 +52,7 @@ export class DebugMode extends BaseSingleton {
     this.isEnabled = false;
     this.removeDebugPanel();
     this.stopUpdating();
-    console.log('🐛 Debug mode disabled');
-  }
+    }
 
   toggle(): void {
     if (this.isEnabled) {
@@ -304,7 +302,7 @@ export class DebugMode extends BaseSingleton {
     };
 
     console.group('🔍 State Dump');
-    console.log(JSON.stringify(state, null, 2));
+    );
     console.groupEnd();
 
     // Also save to localStorage for debugging
@@ -312,7 +310,6 @@ export class DebugMode extends BaseSingleton {
   }
 
   private startPerformanceProfile(): void {
-    console.log('🚀 Starting performance profile...');
     performance.mark('profile-start');
 
     setTimeout(() => {
@@ -322,19 +319,17 @@ export class DebugMode extends BaseSingleton {
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {
-        console.log(`${entry.name}: ${entry.duration.toFixed(2)}ms`);
+        }ms`);
       });
       console.groupEnd();
     }, 5000); // Profile for 5 seconds
   }
 
   private forceGarbageCollection(): void {
-    console.log('🗑️ Requesting garbage collection...');
     if ((window as any).gc) {
       (window as any).gc();
-      console.log('✅ Garbage collection completed');
-    } else {
-      console.warn('⚠️ Garbage collection not available (run with --expose-gc flag)');
+      } else {
+      ');
     }
   }
 }

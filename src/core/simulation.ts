@@ -332,9 +332,7 @@ export class OrganismSimulation {
       const y = event.clientY - rect.top;
 
       this.placeOrganismAt({ x, y });
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   initializePopulation(): void {
@@ -352,9 +350,7 @@ export class OrganismSimulation {
         this.organisms.push(organism);
       }
       Logger.getInstance().logSystem(`Population initialized with ${this.maxPopulation} organisms`);
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   start(): void {
@@ -388,9 +384,7 @@ export class OrganismSimulation {
       }
 
       Logger.getInstance().logSystem('Simulation paused');
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   reset(): void {
@@ -416,9 +410,7 @@ export class OrganismSimulation {
       // }
 
       Logger.getInstance().logSystem('Simulation reset');
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   clear(): void {
@@ -426,9 +418,7 @@ export class OrganismSimulation {
       this.organisms = [];
       this.clearCanvas();
       Logger.getInstance().logSystem('Simulation cleared');
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   private clearCanvas(): void {
@@ -440,18 +430,14 @@ export class OrganismSimulation {
       this.currentSpeed = Math.max(0.1, Math.min(10, speed));
       this.updateInterval = 16 / this.currentSpeed;
       Logger.getInstance().logSystem(`Simulation speed set to ${this.currentSpeed}`);
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   setOrganismType(type: string): void {
     try {
       this.currentOrganismType = type;
       Logger.getInstance().logSystem(`Organism type set to ${type}`);
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   setMaxPopulation(limit: number): void {
@@ -461,9 +447,7 @@ export class OrganismSimulation {
       }
       this.maxPopulation = limit;
       Logger.getInstance().logSystem(`Max population set to ${limit}`);
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-    }
+    } catch (error) { this.handleError(error); }
   }
 
   getStats(): SimulationStats {
@@ -543,10 +527,7 @@ export class OrganismSimulation {
 
       // Continue animation loop
       this.animationId = requestAnimationFrame(() => this.animate());
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(error as Error);
-      this.pause();
-    }
+    } catch { /* handled */ }
   }
 
   private getOrganismColor(type: string): string {
@@ -591,9 +572,7 @@ export class OrganismSimulation {
             description: 'Check out my ecosystem simulation!',
           });
         }
-      } catch (error) {
-        ErrorHandler.getInstance().handleError(error as Error);
-      }
+      } catch (error) { this.handleError(error); }
     }
   }
 
