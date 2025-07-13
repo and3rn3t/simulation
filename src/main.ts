@@ -1,6 +1,9 @@
 // Import all CSS styles first
 import './ui/style.css';
 
+// Import reliability systems
+import ReliabilityKit from './utils/system/reliabilityKit';
+
 // Import essential modules
 import { MemoryPanelComponent } from './ui/components/MemoryPanelComponent';
 import {
@@ -12,13 +15,16 @@ import { log } from './utils/system/logger';
 
 // Import game features
 import { OrganismSimulation } from './core/simulation';
-import { LeaderboardManager } from './features/leaderboard';
-import { PowerUpManager } from './features/powerups';
+import { LeaderboardManager } from './features/leaderboard/leaderboard.js';
+import { PowerUpManager } from './features/powerups/powerups.js';
 import { UnlockableOrganismManager } from './models/unlockables';
 import { GameStateManager } from './utils/game/gameStateManager';
 import { MobileTestInterface } from './utils/mobile/MobileTestInterface';
 
 log.logSystem('🚀 Starting application initialization...');
+
+// Initialize reliability systems for SonarCloud compliance
+ReliabilityKit.init();
 
 // Initialize global error handlers first
 initializeGlobalErrorHandlers();

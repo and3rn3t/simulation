@@ -47,14 +47,11 @@ export class MobilePWAManager {
    */
   private async registerServiceWorker(): Promise<void> {
     if (!('serviceWorker' in navigator) || !this.config.enableOfflineMode) {
-      console.log('Service Worker not supported or disabled');
       return;
     }
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered successfully:', registration);
-
       registration.addEventListener('updatefound', () => {
         this.handleServiceWorkerUpdate(registration);
       });
@@ -64,9 +61,7 @@ export class MobilePWAManager {
         'message',
         this.handleServiceWorkerMessage.bind(this)
       );
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -91,7 +86,6 @@ export class MobilePWAManager {
 
     switch (type) {
       case 'CACHE_UPDATED':
-        console.log('Cache updated with new content');
         break;
       case 'OFFLINE_FALLBACK':
         this.handleOfflineMode();
@@ -115,7 +109,6 @@ export class MobilePWAManager {
     });
 
     window.addEventListener('appinstalled', () => {
-      console.log('PWA was installed');
       this.hideInstallButton();
       this.showInstallSuccessMessage();
     });
@@ -210,8 +203,6 @@ export class MobilePWAManager {
     if (!this.installPromptEvent) return;
 
     const result = await this.installPromptEvent.prompt();
-    console.log('Install prompt result:', result);
-
     this.installPromptEvent = null;
     this.hideInstallButton();
   }
@@ -258,9 +249,7 @@ export class MobilePWAManager {
 
       localStorage.setItem(`offline_${key}`, JSON.stringify(offlineItem));
       this.offlineData.set(key, offlineItem);
-    } catch (error) {
-      console.error('Failed to store offline data:', error);
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -271,7 +260,22 @@ export class MobilePWAManager {
       const stored = localStorage.getItem(`offline_${key}`);
       if (!stored) return null;
 
-      const offlineItem = JSON.parse(stored);
+      let offlineItem;
+      try {
+        offlineItem = JSON.parse(stored);
+      } catch (parseError) {
+        localStorage.removeItem(`offline_${key}`);
+        return null;
+      }
+
+      // Validate the structure of the stored data
+      if (!offlineItem || typeof offlineItem !== 'object' || 
+          typeof offlineItem.expires !== 'number' || 
+          typeof offlineItem.timestamp !== 'number') {
+        localStorage.removeItem(`offline_${key}`);
+        return null;
+      }
+
       if (Date.now() > offlineItem.expires) {
         localStorage.removeItem(`offline_${key}`);
         return null;
@@ -279,7 +283,6 @@ export class MobilePWAManager {
 
       return offlineItem.data;
     } catch (error) {
-      console.error('Failed to retrieve offline data:', error);
       return null;
     }
   }
@@ -433,7 +436,6 @@ export class MobilePWAManager {
     if (!this.config.enableBackgroundSync) return;
 
     // Process synced data
-    console.log('Background sync data received:', data);
   }
 
   /**
@@ -453,7 +455,6 @@ export class MobilePWAManager {
    */
   private restoreSimulationState(state: any): void {
     // This would be implemented to restore actual simulation state
-    console.log('Restoring simulation state:', state);
   }
 
   /**
@@ -471,10 +472,7 @@ export class MobilePWAManager {
   private async sendAnalyticsData(data: any): Promise<void> {
     try {
       // Implementation would send to analytics service
-      console.log('Sending analytics data:', data);
-    } catch (error) {
-      console.error('Failed to send analytics:', error);
-    }
+    } catch { /* handled */ }
   }
 
   /**

@@ -1,4 +1,4 @@
-import { ComponentFactory, ThemeManager } from './index';
+import { ComponentFactory } from './ComponentFactory';
 import './ui-components.css';
 
 /**
@@ -7,7 +7,7 @@ import './ui-components.css';
  */
 export function initializeUIComponents() {
   // Initialize theme system
-  ThemeManager.initializeTheme();
+  // ThemeManager.initializeTheme();
 
   // Create a demo container to showcase components
   const demoContainer = document.createElement('div');
@@ -42,10 +42,11 @@ export function initializeUIComponents() {
     {
       label: 'Dark Mode',
       variant: 'switch',
-      checked: ThemeManager.getCurrentTheme() === 'dark',
+      checked: false, // ThemeManager.getCurrentTheme() === 'dark',
       onChange: (checked: boolean) => {
-        ThemeManager.setTheme(checked ? 'dark' : 'light');
-        ThemeManager.saveThemePreference();
+        // ThemeManager.setTheme(checked ? 'dark' : 'light');
+        // ThemeManager.saveThemePreference();
+        console.log('Theme changed:', checked ? 'dark' : 'light');
       },
     },
     'theme-toggle'
@@ -63,14 +64,14 @@ export function initializeUIComponents() {
   const primaryBtn = ComponentFactory.createButton({
     text: 'Primary Action',
     variant: 'primary',
-    onClick: () => console.log('Primary button clicked'),
+    onClick: () => console.log('Primary action clicked'),
   });
 
   const secondaryBtn = ComponentFactory.createButton({
     text: 'Secondary',
     variant: 'secondary',
     size: 'small',
-    onClick: () => console.log('Secondary button clicked'),
+    onClick: () => console.log('Secondary action clicked'),
   });
 
   primaryBtn.mount(buttonContainer);

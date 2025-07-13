@@ -1,0 +1,28 @@
+# Docker Compose override for local development
+version: '3.8'
+
+services:
+  simulation-dev:
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_ENABLE_DEBUG=true
+      - VITE_HOT_RELOAD=true
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/dist
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    stdin_open: true
+    tty: true
+
+  simulation-staging:
+    environment:
+      - VITE_API_URL=https://api-staging.example.com
+      - VITE_ENABLE_DEBUG=false
+      - VITE_ENABLE_ANALYTICS=false
+
+  simulation-prod:
+    environment:
+      - VITE_API_URL=https://api.example.com
+      - VITE_ENABLE_DEBUG=false
+      - VITE_ENABLE_ANALYTICS=true

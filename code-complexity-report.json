@@ -1,0 +1,337 @@
+{
+  "timestamp": "2025-07-13T02:36:54.773Z",
+  "thresholds": {
+    "function": {
+      "simple": {
+        "lines": 20,
+        "complexity": 5,
+        "params": 3
+      },
+      "moderate": {
+        "lines": 50,
+        "complexity": 10,
+        "params": 5
+      },
+      "complex": {
+        "lines": 100,
+        "complexity": 15,
+        "params": 7
+      },
+      "critical": {
+        "lines": 200,
+        "complexity": 20,
+        "params": 10
+      }
+    },
+    "class": {
+      "simple": {
+        "methods": 10,
+        "lines": 200
+      },
+      "moderate": {
+        "methods": 15,
+        "lines": 400
+      },
+      "complex": {
+        "methods": 25,
+        "lines": 600
+      },
+      "critical": {
+        "methods": 35,
+        "lines": 1000
+      }
+    }
+  },
+  "summary": {
+    "healthScore": 84.2,
+    "functions": {
+      "total": 1912,
+      "simple": 1579,
+      "moderate": 261,
+      "complex": 59,
+      "critical": 13
+    },
+    "classes": {
+      "total": 96,
+      "simple": 51,
+      "moderate": 17,
+      "complex": 16,
+      "critical": 12
+    }
+  },
+  "details": {
+    "criticalFunctions": [
+      {
+        "name": "generateInitialIssues",
+        "file": "scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": "scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": "scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": "scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": "scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": "scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": "scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "addEventListener",
+        "file": "src\\main-backup.ts",
+        "line": 596,
+        "metrics": {
+          "lines": 59,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "initializeUIComponents",
+        "file": "src\\ui\\components\\example-integration.ts",
+        "line": 8,
+        "metrics": {
+          "lines": 120,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "initializeUIComponents",
+        "file": "src\\ui\\components\\example-integration.ts",
+        "line": 8,
+        "metrics": {
+          "lines": 120,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": "src\\utils\\mobile\\MobileTestInterface.ts",
+        "line": 83,
+        "metrics": {
+          "lines": 40,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": "test\\setup.ts",
+        "line": 151,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": "test\\setup.ts",
+        "line": 527,
+        "metrics": {
+          "lines": 299,
+          "complexity": 38,
+          "params": 0
+        }
+      }
+    ],
+    "criticalClasses": [
+      {
+        "name": "RandomSecurityAuditor",
+        "file": "scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": "scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": "src\\core\\simulation.ts",
+        "line": 15,
+        "metrics": {
+          "methods": 37,
+          "lines": 605
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": "src\\core\\simulation_clean.ts",
+        "line": 38,
+        "metrics": {
+          "methods": 39,
+          "lines": 877
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": "src\\core\\simulation_final.ts",
+        "line": 25,
+        "metrics": {
+          "methods": 45,
+          "lines": 630
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": "src\\core\\simulation_minimal.ts",
+        "line": 16,
+        "metrics": {
+          "methods": 35,
+          "lines": 586
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": "src\\core\\simulation_simple.ts",
+        "line": 15,
+        "metrics": {
+          "methods": 37,
+          "lines": 598
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": "src\\dev\\developerConsole.ts",
+        "line": 13,
+        "metrics": {
+          "methods": 30,
+          "lines": 415
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": "src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 3,
+          "lines": 713
+        }
+      },
+      {
+        "name": "AdvancedMobileGestures",
+        "file": "src\\utils\\mobile\\AdvancedMobileGestures.ts",
+        "line": 14,
+        "metrics": {
+          "methods": 26,
+          "lines": 326
+        }
+      },
+      {
+        "name": "MobileAnalyticsManager",
+        "file": "src\\utils\\mobile\\MobileAnalyticsManager.ts",
+        "line": 31,
+        "metrics": {
+          "methods": 25,
+          "lines": 607
+        }
+      },
+      {
+        "name": "MobileSocialManager",
+        "file": "src\\utils\\mobile\\MobileSocialManager.ts",
+        "line": 21,
+        "metrics": {
+          "methods": 20,
+          "lines": 786
+        }
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "type": "function",
+      "action": "Break down critical complexity functions",
+      "count": 13,
+      "examples": [
+        "scripts\\github-integration-setup.js:generateInitialIssues()",
+        "scripts\\github-integration-setup.js:generateInitialIssues()",
+        "scripts\\quality\\code-complexity-audit.cjs:findSourceFiles()"
+      ]
+    },
+    {
+      "priority": "high",
+      "type": "function",
+      "action": "Refactor complex functions using decomposition pattern",
+      "count": 59,
+      "target": "Reduce to under 5 complex functions"
+    },
+    {
+      "priority": "critical",
+      "type": "class",
+      "action": "Extract responsibilities from oversized classes",
+      "count": 12,
+      "examples": [
+        "scripts\\security\\audit-random-security.cjs:RandomSecurityAuditor",
+        "scripts\\troubleshoot-project-workflow.mjs:WorkflowTroubleshooter",
+        "src\\core\\simulation.ts:OrganismSimulation"
+      ]
+    }
+  ]
+}

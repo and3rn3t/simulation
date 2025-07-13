@@ -19,7 +19,6 @@ export abstract class BaseComponent {
    */
   mount(parent: HTMLElement): void {
     if (this.mounted) {
-      console.warn('Component is already mounted');
       return;
     }
 

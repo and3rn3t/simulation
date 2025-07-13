@@ -1,3 +1,4 @@
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Debug Mode System
  * Provides detailed simulation information and debugging capabilities
@@ -13,8 +14,7 @@ export interface DebugInfo {
   lastUpdate: number;
 }
 
-export class DebugMode {
-  private static instance: DebugMode;
+export class DebugMode extends BaseSingleton {
   private isEnabled = false;
   private debugPanel: HTMLElement | null = null;
   private debugInfo: DebugInfo = {
@@ -32,29 +32,30 @@ export class DebugMode {
   private lastFrameTime = performance.now();
   private updateInterval: number | null = null;
 
+  protected constructor() {
+    super();
+  }
+
   static getInstance(): DebugMode {
-    if (!DebugMode.instance) {
-      DebugMode.instance = new DebugMode();
-    }
-    return DebugMode.instance;
+    return super.getInstance.call(this, 'DebugMode');
   }
 
   enable(): void {
     if (this.isEnabled) return;
 
     this.isEnabled = true;
+    console.log('🐛 Debug mode enabled');
     this.createDebugPanel();
     this.startUpdating();
-    console.log('🐛 Debug mode enabled');
   }
 
   disable(): void {
     if (!this.isEnabled) return;
 
     this.isEnabled = false;
+    console.log('🐛 Debug mode disabled');
     this.removeDebugPanel();
     this.stopUpdating();
-    console.log('🐛 Debug mode disabled');
   }
 
   toggle(): void {
@@ -305,7 +306,7 @@ export class DebugMode {
     };
 
     console.group('🔍 State Dump');
-    console.log(JSON.stringify(state, null, 2));
+    console.log('Debug State:', state);
     console.groupEnd();
 
     // Also save to localStorage for debugging
@@ -313,7 +314,6 @@ export class DebugMode {
   }
 
   private startPerformanceProfile(): void {
-    console.log('🚀 Starting performance profile...');
     performance.mark('profile-start');
 
     setTimeout(() => {
@@ -330,12 +330,13 @@ export class DebugMode {
   }
 
   private forceGarbageCollection(): void {
-    console.log('🗑️ Requesting garbage collection...');
     if ((window as any).gc) {
       (window as any).gc();
-      console.log('✅ Garbage collection completed');
+      console.log('🗑️ Forced garbage collection');
     } else {
-      console.warn('⚠️ Garbage collection not available (run with --expose-gc flag)');
+      console.log(
+        '⚠️ Garbage collection not available (Chrome with --js-flags="--expose-gc" required)'
+      );
     }
   }
 }

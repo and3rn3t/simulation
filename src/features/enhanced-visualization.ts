@@ -1,6 +1,7 @@
-import { VisualizationDashboard, SettingsPanelComponent } from '../ui/components';
 import { UserPreferencesManager } from '../services/UserPreferencesManager';
+import { SettingsPanelComponent } from '../ui/components/SettingsPanelComponent';
 import '../ui/components/visualization-components.css';
+import { VisualizationDashboard } from '../ui/components/VisualizationDashboard';
 
 /**
  * Enhanced Visualization Integration
@@ -135,7 +136,6 @@ export class EnhancedVisualizationIntegration {
     this.preferencesManager.applyAccessibility();
 
     // Update other settings...
-    console.log('Preferences updated:', preferences);
   }
 
   /**
@@ -221,8 +221,6 @@ export class EnhancedVisualizationIntegration {
    * Start demonstration mode with sample data
    */
   startDemo(): void {
-    console.log('🎮 Starting Enhanced Visualization Demo...');
-
     // Generate sample data every 2 seconds
     const demoInterval = setInterval(() => {
       this.updateVisualizationData();
@@ -231,7 +229,6 @@ export class EnhancedVisualizationIntegration {
     // Stop demo after 30 seconds
     setTimeout(() => {
       clearInterval(demoInterval);
-      console.log('📊 Demo completed!');
     }, 30000);
 
     // Show initial data
@@ -255,7 +252,6 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
   const simulationCanvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
 
   if (!simulationCanvas) {
-    console.error('Simulation canvas not found');
     return null;
   }
 
@@ -265,13 +261,12 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
     // Add to global scope for debugging
     (window as any).visualizationIntegration = integration;
 
-    console.log('✅ Enhanced visualization features initialized');
-    console.log('💡 Try: visualizationIntegration.startDemo() in the console');
-    console.log('⚙️ Access settings with: visualizationIntegration.showSettings()');
+    console.log(
+      'Enhanced visualization integration initialized. Access via window.visualizationIntegration in the console'
+    );
 
     return integration;
-  } catch (error) {
-    console.error('Failed to initialize enhanced visualization:', error);
+  } catch (_error) {
     return null;
   }
 }

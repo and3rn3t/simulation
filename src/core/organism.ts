@@ -1,11 +1,16 @@
 import type { OrganismType } from '../models/organismTypes';
 import {
+  CanvasError,
   ErrorHandler,
   ErrorSeverity,
   OrganismError,
-  CanvasError,
 } from '../utils/system/errorHandler';
 import { log } from '../utils/system/logger';
+import {
+  getMovementRandom,
+  getOffspringOffset,
+  shouldEventOccur,
+} from '../utils/system/simulationRandom';
 
 /**
  * Represents an individual organism in the simulation
@@ -72,9 +77,11 @@ export class Organism {
 
       this.age += deltaTime;
 
-      // Simple random movement
-      this.x += (Math.random() - 0.5) * 2;
-      this.y += (Math.random() - 0.5) * 2;
+      // Simple random movement using secure simulation random
+      const moveX = getMovementRandom();
+      const moveY = getMovementRandom();
+      this.x += moveX;
+      this.y += moveY;
 
       // Keep within bounds
       const size = this.type.size;
@@ -96,7 +103,7 @@ export class Organism {
    */
   canReproduce(): boolean {
     try {
-      return this.age > 20 && !this.reproduced && Math.random() < this.type.growthRate * 0.01;
+      return this.age > 20 && !this.reproduced && shouldEventOccur(this.type.growthRate * 0.01);
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new OrganismError('Failed to check reproduction'),
@@ -113,7 +120,7 @@ export class Organism {
    */
   shouldDie(): boolean {
     try {
-      return this.age > this.type.maxAge || Math.random() < this.type.deathRate * 0.001;
+      return this.age > this.type.maxAge || shouldEventOccur(this.type.deathRate * 0.001);
     } catch (error) {
       ErrorHandler.getInstance().handleError(
         error instanceof Error ? error : new OrganismError('Failed to check death condition'),
@@ -131,9 +138,8 @@ export class Organism {
   reproduce(): Organism {
     try {
       this.reproduced = true;
-      const offsetX = (Math.random() - 0.5) * 20;
-      const offsetY = (Math.random() - 0.5) * 20;
-      const newOrganism = new Organism(this.x + offsetX, this.y + offsetY, this.type);
+      const offset = getOffspringOffset();
+      const newOrganism = new Organism(this.x + offset.x, this.y + offset.y, this.type);
 
       // Log reproduction events for long-lived organisms
       if (this.age > 50) {

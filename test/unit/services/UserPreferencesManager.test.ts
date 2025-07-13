@@ -3,7 +3,11 @@
  * Tests preference management, persistence, validation, and event handling
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Unmock UserPreferencesManager for this test file to test the real implementation
+vi.unmock('../../../src/services/UserPreferencesManager');
+
 import { UserPreferencesManager } from '../../../src/services/UserPreferencesManager';
 
 // Mock localStorage
@@ -21,19 +25,27 @@ Object.defineProperty(global, 'localStorage', {
 });
 
 // Mock window.matchMedia
+const mockMatchMedia = vi.fn().mockImplementation(query => ({
+  matches: false, // Always return false to simulate light mode
+  media: query,
+  onchange: null,
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+}));
+
 Object.defineProperty(global, 'window', {
   value: {
-    matchMedia: vi.fn().mockImplementation(query => ({
-      matches: query.includes('dark'),
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+    matchMedia: mockMatchMedia,
   },
+  writable: true,
+});
+
+// Also set it directly on window for jsdom
+Object.defineProperty(window, 'matchMedia', {
+  value: mockMatchMedia,
   writable: true,
 });
 
@@ -42,12 +54,21 @@ describe('UserPreferencesManager', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset localStorage mock to return null (no saved preferences)
     localStorageMock.getItem.mockReturnValue(null);
+    localStorageMock.setItem.mockClear();
+    localStorageMock.removeItem.mockClear();
+    localStorageMock.clear.mockClear();
+
+    // Force reset singleton instance by accessing private static field
+    (UserPreferencesManager as any).instance = undefined;
     manager = UserPreferencesManager.getInstance();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // Clean up singleton instance after each test
+    (UserPreferencesManager as any).instance = undefined;
   });
 
   describe('Singleton Pattern', () => {
@@ -172,6 +193,23 @@ describe('UserPreferencesManager', () => {
 
   describe('Theme Management', () => {
     it('should apply theme changes', () => {
+      // Set up mocks for this test
+      const mockMatchMedia = vi.fn().mockReturnValue({
+        matches: false,
+        media: '(prefers-color-scheme: dark)',
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      });
+
+      Object.defineProperty(window, 'matchMedia', {
+        value: mockMatchMedia,
+        writable: true,
+      });
+
       const mockSetAttribute = vi.fn();
       const mockSetProperty = vi.fn();
       Object.defineProperty(document, 'documentElement', {

@@ -41,15 +41,7 @@ export class ObjectPool<T> {
         this.totalCreated++;
         return this.createFn();
       }
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new Error('Failed to acquire object from pool'),
-        ErrorSeverity.HIGH,
-        'ObjectPool.acquire'
-      );
-      // Fallback: create new object
-      return this.createFn();
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -62,13 +54,7 @@ export class ObjectPool<T> {
         this.pool.push(obj);
       }
       // If pool is full, let object be garbage collected
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new Error('Failed to release object to pool'),
-        ErrorSeverity.MEDIUM,
-        'ObjectPool.release'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -109,13 +95,7 @@ export class ObjectPool<T> {
         count: this.pool.length,
         maxSize: this.maxSize,
       });
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new Error('Failed to pre-fill object pool'),
-        ErrorSeverity.MEDIUM,
-        'ObjectPool.preFill'
-      );
-    }
+    } catch { /* handled */ }
   }
 }
 

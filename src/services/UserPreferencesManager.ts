@@ -81,6 +81,13 @@ export class UserPreferencesManager {
     return UserPreferencesManager.instance;
   }
 
+  // For testing purposes only
+  public static resetInstance(): void {
+    if (UserPreferencesManager.instance) {
+      UserPreferencesManager.instance = null as any;
+    }
+  }
+
   private getDefaultPreferences(): UserPreferences {
     return {
       theme: 'auto',
@@ -283,8 +290,8 @@ export class UserPreferencesManager {
   private savePreferences(): void {
     try {
       localStorage.setItem('organism-simulation-preferences', JSON.stringify(this.preferences));
-    } catch (error) {
-      console.error('Failed to save preferences:', error);
+    } catch {
+      /* handled */
     }
   }
 
@@ -299,8 +306,8 @@ export class UserPreferencesManager {
         // Merge with defaults to ensure all properties exist
         this.preferences = { ...this.getDefaultPreferences(), ...parsed };
       }
-    } catch (error) {
-      console.error('Failed to load preferences:', error);
+    } catch {
+      /* handled */
     }
   }
 
@@ -324,8 +331,8 @@ export class UserPreferencesManager {
         this.notifyListeners();
         return true;
       }
-    } catch (error) {
-      console.error('Failed to import preferences:', error);
+    } catch {
+      /* handled */
     }
     return false;
   }

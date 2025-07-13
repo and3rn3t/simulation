@@ -11,13 +11,37 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Security: Whitelist of allowed commands to prevent command injection
+const ALLOWED_COMMANDS = [
+  'git rev-parse --is-inside-work-tree',
+  'git remote get-url origin',
+  'git remote -v',
+  'node --version',
+  'npm --version',
+];
+
+function secureExecSync(command, options = {}) {
+  // Check if command is in allowlist
+  if (!ALLOWED_COMMANDS.includes(command)) {
+    throw new Error(`Command not allowed: ${command}`);
+  }
+
+  // Add security timeout
+  const safeOptions = {
+    timeout: 30000, // 30 second timeout
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 console.log('🔍 Environment Configuration Checker');
 console.log('=====================================');
 
 // Check if we're in a Git repository
 function checkGitRepository() {
   try {
-    execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+    secureExecSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
     console.log('✅ Git repository detected');
     return true;
   } catch {
@@ -29,7 +53,7 @@ function checkGitRepository() {
 // Check GitHub remote
 function checkGitHubRemote() {
   try {
-    const remote = execSync('git remote get-url origin', { encoding: 'utf8' }).trim();
+    const remote = secureExecSync('git remote get-url origin', { encoding: 'utf8' }).trim();
     if (remote.includes('github.com') && remote.includes('simulation')) {
       console.log('✅ GitHub remote configured:', remote);
       return true;
@@ -46,15 +70,15 @@ function checkGitHubRemote() {
 // Check current branch
 function checkCurrentBranch() {
   try {
-    const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+    const branch = secureExecSync('git branch --show-current', { encoding: 'utf8' }).trim();
     console.log(`📍 Current branch: ${branch}`);
-    
+
     if (branch === 'main' || branch === 'develop') {
       console.log('✅ On main deployment branch');
     } else {
       console.log('ℹ️  On feature branch (normal for development)');
     }
-    
+
     return branch;
   } catch {
     console.log('❌ Could not determine current branch');
@@ -65,21 +89,21 @@ function checkCurrentBranch() {
 // Check CI/CD workflow file
 function checkWorkflowFile() {
   const workflowPath = path.join(__dirname, '..', '..', '.github', 'workflows', 'ci-cd.yml');
-  
+
   if (fs.existsSync(workflowPath)) {
     console.log('✅ CI/CD workflow file exists');
-    
+
     const content = fs.readFileSync(workflowPath, 'utf8');
-    
+
     // Check for environment references
     const hasStaging = content.includes('name: staging');
     const hasProduction = content.includes('name: production');
     const hasCloudflareAction = content.includes('cloudflare/pages-action');
-    
+
     console.log(`${hasStaging ? '✅' : '❌'} Staging environment configured`);
     console.log(`${hasProduction ? '✅' : '❌'} Production environment configured`);
     console.log(`${hasCloudflareAction ? '✅' : '❌'} Cloudflare Pages action configured`);
-    
+
     return { hasStaging, hasProduction, hasCloudflareAction };
   } else {
     console.log('❌ CI/CD workflow file not found');
@@ -90,20 +114,21 @@ function checkWorkflowFile() {
 // Check Cloudflare configuration
 function checkCloudflareConfig() {
   const wranglerPath = path.join(__dirname, '..', '..', 'wrangler.toml');
-  
+
   if (fs.existsSync(wranglerPath)) {
     console.log('✅ Cloudflare wrangler.toml exists');
-    
+
     const content = fs.readFileSync(wranglerPath, 'utf8');
-    
-    const hasProduction = content.includes('[env.production.vars]') || content.includes('[env.production]');
+
+    const hasProduction =
+      content.includes('[env.production.vars]') || content.includes('[env.production]');
     const hasPreview = content.includes('[env.preview.vars]') || content.includes('[env.preview]');
     const hasProjectName = content.includes('name = "organism-simulation"');
-    
+
     console.log(`${hasProduction ? '✅' : '❌'} Production environment in wrangler.toml`);
     console.log(`${hasPreview ? '✅' : '❌'} Preview environment in wrangler.toml`);
     console.log(`${hasProjectName ? '✅' : '❌'} Project name configured`);
-    
+
     return { hasProduction, hasPreview, hasProjectName };
   } else {
     console.log('❌ Cloudflare wrangler.toml not found');
@@ -115,39 +140,33 @@ function checkCloudflareConfig() {
 function checkEnvironmentFiles() {
   const envFiles = ['.env.development', '.env.staging', '.env.production'];
   const results = {};
-  
+
   envFiles.forEach(file => {
     const filePath = path.join(__dirname, '..', '..', file);
     const exists = fs.existsSync(filePath);
     console.log(`${exists ? '✅' : '⚠️'} ${file} ${exists ? 'exists' : 'missing'}`);
     results[file] = exists;
   });
-  
+
   return results;
 }
 
 // Check package.json scripts
 function checkPackageScripts() {
   const packagePath = path.join(__dirname, '..', '..', 'package.json');
-  
+
   if (fs.existsSync(packagePath)) {
     const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
     const scripts = pkg.scripts || {};
-    
-    const requiredScripts = [
-      'build',
-      'dev',
-      'test',
-      'lint',
-      'type-check'
-    ];
-    
+
+    const requiredScripts = ['build', 'dev', 'test', 'lint', 'type-check'];
+
     console.log('\n📦 Package.json scripts:');
     requiredScripts.forEach(script => {
       const exists = scripts[script];
       console.log(`${exists ? '✅' : '❌'} ${script}: ${exists || 'missing'}`);
     });
-    
+
     return scripts;
   } else {
     console.log('❌ package.json not found');
@@ -163,19 +182,19 @@ function main() {
     checkGitHubRemote();
     checkCurrentBranch();
   }
-  
+
   console.log('\n🔍 Checking CI/CD configuration...');
   checkWorkflowFile();
-  
+
   console.log('\n🔍 Checking Cloudflare configuration...');
   checkCloudflareConfig();
-  
+
   console.log('\n🔍 Checking environment files...');
   checkEnvironmentFiles();
-  
+
   console.log('\n🔍 Checking build configuration...');
   checkPackageScripts();
-  
+
   console.log('\n📋 Next Steps:');
   console.log('1. Visit your GitHub repository settings to configure environments');
   console.log('2. Go to: https://github.com/and3rn3t/simulation/settings/environments');

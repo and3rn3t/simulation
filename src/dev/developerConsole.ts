@@ -1,3 +1,4 @@
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Developer Console System
  * Provides a command-line interface for debugging and development
@@ -10,8 +11,7 @@ export interface ConsoleCommand {
   execute: (args: string[]) => Promise<string> | string;
 }
 
-export class DeveloperConsole {
-  private static instance: DeveloperConsole;
+export class DeveloperConsole extends BaseSingleton {
   private isVisible = false;
   private consoleElement: HTMLElement | null = null;
   private inputElement: HTMLInputElement | null = null;
@@ -21,13 +21,11 @@ export class DeveloperConsole {
   private historyIndex = -1;
 
   static getInstance(): DeveloperConsole {
-    if (!DeveloperConsole.instance) {
-      DeveloperConsole.instance = new DeveloperConsole();
-    }
-    return DeveloperConsole.instance;
+    return super.getInstance.call(this, 'DeveloperConsole');
   }
 
-  constructor() {
+  protected constructor() {
+    super();
     this.initializeDefaultCommands();
     this.setupKeyboardShortcuts();
   }

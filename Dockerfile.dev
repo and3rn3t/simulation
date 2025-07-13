@@ -1,19 +1,34 @@
-# Development Dockerfile
+# Development Dockerfile with Security Hardening
 FROM node:20-alpine
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S devuser -u 1001 -G nodejs
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Security: Change ownership to non-root user
+RUN chown -R devuser:nodejs /app
+
+# Security: Switch to non-root user early
+USER devuser
+
+# Copy package files with proper ownership
+COPY --chown=devuser:nodejs package*.json ./
 
 # Install all dependencies (including dev dependencies)
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy source code with proper ownership
+COPY --chown=devuser:nodejs . .
+
+# Security: Set proper file permissions (read-only for non-owners)
+RUN find /app -type f -exec chmod 644 {} \; && \
+    find /app -type d -exec chmod 755 {} \; && \
+    chmod 755 /app/node_modules/.bin/* 2>/dev/null || true
 
 # Expose development port
 EXPOSE 5173
 
-# Start development server
+# Security: Start development server as non-root user
 CMD ["npm", "run", "dev", "--", "--host"]

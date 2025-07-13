@@ -1,26 +1,56 @@
 # 🧠 Advanced Testing Lessons Learned - Copilot Knowledge Base
 
-## 🎯 **Test Pipeline Optimization Insights** (From 74.5% Success Achievement)
+## 🎯 **Test Pipeline Optimization Insights** (From 84.0% Success Achievement)
 
 ### **JSDOM Limitations & Workarounds** ⚠️
 
 #### **Critical JSDOM Issues Discovered**
 
-1. **removeChild Type Safety Conflicts**
+1. **DOM Safety & removeChild Type Safety Conflicts**
 
    ```typescript
-   // ❌ Problem: JSDOM strict type checking
-   element.parentNode.removeChild(element); // Throws Node type error
+   // ❌ Problem: JSDOM strict type checking + DOM operation failures
+   element.parentNode.removeChild(element); // Throws Node type error or fails in tests
 
-   // ✅ Solution: Enhanced Element.remove() mock
-   HTMLElement.prototype.remove = vi.fn(() => {
-     if (element.parentNode && element.parentNode.removeChild) {
-       element.parentNode.removeChild(element);
+   // ✅ Solution: Defensive DOM cleanup with try-catch
+   afterEach(() => {
+     try {
+       if (container && container.parentNode) {
+         container.parentNode.removeChild(container);
+       }
+     } catch (error) {
+       // Silently ignore DOM cleanup errors in tests
+     }
+   });
+
+   // ✅ Enhanced Element.remove() mock
+   HTMLElement.prototype.remove = vi.fn(function (this: HTMLElement) {
+     if (this.parentNode && this.parentNode.removeChild) {
+       this.parentNode.removeChild(this);
      }
    });
    ```
 
-2. **Canvas Element Discovery Issues**
+2. **ResizeObserver Window Object Detection**
+
+   ```typescript
+   // ❌ Problem: ResizeObserver feature detection fails
+   if (window.ResizeObserver) {
+     /* ... */
+   }
+
+   // ✅ Solution: Complete window object support
+   global.ResizeObserver = vi.fn().mockImplementation(() => ({
+     observe: vi.fn(),
+     unobserve: vi.fn(),
+     disconnect: vi.fn(),
+   }));
+
+   Object.defineProperty(window, 'ResizeObserver', {
+     value: global.ResizeObserver,
+     writable: true,
+   });
+   ```
 
    ```typescript
    // ❌ Problem: Canvas element not found in constructor

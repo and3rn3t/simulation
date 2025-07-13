@@ -9,6 +9,30 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Security: Whitelist of allowed commands to prevent command injection
+const ALLOWED_GIT_COMMANDS = ['git rev-parse --git-dir', 'git rev-list --count HEAD'];
+
+/**
+ * Securely execute a whitelisted command
+ * @param {string} command - Command to execute (must be in whitelist)
+ * @param {Object} options - Execution options
+ * @returns {string} Command output
+ */
+function secureExecSync(command, options = {}) {
+  // Security check: Only allow whitelisted commands
+  if (!ALLOWED_GIT_COMMANDS.includes(command)) {
+    throw new Error(`Command not allowed for security reasons: ${command}`);
+  }
+
+  const safeOptions = {
+    encoding: 'utf8',
+    timeout: 10000, // 10 second timeout
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 class SecurityWorkflowValidator {
   constructor() {
     this.workflowPath = '.github/workflows/security-advanced.yml';
@@ -16,7 +40,7 @@ class SecurityWorkflowValidator {
       passed: 0,
       failed: 0,
       warnings: 0,
-      issues: []
+      issues: [],
     };
   }
 
@@ -25,14 +49,14 @@ class SecurityWorkflowValidator {
       info: 'ℹ️',
       success: '✅',
       warning: '⚠️',
-      error: '❌'
+      error: '❌',
     };
     console.log(`${icons[type]} ${message}`);
   }
 
   validateWorkflowFile() {
     this.log('Validating security workflow file...', 'info');
-    
+
     if (!fs.existsSync(this.workflowPath)) {
       this.results.failed++;
       this.results.issues.push('Security workflow file not found');
@@ -41,16 +65,19 @@ class SecurityWorkflowValidator {
     }
 
     const content = fs.readFileSync(this.workflowPath, 'utf8');
-    
+
     // Check for TruffleHog configuration
     const hasTruffleHog = content.includes('trufflesecurity/trufflehog@main');
     const hasCommitRange = content.includes('Get commit range for TruffleHog');
     const hasDiffMode = content.includes('TruffleHog OSS Secret Scanning (Diff Mode)');
     const hasFilesystemMode = content.includes('TruffleHog OSS Secret Scanning (Filesystem Mode)');
-    
+
     if (hasTruffleHog && hasCommitRange && hasDiffMode && hasFilesystemMode) {
       this.results.passed++;
-      this.log('TruffleHog configuration is properly set up with dynamic commit range detection', 'success');
+      this.log(
+        'TruffleHog configuration is properly set up with dynamic commit range detection',
+        'success'
+      );
     } else {
       this.results.failed++;
       this.results.issues.push('TruffleHog configuration is incomplete or incorrect');
@@ -62,7 +89,7 @@ class SecurityWorkflowValidator {
       { name: 'CodeQL', pattern: 'github/codeql-action' },
       { name: 'Dependency Review', pattern: 'dependency-review-action' },
       { name: 'Snyk', pattern: 'snyk/actions' },
-      { name: 'License Checker', pattern: 'license-checker' }
+      { name: 'License Checker', pattern: 'license-checker' },
     ];
 
     securityTools.forEach(tool => {
@@ -80,16 +107,16 @@ class SecurityWorkflowValidator {
 
   validateGitConfiguration() {
     this.log('Validating Git configuration...', 'info');
-    
+
     try {
       // Check if we're in a git repository
-      execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+      secureExecSync('git rev-parse --git-dir', { stdio: 'ignore' });
       this.results.passed++;
       this.log('Git repository detected', 'success');
-      
+
       // Check for commits
       try {
-        const commitCount = execSync('git rev-list --count HEAD', { encoding: 'utf8' }).trim();
+        const commitCount = secureExecSync('git rev-list --count HEAD').trim();
         if (parseInt(commitCount) > 0) {
           this.results.passed++;
           this.log(`Repository has ${commitCount} commits`, 'success');
@@ -97,11 +124,10 @@ class SecurityWorkflowValidator {
           this.results.warnings++;
           this.log('Repository has no commits - TruffleHog will use filesystem mode', 'warning');
         }
-      } catch (error) {
+      } catch {
         this.results.warnings++;
         this.log('Could not determine commit count - repository might be empty', 'warning');
       }
-      
     } catch (error) {
       this.results.failed++;
       this.results.issues.push('Not in a Git repository');
@@ -111,12 +137,9 @@ class SecurityWorkflowValidator {
 
   validateSecrets() {
     this.log('Validating secrets configuration...', 'info');
-    
-    const requiredSecrets = [
-      'SONAR_TOKEN',
-      'SNYK_TOKEN'
-    ];
-    
+
+    const requiredSecrets = ['SONAR_TOKEN', 'SNYK_TOKEN'];
+
     // We can't actually check if secrets exist in GitHub, but we can check documentation
     const securityGuide = 'docs/infrastructure/SONARCLOUD_SETUP_GUIDE_COMPLETE.md';
     if (fs.existsSync(securityGuide)) {
@@ -135,32 +158,32 @@ class SecurityWorkflowValidator {
 
   simulateTruffleHogScenarios() {
     this.log('Simulating TruffleHog scenarios...', 'info');
-    
+
     const scenarios = [
       {
         name: 'Pull Request',
         event: 'pull_request',
-        description: 'TruffleHog scans diff between PR base and head'
+        description: 'TruffleHog scans diff between PR base and head',
       },
       {
         name: 'Push with Previous Commit',
         event: 'push',
         before: 'abc123',
         after: 'def456',
-        description: 'TruffleHog scans diff between before and after commits'
+        description: 'TruffleHog scans diff between before and after commits',
       },
       {
         name: 'Initial Push',
         event: 'push',
         before: '0000000000000000000000000000000000000000',
         after: 'abc123',
-        description: 'TruffleHog scans entire filesystem (no previous commit)'
+        description: 'TruffleHog scans entire filesystem (no previous commit)',
       },
       {
         name: 'Scheduled Run',
         event: 'schedule',
-        description: 'TruffleHog scans entire filesystem'
-      }
+        description: 'TruffleHog scans entire filesystem',
+      },
     ];
 
     scenarios.forEach(scenario => {
@@ -200,12 +223,12 @@ class SecurityWorkflowValidator {
   run() {
     this.log('🔍 Starting Security Workflow Validation...', 'info');
     this.log('==========================================', 'info');
-    
+
     this.validateWorkflowFile();
     this.validateGitConfiguration();
     this.validateSecrets();
     this.simulateTruffleHogScenarios();
-    
+
     return this.generateReport();
   }
 }

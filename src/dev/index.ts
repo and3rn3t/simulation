@@ -19,7 +19,6 @@ import { PerformanceProfiler } from './performanceProfiler';
  * Should be called in development mode only
  */
 export function initializeDevTools(): void {
-  console.log('🔧 Initializing development tools...');
 
   const debugMode = DebugMode.getInstance();
   const devConsole = DeveloperConsole.getInstance();
@@ -85,7 +84,7 @@ export function initializeDevTools(): void {
           navigator.clipboard.writeText(data);
           return `Exported session ${args[0]} to clipboard`;
         } else {
-          console.log('Session data:', data);
+
           return `Session data logged to console (clipboard not available)`;
         }
       } catch (error) {
@@ -103,11 +102,10 @@ export function initializeDevTools(): void {
     }
   });
 
-  console.log('✅ Development tools initialized');
-  console.log('🔧 Available shortcuts:');
-  console.log('  Ctrl+` - Toggle developer console');
-  console.log('  Ctrl+Shift+D - Toggle debug mode');
-  console.log('  Type "help" in console for commands');
+
+
+
+
 }
 
 /**

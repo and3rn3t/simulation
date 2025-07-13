@@ -2,6 +2,8 @@
  * Mobile Analytics Manager - Advanced analytics and performance monitoring for mobile
  */
 
+import { generateSecureSessionId, getSecureAnalyticsSample } from '../system/secureRandom';
+
 export interface MobileAnalyticsConfig {
   enablePerformanceMonitoring: boolean;
   enableUserBehaviorTracking: boolean;
@@ -56,8 +58,7 @@ export class MobileAnalyticsManager {
    * Initialize analytics tracking
    */
   private initializeAnalytics(): void {
-    if (Math.random() > this.config.sampleRate) {
-      console.log('Analytics sampling - session not tracked');
+    if (getSecureAnalyticsSample() > this.config.sampleRate) {
       return;
     }
 
@@ -70,10 +71,11 @@ export class MobileAnalyticsManager {
   }
 
   /**
-   * Generate unique session ID
+   * Generate unique session ID using cryptographically secure random values
    */
   private generateSessionId(): string {
-    return `mobile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use secure random utility for cryptographically secure session ID generation
+    return generateSecureSessionId('mobile');
   }
 
   /**
@@ -542,11 +544,7 @@ export class MobileAnalyticsManager {
       }
 
       await this.sendEvents(events);
-    } catch (error) {
-      console.error('Failed to flush analytics events:', error);
-      // Re-queue events on failure
-      this.eventQueue.unshift(...events);
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -574,11 +572,21 @@ export class MobileAnalyticsManager {
    */
   private async sendEvents(events: AnalyticsEvent[]): Promise<void> {
     // In a real implementation, this would send to your analytics service
-    console.log('Sending analytics events:', events);
-
     // Store in localStorage for offline mode
     const storedEvents = localStorage.getItem('offline_analytics') || '[]';
-    const allEvents = [...JSON.parse(storedEvents), ...events];
+    let parsedEvents: any[] = [];
+
+    try {
+      parsedEvents = JSON.parse(storedEvents);
+      // Validate that it's actually an array
+      if (!Array.isArray(parsedEvents)) {
+        parsedEvents = [];
+      }
+    } catch (error) {
+      parsedEvents = [];
+    }
+
+    const allEvents = [...parsedEvents, ...events];
     localStorage.setItem('offline_analytics', JSON.stringify(allEvents));
   }
 

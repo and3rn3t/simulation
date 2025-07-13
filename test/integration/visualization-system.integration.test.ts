@@ -5,6 +5,9 @@ vi.mock('../../src/services/UserPreferencesManager', () => ({
   UserPreferencesManager: {
     getInstance: vi.fn(() => ({
       getPreferences: vi.fn(() => ({
+        theme: 'dark',
+        language: 'en',
+        defaultSpeed: 1.0,
         visualizations: {
           showCharts: true,
           showHeatmaps: true,
@@ -13,8 +16,21 @@ vi.mock('../../src/services/UserPreferencesManager', () => ({
           heatmapIntensity: 0.6,
           trailLength: 100,
         },
+        performance: {
+          enableOptimizations: true,
+          maxFrameRate: 60,
+        },
+        accessibility: {
+          highContrast: false,
+          fontSize: 14,
+        },
       })),
       updatePreferences: vi.fn(),
+      getAvailableLanguages: vi.fn(() => [
+        { code: 'en', name: 'English' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' },
+      ]),
       on: vi.fn(),
       off: vi.fn(),
     })),

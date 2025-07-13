@@ -1,7 +1,10 @@
+import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Performance Profiling Tools
  * Provides detailed performance analysis and optimization recommendations
  */
+
+import { generateSecureTaskId } from '../utils/system/secureRandom';
 
 export interface PerformanceMetrics {
   fps: number;
@@ -25,8 +28,7 @@ export interface ProfileSession {
   recommendations: string[];
 }
 
-export class PerformanceProfiler {
-  private static instance: PerformanceProfiler;
+export class PerformanceProfiler extends BaseSingleton {
   private isProfilering = false;
   private currentSession: ProfileSession | null = null;
   private sessions: ProfileSession[] = [];
@@ -38,10 +40,11 @@ export class PerformanceProfiler {
   private lastFrameTime = performance.now();
 
   static getInstance(): PerformanceProfiler {
-    if (!PerformanceProfiler.instance) {
-      PerformanceProfiler.instance = new PerformanceProfiler();
-    }
-    return PerformanceProfiler.instance;
+    return super.getInstance.call(this, 'PerformanceProfiler');
+  }
+
+  protected constructor() {
+    super();
   }
 
   startProfiling(duration: number = 10000): string {
@@ -49,7 +52,7 @@ export class PerformanceProfiler {
       throw new Error('Profiling session already in progress');
     }
 
-    const sessionId = `profile_${Date.now()}`;
+    const sessionId = generateSecureTaskId('profile');
     this.currentSession = {
       id: sessionId,
       startTime: performance.now(),
@@ -74,13 +77,11 @@ export class PerformanceProfiler {
       }
     }, duration);
 
-    console.log(`🚀 Started performance profiling session: ${sessionId}`);
     return sessionId;
   }
 
   stopProfiling(): ProfileSession | null {
     if (!this.isProfilering || !this.currentSession) {
-      console.warn('No profiling session in progress');
       return null;
     }
 
@@ -108,7 +109,6 @@ export class PerformanceProfiler {
     const session = this.currentSession;
     this.currentSession = null;
 
-    console.log(`✅ Completed performance profiling session: ${session.id}`);
     this.logSessionSummary(session);
 
     return session;
@@ -124,7 +124,6 @@ export class PerformanceProfiler {
 
   clearSessions(): void {
     this.sessions = [];
-    console.log('🗑️ Cleared all profiling sessions');
   }
 
   isProfiling(): boolean {
@@ -150,7 +149,6 @@ export class PerformanceProfiler {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
       if (currentHeap < this.lastGCTime) {
         // Potential GC detected
-        console.log('🗑️ Garbage collection detected');
       }
       this.lastGCTime = currentHeap;
     }
@@ -313,24 +311,23 @@ export class PerformanceProfiler {
 
   private logSessionSummary(session: ProfileSession): void {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
-    console.log(`Duration: ${(session.duration! / 1000).toFixed(2)}s`);
-    console.log(`Samples: ${session.metrics.length}`);
+    console.log(`Duration: ${(session.endTime - session.startTime).toFixed(2)}ms`);
 
     console.group('Averages');
-    console.log(`FPS: ${session.averages.fps.toFixed(1)}`);
+    console.log(`FPS: ${session.averages.fps.toFixed(2)}`);
     console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
-    console.log(`Memory: ${(session.averages.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
+    console.log(`Memory: ${session.averages.memoryUsage.toFixed(2)}MB`);
     console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
     console.groupEnd();
 
     console.group('Peaks');
     console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
-    console.log(`Max Memory: ${(session.peaks.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
-    console.log(`Max GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
+    console.log(`Peak Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
+    console.log(`Peak GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => console.log(rec));
+    session.recommendations.forEach(rec => console.log(`💡 ${rec}`));
     console.groupEnd();
 
     console.groupEnd();
@@ -351,7 +348,6 @@ export class PerformanceProfiler {
     try {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
-      console.log(`📥 Imported performance session: ${session.id}`);
     } catch (error) {
       throw new Error(`Failed to import session: ${error}`);
     }

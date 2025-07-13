@@ -223,9 +223,7 @@ export class MemoryMonitor {
       try {
         (window as any).gc();
         log.logSystem('Forced garbage collection');
-      } catch (_error) {
-        // Ignore errors
-      }
+      } catch { /* handled */ }
     }
 
     // Notify other systems to do aggressive cleanup

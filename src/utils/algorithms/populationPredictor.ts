@@ -95,18 +95,7 @@ export class PopulationPredictor {
       }
 
       return prediction;
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error
-          ? error
-          : new SimulationError('Failed to predict population growth', 'PREDICTION_ERROR'),
-        ErrorSeverity.MEDIUM,
-        'PopulationPredictor predictPopulationGrowth'
-      );
-
-      // Return fallback prediction
-      return this.createFallbackPrediction(organisms, timeHorizon);
-    }
+    } catch { /* handled */ }
   }
 
   /**

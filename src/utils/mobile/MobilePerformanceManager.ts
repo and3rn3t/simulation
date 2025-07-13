@@ -1,3 +1,5 @@
+import { isMobileDevice } from '../system/mobileDetection';
+
 /**
  * Mobile Performance Manager - Optimizes simulation performance for mobile devices
  */
@@ -41,9 +43,7 @@ export class MobilePerformanceManager {
    * Get optimal organism count based on device capabilities
    */
   private getOptimalOrganismCount(): number {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return 1000; // Desktop default
 
@@ -62,9 +62,7 @@ export class MobilePerformanceManager {
    * Get optimal target FPS based on device and battery
    */
   private getOptimalTargetFPS(): number {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return 60; // Desktop default
 
@@ -82,9 +80,7 @@ export class MobilePerformanceManager {
    * Check if effects should be reduced
    */
   private shouldReduceEffects(): boolean {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const isMobile = isMobileDevice();
 
     if (!isMobile) return false;
 
@@ -114,8 +110,8 @@ export class MobilePerformanceManager {
           this.adjustPerformanceForBattery();
         });
       }
-    } catch (error) {
-      console.warn('Battery API not available:', error);
+    } catch (_error) {
+      /* handled */
     }
   }
 
@@ -161,15 +157,11 @@ export class MobilePerformanceManager {
       this.config.targetFPS = 20;
       this.config.maxOrganisms = Math.floor(this.config.maxOrganisms * 0.5);
       this.config.reducedEffects = true;
-
-      console.log('📱 Entered battery saver mode');
     } else if (!this.config.batterySaverMode && wasBatterySaver) {
       // Exiting battery saver mode
       this.config.targetFPS = this.getOptimalTargetFPS();
       this.config.maxOrganisms = this.getOptimalOrganismCount();
       this.config.reducedEffects = this.shouldReduceEffects();
-
-      console.log('📱 Exited battery saver mode');
     }
   }
 
@@ -185,8 +177,6 @@ export class MobilePerformanceManager {
       // Reduce quality settings
       this.config.maxOrganisms = Math.max(100, Math.floor(this.config.maxOrganisms * 0.9));
       this.config.reducedEffects = true;
-
-      console.log(`📱 Reduced performance settings (FPS: ${actualFPS}/${targetFPS})`);
     } else if (fpsRatio > 1.2 && actualFPS > targetFPS) {
       // Performance is good
       // Can potentially increase quality

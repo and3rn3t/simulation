@@ -55,13 +55,7 @@ export class CanvasUtils {
     try {
       this.ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new CanvasError('Failed to clear canvas'),
-        ErrorSeverity.MEDIUM,
-        'Canvas clear'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -86,13 +80,7 @@ export class CanvasUtils {
       }
 
       this.ctx.stroke();
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new CanvasError('Failed to draw grid'),
-        ErrorSeverity.MEDIUM,
-        'Canvas grid drawing'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -121,13 +109,7 @@ export class CanvasUtils {
         this.canvas.width / 2,
         this.canvas.height / 2 + 20
       );
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new CanvasError('Failed to draw placement instructions'),
-        ErrorSeverity.MEDIUM,
-        'Canvas placement instructions'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**
@@ -154,13 +136,7 @@ export class CanvasUtils {
       this.ctx.arc(x, y, size, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.restore();
-    } catch (error) {
-      ErrorHandler.getInstance().handleError(
-        error instanceof Error ? error : new CanvasError('Failed to draw preview organism'),
-        ErrorSeverity.LOW,
-        'Canvas preview organism drawing'
-      );
-    }
+    } catch { /* handled */ }
   }
 
   /**

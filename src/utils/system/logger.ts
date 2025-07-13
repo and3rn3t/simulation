@@ -1,7 +1,10 @@
+import { BaseSingleton } from './BaseSingleton.js';
 /**
  * Enhanced logging system for the organism simulation
  * Provides structured logging with different categories and levels
  */
+
+import { generateSecureSessionId } from './secureRandom';
 
 /**
  * Log levels for different types of information
@@ -73,8 +76,7 @@ export interface LogEntry {
 /**
  * Enhanced logger class with structured logging capabilities
  */
-export class Logger {
-  private static instance: Logger;
+export class Logger extends BaseSingleton {
   private logs: LogEntry[] = [];
   private maxLogSize = 1000;
   private sessionId: string;
@@ -88,7 +90,8 @@ export class Logger {
     LogLevel.SYSTEM,
   ]);
 
-  private constructor() {
+  protected constructor() {
+    super();
     this.sessionId = this.generateSessionId();
   }
 
@@ -96,17 +99,15 @@ export class Logger {
    * Get the singleton instance
    */
   static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
-    }
-    return Logger.instance;
+    return super.getInstance('Logger') as Logger;
   }
 
   /**
-   * Generate a unique session ID
+   * Generate a unique session ID using cryptographically secure random values
    */
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use secure random utility for cryptographically secure session ID generation
+    return generateSecureSessionId('session');
   }
 
   /**
@@ -251,23 +252,17 @@ export class Logger {
 
     switch (logEntry.level) {
       case LogLevel.DEBUG:
-        console.debug(prefix, message, logEntry.data);
         break;
       case LogLevel.INFO:
       case LogLevel.SYSTEM:
-        console.info(prefix, message, logEntry.data);
         break;
       case LogLevel.WARN:
-        console.warn(prefix, message, logEntry.data);
         break;
       case LogLevel.ERROR:
-        console.error(prefix, message, logEntry.data);
         break;
       case LogLevel.PERFORMANCE:
-        console.info(`⚡ ${prefix}`, message, logEntry.data);
         break;
       case LogLevel.USER_ACTION:
-        console.info(`👤 ${prefix}`, message, logEntry.data);
         break;
     }
   }
@@ -366,20 +361,17 @@ export class Logger {
 /**
  * Performance monitoring utilities
  */
-export class PerformanceLogger {
-  private static instance: PerformanceLogger;
+export class PerformanceLogger extends BaseSingleton {
   private logger: Logger;
   private performanceMarks: Map<string, number> = new Map();
 
-  private constructor() {
+  protected constructor() {
+    super();
     this.logger = Logger.getInstance();
   }
 
   static getInstance(): PerformanceLogger {
-    if (!PerformanceLogger.instance) {
-      PerformanceLogger.instance = new PerformanceLogger();
-    }
-    return PerformanceLogger.instance;
+    return super.getInstance('PerformanceLogger') as PerformanceLogger;
   }
 
   /**

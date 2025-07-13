@@ -113,27 +113,13 @@ export class InteractiveExamples {
 // Basic Organism Example
 const organism = new Organism(100, 150, getOrganismType('bacteria'));
 
-console.log('Created organism:', {
-  position: { x: organism.x, y: organism.y },
-  type: organism.type.name,
-  age: organism.age
-});
-
 // Update the organism
 organism.update(1, 800, 600);
-
-console.log('After update:', {
-  position: { x: organism.x, y: organism.y },
-  age: organism.age
-});
 
 // Check if organism can reproduce
 if (organism.canReproduce()) {
   const child = organism.reproduce();
-  console.log('Organism reproduced! Child at:', {
-    x: child.x,
-    y: child.y
-  });
+
 }`,
 
       'simulation-setup': `
@@ -165,12 +151,7 @@ const organismTypes = [
 ];
 
 organismTypes.forEach(type => {
-  console.log(\`\${type.name}:\`, {
-    growthRate: type.growthRate,
-    deathRate: type.deathRate,
-    maxAge: type.maxAge,
-    color: type.color
-  });
+
 });
 
 // Create organisms of different types
@@ -178,7 +159,7 @@ const organisms = organismTypes.map((type, index) =>
   new Organism(100 + index * 50, 100, type)
 );
 
-console.log('Created organisms:', organisms.map(org => org.type.name));`,
+);`,
 
       'performance-demo': `
 // Performance Demo Example
@@ -196,11 +177,9 @@ simulation.toggleSoAOptimization(true);
 
 // Get performance stats
 const stats = simulation.getAlgorithmPerformanceStats();
-console.log('Performance stats:', stats);
 
 // Get memory stats
 const memoryStats = simulation.getMemoryStats();
-console.log('Memory stats:', memoryStats);
 
 // Note: In the simulation, organisms are added via click events`,
 
@@ -214,13 +193,11 @@ const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Monitor memory usage
 const memoryStats = simulation.getMemoryStats();
-console.log('Initial memory stats:', memoryStats);
 
 // Toggle SoA optimization to see memory impact
 simulation.toggleSoAOptimization(true);
 
 const optimizedStats = simulation.getMemoryStats();
-console.log('With SoA optimization:', optimizedStats);
 
 // Note: In the simulation, organisms are added via click events`,
 
@@ -236,22 +213,14 @@ const customOrganism: OrganismType = {
   description: 'A custom organism type'
 };
 
-console.log('Created custom organism type:', customOrganism);
-
 // Create organism with custom type
 const organism = new Organism(200, 200, customOrganism);
-
-console.log('Custom organism created:', {
-  type: organism.type.name,
-  color: organism.type.color,
-  size: organism.type.size
-});
 
 // Use in simulation
 const canvas = document.createElement('canvas');
 const simulation = new OrganismSimulation(canvas, customOrganism);
 
-console.log('Simulation with custom organism ready');`,
+`,
 
       'event-handling': `
 // Event Handling Example
@@ -262,15 +231,13 @@ canvas.height = 600;
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Handle simulation events (if implemented)
-console.log('Setting up event handling...');
 
 // Monitor simulation stats
 const monitorStats = () => {
   const stats = simulation.getStats();
-  console.log('Current stats:', stats);
-  
+
   if (stats.population > 50) {
-    console.log('Population threshold reached!');
+
   }
 };
 
@@ -278,7 +245,6 @@ const monitorStats = () => {
 setInterval(monitorStats, 2000);
 
 simulation.start();
-console.log('Simulation started with monitoring');
 
 // Note: In the simulation, organisms are added via click events`,
 
@@ -292,7 +258,6 @@ const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
 // Get initial stats
 const initialStats = simulation.getStats();
-console.log('Initial stats:', initialStats);
 
 // Start simulation
 simulation.start();
@@ -305,18 +270,14 @@ const trackStats = () => {
     timestamp: Date.now(),
     ...stats
   });
-  
-  console.log('Stats update:', stats);
-  
+
   if (statsHistory.length > 10) {
-    console.log('Population trend:', 
-      statsHistory.slice(-5).map(s => s.population)
+    .map(s => s.population)
     );
   }
 };
 
 setInterval(trackStats, 1000);
-console.log('Statistics tracking started');
 
 // Note: In the simulation, organisms are added via click events`,
     };
@@ -611,7 +572,6 @@ console.log('Statistics tracking started');
 export function initializeInteractiveExamples(containerId: string = 'interactive-examples'): void {
   const container = document.getElementById(containerId);
   if (!container) {
-    console.error(`Container with ID '${containerId}' not found`);
     return;
   }
 

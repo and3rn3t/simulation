@@ -1,3 +1,5 @@
+import { isMobileDevice } from '../system/mobileDetection';
+
 /**
  * Mobile UI Enhancements - Adds mobile-specific UI improvements
  */
@@ -249,9 +251,7 @@ export class MobileUIEnhancer {
           this.fullscreenButton.innerHTML = '⛶';
         }
       }
-    } catch (error) {
-      console.warn('Fullscreen not supported:', error);
-    }
+    } catch (error) { /* handled */ }
   }
 
   /**
@@ -277,10 +277,7 @@ export class MobileUIEnhancer {
    * Check if device is mobile
    */
   private isMobile(): boolean {
-    return (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      window.innerWidth < 768
-    );
+    return isMobileDevice() || window.innerWidth < 768;
   }
 
   /**

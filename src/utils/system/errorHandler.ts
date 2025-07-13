@@ -154,7 +154,7 @@ export class ErrorHandler {
       case ErrorSeverity.CRITICAL:
         console.error(logMessage + contextMessage);
         if (errorInfo.stackTrace) {
-          console.error('Stack trace:', errorInfo.stackTrace);
+          console.error(errorInfo.stackTrace);
         }
         break;
     }
@@ -169,17 +169,46 @@ export class ErrorHandler {
     try {
       const notification = document.createElement('div');
       notification.className = 'error-notification critical';
-      notification.innerHTML = `
-        <div class="error-content">
-          <h3>⚠️ Critical Error</h3>
-          <p>The simulation encountered a critical error and may not function properly.</p>
-          <p><strong>Error:</strong> ${errorInfo.error.message}</p>
-          <div class="error-actions">
-            <button onclick="this.parentElement.parentElement.parentElement.remove()">Dismiss</button>
-            <button onclick="window.location.reload()">Reload Page</button>
-          </div>
-        </div>
-      `;
+
+      // Create elements safely without innerHTML
+      const content = document.createElement('div');
+      content.className = 'error-content';
+
+      const title = document.createElement('h3');
+      title.textContent = '⚠️ Critical Error';
+
+      const description = document.createElement('p');
+      description.textContent =
+        'The simulation encountered a critical error and may not function properly.';
+
+      const errorMessage = document.createElement('p');
+      const errorLabel = document.createElement('strong');
+      errorLabel.textContent = 'Error: ';
+      errorMessage.appendChild(errorLabel);
+      // Safely set error message to prevent XSS
+      const errorText = document.createTextNode(errorInfo.error.message || 'Unknown error');
+      errorMessage.appendChild(errorText);
+
+      const actions = document.createElement('div');
+      actions.className = 'error-actions';
+
+      const dismissBtn = document.createElement('button');
+      dismissBtn.textContent = 'Dismiss';
+      dismissBtn.addEventListener('click', () => notification.remove());
+
+      const reloadBtn = document.createElement('button');
+      reloadBtn.textContent = 'Reload Page';
+      reloadBtn.addEventListener('click', () => window.location.reload());
+
+      actions.appendChild(dismissBtn);
+      actions.appendChild(reloadBtn);
+
+      content.appendChild(title);
+      content.appendChild(description);
+      content.appendChild(errorMessage);
+      content.appendChild(actions);
+
+      notification.appendChild(content);
 
       // Add styles
       notification.style.cssText = `
@@ -356,6 +385,4 @@ export function initializeGlobalErrorHandlers(): void {
     // Prevent the default browser behavior
     event.preventDefault();
   });
-
-  console.log('Global error handlers initialized');
 }

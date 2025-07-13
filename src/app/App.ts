@@ -36,12 +36,10 @@ export class App {
    */
   public async initialize(): Promise<void> {
     if (this.initialized) {
-      console.warn('App already initialized');
       return;
     }
 
     try {
-      console.log('🚀 Starting application initialization...');
 
       // Initialize global error handlers first
       initializeGlobalErrorHandlers();
@@ -49,13 +47,13 @@ export class App {
       // Start performance monitoring if enabled
       if (this.configManager.getFeature('performanceMonitoring')) {
         this.performanceManager.startMonitoring(1000);
-        console.log('📊 Performance monitoring enabled');
+
       }
 
       // Initialize core components based on configuration
       if (this.configManager.getFeature('memoryPanel')) {
         this.memoryPanelComponent = new MemoryPanelComponent();
-        console.log('🧠 Memory panel initialized');
+
       }
 
       // Load environment-specific features
@@ -67,7 +65,6 @@ export class App {
       await this.initializeSimulation();
 
       this.initialized = true;
-      console.log('✅ Application initialization complete');
 
       // Log configuration summary
       this.logConfigurationSummary();
@@ -85,21 +82,18 @@ export class App {
    * Initialize development-specific features
    */
   private async initializeDevelopmentFeatures(): Promise<void> {
-    console.log('🔧 Initializing development features...');
 
     if (this.configManager.getFeature('debugMode')) {
       try {
         await import('../dev/debugMode');
         // Initialize debug mode
-        console.log('🐛 Debug mode enabled');
-      } catch (error) {
-        console.warn('Debug mode not available:', error);
-      }
+
+      } catch (error) { /* handled */ }
     }
 
     if (this.configManager.get('ui').enableVisualDebug) {
       // Initialize visual debugging
-      console.log('👁️ Visual debugging enabled');
+
     }
   }
 
@@ -107,7 +101,6 @@ export class App {
    * Initialize core simulation
    */
   private async initializeSimulation(): Promise<void> {
-    console.log('🧬 Initializing simulation core...');
 
     try {
       // Import and initialize simulation components
@@ -115,12 +108,8 @@ export class App {
 
       // Configure simulation based on app config
       const simulationConfig = this.configManager.getSimulationConfig();
-      console.log(
-        `🎯 Simulation configured: ${simulationConfig.defaultOrganismCount} organisms, ${simulationConfig.targetFPS} FPS`
-      );
-    } catch (error) {
-      console.warn('Simulation core not available:', error);
-    }
+
+    } catch (error) { /* handled */ }
   }
 
   /**
@@ -128,11 +117,11 @@ export class App {
    */
   private logConfigurationSummary(): void {
     const config = this.configManager.exportConfig();
-    console.log('📋 Configuration Summary:', {
-      environment: config.environment,
-      features: Object.entries(config.features)
-        .filter(([, enabled]) => enabled)
-        .map(([feature]) => feature),
+    const enabledFeatures = Object.entries(config.features)
+      .filter(([, enabled]) => enabled)
+      .map(([feature]) => feature);
+    console.log({
+      enabledFeatures,
       simulation: config.simulation,
       ui: config.ui,
     });
@@ -173,7 +162,6 @@ export class App {
    * Cleanup and shutdown the application
    */
   public shutdown(): void {
-    console.log('🛑 Shutting down application...');
 
     // Stop performance monitoring
     if (this.performanceManager) {
@@ -186,7 +174,7 @@ export class App {
     }
 
     this.initialized = false;
-    console.log('✅ Application shutdown complete');
+
   }
 
   public isInitialized(): boolean {
