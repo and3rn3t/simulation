@@ -1,0 +1,464 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+# Cancel in-progress workflows for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Cache build dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+    
+    - name: Run linter
+      run: npm run lint
+    
+    - name: Run type check
+      run: npm run type-check
+      timeout-minutes: 10
+      continue-on-error: true
+    
+    - name: Run code complexity audit
+      run: npm run complexity:check
+      timeout-minutes: 5
+      continue-on-error: false
+    
+    - name: Run unit tests with coverage
+      run: npm run test:coverage -- --reporter=verbose
+      timeout-minutes: 15
+      continue-on-error: true
+
+    - name: Verify coverage files
+      run: |
+        echo "📊 Checking coverage files..."
+        
+        # Check if coverage directory exists
+        if [ -d "./coverage" ]; then
+          echo "✅ Coverage directory found"
+          echo "📁 Coverage directory contents:"
+          ls -la ./coverage/
+          
+          # Check specific files
+          if [ -f "./coverage/lcov.info" ]; then
+            echo "✅ LCOV coverage file found"
+            echo "📈 LCOV file size: $(du -h ./coverage/lcov.info | cut -f1)"
+            echo "📄 First few lines of LCOV file:"
+            head -10 ./coverage/lcov.info
+          else
+            echo "❌ LCOV coverage file not found"
+          fi
+          
+          if [ -f "./coverage/coverage-final.json" ]; then
+            echo "✅ JSON coverage file found"
+            echo "📈 JSON file size: $(du -h ./coverage/coverage-final.json | cut -f1)"
+          else
+            echo "❌ JSON coverage file not found"
+          fi
+        else
+          echo "❌ Coverage directory not found"
+          echo "📂 Current directory contents:"
+          ls -la ./
+        fi
+        
+        # Check if test command worked
+        echo "🧪 Test exit code was: $?"
+    
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./coverage/lcov.info,./coverage/coverage-final.json
+        directory: ./coverage
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true
+        override_branch: ${{ github.head_ref }}
+        override_commit: ${{ github.sha }}
+        override_pr: ${{ github.event.number }}
+        override_build: ${{ github.run_number }}
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      continue-on-error: true
+    
+    - name: Run performance tests
+      run: npm run test:performance
+      timeout-minutes: 20
+      continue-on-error: true
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      timeout-minutes: 10
+    
+    - name: Run E2E tests
+      run: npm run test:e2e
+      timeout-minutes: 20
+      continue-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          test-results/
+          coverage/
+          playwright-report/
+        retention-days: 30
+
+    - name: Test summary
+      if: always()
+      run: |
+        echo "🧪 Test execution completed"
+        echo "📊 Check the artifacts for detailed test results and coverage reports"
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run security audit
+      run: npm run security:audit
+      continue-on-error: true
+    
+    - name: Run dependency vulnerability scan
+      run: |
+        if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
+          export SNYK_TOKEN="${{ secrets.SNYK_TOKEN }}"
+          npm run security:scan
+        else
+          echo "⚠️ Snyk token not configured. Skipping Snyk scan."
+          echo "To enable Snyk scanning, add SNYK_TOKEN to repository secrets."
+        fi
+      continue-on-error: true
+
+    - name: Security scan summary
+      run: |
+        echo "🔍 Security scan completed"
+        echo "📋 If vulnerabilities were found, please review and address them"
+
+  build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        retention-days: 30
+
+  docker-build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Cache Docker layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: organism-simulation:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        platforms: linux/amd64,linux/arm64
+    
+    - name: Test Docker image
+      run: |
+        # Run container in background
+        docker run -d --name test-container -p 8080:8080 organism-simulation:latest
+        
+        # Wait for container to be ready
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:8080/health || exit 1
+        
+        # Test main application
+        curl -f http://localhost:8080/ || exit 1
+        
+        # Stop and remove container
+        docker stop test-container
+        docker rm test-container
+        
+        echo "✅ Docker image tests passed"
+    
+    - name: Run Docker security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'organism-simulation:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        exit-code: '0'  # Don't fail build on vulnerabilities for now
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Login to GitHub Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      if: github.event_name != 'pull_request'
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      if: github.event_name != 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        platforms: linux/amd64,linux/arm64
+    
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  deploy-staging:
+    needs: [build, docker-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Configure staging environment
+      run: |
+        node scripts/env/setup-env.cjs staging
+        echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
+        echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
+    
+    - name: Deploy to Cloudflare Pages (Preview)
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        # Ensure CLOUDFLARE_API_TOKEN is set in repository secrets: https://github.com/<owner>/<repo>/settings/secrets/actions
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: organism-simulation
+        directory: dist
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Deploy Docker container to staging
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "🐳 Deploying Docker container to staging environment..."
+        
+        # Login to GitHub Container Registry
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        
+        # Pull the built image
+        docker pull ghcr.io/${{ github.repository }}:develop-${{ github.sha }}
+        
+        # Tag for staging
+        docker tag ghcr.io/${{ github.repository }}:develop-${{ github.sha }} organism-simulation:staging
+        
+        # Run staging deployment with Docker Compose
+        export COMPOSE_PROJECT_NAME=staging
+        export IMAGE_TAG=staging
+        docker-compose --profile staging up -d
+        
+        # Wait for container to be ready
+        sleep 15
+        
+        # Verify deployment
+        curl -f http://localhost:8080/health || exit 1
+        echo "✅ Staging Docker deployment successful"
+    
+    - name: Run staging smoke tests
+      run: |
+        echo "🔍 Running staging smoke tests..."
+        npm run test:smoke:staging
+
+  deploy-production:
+    needs: [build, docker-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Configure production environment
+      run: |
+        node scripts/env/setup-env.cjs production
+        echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
+        echo "VITE_GIT_COMMIT=${GITHUB_SHA}" >> .env
+    
+    - name: Deploy to Cloudflare Pages (Production)
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: organism-simulation
+        directory: dist
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        wranglerVersion: '3'
+    
+    - name: Deploy Docker container to production
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "🐳 Deploying Docker container to production environment..."
+        
+        # Login to GitHub Container Registry
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        
+        # Pull the built image
+        docker pull ghcr.io/${{ github.repository }}:latest
+        
+        # Tag for production
+        docker tag ghcr.io/${{ github.repository }}:latest organism-simulation:production
+        
+        # Run production deployment with Docker Compose
+        export COMPOSE_PROJECT_NAME=production
+        export IMAGE_TAG=production
+        docker-compose --profile prod up -d
+        
+        # Wait for container to be ready
+        sleep 15
+        
+        # Verify deployment
+        curl -f http://localhost:80/health || exit 1
+        echo "✅ Production Docker deployment successful"
+    
+    - name: Run production smoke tests
+      run: |
+        echo "🔍 Running production smoke tests..."
+        npm run test:smoke:production
+    
+    - name: Run production smoke tests
+      run: |
+        echo "🔍 Running production smoke tests..."
+        npm run test:smoke:production
+    
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🎉 Production deployment successful!"
+        echo "Version: $(cat package.json | grep version | cut -d'"' -f4)"
+        echo "Commit: ${GITHUB_SHA}"
+        # Add notification logic (Slack, Discord, Teams, etc.)
+    
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Production deployment failed!"
+        echo "Please check the logs and take immediate action."
+        # Add failure notification logic

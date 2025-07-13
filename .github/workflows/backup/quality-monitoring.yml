@@ -1,24 +1,13 @@
-name: Optimized Quality Monitoring (Non-Blocking)
+name: Performance & Quality Monitoring
 
 on:
-  # SCHEDULED RUNS (Non-blocking to CI/CD)
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
   schedule:
-    - cron: '0 2 * * *' # Daily at 2 AM for routine monitoring
-    - cron: '0 14 * * 1' # Weekly comprehensive scan on Monday at 2 PM
-  
-  # Manual trigger for on-demand analysis
-  workflow_dispatch:
-    inputs:
-      scan_type:
-        description: 'Type of scan to run'
-        required: false
-        default: 'comprehensive'
-        type: choice
-        options:
-          - comprehensive
-          - security-only
-          - performance-only
-          - complexity-only
+    # Run performance monitoring weekly
+    - cron: '0 4 * * 1'
 
 jobs:
   lighthouse-ci:
