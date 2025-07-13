@@ -1,0 +1,249 @@
+name: E2E Testing Suite
+
+on:
+  # Run E2E tests on schedule (not blocking CI/CD)
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  
+  # Manual trigger for E2E tests
+  workflow_dispatch:
+    inputs:
+      test_filter:
+        description: 'Test filter (e.g., @smoke, @critical, or specific test name)'
+        required: false
+        default: ''
+        type: string
+      browser:
+        description: 'Browser to test'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      parallel_jobs:
+        description: 'Number of parallel jobs'
+        required: false
+        default: '4'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '4'
+          - '8'
+  
+  # Trigger on main branch pushes for full validation
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'e2e/**'
+      - 'package*.json'
+
+  # Allow other workflows to trigger this
+  workflow_call:
+    inputs:
+      test_filter:
+        description: 'Test filter'
+        required: false
+        default: ''
+        type: string
+
+# Cancel in-progress E2E runs for same branch
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ================================
+  # E2E TEST MATRIX
+  # ================================
+  e2e-matrix:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4] # Fixed shards for simplicity
+        browser: ${{ inputs.browser == 'all' && fromJSON('["chromium", "firefox", "webkit"]') || fromJSON(format('["{0}"]', inputs.browser || 'chromium')) }}
+      fail-fast: false
+      max-parallel: 8
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+      timeout-minutes: 8
+
+    - name: Build application for E2E
+      run: npm run build
+      env:
+        VITE_BUILD_DATE: ${{ github.run_number }}
+        VITE_GIT_COMMIT: ${{ github.sha }}
+
+    - name: Start development server
+      run: |
+        npm run preview &
+        # Wait for server to be ready
+        npx wait-on http://localhost:4173 --timeout 30000
+      timeout-minutes: 2
+
+    - name: Run E2E tests
+      run: |
+        FILTER_ARG=""
+        if [ -n "${{ inputs.test_filter }}" ]; then
+          FILTER_ARG="--grep='${{ inputs.test_filter }}'"
+        fi
+        
+        TOTAL_SHARDS=4
+        npm run test:e2e -- \
+          --project=${{ matrix.browser }} \
+          --shard=${{ matrix.shard }}/4 \
+          ${FILTER_ARG} \
+          --reporter=html,json \
+          --output-dir=test-results/${{ matrix.browser }}-shard-${{ matrix.shard }}
+      timeout-minutes: 30
+
+    - name: Upload E2E results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-results-${{ matrix.browser }}-shard-${{ matrix.shard }}
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 7
+
+    - name: Upload E2E videos (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-videos-${{ matrix.browser }}-shard-${{ matrix.shard }}
+        path: test-results/**/videos/
+        retention-days: 3
+
+  # ================================
+  # E2E RESULTS AGGREGATION
+  # ================================
+  e2e-summary:
+    name: E2E Test Summary
+    runs-on: ubuntu-latest
+    needs: e2e-matrix
+    if: always()
+    timeout-minutes: 10
+
+    steps:
+    - name: Download all E2E results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: e2e-results-*
+        merge-multiple: true
+        path: all-results/
+
+    - name: Generate E2E summary report
+      run: |
+        echo "# 🎭 E2E Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "================================" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Count results
+        TOTAL_BROWSERS=$(find all-results -name "*.json" | wc -l)
+        PASSED_TESTS=0
+        FAILED_TESTS=0
+        
+        echo "## 📊 Test Execution Overview" >> $GITHUB_STEP_SUMMARY
+        echo "- **Browsers Tested**: $TOTAL_BROWSERS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Parallel Shards**: 4" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Runtime**: $(date -d@${SECONDS} -u +%H:%M:%S)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Add filter info if used
+        if [ -n "${{ inputs.test_filter }}" ]; then
+          echo "- **Test Filter**: \`${{ inputs.test_filter }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "## 🎯 Result Summary" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.e2e-matrix.result }}" == "success" ]; then
+          echo "✅ **All E2E tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Some E2E tests failed - review artifacts for details**" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📁 **Artifacts Available**: Test reports, videos (on failure), and detailed logs" >> $GITHUB_STEP_SUMMARY
+
+    - name: Report to main workflow (if triggered by workflow_call)
+      if: github.event_name == 'workflow_call'
+      run: |
+        if [ "${{ needs.e2e-matrix.result }}" != "success" ]; then
+          echo "⚠️ E2E tests had failures - check E2E workflow for details"
+          exit 1
+        else
+          echo "✅ All E2E tests passed"
+        fi
+
+  # ================================
+  # PERFORMANCE MONITORING
+  # ================================
+  e2e-performance:
+    name: E2E Performance Monitoring
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run performance E2E tests
+      run: npm run test:performance -- --project=chromium
+      timeout-minutes: 15
+
+    - name: Upload performance results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-performance-results
+        path: |
+          test-results/
+          performance-reports/
+        retention-days: 14
