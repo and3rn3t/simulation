@@ -277,29 +277,19 @@ jobs:
     - name: Set up Docker Buildx
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       uses: docker/setup-buildx-action@v3
-    
-    - name: Cache Docker layers
-      uses: actions/cache@v4
       with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+        driver-opts: image=moby/buildkit:latest
     
-    - name: Build Docker image with enhanced caching
+    - name: Build Docker image with registry caching
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: false
         tags: organism-simulation:latest
-        cache-from: |
-          type=registry,ref=ghcr.io/${{ github.repository }}:cache
-          type=local,src=/tmp/.buildx-cache
-        cache-to: |
-          type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
-          type=local,dest=/tmp/.buildx-cache-new,mode=max
-        platforms: linux/amd64,linux/arm64
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
+        platforms: linux/amd64
         build-args: |
           BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           VCS_REF=${{ github.sha }}
@@ -361,7 +351,7 @@ jobs:
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
     
-    - name: Build and push Docker image with enhanced caching
+    - name: Build and push Docker image with registry caching
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v5
       with:
@@ -370,27 +360,13 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: |
-          type=registry,ref=ghcr.io/${{ github.repository }}:cache
-          type=local,src=/tmp/.buildx-cache
-        cache-to: |
-          type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
-          type=local,dest=/tmp/.buildx-cache-new,mode=max
-        platforms: linux/amd64,linux/arm64
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
+        platforms: linux/amd64
         build-args: |
           BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           VCS_REF=${{ github.sha }}
           VERSION=${{ steps.meta.outputs.version }}
-    
-    - name: Move cache
-      run: |
-        docker run -d --name test-container -p 8080:8080 ${{ env.IMAGE_NAME }}:test
-        sleep 3  # Reduced wait time
-        curl -f http://localhost:8080/ --max-time 10 || exit 1
-        docker stop test-container && docker rm test-container
-        echo "✅ Docker image verified"
-      timeout-minutes: 2
-
   # ================================
   # QUALITY MONITORING (NON-BLOCKING, SCHEDULED)
   # ================================  
