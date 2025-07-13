@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-13T01:40:52.542Z",
+  "timestamp": "2025-07-13T02:36:54.773Z",
   "thresholds": {
     "function": {
       "simple": {
@@ -43,20 +43,20 @@
     }
   },
   "summary": {
-    "healthScore": 84.6,
+    "healthScore": 84.2,
     "functions": {
-      "total": 1801,
-      "simple": 1511,
-      "moderate": 226,
-      "complex": 52,
-      "critical": 12
+      "total": 1912,
+      "simple": 1579,
+      "moderate": 261,
+      "complex": 59,
+      "critical": 13
     },
     "classes": {
-      "total": 93,
-      "simple": 50,
-      "moderate": 16,
+      "total": 96,
+      "simple": 51,
+      "moderate": 17,
       "complex": 16,
-      "critical": 11
+      "critical": 12
     }
   },
   "details": {
@@ -94,9 +94,9 @@
       {
         "name": "classifyComplexity",
         "file": "scripts\\quality\\code-complexity-audit.cjs",
-        "line": 297,
+        "line": 303,
         "metrics": {
-          "lines": 36,
+          "lines": 45,
           "complexity": 23,
           "params": 2
         }
@@ -104,9 +104,9 @@
       {
         "name": "classifyComplexity",
         "file": "scripts\\quality\\code-complexity-audit.cjs",
-        "line": 297,
+        "line": 303,
         "metrics": {
-          "lines": 36,
+          "lines": 45,
           "complexity": 23,
           "params": 0
         }
@@ -114,7 +114,17 @@
       {
         "name": "findFiles",
         "file": "scripts\\security\\file-permission-audit.cjs",
-        "line": 58,
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": "scripts\\security\\file-permission-audit.js",
+        "line": 60,
         "metrics": {
           "lines": 27,
           "complexity": 8,
@@ -154,7 +164,7 @@
       {
         "name": "if",
         "file": "src\\utils\\mobile\\MobileTestInterface.ts",
-        "line": 84,
+        "line": 83,
         "metrics": {
           "lines": 40,
           "complexity": 16,
@@ -177,12 +187,21 @@
         "line": 527,
         "metrics": {
           "lines": 299,
-          "complexity": 35,
+          "complexity": 38,
           "params": 0
         }
       }
     ],
     "criticalClasses": [
+      {
+        "name": "RandomSecurityAuditor",
+        "file": "scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
       {
         "name": "WorkflowTroubleshooter",
         "file": "scripts\\troubleshoot-project-workflow.mjs",
@@ -267,10 +286,10 @@
       {
         "name": "MobileAnalyticsManager",
         "file": "src\\utils\\mobile\\MobileAnalyticsManager.ts",
-        "line": 29,
+        "line": 31,
         "metrics": {
-          "methods": 27,
-          "lines": 625
+          "methods": 25,
+          "lines": 607
         }
       },
       {
@@ -278,8 +297,8 @@
         "file": "src\\utils\\mobile\\MobileSocialManager.ts",
         "line": 21,
         "metrics": {
-          "methods": 19,
-          "lines": 777
+          "methods": 20,
+          "lines": 786
         }
       }
     ]
@@ -289,7 +308,7 @@
       "priority": "critical",
       "type": "function",
       "action": "Break down critical complexity functions",
-      "count": 12,
+      "count": 13,
       "examples": [
         "scripts\\github-integration-setup.js:generateInitialIssues()",
         "scripts\\github-integration-setup.js:generateInitialIssues()",
@@ -300,18 +319,18 @@
       "priority": "high",
       "type": "function",
       "action": "Refactor complex functions using decomposition pattern",
-      "count": 52,
+      "count": 59,
       "target": "Reduce to under 5 complex functions"
     },
     {
       "priority": "critical",
       "type": "class",
       "action": "Extract responsibilities from oversized classes",
-      "count": 11,
+      "count": 12,
       "examples": [
+        "scripts\\security\\audit-random-security.cjs:RandomSecurityAuditor",
         "scripts\\troubleshoot-project-workflow.mjs:WorkflowTroubleshooter",
-        "src\\core\\simulation.ts:OrganismSimulation",
-        "src\\core\\simulation_clean.ts:OrganismSimulation"
+        "src\\core\\simulation.ts:OrganismSimulation"
       ]
     }
   ]
