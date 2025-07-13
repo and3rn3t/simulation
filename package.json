@@ -86,7 +86,6 @@
     "security:advanced": "npm run security:audit && npm run security:scan && npm run security:check",
     "performance:lighthouse": "lighthouse http://localhost:8080 --output json --output-path lighthouse-report.json",
     "quality:gate": "npm run lint && npm run type-check && npm run test:coverage && npm run complexity:check && npm run security:check",
-    "wrangler:validate": "node scripts/validate-wrangler.js",
     "domain:setup": "node scripts/setup-custom-domain.js",
     "workflow:validate": "node scripts/validate-workflow.mjs",
     "workflow:troubleshoot": "node scripts/troubleshoot-project-workflow.mjs",

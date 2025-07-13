@@ -12,26 +12,24 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Copy package files
-COPY package*.json ./
-RUN chown nextjs:nodejs package*.json
+COPY --chown=nextjs:nodejs package*.json ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm config set cache /app/.npm-cache --global && \
-    npm ci
+RUN npm ci
 
 # Copy only necessary source files for build (exclude node_modules, .git, Dockerfile, .dockerignore)
 COPY --chown=nextjs:nodejs ./src /app/src
 COPY --chown=nextjs:nodejs public /app/public
+COPY --chown=nextjs:nodejs index.html /app/
 COPY --chown=nextjs:nodejs vite.config.ts /app/vite.config.ts
 COPY --chown=nextjs:nodejs tsconfig.json /app/
-COPY --chown=nextjs:nodejs tsconfig.node.json /app/
 
 # Security: Set proper permissions on all copied files (read-only for non-owners)
 RUN find /app/src -type f -exec chmod 644 {} \; && \
     find /app/src -type d -exec chmod 755 {} \; && \
     find /app/public -type f -exec chmod 644 {} \; && \
     find /app/public -type d -exec chmod 755 {} \; && \
-    chmod 644 /app/vite.config.ts /app/tsconfig.json /app/tsconfig.node.json
+    chmod 644 /app/index.html /app/vite.config.ts /app/tsconfig.json
 
 # Build the application
 RUN npm run build
