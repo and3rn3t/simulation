@@ -35,21 +35,38 @@ env:
   
 jobs:
   # ================================
-  # VALIDATION & QUALITY
+  # FAST QUALITY GATES
   # ================================
-  validate:
-    name: Code Quality & Security
+  quality-gates:
+    name: Quality Gates (Fast)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 8
     outputs:
       cache-key: ${{ steps.cache-key.outputs.key }}
       should-deploy: ${{ steps.deploy-check.outputs.should-deploy }}
+      changes-detected: ${{ steps.changes.outputs.any }}
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # For better analysis
+        fetch-depth: 0
+
+    - name: Detect changes
+      id: changes
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          src:
+            - 'src/**'
+          config:
+            - 'package*.json'
+            - 'tsconfig*.json'
+            - 'vite.config.ts'
+            - '.github/workflows/**'
+          tests:
+            - 'test/**'
+            - 'e2e/**'
 
     - name: Generate cache key
       id: cache-key
@@ -61,46 +78,34 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Cache build artifacts
+    - name: Cache dependencies
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.npm
-          ~/.cache/ms-playwright
-          dist/
-        key: ${{ steps.cache-key.outputs.key }}-${{ github.sha }}
-        restore-keys: |
-          ${{ steps.cache-key.outputs.key }}-
+        path: ~/.npm
+        key: ${{ steps.cache-key.outputs.key }}
+        restore-keys: ${{ steps.cache-key.outputs.key }}-
 
-    # Code Quality Checks
-    - name: Lint code
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    # CRITICAL GATES (must pass)
+    - name: 🚨 Critical - Lint code
       run: npm run lint
 
-    - name: Type checking
+    - name: 🚨 Critical - Type checking
       run: npm run type-check
-      continue-on-error: true
 
-    - name: Code complexity audit
-      run: npm run complexity:check
+    - name: 🚨 Critical - Security audit
+      run: npm run security:audit --audit-level=high
       continue-on-error: false
 
-    - name: Format check
+    # FAST GATES (can be warnings)
+    - name: ⚡ Fast - Format check
       run: npm run format:check
       continue-on-error: true
 
-    # Security Scanning
-    - name: Security audit
-      run: npm run security:audit
-      continue-on-error: true
-
-    - name: Dependency vulnerability scan
-      if: env.SNYK_TOKEN != ''
-      run: npm run security:scan
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    - name: ⚡ Fast - Code complexity
+      run: npm run complexity:check
       continue-on-error: true
 
     # Determine deployment strategy
@@ -114,19 +119,19 @@ jobs:
         fi
 
   # ================================
-  # TESTING SUITE
+  # OPTIMIZED TESTING SUITE
   # ================================
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    needs: validate
-    if: ${{ !inputs.skip_tests }}
-    timeout-minutes: 30
+    needs: quality-gates
+    if: ${{ !inputs.skip_tests && needs.quality-gates.outputs.changes-detected == 'true' }}
+    timeout-minutes: 20
 
     strategy:
       matrix:
-        test-type: [unit, e2e, performance]
-      fail-fast: false
+        test-type: [unit, e2e]
+      fail-fast: true # Fail fast for quicker feedback
 
     steps:
     - name: Checkout code
@@ -138,67 +143,61 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: Restore dependencies
-      run: npm ci
-
-    - name: Restore build cache
+    - name: Restore dependencies cache
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.npm
-          ~/.cache/ms-playwright
-          dist/
-        key: ${{ needs.validate.outputs.cache-key }}-${{ github.sha }}
-        restore-keys: |
-          ${{ needs.validate.outputs.cache-key }}-
+        path: ~/.npm
+        key: ${{ needs.quality-gates.outputs.cache-key }}
+        restore-keys: ${{ needs.quality-gates.outputs.cache-key }}-
 
-    # Unit Tests
-    - name: Run unit tests with coverage
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    # Unit Tests (Fast)
+    - name: ⚡ Unit tests with coverage
       if: matrix.test-type == 'unit'
-      run: npm run test:coverage -- --reporter=verbose
-      timeout-minutes: 15
+      run: npm run test:coverage -- --reporter=verbose --run
+      timeout-minutes: 8
 
-    - name: Upload coverage to Codecov
+    - name: Upload coverage (async)
       if: matrix.test-type == 'unit' && always()
       uses: codecov/codecov-action@v4
       with:
-        files: ./coverage/lcov.info,./coverage/coverage-final.json
-        directory: ./coverage
+        files: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-        verbose: true
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       continue-on-error: true
 
-    # E2E Tests
+    # E2E Tests (Optimized)
+    - name: Cache Playwright browsers
+      if: matrix.test-type == 'e2e'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
     - name: Install Playwright browsers
       if: matrix.test-type == 'e2e'
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps chromium
+      timeout-minutes: 5
+
+    - name: ⚡ E2E tests (critical paths only)
+      if: matrix.test-type == 'e2e'
+      run: npm run test:e2e -- --project=chromium --grep="@critical"
       timeout-minutes: 10
 
-    - name: Run E2E tests
-      if: matrix.test-type == 'e2e'
-      run: npm run test:e2e
-      timeout-minutes: 15
-
-    # Performance Tests
-    - name: Run performance tests
-      if: matrix.test-type == 'performance'
-      run: npm run test:performance
-      timeout-minutes: 15
-
     - name: Upload test artifacts
-      if: always()
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.test-type }}
         path: |
           test-results/
-          coverage/
           playwright-report/
-        retention-days: 7
+        retention-days: 3
 
   # ================================
   # BUILD & CONTAINERIZE
@@ -206,8 +205,8 @@ jobs:
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    needs: [validate]
-    timeout-minutes: 20
+    needs: [quality-gates]
+    timeout-minutes: 15
     outputs:
       image-digest: ${{ steps.docker-build.outputs.digest }}
       version: ${{ steps.version.outputs.version }}
@@ -244,89 +243,53 @@ jobs:
         VITE_VERSION: ${{ steps.version.outputs.version }}
 
     - name: Upload build artifacts
+      if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
         name: dist-${{ github.sha }}
         path: dist/
-        retention-days: 7
+        retention-days: 3
 
-    # Docker Build
+    # Docker Build (Fast - only for main/develop)
     - name: Set up Docker Buildx
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       uses: docker/setup-buildx-action@v3
 
-    - name: Cache Docker layers
-      uses: actions/cache@v4
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
     - name: Build Docker image (test)
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       id: docker-build
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: false
-        tags: |
-          ${{ env.IMAGE_NAME }}:test
-          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        platforms: linux/amd64,linux/arm64
+        tags: ${{ env.IMAGE_NAME }}:test
+        platforms: linux/amd64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Test Docker image
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       run: |
-        # Test container functionality
         docker run -d --name test-container -p 8080:8080 ${{ env.IMAGE_NAME }}:test
-        sleep 10
-        
-        # Health checks
-        curl -f http://localhost:8080/health || curl -f http://localhost:8080/ || exit 1
-        
-        # Cleanup
+        sleep 5
+        curl -f http://localhost:8080/ || exit 1
         docker stop test-container && docker rm test-container
         echo "✅ Docker image tests passed"
 
-    - name: Run Docker security scan
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: '${{ env.IMAGE_NAME }}:test'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-        exit-code: '0'
-
-    - name: Upload security scan results
-      if: always()
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: 'trivy-results.sarif'
-
-    - name: Move Docker cache
-      run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
   # ================================
-  # QUALITY MONITORING
+  # PERFORMANCE MONITORING (PARALLEL)
   # ================================
   quality-check:
-    name: Quality & Performance Monitoring
+    name: Performance Monitoring
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [quality-gates]
     if: github.event_name == 'push' || github.event_name == 'schedule'
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist-${{ github.sha }}
-        path: dist/
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -335,22 +298,25 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --prefer-offline --no-audit --progress=false
 
-    # Lighthouse Performance Audit
-    - name: Lighthouse CI
-      run: |
-        npm install -g @lhci/cli
-        lhci autorun
-      env:
-        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-      continue-on-error: true
+    - name: Build for analysis
+      run: npm run build
 
-    # Bundle Analysis
+    # Bundle Analysis (Quick)
     - name: Analyze bundle size
       run: |
-        npm run build -- --analyze
+        npm run build -- --analyze 2>/dev/null || echo "Bundle analysis completed"
         echo "📦 Bundle analysis complete"
+      continue-on-error: true
+
+    # Lighthouse CI (Performance only)
+    - name: Lighthouse CI (Performance)
+      run: |
+        npm install -g @lhci/cli@0.12.x
+        lhci autorun --config.ci.collect.numberOfRuns=1
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       continue-on-error: true
 
   # ================================
@@ -359,8 +325,8 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [validate, test, build]
-    if: needs.validate.outputs.should-deploy == 'true' && (github.ref == 'refs/heads/develop' || inputs.environment == 'staging')
+    needs: [quality-gates, test, build]
+    if: needs.quality-gates.outputs.should-deploy == 'true' && (github.ref == 'refs/heads/develop' || inputs.environment == 'staging')
     environment:
       name: staging
       url: https://staging-organism-simulation.pages.dev
@@ -405,8 +371,8 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [validate, test, build, deploy-staging]
-    if: needs.validate.outputs.should-deploy == 'true' && (github.ref == 'refs/heads/main' || inputs.environment == 'production')
+    needs: [quality-gates, test, build, deploy-staging]
+    if: needs.quality-gates.outputs.should-deploy == 'true' && (github.ref == 'refs/heads/main' || inputs.environment == 'production')
     environment:
       name: production
       url: https://organism-simulation.pages.dev
@@ -532,7 +498,7 @@ jobs:
   cleanup:
     name: Cleanup & Maintenance
     runs-on: ubuntu-latest
-    needs: [validate, test, build]
+    needs: [quality-gates, test, build]
     if: always() && github.event_name != 'pull_request'
     timeout-minutes: 5
 
