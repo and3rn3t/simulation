@@ -1,6 +1,9 @@
 // Import all CSS styles first
 import './ui/style.css';
 
+// Import reliability systems
+import ReliabilityKit from './utils/system/reliabilityKit';
+
 // Import essential modules
 import { MemoryPanelComponent } from './ui/components/MemoryPanelComponent';
 import {
@@ -19,6 +22,9 @@ import { GameStateManager } from './utils/game/gameStateManager';
 import { MobileTestInterface } from './utils/mobile/MobileTestInterface';
 
 log.logSystem('🚀 Starting application initialization...');
+
+// Initialize reliability systems for SonarCloud compliance
+ReliabilityKit.init();
 
 // Initialize global error handlers first
 initializeGlobalErrorHandlers();
