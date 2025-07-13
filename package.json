@@ -43,6 +43,8 @@
     "env:setup-guide": "node scripts/env/setup-github-environments.js",
     "deploy:check": "node scripts/monitoring/check-deployment-status.js",
     "staging:test": "node scripts/monitoring/test-staging-deployment.js",
+    "staging:monitor": "node scripts/monitor-staging-deployment.js",
+    "wrangler:validate": "node scripts/validate-wrangler.js",
     "deploy:staging": "npm run build:staging && node scripts/deploy/deploy.cjs staging",
     "deploy:production": "npm run build:production && node scripts/deploy/deploy.cjs production",
     "deploy:staging:dry": "npm run build:staging && node scripts/deploy/deploy.cjs staging latest true",
