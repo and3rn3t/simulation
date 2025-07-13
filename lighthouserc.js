@@ -8,8 +8,8 @@ module.exports = {
       },
     },
     upload: {
-      target: 'lhci',
-      serverBaseUrl: 'https://lhci.canary.googleapis.com',
+      target: 'filesystem',
+      outputDir: '.lighthouseci',
     },
     assert: {
       assertions: {

@@ -36,31 +36,22 @@ FROM nginx:alpine
 RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
     chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
 
-# Copy built assets from builder stage
+# Copy built assets from builder stage with secure permissions
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
+# Copy nginx configuration with secure permissions
 COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
-# Security: Create healthcheck script instead of copying missing file
+# Security: Create healthcheck script, install curl, and set all permissions
 RUN echo '#!/bin/sh' > /healthcheck.sh && \
     echo 'curl -f http://localhost:8080/ || exit 1' >> /healthcheck.sh && \
-    chmod +x /healthcheck.sh && \
-    chown nginx:nginx /healthcheck.sh
-
-# Security: Install curl for healthcheck
-RUN apk add --no-cache curl
-
-# Security: Remove unnecessary packages and clean up
-RUN apk del --purge && \
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
-
-# Security: Set proper file permissions
-RUN find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
-    find /usr/share/nginx/html -type d -exec chmod 755 {} \; && \
-    chmod 755 /usr/share/nginx/html && \
-    chmod 644 /etc/nginx/nginx.conf && \
     chmod 755 /healthcheck.sh && \
+    chown nginx:nginx /healthcheck.sh && \
+    apk add --no-cache curl && \
+    rm -rf /var/cache/apk/* /tmp/* /var/tmp/* && \
+    find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+    find /usr/share/nginx/html -type d -exec chmod 755 {} \; && \
+    chmod 644 /etc/nginx/nginx.conf && \
     chown -R nginx:nginx /usr/share/nginx/html
 
 # Security: Switch to non-root user

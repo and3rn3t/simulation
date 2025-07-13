@@ -152,6 +152,9 @@ function testStagingWorkflow() {
   const testFilePath = path.join(__dirname, '..', 'staging-test.txt');
   const timestamp = new Date().toISOString();
   fs.writeFileSync(testFilePath, `Staging test deployment: ${timestamp}\n`);
+
+  // Security: Set read-only permissions on created file
+  fs.chmodSync(testFilePath, 0o644); // Read-write for owner, read-only for group and others
   console.log('   ✅ Test file created');
 
   console.log('\n2. Switch to develop branch...');

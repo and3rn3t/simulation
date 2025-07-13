@@ -26,12 +26,10 @@ function secureExecSync(command, options = {}) {
 
 // __dirname is available as a global variable in CommonJS modules
 
+// Security: Validate and sanitize environment input
 const environment = process.argv[2] || 'development';
-const projectRoot = path.join(__dirname, '..', '..');
 
-console.log(`🔧 Setting up environment: ${environment}`);
-
-// Validate environment
+// Security: Whitelist allowed environments to prevent path traversal
 const validEnvironments = ['development', 'staging', 'production'];
 if (!validEnvironments.includes(environment)) {
   console.error(`❌ Invalid environment: ${environment}`);
@@ -39,6 +37,15 @@ if (!validEnvironments.includes(environment)) {
   process.exit(1);
 }
 
+// Security: Additional validation to ensure no path traversal characters
+if (environment.includes('../') || environment.includes('..\\') || path.isAbsolute(environment)) {
+  console.error(`❌ Security error: Invalid environment name contains path traversal characters`);
+  process.exit(1);
+}
+
+const projectRoot = path.join(__dirname, '..', '..');
+
+console.log(`🔧 Setting up environment: ${environment}`);
 console.log(`✅ Valid environment: ${environment}`);
 
 // Copy environment file
@@ -54,6 +61,9 @@ if (!fs.existsSync(envFile)) {
     console.log(`📋 Found environment file at: ${altEnvFile}`);
     console.log(`📋 Copying ${altEnvFile} to ${targetFile}`);
     fs.copyFileSync(altEnvFile, targetFile);
+
+    // Security: Set read-only permissions on copied file
+    fs.chmodSync(targetFile, 0o644); // Read-write for owner, read-only for group and others
   } else {
     console.error(`❌ Alternative environment file also not found: ${altEnvFile}`);
     console.log('📝 Creating basic environment file...');
@@ -68,11 +78,17 @@ if (!fs.existsSync(envFile)) {
     ].join('\n');
 
     fs.writeFileSync(targetFile, basicEnv);
+
+    // Security: Set read-only permissions on created file
+    fs.chmodSync(targetFile, 0o644); // Read-write for owner, read-only for group and others
     console.log(`✅ Created basic environment file: ${targetFile}`);
   }
 } else {
   console.log(`📋 Copying ${envFile} to ${targetFile}`);
   fs.copyFileSync(envFile, targetFile);
+
+  // Security: Set read-only permissions on copied file
+  fs.chmodSync(targetFile, 0o644); // Read-write for owner, read-only for group and others
 }
 
 // Add build metadata
@@ -93,6 +109,9 @@ try {
 
 // Append build metadata to .env file
 fs.appendFileSync(targetFile, buildMetadata.join('\n') + '\n');
+
+// Security: Ensure final file has proper permissions
+fs.chmodSync(targetFile, 0o644); // Read-write for owner, read-only for group and others
 
 console.log(`✅ Environment setup complete for: ${environment}`);
 console.log('');

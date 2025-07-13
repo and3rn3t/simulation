@@ -75,6 +75,9 @@ VITE_ENVIRONMENT=${process.env.NODE_ENV || 'development'}
 `;
 
     writeFileSync('.env.local', envContent);
+
+    // Security: Set read-only permissions on created file
+    fs.chmodSync('.env.local', 0o644); // Read-write for owner, read-only for group and others
     console.log('✅ Environment variables set for Cloudflare build');
 
     // Check if Wrangler is available
