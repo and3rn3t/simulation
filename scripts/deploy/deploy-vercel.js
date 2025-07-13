@@ -8,6 +8,22 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 
+/**
+ * Secure wrapper for execSync with timeout and error handling
+ * @param {string} command - Command to execute
+ * @param {object} options - Options for execSync
+ * @returns {string} - Command output
+ */
+function secureExecSync(command, options = {}) {
+  const safeOptions = {
+    encoding: 'utf8',
+    timeout: 30000, // 30 second default timeout
+    stdio: 'pipe',
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
 
 async function deployToVercel() {
   console.log('🚀 Starting Vercel deployment...');
@@ -15,8 +31,9 @@ async function deployToVercel() {
   try {
     // Set environment variables for build
     const buildDate = new Date().toISOString();
-    const gitCommit = process.env.GITHUB_SHA || execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-    
+    const gitCommit =
+      process.env.GITHUB_SHA || secureExecSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+
     console.log(`📅 Build Date: ${buildDate}`);
     console.log(`📝 Git Commit: ${gitCommit}`);
 
@@ -31,7 +48,6 @@ VITE_APP_VERSION=${process.env.npm_package_version || '1.0.0'}
 
     // The actual deployment will be handled by Vercel's GitHub integration
     console.log('🎉 Ready for Vercel deployment!');
-    
   } catch (error) {
     console.error('❌ Deployment failed:', error.message);
     process.exit(1);

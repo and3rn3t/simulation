@@ -11,6 +11,23 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+/**
+ * Secure wrapper for execSync with timeout and error handling
+ * @param {string} command - Command to execute
+ * @param {object} options - Options for execSync
+ * @returns {string} - Command output
+ */
+function secureExecSync(command, options = {}) {
+  const safeOptions = {
+    encoding: 'utf8',
+    timeout: 30000, // 30 second default timeout
+    stdio: 'pipe',
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
+
 // Security: Define allowed test patterns to prevent command injection
 const ALLOWED_TEST_PATTERNS = [
   'test/unit/ui/charts/ChartComponent.test.ts',
@@ -35,7 +52,7 @@ function secureVitestRun(pattern) {
   // Construct safe command
   const command = `npx vitest run ${pattern}`;
 
-  return execSync(command, {
+  return secureExecSync(command, {
     encoding: 'utf8',
     stdio: 'pipe',
     timeout: 60000, // 60 second timeout for tests

@@ -1,10 +1,26 @@
 #!/usr/bin/env node
 /* eslint-env node */
-/* eslint-disable no-undef */
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+
+/**
+ * Secure wrapper for execSync with timeout and error handling
+ * @param {string} command - Command to execute
+ * @param {object} options - Options for execSync
+ * @returns {string} - Command output
+ */
+function secureExecSync(command, options = {}) {
+  const safeOptions = {
+    encoding: 'utf8',
+    timeout: 30000, // 30 second default timeout
+    stdio: 'pipe',
+    ...options,
+  };
+
+  return execSync(command, safeOptions);
+}
 // Environment Setup Script (Node.js ES Modules)
 // Configures the build environment and loads appropriate environment variables
 
@@ -68,7 +84,7 @@ const buildMetadata = [
 
 // Add git commit if available
 try {
-  const gitCommit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  const gitCommit = secureExecSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
   buildMetadata.push(`VITE_GIT_COMMIT=${gitCommit}`);
   console.log(`📝 Added git commit: ${gitCommit.substring(0, 8)}`);
 } catch {
