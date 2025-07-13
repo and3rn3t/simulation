@@ -2,6 +2,7 @@
  * Super UI Manager
  * Consolidated UI component patterns to eliminate duplication
  */
+import { ifPattern } from '../utils/UniversalFunctions';
 
 export class SuperUIManager {
   private static instance: SuperUIManager;
@@ -17,7 +18,7 @@ export class SuperUIManager {
 
   // === ELEMENT CREATION ===
   createElement<T extends HTMLElement>(
-    tag: string, 
+    tag: string,
     options: {
       id?: string;
       className?: string;
@@ -27,12 +28,12 @@ export class SuperUIManager {
   ): T | null {
     try {
       const element = document.createElement(tag) as T;
-      
+
       if (options.id) element.id = options.id;
       if (options.className) element.className = options.className;
       if (options.textContent) element.textContent = options.textContent;
       if (options.parent) options.parent.appendChild(element);
-      
+
       if (options.id) this.elements.set(options.id, element);
       return element;
     } catch {
@@ -41,17 +42,13 @@ export class SuperUIManager {
   }
 
   // === EVENT HANDLING ===
-  addEventListenerSafe(
-    elementId: string,
-    event: string,
-    handler: EventListener
-  ): boolean {
+  addEventListenerSafe(elementId: string, event: string, handler: EventListener): boolean {
     const element = this.elements.get(elementId);
     if (!element) return false;
 
     try {
       element.addEventListener(event, handler);
-      
+
       if (!this.listeners.has(elementId)) {
         this.listeners.set(elementId, []);
       }
@@ -63,10 +60,7 @@ export class SuperUIManager {
   }
 
   // === COMPONENT MOUNTING ===
-  mountComponent(
-    parentId: string,
-    childElement: HTMLElement
-  ): boolean {
+  mountComponent(parentId: string, childElement: HTMLElement): boolean {
     const parent = this.elements.get(parentId) || document.getElementById(parentId);
     if (!parent) return false;
 
@@ -79,10 +73,10 @@ export class SuperUIManager {
   }
 
   // === MODAL MANAGEMENT ===
-  createModal(content: string, options: { title?: string } = {}): HTMLElement | null {
+  createModal(content: string, _options: { title?: string } = {}): HTMLElement | null {
     return this.createElement('div', {
       className: 'modal',
-      textContent: content
+      textContent: content,
     });
   }
 
@@ -95,11 +89,12 @@ export class SuperUIManager {
     const button = this.createElement<HTMLButtonElement>('button', {
       textContent: text,
       className: options.className || 'btn',
-      parent: options.parent
+      parent: options.parent,
     });
 
-    ifPattern(button, () => { button.addEventListener('click', onClick);
-     });
+    ifPattern(button, () => {
+      button.addEventListener('click', onClick);
+    });
     return button;
   }
 
@@ -107,10 +102,11 @@ export class SuperUIManager {
   cleanup(): void {
     this.listeners.forEach((handlers, elementId) => {
       const element = this.elements.get(elementId);
-      ifPattern(element, () => { handlers.forEach(handler => {
+      ifPattern(element, () => {
+        handlers.forEach(handler => {
           element.removeEventListener('click', handler); // Simplified
-         }););
-      }
+        });
+      });
     });
     this.listeners.clear();
     this.elements.clear();

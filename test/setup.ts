@@ -9,7 +9,10 @@ vi.mock('chart.js', () => {
   const createChartInstance = function (ctx: any, config: any) {
     const instance = {
       destroy: vi.fn(),
-      update: vi.fn((mode?: string) => Promise.resolve()),
+      update: vi.fn((mode?: string) => {
+        // Return void, not a Promise - Chart.js update can be sync or async
+        return undefined;
+      }),
       resize: vi.fn(),
       render: vi.fn(),
       clear: vi.fn(),
@@ -17,7 +20,7 @@ vi.mock('chart.js', () => {
       reset: vi.fn(),
       toBase64Image: vi.fn(() => 'data:image/png;base64,mock'),
       generateLegend: vi.fn(),
-      data: config?.data || { datasets: [] },
+      data: config?.data || { datasets: [], labels: [] },
       options: config?.options || {},
       canvas: ctx || null,
       ctx: ctx || null,
@@ -46,46 +49,53 @@ vi.mock('chart.js', () => {
 vi.mock('chartjs-adapter-date-fns', () => ({}));
 
 // Mock UserPreferencesManager
-vi.mock('../src/services/UserPreferencesManager', () => ({
-  UserPreferencesManager: {
-    getInstance: vi.fn(() => ({
-      getPreferences: vi.fn(() => ({
-        theme: 'dark',
-        language: 'en',
-        enableAnimations: true,
-        showFPS: false,
-        showDebugInfo: false,
-        maxFrameRate: 60,
-        enableSounds: true,
-        shareUsageData: false,
-        customColors: {
-          primary: '#4CAF50',
-          secondary: '#2196F3',
-          accent: '#FF9800',
-        },
-      })),
-      updatePreference: vi.fn(), // Added missing method
-      updatePreferences: vi.fn(),
-      addChangeListener: vi.fn(), // Added missing method
-      removeChangeListener: vi.fn(), // Added missing method
-      applyTheme: vi.fn(),
-      setLanguage: vi.fn(),
-      getAvailableLanguages: vi.fn(() => [
-        { code: 'en', name: 'English' },
-        { code: 'es', name: 'Español' },
-        { code: 'fr', name: 'Français' },
-        { code: 'de', name: 'Deutsch' },
-        { code: 'zh', name: '中文' },
-      ]),
-      exportPreferences: vi.fn(() => '{}'),
-      importPreferences: vi.fn(() => true),
-      resetToDefaults: vi.fn(),
-      on: vi.fn(),
-      off: vi.fn(),
-      emit: vi.fn(),
+vi.mock('../src/services/UserPreferencesManager', () => {
+  const mockInstance = {
+    getPreferences: vi.fn(() => ({
+      theme: 'dark',
+      language: 'en',
+      enableAnimations: true,
+      showFPS: false,
+      showDebugInfo: false,
+      maxFrameRate: 60,
+      enableSounds: true,
+      shareUsageData: false,
+      customColors: {
+        primary: '#4CAF50',
+        secondary: '#2196F3',
+        accent: '#FF9800',
+      },
     })),
-  },
-}));
+    updatePreference: vi.fn(), // Added missing method
+    updatePreferences: vi.fn(),
+    addChangeListener: vi.fn(), // Added missing method
+    removeChangeListener: vi.fn(), // Added missing method
+    applyTheme: vi.fn(),
+    setLanguage: vi.fn(),
+    getAvailableLanguages: vi.fn(() => [
+      { code: 'en', name: 'English' },
+      { code: 'es', name: 'Español' },
+      { code: 'fr', name: 'Français' },
+      { code: 'de', name: 'Deutsch' },
+      { code: 'zh', name: '中文' },
+    ]),
+    exportPreferences: vi.fn(() => '{}'),
+    importPreferences: vi.fn(() => true),
+    resetToDefaults: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn(),
+  };
+
+  // Create a constructor function that returns the mock instance
+  const MockUserPreferencesManager = vi.fn().mockImplementation(() => mockInstance);
+  (MockUserPreferencesManager as any).getInstance = vi.fn(() => mockInstance);
+
+  return {
+    UserPreferencesManager: MockUserPreferencesManager,
+    default: MockUserPreferencesManager,
+  };
+});
 
 // Mock requestAnimationFrame
 global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
@@ -96,6 +106,21 @@ global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
 global.cancelAnimationFrame = vi.fn();
 
 // Mock window.matchMedia
+// Basic DOM mocks
+Object.defineProperty(window, 'requestAnimationFrame', {
+  value: vi.fn((callback: FrameRequestCallback) => {
+    return setTimeout(callback, 16); // Simulate 60fps
+  }),
+  writable: true,
+});
+
+Object.defineProperty(window, 'cancelAnimationFrame', {
+  value: vi.fn((id: number) => {
+    clearTimeout(id);
+  }),
+  writable: true,
+});
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
@@ -644,8 +669,16 @@ document.createElement = vi.fn((tagName: string, options?: ElementCreationOption
       replaceChild: vi.fn(),
       cloneNode: vi.fn(() => element),
       remove: vi.fn(() => {
-        if (element.parentNode && element.parentNode.removeChild) {
-          element.parentNode.removeChild(element);
+        try {
+          if (
+            element.parentNode &&
+            element.parentNode.removeChild &&
+            element.parentNode.contains(element)
+          ) {
+            element.parentNode.removeChild(element);
+          }
+        } catch (error) {
+          // Silently ignore DOM removal errors in tests
         }
       }),
 
@@ -771,7 +804,60 @@ document.createElement = vi.fn((tagName: string, options?: ElementCreationOption
         }
         return [];
       }),
-      getElementById: vi.fn(() => null),
+      getElementById: vi.fn((id: string) => {
+        if (id === 'simulation-canvas' || id.includes('canvas')) {
+          // Create a proper canvas mock element
+          const canvasElement = {
+            id,
+            tagName: 'CANVAS',
+            width: 800,
+            height: 600,
+            getContext: vi.fn(() => ({
+              fillStyle: '',
+              strokeStyle: '',
+              clearRect: vi.fn(),
+              fillRect: vi.fn(),
+              strokeRect: vi.fn(),
+              beginPath: vi.fn(),
+              moveTo: vi.fn(),
+              lineTo: vi.fn(),
+              arc: vi.fn(),
+              fill: vi.fn(),
+              stroke: vi.fn(),
+              save: vi.fn(),
+              restore: vi.fn(),
+              translate: vi.fn(),
+              scale: vi.fn(),
+              rotate: vi.fn(),
+              drawImage: vi.fn(),
+              createImageData: vi.fn(),
+              getImageData: vi.fn(),
+              putImageData: vi.fn(),
+              measureText: vi.fn(() => ({ width: 100 })),
+            })),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+            style: {},
+            classList: {
+              add: vi.fn(),
+              remove: vi.fn(),
+              contains: vi.fn(() => false),
+              toggle: vi.fn(),
+            },
+            getAttribute: vi.fn(),
+            setAttribute: vi.fn(),
+            removeAttribute: vi.fn(),
+            parentNode: null,
+            parentElement: null,
+            ownerDocument: document,
+            nodeType: 1,
+            [Symbol.toStringTag]: 'HTMLCanvasElement',
+          };
+          return canvasElement;
+        }
+        return null;
+      }),
       getElementsByClassName: vi.fn(() => []),
       getElementsByTagName: vi.fn(() => []),
 

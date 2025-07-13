@@ -8,8 +8,9 @@ class UltimatePatternConsolidator {
   private patterns = new Map<string, any>();
 
   static getInstance(): UltimatePatternConsolidator {
-    ifPattern(!UltimatePatternConsolidator.instance, () => { UltimatePatternConsolidator.instance = new UltimatePatternConsolidator();
-     });
+    ifPattern(!UltimatePatternConsolidator.instance, () => {
+      UltimatePatternConsolidator.instance = new UltimatePatternConsolidator();
+    });
     return UltimatePatternConsolidator.instance;
   }
 
@@ -37,17 +38,19 @@ class UltimatePatternConsolidator {
 
   // Universal pattern: event handling
   eventPattern(element: Element | null, event: string, handler: EventListener): () => void {
-    ifPattern(element, () => { element.addEventListener(event, handler);
-      return () => element.removeEventListener(event, handler);
-     });
+    ifPattern(!!element, () => {
+      element!.addEventListener(event, handler);
+      return () => element!.removeEventListener(event, handler);
+    });
     return () => {};
   }
 
   // Universal pattern: DOM operations
   domPattern<T extends Element>(selector: string, operation?: (el: T) => void): T | null {
     const element = document.querySelector<T>(selector);
-    ifPattern(element && operation, () => { operation(element);
-     });
+    ifPattern(!!(element && operation), () => {
+      operation!(element!);
+    });
     return element;
   }
 }

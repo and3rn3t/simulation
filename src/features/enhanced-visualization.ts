@@ -1,6 +1,7 @@
-import { VisualizationDashboard, SettingsPanelComponent } from '../ui/components';
 import { UserPreferencesManager } from '../services/UserPreferencesManager';
+import { SettingsPanelComponent } from '../ui/components/SettingsPanelComponent';
 import '../ui/components/visualization-components.css';
+import { VisualizationDashboard } from '../ui/components/VisualizationDashboard';
 
 /**
  * Enhanced Visualization Integration
@@ -135,7 +136,6 @@ export class EnhancedVisualizationIntegration {
     this.preferencesManager.applyAccessibility();
 
     // Update other settings...
-
   }
 
   /**
@@ -221,7 +221,6 @@ export class EnhancedVisualizationIntegration {
    * Start demonstration mode with sample data
    */
   startDemo(): void {
-
     // Generate sample data every 2 seconds
     const demoInterval = setInterval(() => {
       this.updateVisualizationData();
@@ -230,7 +229,6 @@ export class EnhancedVisualizationIntegration {
     // Stop demo after 30 seconds
     setTimeout(() => {
       clearInterval(demoInterval);
-
     }, 30000);
 
     // Show initial data
@@ -263,11 +261,12 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
     // Add to global scope for debugging
     (window as any).visualizationIntegration = integration;
 
-    in the console');
-    ');
+    console.log(
+      'Enhanced visualization integration initialized. Access via window.visualizationIntegration in the console'
+    );
 
     return integration;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
