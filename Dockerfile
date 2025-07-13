@@ -1,5 +1,5 @@
 # Multi-stage build for optimization
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Security: Create non-root user for build stage
 RUN addgroup -g 1001 -S nodejs && \
