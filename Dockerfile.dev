@@ -22,8 +22,10 @@ RUN npm install
 # Copy source code with proper ownership
 COPY --chown=devuser:nodejs . .
 
-# Security: Set proper file permissions
-RUN chmod -R 755 /app
+# Security: Set proper file permissions (read-only for non-owners)
+RUN find /app -type f -exec chmod 644 {} \; && \
+    find /app -type d -exec chmod 755 {} \; && \
+    chmod 755 /app/node_modules/.bin/* 2>/dev/null || true
 
 # Expose development port
 EXPOSE 5173

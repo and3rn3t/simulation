@@ -612,9 +612,76 @@ pid /tmp/nginx.pid;
 4. **Permission Order**: Set file permissions before ownership to avoid conflicts
 5. **Security Headers**: Use `always` directive to ensure headers apply to all responses
 
-### Docker Security Documentation
+## File Permission Security (MANDATORY)
 
-- Document all security configurations in `docs/security/DOCKER_SECURITY_GUIDE.md`
-- Include vulnerability assessment procedures
-- Maintain security checklists and review schedules
-- Document lessons learned from security implementations
+### Critical Security Requirements
+
+**ALWAYS set explicit file permissions** - Never rely on system defaults when creating or copying files.
+
+### Required Pattern for File Operations
+
+```javascript
+// ✅ MANDATORY: Always use this pattern for file creation
+function createSecureFile(filePath, content) {
+  try {
+    fs.writeFileSync(filePath, content);
+    fs.chmodSync(filePath, 0o644); // REQUIRED: Read-write owner, read-only others
+  } catch (error) {
+    ErrorHandler.getInstance().handleError(
+      error instanceof Error ? error : new Error('File creation failed'),
+      ErrorSeverity.HIGH,
+      'Secure file creation'
+    );
+    throw error;
+  }
+}
+
+// ✅ MANDATORY: Always use this pattern for file copying
+function copySecureFile(sourcePath, targetPath) {
+  try {
+    fs.copyFileSync(sourcePath, targetPath);
+    fs.chmodSync(targetPath, 0o644); // REQUIRED: Secure permissions
+  } catch (error) {
+    ErrorHandler.getInstance().handleError(
+      error instanceof Error ? error : new Error('File copy failed'),
+      ErrorSeverity.HIGH,
+      'Secure file copying'
+    );
+    throw error;
+  }
+}
+
+// ❌ SECURITY VIOLATION: Never create files without setting permissions
+fs.writeFileSync(filePath, content); // VULNERABLE: No permission setting
+```
+
+### Standard Permission Levels
+
+| File Type | Permission                            | Use Case                                 |
+| --------- | ------------------------------------- | ---------------------------------------- |
+| `0o644`   | Configuration files, data files, logs | Read-write owner, read-only others       |
+| `0o755`   | Directories, executable scripts       | Traversable/executable, read-only others |
+| `0o600`   | Secrets, private keys, .env files     | Owner-only access                        |
+
+### Docker Permission Security
+
+```dockerfile
+# ✅ REQUIRED: Use specific file and directory permissions
+COPY --chown=user:group source/ /destination/
+RUN find /destination -type f -exec chmod 644 {} \; && \
+    find /destination -type d -exec chmod 755 {} \; && \
+    chown -R user:group /destination
+
+# ❌ SECURITY VIOLATION: Never use broad permissions
+RUN chmod -R 755 /destination  # Too permissive - security risk
+```
+
+### Code Review Security Checklist
+
+Every file operation MUST include:
+
+- [ ] `fs.chmodSync()` after `fs.writeFileSync()`
+- [ ] `fs.chmodSync()` after `fs.copyFileSync()`
+- [ ] Appropriate permission level (644 for data, 755 for executables)
+- [ ] Error handling around file operations
+- [ ] Security rationale documented in comments

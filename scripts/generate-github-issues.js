@@ -2,7 +2,7 @@
 
 /**
  * GitHub Issue Creation Script
- * 
+ *
  * This script helps convert roadmap items and TODOs into GitHub issues
  * automatically with proper labels, milestones, and project assignments.
  */
@@ -19,7 +19,7 @@ const GITHUB_CONFIG = {
   owner: 'and3rn3t',
   repo: 'simulation',
   token: process.env.GITHUB_TOKEN, // Set this environment variable
-  baseUrl: 'https://api.github.com'
+  baseUrl: 'https://api.github.com',
 };
 
 // Roadmap feature mapping to GitHub issues
@@ -36,10 +36,10 @@ const ROADMAP_FEATURES = {
       'Implement hunt() method in Organism class',
       'Add prey detection algorithm using spatial partitioning',
       'Create energy system for organisms',
-      'Add visual hunting indicators'
-    ]
+      'Add visual hunting indicators',
+    ],
   },
-  
+
   'genetic-evolution': {
     title: 'Epic: Genetic Evolution System',
     quarter: 'Q3 2025',
@@ -51,10 +51,10 @@ const ROADMAP_FEATURES = {
       'Implement basic traits: size, speed, lifespan, reproduction rate',
       'Create trait inheritance algorithm (Mendelian genetics)',
       'Add mutation system with configurable mutation rate',
-      'Modify organism rendering to show genetic traits'
-    ]
+      'Modify organism rendering to show genetic traits',
+    ],
   },
-  
+
   'environmental-factors': {
     title: 'Epic: Environmental Factors System',
     quarter: 'Q3 2025',
@@ -66,10 +66,10 @@ const ROADMAP_FEATURES = {
       'Implement temperature effects on organism behavior',
       'Add FoodSource class and resource spawning',
       'Create resource competition and depletion mechanics',
-      'Add pH and chemical factor systems'
-    ]
+      'Add pH and chemical factor systems',
+    ],
   },
-  
+
   'enhanced-visualization': {
     title: 'Epic: Enhanced Visualization System',
     quarter: 'Q3 2025',
@@ -81,10 +81,10 @@ const ROADMAP_FEATURES = {
       'Design unique sprites for each organism type',
       'Implement ParticleSystem class',
       'Add birth, death, and interaction particle effects',
-      'Create environmental heat map overlays'
-    ]
+      'Create environmental heat map overlays',
+    ],
   },
-  
+
   // Q4 2025 Features
   'educational-content': {
     title: 'Epic: Educational Content Platform',
@@ -97,10 +97,10 @@ const ROADMAP_FEATURES = {
       'Build "Basic Ecosystem" tutorial',
       'Implement scientific accuracy mode',
       'Add data collection and export functionality',
-      'Create educational scenario library'
-    ]
+      'Create educational scenario library',
+    ],
   },
-  
+
   'save-load-system': {
     title: 'Epic: Save & Load System',
     quarter: 'Q4 2025',
@@ -112,18 +112,18 @@ const ROADMAP_FEATURES = {
       'Implement save/load to localStorage',
       'Add multiple save slot system',
       'Create JSON export for sharing simulations',
-      'Add simulation template system'
-    ]
-  }
+      'Add simulation template system',
+    ],
+  },
 };
 
 // Effort estimation mapping
 const EFFORT_ESTIMATES = {
-  'Create': 'M',      // Creating new systems
-  'Implement': 'L',   // Complex implementation
-  'Add': 'S',         // Adding features to existing systems
-  'Design': 'S',      // Design work
-  'Build': 'M'        // Building components
+  Create: 'M', // Creating new systems
+  Implement: 'L', // Complex implementation
+  Add: 'S', // Adding features to existing systems
+  Design: 'S', // Design work
+  Build: 'M', // Building components
 };
 
 /**
@@ -131,7 +131,7 @@ const EFFORT_ESTIMATES = {
  */
 function generateEpicIssue(featureKey, feature) {
   const tasks = feature.tasks.map((task, index) => `- [ ] Task ${index + 1}: ${task}`).join('\n');
-  
+
   return {
     title: feature.title,
     body: `## Overview
@@ -164,8 +164,14 @@ ${tasks}
 - [Immediate TODOs](../docs/development/IMMEDIATE_TODOS.md)
 
 *This issue was auto-generated from the product roadmap.*`,
-    labels: ['epic', 'feature', `area:${feature.area.toLowerCase()}`, `priority:${feature.priority.toLowerCase()}`, `quarter:${feature.quarter.replace(' ', '-').toLowerCase()}`],
-    milestone: feature.quarter
+    labels: [
+      'epic',
+      'feature',
+      `area:${feature.area.toLowerCase()}`,
+      `priority:${feature.priority.toLowerCase()}`,
+      `quarter:${feature.quarter.replace(' ', '-').toLowerCase()}`,
+    ],
+    milestone: feature.quarter,
   };
 }
 
@@ -174,7 +180,7 @@ ${tasks}
  */
 function generateTaskIssue(taskDescription, parentFeature) {
   const effort = Object.keys(EFFORT_ESTIMATES).find(key => taskDescription.startsWith(key)) || 'M';
-  
+
   return {
     title: `Task: ${taskDescription}`,
     body: `## Description
@@ -203,7 +209,12 @@ ${taskDescription}
 Part of ${parentFeature.title}
 
 *This issue was auto-generated from the immediate TODOs.*`,
-    labels: ['task', 'implementation', `area:${parentFeature.area.toLowerCase()}`, `effort:${EFFORT_ESTIMATES[effort] || 'M'}`]
+    labels: [
+      'task',
+      'implementation',
+      `area:${parentFeature.area.toLowerCase()}`,
+      `effort:${EFFORT_ESTIMATES[effort] || 'M'}`,
+    ],
   };
 }
 
@@ -212,26 +223,26 @@ Part of ${parentFeature.title}
  */
 function generateAllIssues() {
   const issues = [];
-  
+
   // Generate Epic issues
   Object.entries(ROADMAP_FEATURES).forEach(([key, feature]) => {
     issues.push({
       type: 'epic',
       feature: key,
-      ...generateEpicIssue(key, feature)
+      ...generateEpicIssue(key, feature),
     });
-    
+
     // Generate task issues for each epic
     feature.tasks.forEach(task => {
       issues.push({
         type: 'task',
         feature: key,
         parent: feature.title,
-        ...generateTaskIssue(task, feature)
+        ...generateTaskIssue(task, feature),
       });
     });
   });
-  
+
   return issues;
 }
 
@@ -241,11 +252,11 @@ function generateAllIssues() {
 function outputIssuesForManualCreation() {
   const issues = generateAllIssues();
   const outputDir = path.join(__dirname, '..', 'generated-issues');
-  
+
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   issues.forEach((issue, index) => {
     const filename = `${String(index + 1).padStart(3, '0')}-${issue.type}-${issue.feature}.md`;
     const content = `# ${issue.title}
@@ -254,10 +265,12 @@ function outputIssuesForManualCreation() {
 ${issue.milestone ? `**Milestone:** ${issue.milestone}` : ''}
 
 ${issue.body}`;
-    
-    fs.writeFileSync(path.join(outputDir, filename), content);
+
+    const filePath = path.join(outputDir, filename);
+    fs.writeFileSync(filePath, content);
+    fs.chmodSync(filePath, 0o644); // Read-write for owner, read-only for group and others
   });
-  
+
   console.log(`Generated ${issues.length} issue files in ${outputDir}`);
   console.log('\nTo create these issues in GitHub:');
   console.log('1. Go to your repository → Issues → New Issue');
@@ -274,28 +287,29 @@ function generateMilestones() {
     {
       title: 'Q3 2025: Enhanced Ecosystem',
       description: 'Advanced organism behaviors, environmental factors, and enhanced visualization',
-      due_on: '2025-09-30T23:59:59Z'
+      due_on: '2025-09-30T23:59:59Z',
     },
     {
       title: 'Q4 2025: Interactive Learning',
       description: 'Educational content platform and save/load system',
-      due_on: '2025-12-31T23:59:59Z'
+      due_on: '2025-12-31T23:59:59Z',
     },
     {
       title: 'Q1 2026: Social Ecosystem',
       description: 'Multiplayer features and community content creation',
-      due_on: '2026-03-31T23:59:59Z'
+      due_on: '2026-03-31T23:59:59Z',
     },
     {
       title: 'Q2 2026: Research Platform',
       description: 'Advanced analytics and real-world integration',
-      due_on: '2026-06-30T23:59:59Z'
-    }
+      due_on: '2026-06-30T23:59:59Z',
+    },
   ];
-  
+
   const outputFile = path.join(__dirname, '..', 'generated-milestones.json');
   fs.writeFileSync(outputFile, JSON.stringify(milestones, null, 2));
-  
+  fs.chmodSync(outputFile, 0o644); // Read-write for owner, read-only for group and others
+
   console.log(`Generated milestones in ${outputFile}`);
   console.log('\nTo create these milestones in GitHub:');
   console.log('1. Go to your repository → Issues → Milestones → New milestone');
@@ -308,54 +322,61 @@ function generateMilestones() {
 function generateProjectConfig() {
   const projectConfig = {
     name: 'Organism Simulation Roadmap 2025-2026',
-    description: 'Track progress on transforming the simulation into a comprehensive biological education platform',
+    description:
+      'Track progress on transforming the simulation into a comprehensive biological education platform',
     views: [
       {
         name: 'Roadmap Timeline',
         type: 'roadmap',
         group_by: 'milestone',
-        sort_by: 'created_at'
+        sort_by: 'created_at',
       },
       {
         name: 'Current Sprint',
         type: 'board',
         filter: 'is:open label:"priority:high","priority:critical"',
-        columns: ['Backlog', 'In Progress', 'Review', 'Done']
+        columns: ['Backlog', 'In Progress', 'Review', 'Done'],
       },
       {
         name: 'By Feature Area',
         type: 'table',
         group_by: 'labels',
         filter: 'is:open',
-        fields: ['title', 'assignees', 'labels', 'milestone', 'priority', 'effort']
-      }
+        fields: ['title', 'assignees', 'labels', 'milestone', 'priority', 'effort'],
+      },
     ],
     custom_fields: [
       { name: 'Priority', type: 'single_select', options: ['Critical', 'High', 'Medium', 'Low'] },
       { name: 'Effort', type: 'single_select', options: ['XS', 'S', 'M', 'L', 'XL'] },
-      { name: 'Feature Area', type: 'single_select', options: ['Ecosystem', 'Education', 'Performance', 'UI/UX', 'Infrastructure'] }
-    ]
+      {
+        name: 'Feature Area',
+        type: 'single_select',
+        options: ['Ecosystem', 'Education', 'Performance', 'UI/UX', 'Infrastructure'],
+      },
+    ],
   };
-  
+
   const outputFile = path.join(__dirname, '..', 'github-project-config.json');
   fs.writeFileSync(outputFile, JSON.stringify(projectConfig, null, 2));
-  
+  fs.chmodSync(outputFile, 0o644); // Read-write for owner, read-only for group and others
+
   console.log(`Generated project configuration in ${outputFile}`);
 }
 
 // Main execution - check if this file is being run directly
-const isMainModule = import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || 
-                     import.meta.url.includes('generate-github-issues.js');
+const isMainModule =
+  import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` ||
+  import.meta.url.includes('generate-github-issues.js');
 
 if (isMainModule) {
   console.log('🚀 Generating GitHub project management files...\n');
-  
+
   outputIssuesForManualCreation();
   console.log('');
   generateMilestones();
   console.log('');
   generateProjectConfig();
-  
+
   console.log('\n✅ All files generated successfully!');
   console.log('\nNext steps:');
   console.log('1. Create milestones in GitHub using generated-milestones.json');
@@ -364,9 +385,4 @@ if (isMainModule) {
   console.log('4. Assign issues to the project and appropriate milestones');
 }
 
-export {
-  generateAllIssues,
-  generateEpicIssue,
-  generateTaskIssue,
-  ROADMAP_FEATURES
-};
+export { generateAllIssues, generateEpicIssue, generateTaskIssue, ROADMAP_FEATURES };

@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-07-13T01:10:41.866Z",
+  "auditResults": {
+    "fileOperations": true,
+    "dockerSecurity": true,
+    "fileSystemPermissions": false,
+    "securityPatterns": true
+  },
+  "summary": {
+    "totalChecks": 4,
+    "passedChecks": 3,
+    "score": "75.0"
+  }
+}
