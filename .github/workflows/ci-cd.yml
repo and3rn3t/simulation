@@ -222,16 +222,24 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
     
-    - name: Build Docker image
+    - name: Build Docker image with enhanced caching
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: false
         tags: organism-simulation:latest
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        cache-from: |
+          type=registry,ref=ghcr.io/${{ github.repository }}:cache
+          type=local,src=/tmp/.buildx-cache
+        cache-to: |
+          type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
+          type=local,dest=/tmp/.buildx-cache-new,mode=max
         platforms: linux/amd64,linux/arm64
+        build-args: |
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          VCS_REF=${{ github.sha }}
+          VERSION=optimized-v2
     
     - name: Test Docker image
       run: |
@@ -287,7 +295,7 @@ jobs:
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
     
-    - name: Build and push Docker image
+    - name: Build and push Docker image with enhanced caching
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v5
       with:
@@ -296,9 +304,17 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        cache-from: |
+          type=registry,ref=ghcr.io/${{ github.repository }}:cache
+          type=local,src=/tmp/.buildx-cache
+        cache-to: |
+          type=registry,ref=ghcr.io/${{ github.repository }}:cache,mode=max
+          type=local,dest=/tmp/.buildx-cache-new,mode=max
         platforms: linux/amd64,linux/arm64
+        build-args: |
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          VCS_REF=${{ github.sha }}
+          VERSION=${{ steps.meta.outputs.version }}
     
     - name: Move cache
       run: |

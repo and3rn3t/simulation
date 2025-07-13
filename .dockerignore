@@ -32,7 +32,7 @@ Thumbs.db
 .git
 .gitignore
 
-# Documentation
+# Documentation (keeping README for metadata)
 docs
 *.md
 !README.md
@@ -50,6 +50,19 @@ temp
 .cache
 .npm
 .eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Additional build artifacts
+*.tgz
+*.tar.gz
+
+# Runtime and process files
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # TypeScript cache
 *.tsbuildinfo
