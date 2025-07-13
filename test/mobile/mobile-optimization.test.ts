@@ -50,7 +50,13 @@ describe('Mobile Canvas Manager', () => {
 
   afterEach(() => {
     manager.destroy();
-    document.body.removeChild(container);
+    try {
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
+    } catch (error) {
+      // Silently ignore DOM cleanup errors in tests
+    }
   });
 
   it('should handle high DPI displays correctly', () => {
@@ -108,7 +114,13 @@ describe('Mobile Touch Handler', () => {
 
   afterEach(() => {
     touchHandler.destroy();
-    document.body.removeChild(canvas);
+    try {
+      if (canvas && canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+      }
+    } catch (error) {
+      // Silently ignore DOM cleanup errors in tests
+    }
   });
 
   it('should detect single tap', () => {
@@ -297,6 +309,12 @@ describe('Mobile Integration', () => {
     touchHandler.destroy();
     uiEnhancer.destroy();
     canvasManager.destroy();
-    document.body.removeChild(container);
+    try {
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
+    } catch (error) {
+      // Silently ignore DOM cleanup errors in tests
+    }
   });
 });

@@ -8,8 +8,12 @@ vi.mock('chart.js', () => {
 
   const createChartInstance = function (ctx: any, config: any) {
     const instance = {
-      destroy: vi.fn(),
-      update: vi.fn((mode?: string) => {
+      destroy: vi.fn().mockImplementation(() => {
+        // Simulate chart destruction
+        instance.chart = null;
+        return undefined;
+      }),
+      update: vi.fn().mockImplementation((mode?: string) => {
         // Return void, not a Promise - Chart.js update can be sync or async
         return undefined;
       }),
@@ -24,6 +28,7 @@ vi.mock('chart.js', () => {
       options: config?.options || {},
       canvas: ctx || null,
       ctx: ctx || null,
+      chart: null, // Add self-reference for cleanup checks
     };
     return instance;
   };
@@ -313,11 +318,19 @@ global.performance = {
 };
 
 // Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(callback => ({
+const mockResizeObserver = vi.fn().mockImplementation(callback => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
+
+global.ResizeObserver = mockResizeObserver;
+
+// Also add ResizeObserver to window for feature detection
+Object.defineProperty(window, 'ResizeObserver', {
+  value: mockResizeObserver,
+  writable: true,
+});
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(callback => ({
@@ -805,6 +818,17 @@ document.createElement = vi.fn((tagName: string, options?: ElementCreationOption
         return [];
       }),
       getElementById: vi.fn((id: string) => {
+        // First try to find real DOM elements that might have been created in tests
+        try {
+          const realElement = globalThis.document?.getElementById?.(id);
+          if (realElement) {
+            return realElement;
+          }
+        } catch (error) {
+          // Fall back to mock if real DOM lookup fails
+        }
+
+        // Fall back to mock canvas elements for simulation tests
         if (id === 'simulation-canvas' || id.includes('canvas')) {
           // Create a proper canvas mock element
           const canvasElement = {

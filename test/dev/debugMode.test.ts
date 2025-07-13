@@ -2,7 +2,7 @@
  * Debug Mode Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DebugMode } from '../../src/dev/debugMode';
 
 describe('DebugMode', () => {
@@ -23,7 +23,15 @@ describe('DebugMode', () => {
   afterEach(() => {
     // Clean up
     debugMode.disable();
-    document.body.removeChild(mockElement);
+
+    // Safely remove mockElement if it exists and has a parent
+    try {
+      if (mockElement && mockElement.parentNode) {
+        mockElement.parentNode.removeChild(mockElement);
+      }
+    } catch (error) {
+      // Ignore cleanup errors
+    }
 
     // Restore mocks
     vi.restoreAllMocks();
