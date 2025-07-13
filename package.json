@@ -88,7 +88,11 @@
     "domain:setup": "node scripts/setup-custom-domain.js",
     "workflow:validate": "node scripts/validate-workflow.mjs",
     "workflow:troubleshoot": "node scripts/troubleshoot-project-workflow.mjs",
-    "workflow:verify": "node scripts/verify-workflow.mjs"
+    "workflow:verify": "node scripts/verify-workflow.mjs",
+    "cicd:validate": "node scripts/validate-workflows.js",
+    "cicd:migrate": "powershell scripts/migrate-cicd.ps1",
+    "cicd:backup": "powershell scripts/migrate-cicd.ps1 backup",
+    "cicd:status": "powershell scripts/cicd-status.ps1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

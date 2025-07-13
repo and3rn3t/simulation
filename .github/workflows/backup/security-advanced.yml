@@ -1,0 +1,284 @@
+name: Security & Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scans weekly on Mondays at 6 AM UTC
+    - cron: '0 6 * * 1'
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'typescript' ]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        config-file: ./.github/codeql/codeql-config.yml
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+
+  supply-chain-security:
+    name: Supply Chain Security
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Snyk vulnerability scan
+      if: env.SNYK_TOKEN != ''
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=package.json
+      continue-on-error: true
+    
+    - name: Upload Snyk results to GitHub Code Scanning
+      if: env.SNYK_TOKEN != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: snyk.sarif
+      continue-on-error: true
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Get commit range for TruffleHog
+      id: commit-range
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "base=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+          echo "head=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          echo "scan_type=diff" >> $GITHUB_OUTPUT
+        elif [ "${{ github.event_name }}" == "push" ]; then
+          # For push events, scan only the new commits
+          if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "base=${{ github.event.before }}" >> $GITHUB_OUTPUT
+            echo "head=${{ github.event.after }}" >> $GITHUB_OUTPUT
+            echo "scan_type=diff" >> $GITHUB_OUTPUT
+          else
+            # For initial commit or when before is null, scan the entire repo
+            echo "scan_type=filesystem" >> $GITHUB_OUTPUT
+          fi
+        else
+          # For scheduled runs or other events, scan entire filesystem
+          echo "scan_type=filesystem" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: TruffleHog OSS Secret Scanning (Diff Mode)
+      if: steps.commit-range.outputs.scan_type == 'diff'
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ steps.commit-range.outputs.base }}
+        head: ${{ steps.commit-range.outputs.head }}
+        extra_args: --debug --only-verified --fail
+      continue-on-error: true
+    
+    - name: TruffleHog OSS Secret Scanning (Filesystem Mode)
+      if: steps.commit-range.outputs.scan_type == 'filesystem'
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        extra_args: --debug --only-verified --fail
+      continue-on-error: true
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install license-checker
+      run: npm install -g license-checker
+    
+    - name: Check licenses
+      run: |
+        echo "📄 Generating license report..."
+        license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;0BSD;CC0-1.0;LGPL-3.0-or-later;LGPL-3.0-only;Apache-2.0 AND LGPL-3.0-or-later;MIT OR Apache-2.0;BlueOak-1.0.0;(MIT OR CC0-1.0);MIT-0;Python-2.0;CC-BY-4.0;(MIT OR WTFPL);(AFL-2.1 OR BSD-3-Clause);(BSD-3-Clause OR GPL-2.0);(BSD-2-Clause OR MIT OR Apache-2.0);UNLICENSED' --summary --csv --out license-report.csv
+        
+        echo "📊 License summary:"
+        license-checker --summary
+    
+    - name: Upload license report
+      uses: actions/upload-artifact@v4
+      with:
+        name: license-report
+        path: license-report.csv
+        retention-days: 90
+
+  docker-security:
+    name: Docker Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    # Re-enabled: Docker containerization is now complete
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: docker build -t organism-simulation:latest .
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'organism-simulation:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        exit-code: '1'  # Fail on HIGH/CRITICAL vulnerabilities
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Run Docker Bench Security
+      run: |
+        docker run --rm --net host --pid host --userns host --cap-add audit_control \
+          -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+          -v /etc:/etc:ro \
+          -v /usr/bin/containerd:/usr/bin/containerd:ro \
+          -v /usr/bin/runc:/usr/bin/runc:ro \
+          -v /usr/lib/systemd:/usr/lib/systemd:ro \
+          -v /var/lib:/var/lib:ro \
+          -v /var/run/docker.sock:/var/run/docker.sock:ro \
+          --label docker_bench_security \
+          docker/docker-bench-security || true
+    
+    - name: Container structure test
+      run: |
+        # Install container-structure-test
+        curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
+        chmod +x container-structure-test-linux-amd64
+        sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+        
+        # Create basic structure test config
+        cat > container-structure-test.yaml << EOF
+        schemaVersion: '2.0.0'
+        metadataTest:
+          exposedPorts: ["8080"]
+          user: "nginx"
+        commandTests:
+          - name: "nginx is running"
+            command: "ps"
+            args: ["-ef"]
+            expectedOutput: ["nginx.*nginx"]
+        fileExistenceTests:
+          - name: 'health check exists'
+            path: '/healthcheck.sh'
+            shouldExist: true
+            permissions: '-rwxr-xr-x'
+        EOF
+        
+        # Run tests
+        container-structure-test test --image organism-simulation:latest --config container-structure-test.yaml
+
+  security-report:
+    name: Security Summary Report
+    runs-on: ubuntu-latest
+    needs: [dependency-review, codeql-analysis, supply-chain-security, secret-scanning, license-compliance, docker-security]
+    if: always()
+    
+    steps:
+    - name: Generate Security Summary
+      run: |
+        echo "🔒 Security & Quality Checks Summary" >> $GITHUB_STEP_SUMMARY
+        echo "=====================================" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Dependency Review | ${{ needs.dependency-review.result || 'Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| CodeQL Analysis | ${{ needs.codeql-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Supply Chain Security | ${{ needs.supply-chain-security.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Secret Scanning | ${{ needs.secret-scanning.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| License Compliance | ${{ needs.license-compliance.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📝 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Review any failed security checks" >> $GITHUB_STEP_SUMMARY
+        echo "- Update dependencies if vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+        echo "- Check license compliance report" >> $GITHUB_STEP_SUMMARY

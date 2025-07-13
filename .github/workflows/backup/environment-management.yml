@@ -1,0 +1,87 @@
+name: Environment Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+        - deploy
+        - rollback
+        - health-check
+      dry_run:
+        description: 'Perform dry run'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  environment-action:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Configure environment
+      run: |
+        echo "🔧 Configuring environment: ${{ github.event.inputs.environment }}"
+        node scripts/setup-env.js ${{ github.event.inputs.environment }}
+    
+    - name: Build application
+      if: github.event.inputs.action == 'deploy'
+      run: npm run build
+    
+    - name: Deploy to environment
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          echo "🔍 Performing dry run deployment to ${{ github.event.inputs.environment }}"
+          node scripts/deploy.js ${{ github.event.inputs.environment }} latest true
+        else
+          echo "🚀 Deploying to ${{ github.event.inputs.environment }}"
+          node scripts/deploy.js ${{ github.event.inputs.environment }}
+        fi
+    
+    - name: Health check
+      if: github.event.inputs.action == 'health-check'
+      run: |
+        echo "🏥 Running health check for ${{ github.event.inputs.environment }}"
+        # Add health check commands here
+        # curl -f https://staging.organism-simulation.com/health || exit 1
+    
+    - name: Rollback deployment
+      if: github.event.inputs.action == 'rollback'
+      run: |
+        echo "🔄 Rolling back ${{ github.event.inputs.environment }} deployment"
+        # Add rollback commands here
+        # node scripts/rollback.js ${{ github.event.inputs.environment }}
+    
+    - name: Notify result
+      if: always()
+      run: |
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ ${{ github.event.inputs.action }} completed successfully for ${{ github.event.inputs.environment }}"
+        else
+          echo "❌ ${{ github.event.inputs.action }} failed for ${{ github.event.inputs.environment }}"
+        fi
