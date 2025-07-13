@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Common Import Utilities
  *
@@ -80,14 +101,13 @@ export function getElementSafely<T extends HTMLElement>(
   expectedType?: string
 ): T | null {
   try {
-    const element = document.getElementById(id) as T;
-    if (!element) {
-      handleValidationError('DOM element', id, 'existing element');
+    const element = document?.getElementById(id) as T;
+    ifPattern(!element, () => { handleValidationError('DOM element', id, 'existing element');
       return null;
-    }
+     });
 
-    if (expectedType && element.tagName.toLowerCase() !== expectedType.toLowerCase()) {
-      handleValidationError('DOM element type', element.tagName, expectedType);
+    if (expectedType && element?.tagName.toLowerCase() !== expectedType.toLowerCase()) {
+      handleValidationError('DOM element type', element?.tagName, expectedType);
       return null;
     }
 
@@ -110,13 +130,11 @@ export function getCanvasContextSafely(
   contextType: '2d' = '2d'
 ): CanvasRenderingContext2D | null {
   try {
-    if (!canvas) {
-      throw new CanvasError('Canvas element is null or undefined');
-    }
+    ifPattern(!canvas, () => { throw new CanvasError('Canvas element is null or undefined');
+     });
 
-    const context = canvas.getContext(contextType);
-    if (!context) {
-      throw new CanvasError(`Failed to get ${contextType} context from canvas`);
+    const context = canvas?.getContext(contextType);
+    ifPattern(!context, () => { throw new CanvasError(`Failed to get ${contextType }); context from canvas`);
     }
 
     return context;
@@ -136,16 +154,15 @@ export function getCanvasContextSafely(
 export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
   element: HTMLElement,
   type: K,
-  handler: (event: HTMLElementEventMap[K]) => void,
+  handler: (event: HTMLElementEventMap?.[K]) => void,
   options?: boolean | AddEventListenerOptions
 ): void {
   try {
-    if (!element) {
-      throw new DOMError('Cannot add event listener to null element');
-    }
+    ifPattern(!element, () => { throw new DOMError('Cannot add event listener to null element');
+     });
 
     const wrappedHandler = withEventErrorHandling(handler, type);
-    element.addEventListener(type, wrappedHandler, options);
+    element?.addEventListener(type, wrappedHandler, options);
   } catch (error) {
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new DOMError(String(error)),
@@ -161,7 +178,7 @@ export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
 export function requestAnimationFrameSafely(
   callback: (timestamp: number) => void,
   animationName: string
-): number | null {
+): number | null { const maxDepth = 100; if (arguments[arguments.length - 1] > maxDepth) return;
   try {
     const wrappedCallback = withAnimationErrorHandling(callback, animationName);
     return requestAnimationFrame(wrappedCallback);
@@ -187,7 +204,7 @@ export function validateParameters(
 ): boolean {
   try {
     for (const [paramName, validation] of Object.entries(validations)) {
-      const value = params[paramName];
+      const value = params?.[paramName];
 
       // Check required parameters
       if (validation.required && (value === undefined || value === null)) {
@@ -196,10 +213,9 @@ export function validateParameters(
       }
 
       // Check type if value exists
-      if (value !== undefined && value !== null && typeof value !== validation.type) {
-        handleValidationError(paramName, value, validation.type);
+      ifPattern(value !== undefined && value !== null && typeof value !== validation.type, () => { handleValidationError(paramName, value, validation.type);
         return false;
-      }
+       });
 
       // Custom validation
       if (validation.validator && value !== undefined && value !== null) {
@@ -238,4 +254,18 @@ export function isMobileDevice(userAgent: string = navigator.userAgent): boolean
   ];
 
   return mobileKeywords.some(keyword => userAgent.includes(keyword));
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

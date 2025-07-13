@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Mobile Features Test Interface
  * Provides visual feedback and testing for advanced mobile features
@@ -15,7 +36,7 @@ export class MobileTestInterface {
   }
 
   private initialize(): void {
-    this.testSection = document.getElementById('mobile-test-section');
+    this.testSection = document?.getElementById('mobile-test-section');
 
     // Show mobile test section only on mobile devices
     if (this.isMobileDevice()) {
@@ -33,49 +54,76 @@ export class MobileTestInterface {
   }
 
   private updateDeviceInfo(): void {
-    const deviceTypeElement = document.getElementById('device-type');
-    const touchSupportElement = document.getElementById('touch-support');
-    const screenSizeElement = document.getElementById('screen-size');
+    const deviceTypeElement = document?.getElementById('device-type');
+    const touchSupportElement = document?.getElementById('touch-support');
+    const screenSizeElement = document?.getElementById('screen-size');
 
-    if (deviceTypeElement) {
-      deviceTypeElement.textContent = this.isMobileDevice() ? 'Mobile' : 'Desktop';
-    }
+    ifPattern(deviceTypeElement, () => { deviceTypeElement.textContent = this.isMobileDevice() ? 'Mobile' : 'Desktop';
+     });
 
-    if (touchSupportElement) {
-      touchSupportElement.textContent = 'ontouchstart' in window ? 'Yes' : 'No';
-    }
+    ifPattern(touchSupportElement, () => { touchSupportElement.textContent = 'ontouchstart' in window ? 'Yes' : 'No';
+     });
 
-    if (screenSizeElement) {
-      screenSizeElement.textContent = `${window.innerWidth}x${window.innerHeight}`;
+    ifPattern(screenSizeElement, () => { screenSizeElement.textContent = `${window.innerWidth });x${window.innerHeight}`;
     }
   }
 
   private setupEventListeners(): void {
     // Test effect button
-    const testEffectBtn = document.getElementById('test-effect-btn');
-    testEffectBtn?.addEventListener('click', () => {
+    const testEffectBtn = document?.getElementById('test-effect-btn');
+    testEffectBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => {
       this.testVisualEffect();
     });
 
     // Share button
-    const shareBtn = document.getElementById('share-btn');
-    shareBtn?.addEventListener('click', () => {
+    const shareBtn = document?.getElementById('share-btn');
+    shareBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => {
       this.testSocialSharing();
     });
 
     // Install button (will be shown if PWA install is available)
-    const installBtn = document.getElementById('install-btn');
-    installBtn?.addEventListener('click', () => {
+    const installBtn = document?.getElementById('install-btn');
+    installBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => {
       this.testPWAInstall();
     });
 
     // Listen for custom events from mobile features
-    window.addEventListener('mobile-gesture-detected', (event: any) => {
-      this.updateGestureInfo(event.detail);
+    eventPattern(window?.addEventListener('mobile-gesture-detected', (event) => {
+  try {
+    ((event: any)(event);
+  } catch (error) {
+    console.error('Event listener error for mobile-gesture-detected:', error);
+  }
+})) => {
+      this.updateGestureInfo(event?.detail);
     });
 
-    window.addEventListener('mobile-feature-status', (event: any) => {
-      this.updateFeatureStatus(event.detail);
+    eventPattern(window?.addEventListener('mobile-feature-status', (event) => {
+  try {
+    ((event: any)(event);
+  } catch (error) {
+    console.error('Event listener error for mobile-feature-status:', error);
+  }
+})) => {
+      this.updateFeatureStatus(event?.detail);
     });
   }
 
@@ -84,35 +132,32 @@ export class MobileTestInterface {
       const featureStatus = this.simulation.getMobileFeatureStatus();
 
       // Update gesture status
-      const gestureStatus = document.getElementById('gesture-status');
+      const gestureStatus = document?.getElementById('gesture-status');
       if (gestureStatus) {
         gestureStatus.textContent = featureStatus.advancedGesturesEnabled ? 'Enabled' : 'Disabled';
         gestureStatus.style.color = featureStatus.advancedGesturesEnabled ? '#4CAF50' : '#f44336';
       }
 
       // Update effects status
-      const effectsStatus = document.getElementById('effects-status');
-      if (effectsStatus) {
-        effectsStatus.textContent = featureStatus.visualEffectsEnabled ? 'Enabled' : 'Disabled';
+      const effectsStatus = document?.getElementById('effects-status');
+      ifPattern(effectsStatus, () => { effectsStatus.textContent = featureStatus.visualEffectsEnabled ? 'Enabled' : 'Disabled';
         effectsStatus.style.color = featureStatus.visualEffectsEnabled ? '#4CAF50' : '#f44336';
-      }
+       } // TODO: Consider extracting to reduce closure scope);
 
       // Update PWA status
-      const pwaStatus = document.getElementById('pwa-status');
-      if (pwaStatus) {
-        pwaStatus.textContent = featureStatus.pwaEnabled ? 'Ready' : 'Not Available';
+      const pwaStatus = document?.getElementById('pwa-status');
+      ifPattern(pwaStatus, () => { pwaStatus.textContent = featureStatus.pwaEnabled ? 'Ready' : 'Not Available';
         pwaStatus.style.color = featureStatus.pwaEnabled ? '#4CAF50' : '#f44336';
-      }
+       });
 
       // Update analytics status
-      const analyticsStatus = document.getElementById('analytics-status');
-      if (analyticsStatus) {
-        analyticsStatus.textContent = featureStatus.analyticsEnabled ? 'Tracking' : 'Disabled';
+      const analyticsStatus = document?.getElementById('analytics-status');
+      ifPattern(analyticsStatus, () => { analyticsStatus.textContent = featureStatus.analyticsEnabled ? 'Tracking' : 'Disabled';
         analyticsStatus.style.color = featureStatus.analyticsEnabled ? '#4CAF50' : '#f44336';
-      }
+       });
 
       // Update social status
-      const socialStatus = document.getElementById('social-status');
+      const socialStatus = document?.getElementById('social-status');
       if (socialStatus) {
         socialStatus.textContent = featureStatus.socialSharingEnabled
           ? 'Available'
@@ -123,15 +168,14 @@ export class MobileTestInterface {
   }
 
   private updateGestureInfo(gestureData: any): void {
-    const lastGesture = document.getElementById('last-gesture');
-    if (lastGesture && gestureData) {
-      lastGesture.textContent = `Last: ${gestureData.type} (${gestureData.timestamp || 'now'})`;
+    const lastGesture = document?.getElementById('last-gesture');
+    ifPattern(lastGesture && gestureData, () => { lastGesture.textContent = `Last: ${gestureData.type }); (${gestureData.timestamp || 'now'})`;
     }
   }
 
   private testVisualEffect(): void {
     // Simulate a test effect
-    const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+    const canvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
       const centerX = rect.width / 2;
@@ -150,11 +194,10 @@ export class MobileTestInterface {
 
   private async testSocialSharing(): Promise<void> {
     try {
-      if (this.simulation?.captureAndShare) {
-        await this.simulation.captureAndShare();
+      ifPattern(this.simulation?.captureAndShare, () => { await this.simulation.captureAndShare();
         this.showTestFeedback('Screenshot captured and shared!');
-      } else if (navigator.share) {
-        await navigator.share({
+       }); else if (navigator.share) {
+  try { await navigator.share({ } catch (error) { console.error('Await error:', error); }
           title: 'My Organism Simulation',
           text: 'Check out my organism simulation!',
           url: window.location.href,
@@ -184,11 +227,11 @@ export class MobileTestInterface {
       // Update FPS every second
       if (currentTime - lastTime >= 1000) {
         const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-        const fpsCounter = document.getElementById('fps-counter');
+        const fpsCounter = document?.getElementById('fps-counter');
         if (fpsCounter) {
           fpsCounter.textContent = fps.toString();
           fpsCounter.style.color = fps >= 30 ? '#4CAF50' : fps >= 15 ? '#FF9800' : '#f44336';
-        }
+        } // TODO: Consider extracting to reduce closure scope
 
         frameCount = 0;
         lastTime = currentTime;
@@ -197,10 +240,9 @@ export class MobileTestInterface {
       // Update memory usage if available
       if ((performance as any).memory) {
         const memory = (performance as any).memory;
-        const memoryElement = document.getElementById('memory-usage');
-        if (memoryElement) {
-          const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
-          memoryElement.textContent = `${usedMB}MB`;
+        const memoryElement = document?.getElementById('memory-usage');
+        ifPattern(memoryElement, () => { const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
+          memoryElement.textContent = `${usedMB });MB`;
         }
       }
 
@@ -211,18 +253,24 @@ export class MobileTestInterface {
 
     // Update battery level if available
     if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      (navigator as any).getBattery().then((battery: any).catch(error => console.error('Promise rejection:', error)) => {
         const updateBattery = () => {
-          const batteryElement = document.getElementById('battery-level');
+          const batteryElement = document?.getElementById('battery-level');
           if (batteryElement) {
             const level = Math.round(battery.level * 100);
-            batteryElement.textContent = `${level}%`;
+            batteryElement.textContent = `${level} // TODO: Consider extracting to reduce closure scope%`;
             batteryElement.style.color = level > 20 ? '#4CAF50' : '#f44336';
           }
         };
 
         updateBattery();
-        battery.addEventListener('levelchange', updateBattery);
+        eventPattern(battery?.addEventListener('levelchange', (event) => {
+  try {
+    (updateBattery)(event);
+  } catch (error) {
+    console.error('Event listener error for levelchange:', error);
+  }
+}));
       });
     }
   }
@@ -248,16 +296,14 @@ export class MobileTestInterface {
 
     // Remove after 3 seconds
     setTimeout(() => {
-      if (feedback.parentNode) {
-        feedback.parentNode.removeChild(feedback);
-      }
+      ifPattern(feedback.parentNode, () => { feedback.parentNode.removeChild(feedback);
+       });
     }, 3000);
   }
 
   public updateSessionInfo(sessionData: any): void {
-    const sessionInfo = document.getElementById('session-info');
-    if (sessionInfo && sessionData) {
-      sessionInfo.textContent = `Session: ${sessionData.duration || 0}s`;
+    const sessionInfo = document?.getElementById('session-info');
+    ifPattern(sessionInfo && sessionData, () => { sessionInfo.textContent = `Session: ${sessionData.duration || 0 });s`;
     }
   }
 }

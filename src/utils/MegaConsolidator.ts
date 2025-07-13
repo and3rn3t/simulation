@@ -24,12 +24,12 @@ export class MegaConsolidator {
 
   // Replace all DOM queries
   static $(selector: string): Element | null {
-    return document.querySelector(selector);
+    return document?.querySelector(selector);
   }
 
   // Replace all assignments
   static set(obj: any, key: string, value: any): void {
-    if (obj && key) obj[key] = value;
+    if (obj && key) obj?.[key] = value;
   }
 
   // Replace all function calls

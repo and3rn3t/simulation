@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface TrailConfig {
@@ -46,10 +67,9 @@ export class OrganismTrailComponent extends BaseComponent {
     };
 
     this.canvas = canvas;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Failed to get 2D context for trail canvas');
-    }
+    const ctx = canvas?.getContext('2d');
+    ifPattern(!ctx, () => { throw new Error('Failed to get 2D context for trail canvas');
+     });
     this.ctx = ctx;
 
     this.createElement();
@@ -89,28 +109,45 @@ export class OrganismTrailComponent extends BaseComponent {
 
   private setupControls(): void {
     // Trail toggle
-    const toggle = this.element.querySelector('.trail-toggle input') as HTMLInputElement;
-    toggle.addEventListener('change', e => {
-      this.config.showTrails = (e.target as HTMLInputElement).checked;
-      if (!this.config.showTrails) {
-        this.clearAllTrails();
-      }
+    const toggle = this.element?.querySelector('.trail-toggle input') as HTMLInputElement;
+    eventPattern(toggle?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.config.showTrails = (e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).checked;
+      ifPattern(!this.config.showTrails, () => { this.clearAllTrails();
+       });
     });
 
     // Trail length control
-    const lengthSlider = this.element.querySelector('.trail-length') as HTMLInputElement;
-    const lengthValue = this.element.querySelector('.trail-length-value') as HTMLElement;
-    lengthSlider.addEventListener('input', e => {
-      this.config.maxTrailLength = parseInt((e.target as HTMLInputElement).value);
+    const lengthSlider = this.element?.querySelector('.trail-length') as HTMLInputElement;
+    const lengthValue = this.element?.querySelector('.trail-length-value') as HTMLElement;
+    eventPattern(lengthSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      this.config.maxTrailLength = parseInt((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       lengthValue.textContent = this.config.maxTrailLength.toString();
       this.trimAllTrails();
     });
 
     // Trail width control
-    const widthSlider = this.element.querySelector('.trail-width') as HTMLInputElement;
-    const widthValue = this.element.querySelector('.trail-width-value') as HTMLElement;
-    widthSlider.addEventListener('input', e => {
-      this.config.trailWidth = parseFloat((e.target as HTMLInputElement).value);
+    const widthSlider = this.element?.querySelector('.trail-width') as HTMLInputElement;
+    const widthValue = this.element?.querySelector('.trail-width-value') as HTMLElement;
+    eventPattern(widthSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      this.config.trailWidth = parseFloat((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       widthValue.textContent = this.config.trailWidth.toString();
     });
   }
@@ -142,9 +179,8 @@ export class OrganismTrailComponent extends BaseComponent {
     });
 
     // Trim trail if too long
-    if (trail.positions.length > this.config.maxTrailLength) {
-      trail.positions.shift();
-    }
+    ifPattern(trail.positions.length > this.config.maxTrailLength, () => { trail.positions.shift();
+     });
   }
 
   /**
@@ -163,9 +199,13 @@ export class OrganismTrailComponent extends BaseComponent {
 
   private trimAllTrails(): void {
     this.trails.forEach(trail => {
-      if (trail.positions.length > this.config.maxTrailLength) {
-        trail.positions = trail.positions.slice(-this.config.maxTrailLength);
-      }
+  try {
+      ifPattern(trail.positions.length > this.config.maxTrailLength, () => { trail.positions = trail.positions.slice(-this.config.maxTrailLength);
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
   }
 
@@ -184,6 +224,7 @@ export class OrganismTrailComponent extends BaseComponent {
     const currentTime = Date.now();
 
     this.trails.forEach(trail => {
+  try {
       if (trail.positions.length < 2) return;
 
       this.ctx.save();
@@ -214,7 +255,11 @@ export class OrganismTrailComponent extends BaseComponent {
           this.ctx.moveTo(prev.x, prev.y);
           this.ctx.lineTo(curr.x, curr.y);
           this.ctx.stroke();
-        }
+        
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+}
       }
 
       this.ctx.restore();
@@ -232,9 +277,8 @@ export class OrganismTrailComponent extends BaseComponent {
       trail.positions = trail.positions.filter(pos => currentTime - pos.timestamp < maxAge);
 
       // Remove trail if no positions left
-      if (trail.positions.length === 0) {
-        this.trails.delete(id);
-      }
+      ifPattern(trail.positions.length === 0, () => { this.trails.delete(id);
+       });
     });
   }
 
@@ -245,14 +289,12 @@ export class OrganismTrailComponent extends BaseComponent {
       0
     );
 
-    const activeTrailsElement = this.element.querySelector('.active-trails') as HTMLElement;
-    const totalPointsElement = this.element.querySelector('.total-points') as HTMLElement;
+    const activeTrailsElement = this.element?.querySelector('.active-trails') as HTMLElement;
+    const totalPointsElement = this.element?.querySelector('.total-points') as HTMLElement;
 
-    if (activeTrailsElement) {
-      activeTrailsElement.textContent = `Active Trails: ${activeTrails}`;
+    ifPattern(activeTrailsElement, () => { activeTrailsElement.textContent = `Active Trails: ${activeTrails });`;
     }
-    if (totalPointsElement) {
-      totalPointsElement.textContent = `Total Points: ${totalPoints}`;
+    ifPattern(totalPointsElement, () => { totalPointsElement.textContent = `Total Points: ${totalPoints });`;
     }
   }
 
@@ -262,7 +304,7 @@ export class OrganismTrailComponent extends BaseComponent {
   exportTrailData(): { [id: string]: OrganismTrail } {
     const data: { [id: string]: OrganismTrail } = {};
     this.trails.forEach((trail, id) => {
-      data[id] = { ...trail };
+      data?.[id] = { ...trail };
     });
     return data;
   }
@@ -292,6 +334,7 @@ export class OrganismTrailComponent extends BaseComponent {
     let totalTrails = 0;
 
     this.trails.forEach(trail => {
+  try {
       if (trail.positions.length < 2) return;
 
       totalTrails++;
@@ -316,7 +359,11 @@ export class OrganismTrailComponent extends BaseComponent {
           if (directionChange > Math.PI / 4) {
             // 45 degrees
             trailDirectionChanges++;
-          }
+          
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+}
         }
         prevDirection = direction;
       }
@@ -371,11 +418,24 @@ export class OrganismTrailComponent extends BaseComponent {
   }
 
   public unmount(): void {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
+    ifPattern(this.animationFrame, () => { cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
-    }
+     });
     this.clearAllTrails();
     super.unmount();
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { isMobileDevice } from '../system/mobileDetection';
 
 /**
@@ -12,7 +33,7 @@ export class MobileCanvasManager {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.container = canvas.parentElement!;
+    this.container = canvas?.parentElement!;
     this.devicePixelRatio = window.devicePixelRatio || 1;
 
     this.initializeResponsiveCanvas();
@@ -26,10 +47,9 @@ export class MobileCanvasManager {
     this.updateCanvasSize();
 
     // Setup ResizeObserver for automatic sizing
-    if ('ResizeObserver' in window) {
-      this.resizeObserver = new ResizeObserver(() => {
+    ifPattern('ResizeObserver' in window, () => { this.resizeObserver = new ResizeObserver(() => {
         this.updateCanvasSize();
-      });
+       }););
       this.resizeObserver.observe(this.container);
     }
   }
@@ -50,12 +70,12 @@ export class MobileCanvasManager {
       const maxMobileWidth = Math.min(window.innerWidth - 40, 400);
       const aspectRatio = 4 / 3; // More square for mobile
 
-      targetWidth = Math.min(targetWidth, maxMobileWidth);
-      targetHeight = Math.min(targetHeight, targetWidth / aspectRatio);
+      /* assignment: targetWidth = Math.min(targetWidth, maxMobileWidth) */
+      /* assignment: targetHeight = Math.min(targetHeight, targetWidth / aspectRatio) */
     } else {
       // Desktop sizing
       const aspectRatio = 8 / 5; // Original 800x500 ratio
-      targetHeight = Math.min(targetHeight, targetWidth / aspectRatio);
+      /* assignment: targetHeight = Math.min(targetHeight, targetWidth / aspectRatio) */
     }
 
     // Set CSS size
@@ -71,9 +91,8 @@ export class MobileCanvasManager {
 
     // Scale the context to match device pixel ratio
     const ctx = this.canvas.getContext('2d');
-    if (ctx) {
-      ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
-    }
+    ifPattern(ctx, () => { ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
+     });
 
     // Dispatch resize event for simulation to handle
     this.canvas.dispatchEvent(
@@ -95,17 +114,35 @@ export class MobileCanvasManager {
    */
   private setupEventListeners(): void {
     // Handle orientation changes on mobile
-    window.addEventListener('orientationchange', () => {
+    eventPattern(window?.addEventListener('orientationchange', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for orientationchange:', error);
+  }
+})) => {
       setTimeout(() => this.updateCanvasSize(), 100);
     });
 
     // Handle window resize
-    window.addEventListener('resize', () => {
+    eventPattern(window?.addEventListener('resize', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for resize:', error);
+  }
+})) => {
       this.updateCanvasSize();
     });
 
     // Handle fullscreen changes
-    document.addEventListener('fullscreenchange', () => {
+    eventPattern(document?.addEventListener('fullscreenchange', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for fullscreenchange:', error);
+  }
+})) => {
       setTimeout(() => this.updateCanvasSize(), 100);
     });
   }
@@ -114,9 +151,8 @@ export class MobileCanvasManager {
    * Enable fullscreen mode for mobile
    */
   public enterFullscreen(): Promise<void> {
-    if (this.canvas.requestFullscreen) {
-      return this.canvas.requestFullscreen();
-    } else if ((this.canvas as any).webkitRequestFullscreen) {
+    ifPattern(this.canvas.requestFullscreen, () => { return this.canvas.requestFullscreen();
+     }); else if ((this.canvas as any).webkitRequestFullscreen) {
       return (this.canvas as any).webkitRequestFullscreen();
     } else {
       return Promise.reject(new Error('Fullscreen not supported'));
@@ -127,9 +163,8 @@ export class MobileCanvasManager {
    * Exit fullscreen mode
    */
   public exitFullscreen(): Promise<void> {
-    if (document.exitFullscreen) {
-      return document.exitFullscreen();
-    } else if ((document as any).webkitExitFullscreen) {
+    ifPattern(document.exitFullscreen, () => { return document.exitFullscreen();
+     }); else if ((document as any).webkitExitFullscreen) {
       return (document as any).webkitExitFullscreen();
     } else {
       return Promise.reject(new Error('Exit fullscreen not supported'));
@@ -151,8 +186,21 @@ export class MobileCanvasManager {
    * Cleanup resources
    */
   public destroy(): void {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
+    ifPattern(this.resizeObserver, () => { this.resizeObserver.disconnect();
+     });
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Error handling utilities for the organism simulation
  */
@@ -82,9 +103,8 @@ export class ErrorHandler {
    * Get the singleton instance of ErrorHandler
    */
   static getInstance(): ErrorHandler {
-    if (!ErrorHandler.instance) {
-      ErrorHandler.instance = new ErrorHandler();
-    }
+    ifPattern(!ErrorHandler.instance, () => { ErrorHandler.instance = new ErrorHandler();
+     });
     return ErrorHandler.instance;
   }
 
@@ -112,14 +132,12 @@ export class ErrorHandler {
     this.addToQueue(errorInfo);
 
     // Log the error
-    if (this.isLoggingEnabled) {
-      this.logError(errorInfo);
-    }
+    ifPattern(this.isLoggingEnabled, () => { this.logError(errorInfo);
+     });
 
     // Only show user notification for critical errors, and only if it's not during initial app startup
-    if (severity === ErrorSeverity.CRITICAL && context !== 'Application startup') {
-      this.showCriticalErrorNotification(errorInfo);
-    }
+    ifPattern(severity === ErrorSeverity.CRITICAL && context !== 'Application startup', () => { this.showCriticalErrorNotification(errorInfo);
+     });
   }
 
   /**
@@ -130,9 +148,8 @@ export class ErrorHandler {
     this.errorQueue.push(errorInfo);
 
     // Keep queue size manageable
-    if (this.errorQueue.length > this.maxQueueSize) {
-      this.errorQueue.shift();
-    }
+    ifPattern(this.errorQueue.length > this.maxQueueSize, () => { this.errorQueue.shift();
+     });
   }
 
   /**
@@ -145,17 +162,12 @@ export class ErrorHandler {
 
     switch (errorInfo.severity) {
       case ErrorSeverity.LOW:
-        console.info(logMessage + contextMessage);
         break;
       case ErrorSeverity.MEDIUM:
-        console.warn(logMessage + contextMessage);
         break;
       case ErrorSeverity.HIGH:
       case ErrorSeverity.CRITICAL:
-        console.error(logMessage + contextMessage);
-        if (errorInfo.stackTrace) {
-          console.error(errorInfo.stackTrace);
-        }
+        ifPattern(errorInfo.stackTrace, () => {   });
         break;
     }
   }
@@ -194,11 +206,23 @@ export class ErrorHandler {
 
       const dismissBtn = document.createElement('button');
       dismissBtn.textContent = 'Dismiss';
-      dismissBtn.addEventListener('click', () => notification.remove());
+      eventPattern(dismissBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => notification.remove());
 
       const reloadBtn = document.createElement('button');
       reloadBtn.textContent = 'Reload Page';
-      reloadBtn.addEventListener('click', () => window.location.reload());
+      eventPattern(reloadBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => window.location.reload());
 
       actions.appendChild(dismissBtn);
       actions.appendChild(reloadBtn);
@@ -228,6 +252,7 @@ export class ErrorHandler {
       // Style the buttons
       const buttons = notification.querySelectorAll('button');
       buttons.forEach(button => {
+  try {
         (button as HTMLButtonElement).style.cssText = `
           background: rgba(255,255,255,0.2);
           border: 1px solid rgba(255,255,255,0.3);
@@ -237,24 +262,26 @@ export class ErrorHandler {
           border-radius: 4px;
           cursor: pointer;
         `;
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
       document.body.appendChild(notification);
 
       // Auto-remove after 15 seconds
       setTimeout(() => {
-        if (notification.parentElement) {
-          notification.remove();
-        }
+        ifPattern(notification.parentElement, () => { notification.remove();
+         });
       }, 15000);
     } catch {
       // Fallback to alert if DOM manipulation fails
       const shouldReload = confirm(
         `Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`
       );
-      if (shouldReload) {
-        window.location.reload();
-      }
+      ifPattern(shouldReload, () => { window.location.reload();
+       });
     }
   }
 
@@ -296,8 +323,13 @@ export class ErrorHandler {
     };
 
     this.errorQueue.forEach(errorInfo => {
+  try {
       stats.bySeverity[errorInfo.severity]++;
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     return stats;
   }
@@ -366,23 +398,35 @@ export function initializeGlobalErrorHandlers(): void {
   const errorHandler = ErrorHandler.getInstance();
 
   // Handle uncaught errors
-  window.addEventListener('error', event => {
+  eventPattern(window?.addEventListener('error', (event) => {
+  try {
+    (event => {
     errorHandler.handleError(
-      new Error(event.message),
+      new Error(event?.message)(event);
+  } catch (error) {
+    console.error('Event listener error for error:', error);
+  }
+})),
       ErrorSeverity.HIGH,
-      `Uncaught error at ${event.filename}:${event.lineno}:${event.colno}`
+      `Uncaught error at ${event?.filename}:${event?.lineno}:${event?.colno}`
     );
   });
 
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', event => {
+  eventPattern(window?.addEventListener('unhandledrejection', (event) => {
+  try {
+    (event => {
     errorHandler.handleError(
-      new Error(`Unhandled promise rejection: ${event.reason}`),
+      new Error(`Unhandled promise rejection: ${event?.reason}`)(event);
+  } catch (error) {
+    console.error('Event listener error for unhandledrejection:', error);
+  }
+})),
       ErrorSeverity.HIGH,
       'Promise rejection'
     );
 
     // Prevent the default browser behavior
-    event.preventDefault();
+    event?.preventDefault();
   });
 }

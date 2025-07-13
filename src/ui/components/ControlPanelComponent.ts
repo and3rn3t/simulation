@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { Button } from './Button';
 import { ComponentFactory } from './ComponentFactory';
 import { Panel, type PanelConfig } from './Panel';
@@ -23,7 +44,7 @@ export class ControlPanelComponent extends Panel {
 
   constructor(config: ControlPanelConfig = {}) {
     const panelConfig: PanelConfig = {
-      title: config.title || 'Simulation Controls',
+      title: config?.title || 'Simulation Controls',
       collapsible: true,
       className: 'control-panel',
     };
@@ -107,14 +128,19 @@ export class ControlPanelComponent extends Panel {
     speedDisplay.textContent = `Speed: ${this.speed}x`;
     speedDisplay.className = 'speed-display';
 
-    speedSlider.addEventListener('input', e => {
+    speedSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
       const target = e.target as HTMLInputElement;
-      this.speed = parseFloat(target.value);
+      this.speed = parseFloat(target?.value)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+});
       speedDisplay.textContent = `Speed: ${this.speed}x`;
 
-      if (this.controlConfig.onSpeedChange) {
-        this.controlConfig.onSpeedChange(this.speed);
-      }
+      ifPattern(this.controlConfig.onSpeedChange, () => { this.controlConfig.onSpeedChange(this.speed);
+       });
     });
 
     speedContainer.appendChild(speedDisplay);
@@ -130,9 +156,9 @@ export class ControlPanelComponent extends Panel {
     section.innerHTML = '<h4>Options</h4>';
 
     const optionsContainer = document.createElement('div');
-    optionsContainer.style.display = 'flex';
-    optionsContainer.style.flexDirection = 'column';
-    optionsContainer.style.gap = 'var(--ui-space-sm)';
+    optionsContainer?.style.display = 'flex';
+    optionsContainer?.style.flexDirection = 'column';
+    optionsContainer?.style.gap = 'var(--ui-space-sm)';
 
     // Auto-spawn toggle
     const autoSpawnToggle = ComponentFactory.createToggle(
@@ -141,10 +167,14 @@ export class ControlPanelComponent extends Panel {
         variant: 'switch',
         checked: this.autoSpawn,
         onChange: checked => {
+  try {
           this.autoSpawn = checked;
-          if (this.controlConfig.onAutoSpawnToggle) {
-            this.controlConfig.onAutoSpawnToggle(checked);
-          }
+          ifPattern(this.controlConfig.onAutoSpawnToggle, () => { this.controlConfig.onAutoSpawnToggle(checked);
+           
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
         },
       },
       'control-auto-spawn'
@@ -170,11 +200,9 @@ export class ControlPanelComponent extends Panel {
     }
 
     // Trigger callback
-    if (this.isRunning && this.controlConfig.onStart) {
-      this.controlConfig.onStart();
-    } else if (!this.isRunning && this.controlConfig.onPause) {
-      this.controlConfig.onPause();
-    }
+    ifPattern(this.isRunning && this.controlConfig.onStart, () => { this.controlConfig.onStart();
+     }); else ifPattern(!this.isRunning && this.controlConfig.onPause, () => { this.controlConfig.onPause();
+     });
   }
 
   private handleReset(): void {
@@ -190,18 +218,16 @@ export class ControlPanelComponent extends Panel {
       });
     }
 
-    if (this.controlConfig.onReset) {
-      this.controlConfig.onReset();
-    }
+    ifPattern(this.controlConfig.onReset, () => { this.controlConfig.onReset();
+     });
   }
 
   /**
    * Update the running state from external sources
    */
   setRunning(running: boolean): void {
-    if (this.isRunning !== running) {
-      this.togglePlayback();
-    }
+    ifPattern(this.isRunning !== running, () => { this.togglePlayback();
+     });
   }
 
   /**
@@ -217,14 +243,12 @@ export class ControlPanelComponent extends Panel {
   setSpeed(speed: number): void {
     this.speed = Math.max(0.1, Math.min(5, speed));
 
-    const slider = this.element.querySelector('.speed-slider') as HTMLInputElement;
-    if (slider) {
-      slider.value = this.speed.toString();
-    }
+    const slider = this.element?.querySelector('.speed-slider') as HTMLInputElement;
+    ifPattern(slider, () => { slider.value = this.speed.toString();
+     });
 
-    const display = this.element.querySelector('.speed-display');
-    if (display) {
-      display.textContent = `Speed: ${this.speed}x`;
+    const display = this.element?.querySelector('.speed-display');
+    ifPattern(display, () => { display.textContent = `Speed: ${this.speed });x`;
     }
   }
 }

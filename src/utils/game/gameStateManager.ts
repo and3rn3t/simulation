@@ -43,8 +43,13 @@ export class GameStateManager {
 
     // Show unlock notifications
     newlyUnlocked.forEach(organism => {
+  try {
       this.unlockableManager.showUnlockNotification(organism);
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
   }
 
   /**

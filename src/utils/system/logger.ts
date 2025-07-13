@@ -98,9 +98,8 @@ export class Logger {
    * Get the singleton instance
    */
   static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
-    }
+    ifPattern(!Logger.instance, () => { Logger.instance = new Logger();
+     });
     return Logger.instance;
   }
 
@@ -237,9 +236,8 @@ export class Logger {
     this.logs.push(logEntry);
 
     // Keep logs manageable
-    if (this.logs.length > this.maxLogSize) {
-      this.logs.shift();
-    }
+    ifPattern(this.logs.length > this.maxLogSize, () => { this.logs.shift();
+     });
   }
 
   /**
@@ -326,9 +324,14 @@ export class Logger {
     };
 
     this.logs.forEach(log => {
+  try {
       stats.byLevel[log.level] = (stats.byLevel[log.level] || 0) + 1;
       stats.byCategory[log.category] = (stats.byCategory[log.category] || 0) + 1;
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     return stats;
   }
@@ -373,9 +376,8 @@ export class PerformanceLogger {
   }
 
   static getInstance(): PerformanceLogger {
-    if (!PerformanceLogger.instance) {
-      PerformanceLogger.instance = new PerformanceLogger();
-    }
+    ifPattern(!PerformanceLogger.instance, () => { PerformanceLogger.instance = new PerformanceLogger();
+     });
     return PerformanceLogger.instance;
   }
 
@@ -391,8 +393,7 @@ export class PerformanceLogger {
    */
   endTiming(operation: string, logMessage?: string): number {
     const startTime = this.performanceMarks.get(operation);
-    if (!startTime) {
-      this.logger.logError(new Error(`No start time found for operation: ${operation}`));
+    ifPattern(!startTime, () => { this.logger.logError(new Error(`No start time found for operation: ${operation });`));
       return 0;
     }
 
@@ -416,10 +417,9 @@ export class PerformanceLogger {
    * Log memory usage (if available)
    */
   logMemoryUsage(): void {
-    if ('memory' in performance) {
-      const memory = (performance as any).memory;
+    ifPattern('memory' in performance, () => { const memory = (performance as any).memory;
       this.logger.logPerformance('Memory Usage', memory.usedJSHeapSize, 'bytes');
-    }
+     });
   }
 }
 

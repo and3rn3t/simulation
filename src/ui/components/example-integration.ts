@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { ComponentFactory } from './ComponentFactory';
 import './ui-components.css';
 
@@ -46,7 +67,6 @@ export function initializeUIComponents() {
       onChange: (checked: boolean) => {
         // ThemeManager.setTheme(checked ? 'dark' : 'light');
         // ThemeManager.saveThemePreference();
-        console.log('Theme changed:', checked ? 'dark' : 'light');
       },
     },
     'theme-toggle'
@@ -64,14 +84,14 @@ export function initializeUIComponents() {
   const primaryBtn = ComponentFactory.createButton({
     text: 'Primary Action',
     variant: 'primary',
-    onClick: () => console.log('Primary action clicked'),
+    onClick: () => ,
   });
 
   const secondaryBtn = ComponentFactory.createButton({
     text: 'Secondary',
     variant: 'secondary',
     size: 'small',
-    onClick: () => console.log('Secondary action clicked'),
+    onClick: () => ,
   });
 
   primaryBtn.mount(buttonContainer);
@@ -87,7 +107,7 @@ export function initializeUIComponents() {
     label: 'Example Input',
     placeholder: 'Type something...',
     helperText: 'This is a helper text',
-    onChange: (value: string) => console.log('Input changed:', value),
+    onChange: (value: string) => ,
   });
 
   exampleInput.mount(inputContainer);
@@ -131,7 +151,13 @@ export function initializeUIComponents() {
 if (typeof window !== 'undefined') {
   // Wait for DOM to be ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeUIComponents);
+    document?.addEventListener('DOMContentLoaded', (event) => {
+  try {
+    (initializeUIComponents)(event);
+  } catch (error) {
+    console.error('Event listener error for DOMContentLoaded:', error);
+  }
+});
   } else {
     // DOM is already ready
     setTimeout(initializeUIComponents, 100);

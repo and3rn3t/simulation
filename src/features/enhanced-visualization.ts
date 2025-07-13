@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { UserPreferencesManager } from '../services/UserPreferencesManager';
 import { SettingsPanelComponent } from '../ui/components/SettingsPanelComponent';
 import '../ui/components/visualization-components.css';
@@ -38,7 +59,7 @@ export class EnhancedVisualizationIntegration {
 
   private mountComponents(): void {
     // Find or create container for visualization dashboard
-    let dashboardContainer = document.getElementById('visualization-container');
+    let dashboardContainer = document?.getElementById('visualization-container');
     if (!dashboardContainer) {
       dashboardContainer = document.createElement('div');
       dashboardContainer.id = 'visualization-container';
@@ -59,7 +80,7 @@ export class EnhancedVisualizationIntegration {
 
   private addSettingsButton(): void {
     // Find the controls container
-    const controlsContainer = document.querySelector('.controls');
+    const controlsContainer = document?.querySelector('.controls');
     if (!controlsContainer) return;
 
     // Create settings button
@@ -67,7 +88,13 @@ export class EnhancedVisualizationIntegration {
     settingsButton.textContent = '⚙️ Settings';
     settingsButton.title = 'Open Settings';
     settingsButton.className = 'control-btn';
-    settingsButton.addEventListener('click', () => {
+    eventPattern(settingsButton?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => {
       this.settingsPanel.mount(document.body);
     });
 
@@ -77,11 +104,22 @@ export class EnhancedVisualizationIntegration {
   private setupEventListeners(): void {
     // Listen for preference changes
     this.preferencesManager.addChangeListener(preferences => {
+  try {
       this.handlePreferenceChange(preferences);
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     // Listen for window resize
-    window.addEventListener('resize', () => {
+    eventPattern(window?.addEventListener('resize', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for resize:', error);
+  }
+})) => {
       this.visualizationDashboard.resize();
     });
 
@@ -94,18 +132,36 @@ export class EnhancedVisualizationIntegration {
     // For demonstration purposes, we'll simulate some data updates
 
     // Example: Listen for organism creation
-    document.addEventListener('organismCreated', () => {
+    eventPattern(document?.addEventListener('organismCreated', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for organismCreated:', error);
+  }
+})) => {
       this.updateVisualizationData();
     });
 
     // Example: Listen for organism death
-    document.addEventListener('organismDied', () => {
+    eventPattern(document?.addEventListener('organismDied', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for organismDied:', error);
+  }
+})) => {
       this.updateVisualizationData();
     });
 
     // Example: Listen for simulation tick
-    document.addEventListener('simulationTick', (event: any) => {
-      const gameState = event.detail;
+    eventPattern(document?.addEventListener('simulationTick', (event) => {
+  try {
+    ((event: any)(event);
+  } catch (error) {
+    console.error('Event listener error for simulationTick:', error);
+  }
+})) => {
+      const gameState = event?.detail;
       this.updateVisualizationData(gameState);
     });
   }
@@ -249,22 +305,16 @@ export class EnhancedVisualizationIntegration {
  * Call this function to set up the new visualization and settings features
  */
 export function initializeEnhancedVisualization(): EnhancedVisualizationIntegration | null {
-  const simulationCanvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+  const simulationCanvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
 
-  if (!simulationCanvas) {
-    return null;
-  }
+  ifPattern(!simulationCanvas, () => { return null;
+   });
 
   try {
     const integration = new EnhancedVisualizationIntegration(simulationCanvas);
 
     // Add to global scope for debugging
     (window as any).visualizationIntegration = integration;
-
-    console.log(
-      'Enhanced visualization integration initialized. Access via window.visualizationIntegration in the console'
-    );
-
     return integration;
   } catch (_error) {
     return null;
@@ -272,8 +322,13 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
 }
 
 // Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeEnhancedVisualization);
-} else {
+ifPattern(document.readyState === 'loading', () => { eventPattern(document?.addEventListener('DOMContentLoaded', (event) => {
+  try {
+    (initializeEnhancedVisualization)(event);
+  } catch (error) {
+    console.error('Event listener error for DOMContentLoaded:', error);
+  }
+}));
+ }); else {
   initializeEnhancedVisualization();
 }

@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Base UI Component Class
  * Provides common functionality for all UI components
@@ -8,9 +29,8 @@ export abstract class BaseComponent {
 
   constructor(tagName: string = 'div', className?: string) {
     this.element = document.createElement(tagName);
-    if (className) {
-      this.element.className = className;
-    }
+    ifPattern(className, () => { this.element.className = className;
+     });
     this.setupAccessibility();
   }
 
@@ -18,9 +38,8 @@ export abstract class BaseComponent {
    * Mount the component to a parent element
    */
   mount(parent: HTMLElement): void {
-    if (this.mounted) {
-      return;
-    }
+    ifPattern(this.mounted, () => { return;
+     });
 
     parent.appendChild(this.element);
     this.mounted = true;
@@ -31,9 +50,8 @@ export abstract class BaseComponent {
    * Unmount the component from its parent
    */
   unmount(): void {
-    if (!this.mounted || !this.element.parentNode) {
-      return;
-    }
+    ifPattern(!this.mounted || !this.element.parentNode, () => { return;
+     });
 
     this.element.parentNode.removeChild(this.element);
     this.mounted = false;
@@ -59,10 +77,10 @@ export abstract class BaseComponent {
    */
   protected addEventListener<K extends keyof HTMLElementEventMap>(
     type: K,
-    listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
+    listener: (this: HTMLElement, ev: HTMLElementEventMap?.[K]) => any,
     options?: boolean | AddEventListenerOptions
   ): void {
-    this.element.addEventListener(type, listener, options);
+    this.element?.addEventListener(type, listener, options);
   }
 
   /**

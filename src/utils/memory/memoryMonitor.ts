@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
 import { log } from '../system/logger';
 
@@ -40,18 +61,16 @@ export class MemoryMonitor {
   private constructor() {
     this.isSupported = 'memory' in performance;
 
-    if (!this.isSupported) {
-      log.logSystem('Memory monitoring not supported in this browser');
-    }
+    ifPattern(!this.isSupported, () => { log.logSystem('Memory monitoring not supported in this browser');
+     });
   }
 
   /**
    * Get singleton instance
    */
   static getInstance(): MemoryMonitor {
-    if (!MemoryMonitor.instance) {
-      MemoryMonitor.instance = new MemoryMonitor();
-    }
+    ifPattern(!MemoryMonitor.instance, () => { MemoryMonitor.instance = new MemoryMonitor();
+     });
     return MemoryMonitor.instance;
   }
 
@@ -59,9 +78,8 @@ export class MemoryMonitor {
    * Get current memory usage information
    */
   getCurrentMemoryInfo(): MemoryInfo | null {
-    if (!this.isSupported) {
-      return null;
-    }
+    ifPattern(!this.isSupported, () => { return null;
+     });
 
     try {
       const memory = (performance as any).memory;
@@ -115,9 +133,8 @@ export class MemoryMonitor {
    * Start continuous memory monitoring
    */
   startMonitoring(intervalMs: number = 1000): void {
-    if (this.monitoringInterval !== null) {
-      this.stopMonitoring();
-    }
+    ifPattern(this.monitoringInterval !== null, () => { this.stopMonitoring();
+     });
 
     this.monitoringInterval = window.setInterval(() => {
       this.updateMemoryHistory();
@@ -148,9 +165,8 @@ export class MemoryMonitor {
     this.memoryHistory.push(memInfo);
 
     // Keep history size manageable
-    if (this.memoryHistory.length > this.maxHistorySize) {
-      this.memoryHistory.shift();
-    }
+    ifPattern(this.memoryHistory.length > this.maxHistorySize, () => { this.memoryHistory.shift();
+     });
   }
 
   /**
@@ -161,9 +177,8 @@ export class MemoryMonitor {
     const now = Date.now();
 
     // Avoid alert spam with cooldown
-    if (now - this.lastAlertTime < this.alertCooldown) {
-      return;
-    }
+    ifPattern(now - this.lastAlertTime < this.alertCooldown, () => { return;
+     });
 
     const memInfo = this.getCurrentMemoryInfo();
     if (!memInfo) return;
@@ -325,19 +340,16 @@ export class MemoryMonitor {
       recommendations.push('Pause simulation to allow cleanup');
     }
 
-    if (stats.level === 'warning') {
-      recommendations.push('Consider reducing simulation complexity');
+    ifPattern(stats.level === 'warning', () => { recommendations.push('Consider reducing simulation complexity');
       recommendations.push('Monitor memory usage closely');
-    }
+     });
 
-    if (stats.trend === 'increasing') {
-      recommendations.push('Memory usage is trending upward - investigate memory leaks');
+    ifPattern(stats.trend === 'increasing', () => { recommendations.push('Memory usage is trending upward - investigate memory leaks');
       recommendations.push('Check for objects not being properly released');
-    }
+     });
 
-    if (stats.averageUsage > 60) {
-      recommendations.push('Average memory usage is high - consider optimizations');
-    }
+    ifPattern(stats.averageUsage > 60, () => { recommendations.push('Average memory usage is high - consider optimizations');
+     });
 
     return recommendations;
   }
@@ -356,11 +368,16 @@ export class MemoryAwareCache<K, V> {
     this.memoryMonitor = MemoryMonitor.getInstance();
 
     // Listen for memory cleanup events
-    window.addEventListener('memory-cleanup', (event: Event) => {
+    window?.addEventListener('memory-cleanup', (event) => {
+  try {
+    ((event: Event)(event);
+  } catch (error) {
+    console.error('Event listener error for memory-cleanup:', error);
+  }
+}) => {
       const customEvent = event as CustomEvent;
-      if (customEvent.detail?.level === 'aggressive') {
-        this.clear();
-      } else {
+      ifPattern(customEvent.detail?.level === 'aggressive', () => { this.clear();
+       }); else {
         this.evictOldEntries();
       }
     });
@@ -386,9 +403,8 @@ export class MemoryAwareCache<K, V> {
     this.cache.set(key, value);
 
     // Evict entries if needed
-    if (this.cache.size > this.maxSize) {
-      this.evictOldEntries();
-    }
+    ifPattern(this.cache.size > this.maxSize, () => { this.evictOldEntries();
+     });
   }
 
   /**
@@ -421,10 +437,9 @@ export class MemoryAwareCache<K, V> {
 
     for (let i = 0; i < evictCount; i++) {
       const entry = entries[i];
-      if (entry) {
-        const [key] = entry;
+      ifPattern(entry, () => { const [key] = entry;
         this.cache.delete(key);
-      }
+       });
     }
 
     log.logSystem('Cache evicted entries', { evictCount, remainingSize: this.cache.size });

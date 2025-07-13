@@ -23,36 +23,31 @@ export class GlobalReliabilityManager {
 
     try {
       // Handle uncaught exceptions
-      window.addEventListener('error', event => {
+      window.addEventListener('error', (event) => {
         this.logError('Uncaught Exception', {
           message: event.message,
           filename: event.filename,
           lineno: event.lineno,
-          colno: event.colno,
+          colno: event.colno
         });
       });
 
       // Handle unhandled promise rejections
-      window.addEventListener('unhandledrejection', event => {
+      window.addEventListener('unhandledrejection', (event) => {
         this.logError('Unhandled Promise Rejection', event.reason);
         // Prevent default to avoid console errors
         event.preventDefault();
       });
 
       // Handle resource loading errors
-      document.addEventListener(
-        'error',
-        event => {
-          if (event.target && event.target !== window) {
-            const target = event.target as HTMLElement & { src?: string; href?: string };
-            this.logError('Resource Loading Error', {
-              element: target.tagName,
-              source: target.src || target.href,
-            });
-          }
-        },
-        true
-      );
+      document.addEventListener('error', (event) => {
+        if (event.target && event.target !== window) {
+          this.logError('Resource Loading Error', {
+            element: event.target.tagName,
+            source: event.target.src || event.target.href
+          });
+        }
+      }, true);
 
       this.isInitialized = true;
       console.log('✅ Global reliability manager initialized');
@@ -63,7 +58,7 @@ export class GlobalReliabilityManager {
 
   private logError(type: string, details: any): void {
     this.errorCount++;
-
+    
     if (this.errorCount > this.maxErrors) {
       return; // Stop logging after limit
     }
@@ -73,7 +68,7 @@ export class GlobalReliabilityManager {
       details,
       timestamp: new Date().toISOString(),
       userAgent: navigator?.userAgent || 'unknown',
-      url: window?.location?.href || 'unknown',
+      url: window?.location?.href || 'unknown'
     };
 
     console.error(`[Reliability] ${type}`, errorInfo);
@@ -101,7 +96,7 @@ export class GlobalReliabilityManager {
     } catch (error) {
       this.logError('Safe Execute Error', {
         context: context || 'unknown operation',
-        error: error instanceof Error ? error.message : error,
+        error: error instanceof Error ? error.message : error
       });
       return fallback;
     }
@@ -109,8 +104,8 @@ export class GlobalReliabilityManager {
 
   // Safe async wrapper
   async safeExecuteAsync<T>(
-    operation: () => Promise<T>,
-    fallback?: T,
+    operation: () => Promise<T>, 
+    fallback?: T, 
     context?: string
   ): Promise<T | undefined> {
     try {
@@ -118,7 +113,7 @@ export class GlobalReliabilityManager {
     } catch (error) {
       this.logError('Safe Async Execute Error', {
         context: context || 'unknown async operation',
-        error: error instanceof Error ? error.message : error,
+        error: error instanceof Error ? error.message : error
       });
       return fallback;
     }
@@ -128,7 +123,7 @@ export class GlobalReliabilityManager {
   getStats(): { errorCount: number; isHealthy: boolean } {
     return {
       errorCount: this.errorCount,
-      isHealthy: this.errorCount < 10,
+      isHealthy: this.errorCount < 10
     };
   }
 }

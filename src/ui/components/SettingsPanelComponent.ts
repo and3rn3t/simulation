@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { Modal } from './Modal';
 import { ComponentFactory } from './ComponentFactory';
 import { UserPreferencesManager, UserPreferences } from '../../services/UserPreferencesManager';
@@ -90,13 +111,17 @@ export class SettingsPanelComponent extends Modal {
     // Update tab buttons
     const tabs = this.element.querySelectorAll('[id^="settings-tab-"]');
     tabs.forEach(tab => {
-      const button = tab.querySelector('button');
-      if (button) {
-        button.className = button.className.replace('ui-button--primary', 'ui-button--secondary');
-      }
+  try {
+      const button = tab?.querySelector('button');
+      ifPattern(button, () => { button.className = button.className.replace('ui-button--primary', 'ui-button--secondary');
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
 
-    const activeTab = this.element.querySelector(`#settings-tab-${tabId} button`);
+    const activeTab = this.element?.querySelector(`#settings-tab-${tabId} button`);
     if (activeTab) {
       activeTab.className = activeTab.className.replace(
         'ui-button--secondary',
@@ -107,13 +132,17 @@ export class SettingsPanelComponent extends Modal {
     // Show/hide panels
     const panels = this.element.querySelectorAll('.settings-panel');
     panels.forEach(panel => {
+  try {
       (panel as HTMLElement).style.display = 'none';
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
-    const activePanel = this.element.querySelector(`#${tabId}-panel`);
-    if (activePanel) {
-      (activePanel as HTMLElement).style.display = 'block';
-    }
+    const activePanel = this.element?.querySelector(`#${tabId}-panel`);
+    ifPattern(activePanel, () => { (activePanel as HTMLElement).style.display = 'block';
+     });
   }
 
   private createGeneralPanel(): HTMLElement {
@@ -132,14 +161,25 @@ export class SettingsPanelComponent extends Modal {
     const languageSelect = document.createElement('select');
     languageSelect.className = 'ui-select';
     this.preferencesManager.getAvailableLanguages().forEach(lang => {
+  try {
       const option = document.createElement('option');
       option.value = lang.code;
       option.textContent = lang.name;
       option.selected = lang.code === this.tempPreferences.language;
       languageSelect.appendChild(option);
-    });
-    languageSelect.addEventListener('change', e => {
-      this.tempPreferences.language = (e.target as HTMLSelectElement).value;
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
+    eventPattern(languageSelect?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.language = (e.target as HTMLSelectElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value;
     });
 
     languageSection.appendChild(this.createFieldWrapper('Language', languageSelect));
@@ -148,14 +188,25 @@ export class SettingsPanelComponent extends Modal {
     const dateFormatSelect = document.createElement('select');
     dateFormatSelect.className = 'ui-select';
     ['US', 'EU', 'ISO'].forEach(format => {
+  try {
       const option = document.createElement('option');
       option.value = format;
       option.textContent = format;
       option.selected = format === this.tempPreferences.dateFormat;
       dateFormatSelect.appendChild(option);
-    });
-    dateFormatSelect.addEventListener('change', e => {
-      this.tempPreferences.dateFormat = (e.target as HTMLSelectElement).value as any;
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
+    eventPattern(dateFormatSelect?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.dateFormat = (e.target as HTMLSelectElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value as any;
     });
 
     languageSection.appendChild(this.createFieldWrapper('Date Format', dateFormatSelect));
@@ -177,8 +228,14 @@ export class SettingsPanelComponent extends Modal {
     const speedValue = document.createElement('span');
     speedValue.textContent = `${this.tempPreferences.defaultSpeed}x`;
 
-    speedSlider.addEventListener('input', e => {
-      const value = parseFloat((e.target as HTMLInputElement).value);
+    eventPattern(speedSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      const value = parseFloat((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       this.tempPreferences.defaultSpeed = value;
       speedValue.textContent = `${value}x`;
     });
@@ -195,8 +252,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Auto-save simulations',
       checked: this.tempPreferences.autoSave,
       onChange: checked => {
+  try {
         this.tempPreferences.autoSave = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
 
     autoSaveToggle.mount(simulationSection);
@@ -229,14 +291,25 @@ export class SettingsPanelComponent extends Modal {
       { value: 'light', label: 'Light' },
       { value: 'dark', label: 'Dark' },
     ].forEach(theme => {
+  try {
       const option = document.createElement('option');
       option.value = theme.value;
       option.textContent = theme.label;
       option.selected = theme.value === this.tempPreferences.theme;
       themeSelect.appendChild(option);
-    });
-    themeSelect.addEventListener('change', e => {
-      this.tempPreferences.theme = (e.target as HTMLSelectElement).value as any;
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
+    eventPattern(themeSelect?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.theme = (e.target as HTMLSelectElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value as any;
     });
 
     themeSection.appendChild(this.createFieldWrapper('Theme', themeSelect));
@@ -251,8 +324,14 @@ export class SettingsPanelComponent extends Modal {
     primaryColor.type = 'color';
     primaryColor.value = this.tempPreferences.customColors.primary;
     primaryColor.className = 'ui-color-picker';
-    primaryColor.addEventListener('change', e => {
-      this.tempPreferences.customColors.primary = (e.target as HTMLInputElement).value;
+    eventPattern(primaryColor?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.customColors.primary = (e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value;
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Primary Color', primaryColor));
@@ -262,8 +341,14 @@ export class SettingsPanelComponent extends Modal {
     secondaryColor.type = 'color';
     secondaryColor.value = this.tempPreferences.customColors.secondary;
     secondaryColor.className = 'ui-color-picker';
-    secondaryColor.addEventListener('change', e => {
-      this.tempPreferences.customColors.secondary = (e.target as HTMLInputElement).value;
+    eventPattern(secondaryColor?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.customColors.secondary = (e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value;
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Secondary Color', secondaryColor));
@@ -273,8 +358,14 @@ export class SettingsPanelComponent extends Modal {
     accentColor.type = 'color';
     accentColor.value = this.tempPreferences.customColors.accent;
     accentColor.className = 'ui-color-picker';
-    accentColor.addEventListener('change', e => {
-      this.tempPreferences.customColors.accent = (e.target as HTMLInputElement).value;
+    eventPattern(accentColor?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.customColors.accent = (e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value;
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Accent Color', accentColor));
@@ -304,8 +395,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Show organism trails',
       checked: this.tempPreferences.showTrails,
       onChange: checked => {
+  try {
         this.tempPreferences.showTrails = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     trailsToggle.mount(section);
 
@@ -314,8 +410,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Show population heatmap',
       checked: this.tempPreferences.showHeatmap,
       onChange: checked => {
+  try {
         this.tempPreferences.showHeatmap = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     heatmapToggle.mount(section);
 
@@ -324,8 +425,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Show data charts',
       checked: this.tempPreferences.showCharts,
       onChange: checked => {
+  try {
         this.tempPreferences.showCharts = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     chartsToggle.mount(section);
 
@@ -341,8 +447,14 @@ export class SettingsPanelComponent extends Modal {
     const intervalValue = document.createElement('span');
     intervalValue.textContent = `${this.tempPreferences.chartUpdateInterval}ms`;
 
-    intervalSlider.addEventListener('input', e => {
-      const value = parseInt((e.target as HTMLInputElement).value);
+    eventPattern(intervalSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      const value = parseInt((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       this.tempPreferences.chartUpdateInterval = value;
       intervalValue.textContent = `${value}ms`;
     });
@@ -385,8 +497,14 @@ export class SettingsPanelComponent extends Modal {
     const maxOrganismsValue = document.createElement('span');
     maxOrganismsValue.textContent = this.tempPreferences.maxOrganisms.toString();
 
-    maxOrganismsSlider.addEventListener('input', e => {
-      const value = parseInt((e.target as HTMLInputElement).value);
+    eventPattern(maxOrganismsSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      const value = parseInt((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       this.tempPreferences.maxOrganisms = value;
       maxOrganismsValue.textContent = value.toString();
     });
@@ -402,14 +520,25 @@ export class SettingsPanelComponent extends Modal {
     const qualitySelect = document.createElement('select');
     qualitySelect.className = 'ui-select';
     ['low', 'medium', 'high'].forEach(quality => {
+  try {
       const option = document.createElement('option');
       option.value = quality;
       option.textContent = quality.charAt(0).toUpperCase() + quality.slice(1);
       option.selected = quality === this.tempPreferences.renderQuality;
       qualitySelect.appendChild(option);
-    });
-    qualitySelect.addEventListener('change', e => {
-      this.tempPreferences.renderQuality = (e.target as HTMLSelectElement).value as any;
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
+    eventPattern(qualitySelect?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.renderQuality = (e.target as HTMLSelectElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value as any;
     });
 
     section.appendChild(this.createFieldWrapper('Render Quality', qualitySelect));
@@ -419,8 +548,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Enable particle effects',
       checked: this.tempPreferences.enableParticleEffects,
       onChange: checked => {
+  try {
         this.tempPreferences.enableParticleEffects = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     particleToggle.mount(section);
 
@@ -448,8 +582,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Reduce animations',
       checked: this.tempPreferences.reducedMotion,
       onChange: checked => {
+  try {
         this.tempPreferences.reducedMotion = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     motionToggle.mount(section);
 
@@ -458,8 +597,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'High contrast mode',
       checked: this.tempPreferences.highContrast,
       onChange: checked => {
+  try {
         this.tempPreferences.highContrast = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     contrastToggle.mount(section);
 
@@ -467,14 +611,25 @@ export class SettingsPanelComponent extends Modal {
     const fontSizeSelect = document.createElement('select');
     fontSizeSelect.className = 'ui-select';
     ['small', 'medium', 'large'].forEach(size => {
+  try {
       const option = document.createElement('option');
       option.value = size;
       option.textContent = size.charAt(0).toUpperCase() + size.slice(1);
       option.selected = size === this.tempPreferences.fontSize;
       fontSizeSelect.appendChild(option);
-    });
-    fontSizeSelect.addEventListener('change', e => {
-      this.tempPreferences.fontSize = (e.target as HTMLSelectElement).value as any;
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
+    eventPattern(fontSizeSelect?.addEventListener('change', (event) => {
+  try {
+    (e => {
+      this.tempPreferences.fontSize = (e.target as HTMLSelectElement)(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})).value as any;
     });
 
     section.appendChild(this.createFieldWrapper('Font Size', fontSizeSelect));
@@ -484,8 +639,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Screen reader optimizations',
       checked: this.tempPreferences.screenReaderMode,
       onChange: checked => {
+  try {
         this.tempPreferences.screenReaderMode = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     screenReaderToggle.mount(section);
 
@@ -513,8 +673,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Enable sound effects',
       checked: this.tempPreferences.soundEnabled,
       onChange: checked => {
+  try {
         this.tempPreferences.soundEnabled = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     soundToggle.mount(section);
 
@@ -530,8 +695,14 @@ export class SettingsPanelComponent extends Modal {
     const volumeValue = document.createElement('span');
     volumeValue.textContent = `${Math.round(this.tempPreferences.soundVolume * 100)}%`;
 
-    volumeSlider.addEventListener('input', e => {
-      const value = parseFloat((e.target as HTMLInputElement).value);
+    eventPattern(volumeSlider?.addEventListener('input', (event) => {
+  try {
+    (e => {
+      const value = parseFloat((e.target as HTMLInputElement)(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})).value);
       this.tempPreferences.soundVolume = value;
       volumeValue.textContent = `${Math.round(value * 100)}%`;
     });
@@ -552,12 +723,17 @@ export class SettingsPanelComponent extends Modal {
     ];
 
     notificationTypes.forEach(type => {
+  try {
       const toggle = ComponentFactory.createToggle({
         label: type.label,
         checked: (this.tempPreferences.notificationTypes as any)[type.key],
         onChange: checked => {
           (this.tempPreferences.notificationTypes as any)[type.key] = checked;
-        },
+        
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
       });
       toggle.mount(section);
     });
@@ -586,8 +762,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Enable analytics',
       checked: this.tempPreferences.analyticsEnabled,
       onChange: checked => {
+  try {
         this.tempPreferences.analyticsEnabled = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     analyticsToggle.mount(section);
 
@@ -596,8 +777,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Allow data collection',
       checked: this.tempPreferences.dataCollection,
       onChange: checked => {
+  try {
         this.tempPreferences.dataCollection = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     dataToggle.mount(section);
 
@@ -606,8 +792,13 @@ export class SettingsPanelComponent extends Modal {
       label: 'Share usage data',
       checked: this.tempPreferences.shareUsageData,
       onChange: checked => {
+  try {
         this.tempPreferences.shareUsageData = checked;
-      },
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
     });
     shareToggle.mount(section);
 
@@ -708,7 +899,7 @@ export class SettingsPanelComponent extends Modal {
         this.preferencesManager.applyAll();
         confirmModal.close();
         this.close();
-      },
+      } // TODO: Consider extracting to reduce closure scope,
     });
 
     cancelBtn.mount(buttonContainer);

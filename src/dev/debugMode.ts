@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Debug Mode System
  * Provides detailed simulation information and debugging capabilities
@@ -37,9 +58,8 @@ export class DebugMode {
   }
 
   static getInstance(): DebugMode {
-    if (!DebugMode.instance) {
-      DebugMode.instance = new DebugMode();
-    }
+    ifPattern(!DebugMode.instance, () => { DebugMode.instance = new DebugMode();
+     });
     return DebugMode.instance;
   }
 
@@ -47,7 +67,6 @@ export class DebugMode {
     if (this.isEnabled) return;
 
     this.isEnabled = true;
-    console.log('🐛 Debug mode enabled');
     this.createDebugPanel();
     this.startUpdating();
   }
@@ -56,15 +75,13 @@ export class DebugMode {
     if (!this.isEnabled) return;
 
     this.isEnabled = false;
-    console.log('🐛 Debug mode disabled');
     this.removeDebugPanel();
     this.stopUpdating();
   }
 
   toggle(): void {
-    if (this.isEnabled) {
-      this.disable();
-    } else {
+    ifPattern(this.isEnabled, () => { this.disable();
+     }); else {
       this.enable();
     }
   }
@@ -87,10 +104,9 @@ export class DebugMode {
     this.frameTimeHistory.push(frameTime);
 
     // Keep only last 60 frames for rolling average
-    if (this.fpsHistory.length > 60) {
-      this.fpsHistory.shift();
+    ifPattern(this.fpsHistory.length > 60, () => { this.fpsHistory.shift();
       this.frameTimeHistory.shift();
-    }
+     });
 
     // Calculate averages
     this.debugInfo.fps = this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
@@ -156,17 +172,41 @@ export class DebugMode {
     document.body.appendChild(this.debugPanel);
 
     // Add event listeners
-    const closeBtn = this.debugPanel.querySelector('#debug-close');
-    closeBtn?.addEventListener('click', () => this.disable());
+    const closeBtn = this.debugPanel?.querySelector('#debug-close');
+    closeBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => this.disable());
 
-    const dumpStateBtn = this.debugPanel.querySelector('#debug-dump-state');
-    dumpStateBtn?.addEventListener('click', () => this.dumpState());
+    const dumpStateBtn = this.debugPanel?.querySelector('#debug-dump-state');
+    dumpStateBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => this.dumpState());
 
-    const profileBtn = this.debugPanel.querySelector('#debug-performance-profile');
-    profileBtn?.addEventListener('click', () => this.startPerformanceProfile());
+    const profileBtn = this.debugPanel?.querySelector('#debug-performance-profile');
+    profileBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => this.startPerformanceProfile());
 
-    const gcBtn = this.debugPanel.querySelector('#debug-memory-gc');
-    gcBtn?.addEventListener('click', () => this.forceGarbageCollection());
+    const gcBtn = this.debugPanel?.querySelector('#debug-memory-gc');
+    gcBtn?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => this.forceGarbageCollection());
   }
 
   private styleDebugPanel(): void {
@@ -264,21 +304,20 @@ export class DebugMode {
   }
 
   private stopUpdating(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
+    ifPattern(this.updateInterval, () => { clearInterval(this.updateInterval);
       this.updateInterval = null;
-    }
+     });
   }
 
   private updateDebugDisplay(): void {
     if (!this.debugPanel) return;
 
-    const fps = this.debugPanel.querySelector('#debug-fps');
-    const frameTime = this.debugPanel.querySelector('#debug-frame-time');
-    const organismCount = this.debugPanel.querySelector('#debug-organism-count');
-    const simulationTime = this.debugPanel.querySelector('#debug-simulation-time');
-    const memory = this.debugPanel.querySelector('#debug-memory');
-    const canvasOps = this.debugPanel.querySelector('#debug-canvas-ops');
+    const fps = this.debugPanel?.querySelector('#debug-fps');
+    const frameTime = this.debugPanel?.querySelector('#debug-frame-time');
+    const organismCount = this.debugPanel?.querySelector('#debug-organism-count');
+    const simulationTime = this.debugPanel?.querySelector('#debug-simulation-time');
+    const memory = this.debugPanel?.querySelector('#debug-memory');
+    const canvasOps = this.debugPanel?.querySelector('#debug-canvas-ops');
 
     if (fps) fps.textContent = this.debugInfo.fps.toFixed(1);
     if (frameTime) frameTime.textContent = `${this.debugInfo.frameTime.toFixed(2)}ms`;
@@ -286,14 +325,13 @@ export class DebugMode {
     if (simulationTime)
       simulationTime.textContent = `${(this.debugInfo.simulationTime / 1000).toFixed(1)}s`;
     if (memory) memory.textContent = `${(this.debugInfo.memoryUsage / 1024 / 1024).toFixed(2)} MB`;
-    if (canvasOps) canvasOps.textContent = this.debugInfo.canvasOperations.toString();
+    if (canvasOps) canvasOps.textContent = this.debugInfo.canvasOperations?.toString();
   }
 
   private removeDebugPanel(): void {
-    if (this.debugPanel) {
-      this.debugPanel.remove();
+    ifPattern(this.debugPanel, () => { this.debugPanel.remove();
       this.debugPanel = null;
-    }
+     });
   }
 
   private dumpState(): void {
@@ -309,7 +347,6 @@ export class DebugMode {
     };
 
     console.group('🔍 State Dump');
-    console.log('Debug State:', state);
     console.groupEnd();
 
     // Also save to localStorage for debugging
@@ -326,7 +363,7 @@ export class DebugMode {
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {
-        console.log(`${entry.name}: ${entry.duration.toFixed(2)}ms`);
+        } // TODO: Consider extracting to reduce closure scopems`);
       });
       console.groupEnd();
     }, 5000); // Profile for 5 seconds
@@ -335,10 +372,8 @@ export class DebugMode {
   private forceGarbageCollection(): void {
     if ((window as any).gc) {
       (window as any).gc();
-      console.log('🗑️ Forced garbage collection');
     } else {
-      console.log(
-        '⚠️ Garbage collection not available (Chrome with --js-flags="--expose-gc" required)'
+      '
       );
     }
   }

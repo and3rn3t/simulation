@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { isMobileDevice } from '../system/mobileDetection';
 import { generateSecureUIId } from '../system/secureRandom';
 import { getParticleVelocity, getRandomColor, getShakeOffset } from '../system/simulationRandom';
@@ -25,7 +46,7 @@ export class MobileVisualEffects {
 
   constructor(canvas: HTMLCanvasElement, config: Partial<MobileEffectConfig> = {}) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d')!;
+    this.ctx = canvas?.getContext('2d')!;
     this.config = {
       particleCount: this.getOptimalParticleCount(),
       animationDuration: 1000,
@@ -106,9 +127,8 @@ export class MobileVisualEffects {
     this.ctx.imageSmoothingEnabled = this.config.quality !== 'low';
 
     // Set optimal composite operation for mobile
-    if (this.config.quality === 'low') {
-      this.ctx.globalCompositeOperation = 'source-over';
-    }
+    ifPattern(this.config.quality === 'low', () => { this.ctx.globalCompositeOperation = 'source-over';
+     });
   }
 
   /**
@@ -268,10 +288,9 @@ export class MobileVisualEffects {
       const elapsed = Date.now() - startTime;
       const progress = elapsed / duration;
 
-      if (progress >= 1) {
-        this.canvas.style.transform = originalTransform;
+      ifPattern(progress >= 1, () => { this.canvas.style.transform = originalTransform;
         return;
-      }
+       } // TODO: Consider extracting to reduce closure scope);
 
       const currentIntensity = intensity * (1 - progress);
       const x = (Math.random() - 0.5) * currentIntensity;
@@ -321,16 +340,20 @@ export class MobileVisualEffects {
     // Update effects
     for (const [id, effect] of this.activeEffects) {
       const elapsed = now - effect.startTime;
-      if (elapsed >= effect.duration) {
-        this.activeEffects.delete(id);
-      }
+      ifPattern(elapsed >= effect.duration, () => { this.activeEffects.delete(id);
+       });
     }
 
     // Update particles
     this.particles = this.particles.filter(particle => {
+  try {
       particle.update();
       return particle.life > 0;
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
   }
 
   /**
@@ -461,10 +484,9 @@ export class MobileVisualEffects {
   public clearEffects(): void {
     this.activeEffects.clear();
     this.particles = [];
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
+    ifPattern(this.animationFrame, () => { cancelAnimationFrame(this.animationFrame);
       this.animationFrame = undefined;
-    }
+     });
   }
 }
 
@@ -504,14 +526,14 @@ class Particle {
     decay: number;
     size: number;
   }) {
-    this.x = options.x;
-    this.y = options.y;
-    this.vx = options.vx;
-    this.vy = options.vy;
-    this.color = options.color;
-    this.life = options.life;
-    this.decay = options.decay;
-    this.size = options.size;
+    this.x = options?.x;
+    this.y = options?.y;
+    this.vx = options?.vx;
+    this.vy = options?.vy;
+    this.color = options?.color;
+    this.life = options?.life;
+    this.decay = options?.decay;
+    this.size = options?.size;
   }
 
   update(): void {
@@ -532,4 +554,18 @@ class Particle {
     ctx.fill();
     ctx.restore();
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

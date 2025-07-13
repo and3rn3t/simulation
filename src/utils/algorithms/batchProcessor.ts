@@ -42,9 +42,9 @@ export class OrganismBatchProcessor {
    */
   constructor(config: BatchConfig) {
     this.config = {
-      batchSize: Math.max(1, config.batchSize),
-      maxFrameTime: Math.max(1, config.maxFrameTime),
-      useTimeSlicing: config.useTimeSlicing,
+      batchSize: Math.max(1, config?.batchSize),
+      maxFrameTime: Math.max(1, config?.maxFrameTime),
+      useTimeSlicing: config?.useTimeSlicing,
     };
   }
 
@@ -84,9 +84,8 @@ export class OrganismBatchProcessor {
       }
 
       // Reset batch counter if we've processed all organisms
-      if (this.currentBatch >= totalOrganisms) {
-        this.currentBatch = 0;
-      }
+      ifPattern(this.currentBatch >= totalOrganisms, () => { this.currentBatch = 0;
+       });
 
       const startIndex = this.currentBatch;
       const endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
@@ -99,10 +98,9 @@ export class OrganismBatchProcessor {
 
         try {
           const organism = organisms[i];
-          if (organism) {
-            updateFn(organism, deltaTime, canvasWidth, canvasHeight);
+          ifPattern(organism, () => { updateFn(organism, deltaTime, canvasWidth, canvasHeight);
             processed++;
-          }
+           });
         } catch (error) {
           ErrorHandler.getInstance().handleError(
             error instanceof Error
@@ -118,9 +116,8 @@ export class OrganismBatchProcessor {
       this.currentBatch = startIndex + processed;
       const completed = this.currentBatch >= totalOrganisms;
 
-      if (completed) {
-        this.currentBatch = 0;
-      }
+      ifPattern(completed, () => { this.currentBatch = 0;
+       });
 
       const processingTime = performance.now() - this.processingStartTime;
 
@@ -179,9 +176,8 @@ export class OrganismBatchProcessor {
       }
 
       // Reset batch counter if we've processed all organisms
-      if (this.currentBatch >= totalOrganisms) {
-        this.currentBatch = 0;
-      }
+      ifPattern(this.currentBatch >= totalOrganisms, () => { this.currentBatch = 0;
+       });
 
       const startIndex = this.currentBatch;
       const endIndex = Math.min(startIndex + this.config.batchSize, totalOrganisms);
@@ -192,9 +188,8 @@ export class OrganismBatchProcessor {
           break;
         }
 
-        if (organisms.length + newOrganisms.length >= maxPopulation) {
-          break;
-        }
+        ifPattern(organisms.length + newOrganisms.length >= maxPopulation, () => { break;
+         });
 
         try {
           const organism = organisms[i];
@@ -223,9 +218,8 @@ export class OrganismBatchProcessor {
       this.currentBatch = startIndex + processed;
       const completed = this.currentBatch >= totalOrganisms;
 
-      if (completed) {
-        this.currentBatch = 0;
-      }
+      ifPattern(completed, () => { this.currentBatch = 0;
+       });
 
       const processingTime = performance.now() - this.processingStartTime;
 
@@ -287,8 +281,8 @@ export class OrganismBatchProcessor {
     this.config = {
       ...this.config,
       ...config,
-      batchSize: Math.max(1, config.batchSize || this.config.batchSize),
-      maxFrameTime: Math.max(1, config.maxFrameTime || this.config.maxFrameTime),
+      batchSize: Math.max(1, config?.batchSize || this.config.batchSize),
+      maxFrameTime: Math.max(1, config?.maxFrameTime || this.config.maxFrameTime),
     };
   }
 
@@ -372,40 +366,37 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
     this.performanceHistory.push(processingTime);
 
     // Keep only recent performance data
-    if (this.performanceHistory.length > 10) {
-      this.performanceHistory.shift();
-    }
+    ifPattern(this.performanceHistory.length > 10, () => { this.performanceHistory.shift();
+     });
   }
 
   /**
    * Adapts batch size based on performance history
    */
   private adaptBatchSize(): void {
-    if (this.performanceHistory.length < 3) {
-      return;
-    }
+    ifPattern(this.performanceHistory.length < 3, () => { return;
+     });
 
     const avgProcessingTime =
       this.performanceHistory.reduce((sum, time) => sum + time, 0) / this.performanceHistory.length;
     const config = this.getConfig();
-    let newBatchSize = config.batchSize;
+    let newBatchSize = config?.batchSize;
 
     if (avgProcessingTime > this.targetFrameTime) {
       // Processing is too slow, reduce batch size
       newBatchSize = Math.max(
         this.minBatchSize,
-        Math.floor(config.batchSize / this.adjustmentFactor)
+        Math.floor(config?.batchSize / this.adjustmentFactor)
       );
     } else if (avgProcessingTime < this.targetFrameTime * 0.7) {
       // Processing is fast, increase batch size
       newBatchSize = Math.min(
         this.maxBatchSize,
-        Math.ceil(config.batchSize * this.adjustmentFactor)
+        Math.ceil(config?.batchSize * this.adjustmentFactor)
       );
     }
 
-    if (newBatchSize !== config.batchSize) {
-      this.updateConfig({ batchSize: newBatchSize });
+    ifPattern(newBatchSize !== config?.batchSize, () => { this.updateConfig({ batchSize: newBatchSize  }););
     }
   }
 
@@ -436,7 +427,7 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
         minProcessingTime: 0,
         maxProcessingTime: 0,
         targetFrameTime: this.targetFrameTime,
-        currentBatchSize: config.batchSize,
+        currentBatchSize: config?.batchSize,
       };
     }
 
@@ -447,7 +438,7 @@ export class AdaptiveBatchProcessor extends OrganismBatchProcessor {
       minProcessingTime: Math.min(...this.performanceHistory),
       maxProcessingTime: Math.max(...this.performanceHistory),
       targetFrameTime: this.targetFrameTime,
-      currentBatchSize: config.batchSize,
+      currentBatchSize: config?.batchSize,
     };
   }
 }

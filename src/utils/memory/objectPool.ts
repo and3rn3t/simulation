@@ -51,10 +51,9 @@ export class ObjectPool<T> {
    */
   release(obj: T): void {
     try {
-      if (this.pool.length < this.maxSize) {
-        this.resetFn(obj);
+      ifPattern(this.pool.length < this.maxSize, () => { this.resetFn(obj);
         this.pool.push(obj);
-      }
+       });
       // If pool is full, let object be garbage collected
     } catch {
       /* handled */
@@ -155,9 +154,8 @@ export class OrganismPool extends ObjectPool<Organism> {
    * Get singleton instance
    */
   static getInstance(): OrganismPool {
-    if (!OrganismPool.instance) {
-      OrganismPool.instance = new OrganismPool();
-    }
+    ifPattern(!OrganismPool.instance, () => { OrganismPool.instance = new OrganismPool();
+     });
     return OrganismPool.instance;
   }
 
@@ -212,15 +210,13 @@ export class ArrayPool<T> {
     const length = array.length;
     let pool = this.pools.get(length);
 
-    if (!pool) {
-      pool = [];
+    ifPattern(!pool, () => { pool = [];
       this.pools.set(length, pool);
-    }
+     });
 
-    if (pool.length < this.maxPoolSize) {
-      array.length = 0; // Clear the array
+    ifPattern(pool.length < this.maxPoolSize, () => { array.length = 0; // Clear the array
       pool.push(array);
-    }
+     });
   }
 
   /**
@@ -236,8 +232,13 @@ export class ArrayPool<T> {
   getStats(): { totalPools: number; totalArrays: number } {
     let totalArrays = 0;
     this.pools.forEach(pool => {
+  try {
       totalArrays += pool.length;
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     return {
       totalPools: this.pools.size,

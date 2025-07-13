@@ -44,7 +44,7 @@ export class StatisticsManager {
    * @param population - Current population
    */
   private updatePopulationDensity(population: number): void {
-    const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+    const canvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
     if (canvas) {
       const area = canvas.width * canvas.height;
       const density = Math.round((population / area) * 1000);

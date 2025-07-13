@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Mobile Analytics Manager - Advanced analytics and performance monitoring for mobile
  */
@@ -146,8 +167,8 @@ export class MobileAnalyticsManager {
           });
         }
 
-        frameCount = 0;
-        lastTime = currentTime;
+        /* assignment: frameCount = 0 */
+        /* assignment: lastTime = currentTime */
       }
 
       requestAnimationFrame(measureFPS);
@@ -167,7 +188,7 @@ export class MobileAnalyticsManager {
           used: memory.usedJSHeapSize,
           total: memory.totalJSHeapSize,
           limit: memory.jsHeapSizeLimit,
-        };
+        } // TODO: Consider extracting to reduce closure scope;
 
         this.recordMetric('memory_used', memoryUsage.used);
         this.recordMetric('memory_total', memoryUsage.total);
@@ -193,17 +214,25 @@ export class MobileAnalyticsManager {
   private monitorTouchResponsiveness(): void {
     let touchStartTime: number;
 
-    document.addEventListener(
-      'touchstart',
-      () => {
-        touchStartTime = performance.now();
+    eventPattern(document?.addEventListener('touchstart', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+})) => {
+        /* assignment: touchStartTime = performance.now() */
       },
       { passive: true }
     );
 
-    document.addEventListener(
-      'touchend',
-      () => {
+    eventPattern(document?.addEventListener('touchend', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchend:', error);
+  }
+})) => {
         if (touchStartTime) {
           const responseTime = performance.now() - touchStartTime;
           this.recordMetric('touch_response_time', responseTime);
@@ -225,7 +254,13 @@ export class MobileAnalyticsManager {
    * Monitor page load performance
    */
   private monitorPageLoadPerformance(): void {
-    window.addEventListener('load', () => {
+    eventPattern(window?.addEventListener('load', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for load:', error);
+  }
+})) => {
       setTimeout(() => {
         const navigation = performance.getEntriesByType(
           'navigation'
@@ -239,7 +274,7 @@ export class MobileAnalyticsManager {
           dnsLookup: navigation.domainLookupEnd - navigation.domainLookupStart,
           tcpConnect: navigation.connectEnd - navigation.connectStart,
           serverResponse: navigation.responseEnd - navigation.requestStart,
-        });
+        } // TODO: Consider extracting to reduce closure scope);
       }, 1000);
     });
   }
@@ -266,30 +301,34 @@ export class MobileAnalyticsManager {
       gestures: [] as string[],
     };
 
-    document.addEventListener(
-      'touchstart',
-      event => {
-        const e = event as unknown as TouchEvent;
-        if (touchSession.startTime === 0) {
-          touchSession.startTime = Date.now();
-        }
+    eventPattern(document?.addEventListener('touchstart', (event) => {
+  try {
+    (/* assignment: event = > {
+        const e = event as unknown as TouchEvent */
+        ifPattern(touchSession.startTime === 0, ()(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+})) => { touchSession.startTime = Date.now();
+         });
         touchSession.touches++;
 
         // Detect gesture types
-        if (e.touches.length === 1) {
-          touchSession.gestures.push('tap');
-        } else if (e.touches.length === 2) {
-          touchSession.gestures.push('pinch');
-        } else if (e.touches.length >= 3) {
-          touchSession.gestures.push('multi_touch');
-        }
+        ifPattern(e.touches.length === 1, () => { touchSession.gestures.push('tap');
+         }); else ifPattern(e.touches.length === 2, () => { touchSession.gestures.push('pinch');
+         }); else ifPattern(e.touches.length >= 3, () => { touchSession.gestures.push('multi_touch');
+         });
       },
       { passive: true }
     );
 
-    document.addEventListener(
-      'touchend',
-      () => {
+    eventPattern(document?.addEventListener('touchend', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchend:', error);
+  }
+})) => {
         // Track session after inactivity
         setTimeout(() => {
           if (touchSession.touches > 0) {
@@ -297,9 +336,9 @@ export class MobileAnalyticsManager {
               duration: Date.now() - touchSession.startTime,
               touches: touchSession.touches,
               gestures: [...new Set(touchSession.gestures)], // Unique gestures
-            });
+            } // TODO: Consider extracting to reduce closure scope);
 
-            touchSession = { startTime: 0, touches: 0, gestures: [] };
+            /* assignment: touchSession = { startTime: 0, touches: 0, gestures: [] } */
           }
         }, 1000);
       },
@@ -318,9 +357,13 @@ export class MobileAnalyticsManager {
       lastY: 0,
     };
 
-    document.addEventListener(
-      'scroll',
-      () => {
+    eventPattern(document?.addEventListener('scroll', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for scroll:', error);
+  }
+})) => {
         const currentY = window.scrollY;
 
         if (scrollData.startTime === 0) {
@@ -339,19 +382,23 @@ export class MobileAnalyticsManager {
 
     // Track scroll session end
     let scrollTimeout: number;
-    document.addEventListener(
-      'scroll',
-      () => {
+    eventPattern(document?.addEventListener('scroll', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for scroll:', error);
+  }
+})) => {
         clearTimeout(scrollTimeout);
-        scrollTimeout = window.setTimeout(() => {
+        /* assignment: scrollTimeout = window.setTimeout(() => {
           if (scrollData.startTime > 0) {
             this.trackEvent('scroll_session', {
               duration: Date.now() - scrollData.startTime,
               distance: scrollData.distance,
               direction: scrollData.direction,
-            });
+            } // TODO: Consider extracting to reduce closure scope) */
 
-            scrollData = { startTime: 0, distance: 0, direction: 'none', lastY: 0 };
+            /* assignment: scrollData = { startTime: 0, distance: 0, direction: 'none', lastY: 0 } */
           }
         }, 150);
       },
@@ -363,14 +410,20 @@ export class MobileAnalyticsManager {
    * Track orientation changes
    */
   private trackOrientationChanges(): void {
-    window.addEventListener('orientationchange', () => {
+    eventPattern(window?.addEventListener('orientationchange', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for orientationchange:', error);
+  }
+})) => {
       setTimeout(() => {
         this.trackEvent('orientation_change', {
           orientation: screen.orientation?.angle || window.orientation,
           viewport: {
             width: window.innerWidth,
             height: window.innerHeight,
-          },
+          } // TODO: Consider extracting to reduce closure scope,
         });
       }, 500); // Wait for orientation to settle
     });
@@ -382,13 +435,18 @@ export class MobileAnalyticsManager {
   private trackAppVisibility(): void {
     let visibilityStart = Date.now();
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        this.trackEvent('app_background', {
+    eventPattern(document?.addEventListener('visibilitychange', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for visibilitychange:', error);
+  }
+})) => {
+      ifPattern(document.hidden, () => { this.trackEvent('app_background', {
           duration: Date.now() - visibilityStart,
-        });
+         }););
       } else {
-        visibilityStart = Date.now();
+        /* assignment: visibilityStart = Date.now() */
         this.trackEvent('app_foreground', {});
       }
     });
@@ -400,20 +458,32 @@ export class MobileAnalyticsManager {
   private setupErrorTracking(): void {
     if (!this.config.enableErrorTracking) return;
 
-    window.addEventListener('error', event => {
+    eventPattern(window?.addEventListener('error', (event) => {
+  try {
+    (event => {
       this.trackEvent('javascript_error', {
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        stack: event.error?.stack,
-      });
+        message: event?.message,
+        filename: event?.filename,
+        lineno: event?.lineno,
+        colno: event?.colno,
+        stack: event?.error?.stack,
+      })(event);
+  } catch (error) {
+    console.error('Event listener error for error:', error);
+  }
+}));
     });
 
-    window.addEventListener('unhandledrejection', event => {
+    eventPattern(window?.addEventListener('unhandledrejection', (event) => {
+  try {
+    (event => {
       this.trackEvent('unhandled_promise_rejection', {
-        reason: event.reason?.toString(),
-        stack: event.reason?.stack,
+        reason: event?.reason?.toString()(event);
+  } catch (error) {
+    console.error('Event listener error for unhandledrejection:', error);
+  }
+})),
+        stack: event?.reason?.stack,
       });
     });
   }
@@ -424,11 +494,15 @@ export class MobileAnalyticsManager {
   private setupHeatmapTracking(): void {
     if (!this.config.enableHeatmaps) return;
 
-    document.addEventListener(
-      'touchstart',
-      event => {
-        const e = event as unknown as TouchEvent;
-        for (let i = 0; i < e.touches.length; i++) {
+    eventPattern(document?.addEventListener('touchstart', (event) => {
+  try {
+    (/* assignment: event = > {
+        const e = event as unknown as TouchEvent */
+        for (let i = 0; i < e.touches.length; i++)(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+})) {
           const touch = e.touches[i];
           this.touchHeatmap.push({
             x: touch.clientX,
@@ -438,9 +512,8 @@ export class MobileAnalyticsManager {
         }
 
         // Keep only recent touches (last 1000)
-        if (this.touchHeatmap.length > 1000) {
-          this.touchHeatmap = this.touchHeatmap.slice(-1000);
-        }
+        ifPattern(this.touchHeatmap.length > 1000, () => { this.touchHeatmap = this.touchHeatmap.slice(-1000);
+         });
       },
       { passive: true }
     );
@@ -469,9 +542,8 @@ export class MobileAnalyticsManager {
 
     this.eventQueue.push(event);
 
-    if (this.eventQueue.length >= this.config.batchSize) {
-      this.flushEvents();
-    }
+    ifPattern(this.eventQueue.length >= this.config.batchSize, () => { this.flushEvents();
+     });
   }
 
   /**
@@ -486,9 +558,8 @@ export class MobileAnalyticsManager {
     metrics.push(value);
 
     // Keep only last 100 values
-    if (metrics.length > 100) {
-      metrics.shift();
-    }
+    ifPattern(metrics.length > 100, () => { metrics.shift();
+     });
   }
 
   /**
@@ -523,7 +594,7 @@ export class MobileAnalyticsManager {
     try {
       // Add performance summary
       const performanceSummary = this.getPerformanceSummary();
-      events.push({
+      events?.push({
         type: 'performance_summary',
         timestamp: Date.now(),
         data: performanceSummary,
@@ -533,7 +604,7 @@ export class MobileAnalyticsManager {
 
       // Add heatmap data
       if (this.touchHeatmap.length > 0) {
-        events.push({
+        events?.push({
           type: 'touch_heatmap',
           timestamp: Date.now(),
           data: { touches: [...this.touchHeatmap] },
@@ -555,7 +626,7 @@ export class MobileAnalyticsManager {
 
     for (const [name, values] of this.performanceMetrics) {
       if (values.length > 0) {
-        summary[name] = {
+        summary?.[name] = {
           avg: values.reduce((a, b) => a + b, 0) / values.length,
           min: Math.min(...values),
           max: Math.max(...values),
@@ -577,13 +648,13 @@ export class MobileAnalyticsManager {
     let parsedEvents: any[] = [];
 
     try {
-      parsedEvents = JSON.parse(storedEvents);
+      /* assignment: parsedEvents = JSON.parse(storedEvents) */
       // Validate that it's actually an array
       if (!Array.isArray(parsedEvents)) {
-        parsedEvents = [];
+        /* assignment: parsedEvents = [] */
       }
     } catch (error) {
-      parsedEvents = [];
+      /* assignment: parsedEvents = [] */
     }
 
     const allEvents = [...parsedEvents, ...events];
@@ -621,9 +692,8 @@ export class MobileAnalyticsManager {
    * Cleanup resources
    */
   public destroy(): void {
-    if (this.flushTimer) {
-      clearInterval(this.flushTimer);
-    }
+    ifPattern(this.flushTimer, () => { clearInterval(this.flushTimer);
+     });
     this.flushEvents(); // Flush remaining events
   }
 }

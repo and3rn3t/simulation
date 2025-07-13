@@ -45,8 +45,7 @@ export class NullSafetyUtils {
    */
   static safeDOMById<T extends Element>(id: string): T | null {
     try {
-      const element = document?.getElementById(id);
-      return (element as unknown as T) || null;
+      return document?.getElementById(id) as T || null;
     } catch {
       return null;
     }
@@ -72,7 +71,7 @@ export class NullSafetyUtils {
   static safeSet(obj: any, path: string, value: any): boolean {
     try {
       if (!obj || typeof obj !== 'object') return false;
-
+      
       const keys = path.split('.');
       const lastKey = keys.pop();
       if (!lastKey) return false;

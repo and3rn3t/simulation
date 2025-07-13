@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import type { Position } from '../types/Position';
 import type { SimulationStats } from '../types/SimulationStats';
 import { StatisticsManager } from '../utils/game/statisticsManager';
@@ -37,17 +58,14 @@ export class OrganismSimulation {
   constructor(canvasElement?: HTMLCanvasElement | string) {
     try {
       // Get or create canvas
-      if (typeof canvasElement === 'string') {
-        this.canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
-      } else if (canvasElement instanceof HTMLCanvasElement) {
-        this.canvas = canvasElement;
-      } else {
-        this.canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+      ifPattern(typeof canvasElement === 'string', () => { this.canvas = document?.getElementById(canvasElement) as HTMLCanvasElement;
+       }); else ifPattern(canvasElement instanceof HTMLCanvasElement, () => { this.canvas = canvasElement;
+       }); else {
+        this.canvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
       }
 
-      if (!this.canvas) {
-        throw new Error('Canvas element not found');
-      }
+      ifPattern(!this.canvas, () => { throw new Error('Canvas element not found');
+       });
 
       this.context = this.canvas.getContext('2d')!;
       this.statisticsManager = new StatisticsManager();
@@ -215,10 +233,9 @@ export class OrganismSimulation {
    * Handle force touch
    */
   private handleForceTouch(force: number, position: Position): void {
-    if (force > 0.7) {
-      // Strong force touch - create organism at position
+    ifPattern(force > 0.7, () => { // Strong force touch - create organism at position
       this.placeOrganismAt(position);
-    }
+     });
 
     // Dispatch gesture event for test interface
     window.dispatchEvent(
@@ -232,9 +249,8 @@ export class OrganismSimulation {
    * Toggle fullscreen mode
    */
   private toggleFullscreen(): void {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
+    ifPattern(document.fullscreenElement, () => { document.exitFullscreen();
+     }); else {
       document.documentElement.requestFullscreen();
     }
   }
@@ -243,8 +259,8 @@ export class OrganismSimulation {
    * Toggle UI visibility
    */
   private toggleUI(): void {
-    const controls = document.querySelector('.controls') as HTMLElement;
-    const stats = document.querySelector('.stats') as HTMLElement;
+    const controls = document?.querySelector('.controls') as HTMLElement;
+    const stats = document?.querySelector('.stats') as HTMLElement;
 
     if (controls && stats) {
       const isHidden = controls.style.display === 'none';
@@ -304,7 +320,13 @@ export class OrganismSimulation {
   }
 
   private initializeEventListeners(): void {
-    this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+    this.canvas?.addEventListener('click', (event) => {
+  try {
+    (this.handleCanvasClick.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}));
   }
 
   private logInitialization(): void {
@@ -321,8 +343,8 @@ export class OrganismSimulation {
   private handleCanvasClick(event: MouseEvent): void {
     try {
       const rect = this.canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+      const x = event?.clientX - rect.left;
+      const y = event?.clientY - rect.top;
 
       this.placeOrganismAt({ x, y });
     } catch (error) {
@@ -358,9 +380,8 @@ export class OrganismSimulation {
       this.lastUpdateTime = performance.now();
 
       // Start mobile analytics if available
-      if (this.mobileAnalyticsManager) {
-        // this.mobileAnalyticsManager.startSession(); // Method doesn't exist yet
-      }
+      ifPattern(this.mobileAnalyticsManager, () => { // this.mobileAnalyticsManager.startSession(); // Method doesn't exist yet
+       });
 
       this.animate();
       Logger.getInstance().logSystem('Simulation started');
@@ -375,10 +396,9 @@ export class OrganismSimulation {
 
     try {
       this.isRunning = false;
-      if (this.animationId) {
-        cancelAnimationFrame(this.animationId);
+      ifPattern(this.animationId, () => { cancelAnimationFrame(this.animationId);
         this.animationId = undefined;
-      }
+       });
 
       Logger.getInstance().logSystem('Simulation paused');
     } catch (error) {
@@ -404,9 +424,8 @@ export class OrganismSimulation {
       }
 
       // Reset should leave the simulation in stopped state
-      // if (wasRunning) {
-      //   this.start();
-      // }
+      // ifPattern(wasRunning, () => { //   this.start();
+      //  });
 
       Logger.getInstance().logSystem('Simulation reset');
     } catch (error) {
@@ -449,9 +468,8 @@ export class OrganismSimulation {
 
   setMaxPopulation(limit: number): void {
     try {
-      if (limit < 1 || limit > 5000) {
-        throw new Error('Population limit must be between 1 and 5000');
-      }
+      ifPattern(limit < 1 || limit > 5000, () => { throw new Error('Population limit must be between 1 and 5000');
+       });
       this.maxPopulation = limit;
       Logger.getInstance().logSystem(`Max population set to ${limit}`);
     } catch (error) {
@@ -497,15 +515,15 @@ export class OrganismSimulation {
 
     try {
       const currentTime = performance.now();
-      if (currentTime - this.lastUpdateTime < this.updateInterval) {
-        this.animationId = requestAnimationFrame(() => this.animate());
+      ifPattern(currentTime - this.lastUpdateTime < this.updateInterval, () => { this.animationId = requestAnimationFrame(() => this.animate());
         return;
-      }
+       });
 
       this.lastUpdateTime = currentTime;
 
       // Simple organism updates
       this.organisms.forEach(organism => {
+  try {
         organism.age += 0.1;
         organism.x += (Math.random() - 0.5) * 2;
         organism.y += (Math.random() - 0.5) * 2;
@@ -513,23 +531,31 @@ export class OrganismSimulation {
         // Keep organisms in bounds
         organism.x = Math.max(0, Math.min(this.canvas.width, organism.x));
         organism.y = Math.max(0, Math.min(this.canvas.height, organism.y));
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
       // Clear and render
       this.clearCanvas();
 
       // Render organisms
       this.organisms.forEach(organism => {
+  try {
         this.context.fillStyle = this.getOrganismColor(organism.type);
         this.context.beginPath();
         this.context.arc(organism.x, organism.y, 3, 0, Math.PI * 2);
         this.context.fill();
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
       // Render mobile visual effects if available
-      if (this.mobileVisualEffects) {
-        // this.mobileVisualEffects.render(); // Method doesn't exist yet
-      }
+      ifPattern(this.mobileVisualEffects, () => { // this.mobileVisualEffects.render(); // Method doesn't exist yet
+       });
 
       // Update statistics (commented out due to type mismatch)
       // this.statisticsManager.updateAllStats(this.getStats());
@@ -581,7 +607,6 @@ export class OrganismSimulation {
         // if (screenshot) {
         //   await this.mobileSocialManager.shareImage(screenshot);
         // }
-        console.log('Capture and share functionality not yet implemented');
       } catch (error) {
         this.handleError(error);
       }
@@ -614,4 +639,18 @@ export class OrganismSimulation {
   private handleError(error: unknown): void {
     ErrorHandler.getInstance().handleError(error as Error);
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

@@ -136,7 +136,7 @@ export type OrganismTypeName = keyof typeof ORGANISM_TYPES;
  * Get an organism type by name with type safety
  */
 export function getOrganismType(name: OrganismTypeName): OrganismType {
-  return ORGANISM_TYPES[name];
+  return ORGANISM_TYPES?.[name];
 }
 
 /**

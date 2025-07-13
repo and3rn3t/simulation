@@ -75,9 +75,8 @@ export class LeaderboardManager {
   private loadLeaderboard(): void {
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
-      if (saved) {
-        this.entries = JSON.parse(saved);
-      }
+      ifPattern(saved, () => { this.entries = JSON.parse(saved);
+       });
     } catch (_error) {
       this.entries = [];
     }
@@ -99,7 +98,7 @@ export class LeaderboardManager {
    * Updates the leaderboard display in the UI
    */
   updateLeaderboardDisplay(): void {
-    const leaderboardList = document.getElementById('leaderboard-list');
+    const leaderboardList = document?.getElementById('leaderboard-list');
     if (!leaderboardList) return;
 
     if (this.entries.length === 0) {

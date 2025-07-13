@@ -69,17 +69,21 @@ export class AlgorithmWorkerManager {
    */
   async initialize(): Promise<void> {
     try {
-      if (this.isInitialized) {
-        return;
-      }
+      ifPattern(this.isInitialized, () => { return;
+       });
 
       // Create worker pool
       for (let i = 0; i < this.workerCount; i++) {
         // Use a string path instead of URL constructor for compatibility
         const workerScript = `
           import('./simulationWorker.ts').then(module => {
+  try {
             // Worker initialization will be handled by the module
-          });
+          
+  } catch (error).catch(error => console.error('Promise rejection:', error)) {
+    console.error("Callback error:", error);
+  }
+});
         `;
         const blob = new Blob([workerScript], { type: 'application/javascript' });
         const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
@@ -121,7 +125,7 @@ export class AlgorithmWorkerManager {
     logistic: number[];
     competition: { totalPopulation: number[]; byType: Record<string, number[]> };
   }> {
-    await this.initialize();
+  try { await this.initialize(); } catch (error) { console.error('Await error:', error); }
 
     return this.sendTaskToWorker('PREDICT_POPULATION', data);
   }
@@ -144,7 +148,7 @@ export class AlgorithmWorkerManager {
       standardDeviation: number;
     };
   }> {
-    await this.initialize();
+  try { await this.initialize(); } catch (error) { console.error('Await error:', error); }
 
     return this.sendTaskToWorker('CALCULATE_STATISTICS', data);
   }
@@ -191,16 +195,14 @@ export class AlgorithmWorkerManager {
   private handleWorkerMessage(response: WorkerResponse): void {
     const task = this.pendingTasks.get(response.id);
 
-    if (!task) {
-      return; // Task may have timed out
-    }
+    ifPattern(!task, () => { return; // Task may have timed out
+     });
 
     clearTimeout(task.timeout);
     this.pendingTasks.delete(response.id);
 
-    if (response.type === 'ERROR') {
-      task.reject(new SimulationError(response.data.message, 'WORKER_TASK_ERROR'));
-    } else {
+    ifPattern(response.type === 'ERROR', () => { task.reject(new SimulationError(response.data.message, 'WORKER_TASK_ERROR'));
+     }); else {
       task.resolve(response.data);
     }
   }
@@ -210,14 +212,12 @@ export class AlgorithmWorkerManager {
    * @returns Next worker instance
    */
   private getNextWorker(): Worker {
-    if (this.workers.length === 0) {
-      throw new Error('No workers available');
-    }
+    ifPattern(this.workers.length === 0, () => { throw new Error('No workers available');
+     });
 
     const worker = this.workers[this.currentWorkerIndex];
-    if (!worker) {
-      throw new Error('Worker at current index is undefined');
-    }
+    ifPattern(!worker, () => { throw new Error('Worker at current index is undefined');
+     });
 
     this.currentWorkerIndex = (this.currentWorkerIndex + 1) % this.workers.length;
     return worker;
@@ -257,9 +257,14 @@ export class AlgorithmWorkerManager {
 
       // Reject all pending tasks
       this.pendingTasks.forEach(task => {
+  try {
         clearTimeout(task.timeout);
         task.reject(new SimulationError('Worker pool terminated', 'WORKER_TERMINATED'));
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
       this.pendingTasks.clear();
       this.isInitialized = false;

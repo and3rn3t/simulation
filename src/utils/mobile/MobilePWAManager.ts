@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Mobile PWA Manager - Handles offline capabilities and app-like features
  */
@@ -35,7 +56,7 @@ export class MobilePWAManager {
    * Initialize PWA features
    */
   private async initializePWA(): Promise<void> {
-    await this.registerServiceWorker();
+  try { await this.registerServiceWorker(); } catch (error) { console.error('Await error:', error); }
     this.setupInstallPrompt();
     this.setupOfflineHandling();
     this.setupNotifications();
@@ -52,14 +73,24 @@ export class MobilePWAManager {
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      registration.addEventListener('updatefound', () => {
+      eventPattern(registration?.addEventListener('updatefound', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for updatefound:', error);
+  }
+})) => {
         this.handleServiceWorkerUpdate(registration);
       });
 
       // Listen for messages from service worker
-      navigator.serviceWorker.addEventListener(
-        'message',
-        this.handleServiceWorkerMessage.bind(this)
+      navigator.eventPattern(serviceWorker?.addEventListener('message', (event) => {
+  try {
+    (this.handleServiceWorkerMessage.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for message:', error);
+  }
+}))
       );
     } catch { /* handled */ }
   }
@@ -71,10 +102,15 @@ export class MobilePWAManager {
     const newWorker = registration.installing;
     if (!newWorker) return;
 
-    newWorker.addEventListener('statechange', () => {
-      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-        this.showUpdateAvailableNotification();
-      }
+    eventPattern(newWorker?.addEventListener('statechange', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for statechange:', error);
+  }
+})) => {
+      ifPattern(newWorker.state === 'installed' && navigator.serviceWorker.controller, () => { this.showUpdateAvailableNotification();
+       });
     });
   }
 
@@ -82,7 +118,7 @@ export class MobilePWAManager {
    * Handle messages from service worker
    */
   private handleServiceWorkerMessage(event: MessageEvent): void {
-    const { type, data } = event.data;
+    const { type, data } = event?.data;
 
     switch (type) {
       case 'CACHE_UPDATED':
@@ -102,13 +138,25 @@ export class MobilePWAManager {
   private setupInstallPrompt(): void {
     if (!this.config.enableInstallPrompt) return;
 
-    window.addEventListener('beforeinstallprompt', event => {
-      event.preventDefault();
+    eventPattern(window?.addEventListener('beforeinstallprompt', (event) => {
+  try {
+    (event => {
+      event?.preventDefault()(event);
+  } catch (error) {
+    console.error('Event listener error for beforeinstallprompt:', error);
+  }
+}));
       this.installPromptEvent = event;
       this.showInstallButton();
     });
 
-    window.addEventListener('appinstalled', () => {
+    eventPattern(window?.addEventListener('appinstalled', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for appinstalled:', error);
+  }
+})) => {
       this.hideInstallButton();
       this.showInstallSuccessMessage();
     });
@@ -118,12 +166,24 @@ export class MobilePWAManager {
    * Setup offline handling
    */
   private setupOfflineHandling(): void {
-    window.addEventListener('online', () => {
+    eventPattern(window?.addEventListener('online', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for online:', error);
+  }
+})) => {
       this.isOnline = true;
       this.handleOnlineMode();
     });
 
-    window.addEventListener('offline', () => {
+    eventPattern(window?.addEventListener('offline', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for offline:', error);
+  }
+})) => {
       this.isOnline = false;
       this.handleOfflineMode();
     });
@@ -137,7 +197,7 @@ export class MobilePWAManager {
       return;
     }
 
-    this.notificationPermission = await Notification.requestPermission();
+  try { this.notificationPermission = await Notification.requestPermission(); } catch (error) { console.error('Await error:', error); }
   }
 
   /**
@@ -169,7 +229,13 @@ export class MobilePWAManager {
       transition: 'all 0.3s ease',
     });
 
-    installButton.addEventListener('click', this.handleInstallClick.bind(this));
+    eventPattern(installButton?.addEventListener('click', (event) => {
+  try {
+    (this.handleInstallClick.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     document.body.appendChild(installButton);
   }
 
@@ -177,7 +243,7 @@ export class MobilePWAManager {
    * Show install button
    */
   private showInstallButton(): void {
-    const button = document.getElementById('pwa-install-button');
+    const button = document?.getElementById('pwa-install-button');
     if (button) {
       button.style.display = 'block';
       setTimeout(() => {
@@ -190,10 +256,9 @@ export class MobilePWAManager {
    * Hide install button
    */
   private hideInstallButton(): void {
-    const button = document.getElementById('pwa-install-button');
-    if (button) {
-      button.style.display = 'none';
-    }
+    const button = document?.getElementById('pwa-install-button');
+    ifPattern(button, () => { button.style.display = 'none';
+     });
   }
 
   /**
@@ -202,7 +267,7 @@ export class MobilePWAManager {
   private async handleInstallClick(): Promise<void> {
     if (!this.installPromptEvent) return;
 
-    const result = await this.installPromptEvent.prompt();
+  try { const result = await this.installPromptEvent.prompt(); } catch (error) { console.error('Await error:', error); }
     this.installPromptEvent = null;
     this.hideInstallButton();
   }
@@ -269,10 +334,9 @@ export class MobilePWAManager {
       }
 
       // Validate the structure of the stored data
-      if (!offlineItem || typeof offlineItem !== 'object' || 
+      ifPattern(!offlineItem || typeof offlineItem !== 'object' || 
           typeof offlineItem.expires !== 'number' || 
-          typeof offlineItem.timestamp !== 'number') {
-        localStorage.removeItem(`offline_${key}`);
+          typeof offlineItem.timestamp !== 'number', () => { localStorage.removeItem(`offline_${key });`);
         return null;
       }
 
@@ -292,17 +356,15 @@ export class MobilePWAManager {
    */
   private async syncOfflineData(): Promise<void> {
     const offlineSimulationState = this.getOfflineData('simulation_state');
-    if (offlineSimulationState) {
-      // Restore simulation state
+    ifPattern(offlineSimulationState, () => { // Restore simulation state
       this.restoreSimulationState(offlineSimulationState);
-    }
+     });
 
     // Send analytics data
     const offlineAnalytics = this.getOfflineData('analytics');
-    if (offlineAnalytics) {
-      await this.sendAnalyticsData(offlineAnalytics);
+  try { ifPattern(offlineAnalytics, () => { await this.sendAnalyticsData(offlineAnalytics); } catch (error) { console.error('Await error:', error); }
       localStorage.removeItem('offline_analytics');
-    }
+     });
   }
 
   /**
@@ -339,7 +401,7 @@ export class MobilePWAManager {
    * Hide offline notification
    */
   private hideOfflineNotification(): void {
-    const notification = document.getElementById('offline-notification');
+    const notification = document?.getElementById('offline-notification');
     if (notification) {
       notification.style.transform = 'translateY(-100%)';
       setTimeout(() => {
@@ -505,9 +567,8 @@ export class MobilePWAManager {
   public destroy(): void {
     this.hideInstallButton();
     this.hideOfflineNotification();
-    const installButton = document.getElementById('pwa-install-button');
-    if (installButton) {
-      installButton.remove();
-    }
+    const installButton = document?.getElementById('pwa-install-button');
+    ifPattern(installButton, () => { installButton.remove();
+     });
   }
 }

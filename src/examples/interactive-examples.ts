@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Interactive Code Examples for Organism Simulation
  *
@@ -78,25 +99,42 @@ export class InteractiveExamples {
    * Set up event listeners for the interactive interface
    */
   private setupEventListeners(): void {
-    const selector = document.getElementById('example-selector') as HTMLSelectElement;
-    const runButton = document.getElementById('run-example') as HTMLButtonElement;
-    const clearButton = document.getElementById('clear-output') as HTMLButtonElement;
+    const selector = document?.getElementById('example-selector') as HTMLSelectElement;
+    const runButton = document?.getElementById('run-example') as HTMLButtonElement;
+    const clearButton = document?.getElementById('clear-output') as HTMLButtonElement;
 
-    selector.addEventListener('change', () => {
+    eventPattern(selector?.addEventListener('change', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for change:', error);
+  }
+})) => {
       const selectedExample = selector.value;
-      if (selectedExample) {
-        this.displayExampleCode(selectedExample);
-      }
+      ifPattern(selectedExample, () => { this.displayExampleCode(selectedExample);
+       });
     });
 
-    runButton.addEventListener('click', () => {
+    eventPattern(runButton?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => {
       const selectedExample = selector.value;
       if (selectedExample && this.examples.has(selectedExample)) {
         this.runExample(selectedExample);
       }
     });
 
-    clearButton.addEventListener('click', () => {
+    eventPattern(clearButton?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => {
       this.clearOutput();
     });
   }
@@ -105,7 +143,7 @@ export class InteractiveExamples {
    * Display the code for a specific example
    */
   private displayExampleCode(exampleName: string): void {
-    const codeDisplay = document.getElementById('example-code-display');
+    const codeDisplay = document?.getElementById('example-code-display');
     if (!codeDisplay) return;
 
     const codeExamples = {
@@ -125,8 +163,8 @@ if (organism.canReproduce()) {
       'simulation-setup': `
 // Simulation Setup Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -164,8 +202,8 @@ const organisms = organismTypes.map((type, index) =>
       'performance-demo': `
 // Performance Demo Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -186,8 +224,8 @@ const memoryStats = simulation.getMemoryStats();
       'memory-management': `
 // Memory Management Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -225,8 +263,8 @@ const simulation = new OrganismSimulation(canvas, customOrganism);
       'event-handling': `
 // Event Handling Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -236,9 +274,7 @@ const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 const monitorStats = () => {
   const stats = simulation.getStats();
 
-  if (stats.population > 50) {
-
-  }
+  ifPattern(stats.population > 50, () => {   });
 };
 
 // Monitor every 2 seconds
@@ -251,8 +287,8 @@ simulation.start();
       'statistics-tracking': `
 // Statistics Tracking Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -271,10 +307,9 @@ const trackStats = () => {
     ...stats
   });
 
-  if (statsHistory.length > 10) {
-    .map(s => s.population)
+  ifPattern(statsHistory.length > 10, () => { .map(s => s.population)
     );
-  }
+   });
 };
 
 setInterval(trackStats, 1000);
@@ -291,9 +326,8 @@ setInterval(trackStats, 1000);
    */
   private runExample(exampleName: string): void {
     const example = this.examples.get(exampleName);
-    if (example) {
-      this.clearOutput();
-      this.logToConsole(`Running example: ${exampleName}`);
+    ifPattern(example, () => { this.clearOutput();
+      this.logToConsole(`Running example: ${exampleName });`);
 
       try {
         example();
@@ -307,8 +341,8 @@ setInterval(trackStats, 1000);
    * Clear the output area
    */
   private clearOutput(): void {
-    const canvasContainer = document.getElementById('example-canvas-container');
-    const consoleOutput = document.getElementById('example-console');
+    const canvasContainer = document?.getElementById('example-canvas-container');
+    const consoleOutput = document?.getElementById('example-console');
 
     if (canvasContainer) canvasContainer.innerHTML = '';
     if (consoleOutput) consoleOutput.innerHTML = '';
@@ -318,7 +352,7 @@ setInterval(trackStats, 1000);
    * Log messages to the example console
    */
   private logToConsole(message: string): void {
-    const consoleOutput = document.getElementById('example-console');
+    const consoleOutput = document?.getElementById('example-console');
     if (consoleOutput) {
       const logEntry = document.createElement('div');
       logEntry.className = 'log-entry';
@@ -333,15 +367,14 @@ setInterval(trackStats, 1000);
    */
   private createExampleCanvas(width: number = 400, height: number = 300): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.border = '1px solid #ccc';
-    canvas.style.backgroundColor = '#f0f0f0';
+    canvas?.width = width;
+    canvas?.height = height;
+    canvas?.style.border = '1px solid #ccc';
+    canvas?.style.backgroundColor = '#f0f0f0';
 
-    const container = document.getElementById('example-canvas-container');
-    if (container) {
-      container.appendChild(canvas);
-    }
+    const container = document?.getElementById('example-canvas-container');
+    ifPattern(container, () => { container.appendChild(canvas);
+     });
 
     return canvas;
   }
@@ -404,14 +437,19 @@ setInterval(trackStats, 1000);
     ];
 
     types.forEach(type => {
+  try {
       this.logToConsole(
-        `${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
+        `${type.name
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
       );
     });
 
     // Create organisms of different types
     const canvas = this.createExampleCanvas(400, 300);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas?.getContext('2d');
 
     if (ctx) {
       types.forEach((type, index) => {
@@ -498,12 +536,11 @@ setInterval(trackStats, 1000);
 
     // Draw the custom organism
     const canvas = this.createExampleCanvas(400, 300);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas?.getContext('2d');
 
-    if (ctx) {
-      organism.draw(ctx);
+    ifPattern(ctx, () => { organism.draw(ctx);
       this.logToConsole('Drew custom organism on canvas');
-    }
+     });
   }
 
   private eventHandlingExample(): void {
@@ -522,10 +559,9 @@ setInterval(trackStats, 1000);
       this.logToConsole(`Population: ${stats.population}, Generation: ${stats.generation}`);
 
       monitorCount++;
-      if (monitorCount >= 5) {
-        clearInterval(monitor);
+      ifPattern(monitorCount >= 5, () => { clearInterval(monitor);
         this.logToConsole('Monitoring stopped');
-      }
+       });
     }, 2000);
 
     simulation.start();
@@ -561,16 +597,14 @@ setInterval(trackStats, 1000);
 
       this.logToConsole(`Stats - Pop: ${stats.population}, Gen: ${stats.generation}`);
 
-      if (statsHistory.length > 3) {
-        const trend = statsHistory.slice(-3).map(s => s.population);
-        this.logToConsole(`Population trend: ${trend.join(' → ')}`);
+      ifPattern(statsHistory.length > 3, () => { const trend = statsHistory.slice(-3).map(s => s.population);
+        this.logToConsole(`Population trend: ${trend.join(' → ') });`);
       }
 
       trackingCount++;
-      if (trackingCount >= 5) {
-        clearInterval(tracker);
+      ifPattern(trackingCount >= 5, () => { clearInterval(tracker);
         this.logToConsole('Statistics tracking complete');
-      }
+       });
     }, 1500);
   }
 }
@@ -579,20 +613,39 @@ setInterval(trackStats, 1000);
  * Initialize interactive examples when DOM is ready
  */
 export function initializeInteractiveExamples(containerId: string = 'interactive-examples'): void {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    return;
-  }
+  const container = document?.getElementById(containerId);
+  ifPattern(!container, () => { return;
+   });
 
   new InteractiveExamples(container);
 }
 
 // Auto-initialize if container exists
 if (typeof window !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('interactive-examples');
+  eventPattern(document?.addEventListener('DOMContentLoaded', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for DOMContentLoaded:', error);
+  }
+})) => {
+    const container = document?.getElementById('interactive-examples');
     if (container) {
       initializeInteractiveExamples();
     }
+  });
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
   });
 }

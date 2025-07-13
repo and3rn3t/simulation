@@ -110,10 +110,9 @@ export class PowerUpManager {
       return null;
     }
 
-    if (powerUp.duration > 0) {
-      powerUp.active = true;
+    ifPattern(powerUp.duration > 0, () => { powerUp.active = true;
       powerUp.endTime = Date.now() + powerUp.duration * 1000;
-    }
+     });
 
     this.score -= powerUp.cost;
     this.updatePowerUpButtons();
@@ -126,10 +125,9 @@ export class PowerUpManager {
   updatePowerUps(): void {
     const now = Date.now();
     for (const powerUp of this.powerups) {
-      if (powerUp.active && now > powerUp.endTime) {
-        powerUp.active = false;
+      ifPattern(powerUp.active && now > powerUp.endTime, () => { powerUp.active = false;
         powerUp.endTime = 0;
-      }
+       });
     }
     this.updatePowerUpButtons();
   }
@@ -148,7 +146,7 @@ export class PowerUpManager {
    */
   private updatePowerUpButtons(): void {
     for (const powerUp of this.powerups) {
-      const button = document.querySelector(`[data-powerup="${powerUp.id}"]`) as HTMLButtonElement;
+      const button = document?.querySelector(`[data-powerup="${powerUp.id}"]`) as HTMLButtonElement;
       if (button) {
         button.disabled = !this.canAfford(powerUp.id) || powerUp.active;
         button.textContent = powerUp.active ? 'Active' : 'Buy';

@@ -38,8 +38,7 @@ export class StateManager {
 
   loadStateFromLocalStorage(key: string): void {
     const savedState = localStorage.getItem(key);
-    if (savedState) {
-      this.updateState(JSON.parse(savedState));
-    }
+    ifPattern(savedState, () => { this.updateState(JSON.parse(savedState));
+     });
   }
 }

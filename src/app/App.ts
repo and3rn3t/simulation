@@ -24,10 +24,9 @@ export class App {
   }
 
   public static getInstance(config?: AppConfig): App {
-    if (!App.instance) {
-      const finalConfig = config || createConfigFromEnv();
+    ifPattern(!App.instance, () => { const finalConfig = config || createConfigFromEnv();
       App.instance = new App(finalConfig);
-    }
+     });
     return App.instance;
   }
 
@@ -35,9 +34,8 @@ export class App {
    * Initialize the application with error handling and component setup
    */
   public async initialize(): Promise<void> {
-    if (this.initialized) {
-      return;
-    }
+    ifPattern(this.initialized, () => { return;
+     });
 
     try {
       // Initialize global error handlers first
@@ -55,11 +53,11 @@ export class App {
 
       // Load environment-specific features
       if (this.configManager.isDevelopment()) {
-        await this.initializeDevelopmentFeatures();
+  try { await this.initializeDevelopmentFeatures(); } catch (error) { console.error('Await error:', error); }
       }
 
       // Initialize simulation core
-      await this.initializeSimulation();
+  try { await this.initializeSimulation(); } catch (error) { console.error('Await error:', error); }
 
       this.initialized = true;
 
@@ -113,14 +111,9 @@ export class App {
    */
   private logConfigurationSummary(): void {
     const config = this.configManager.exportConfig();
-    const enabledFeatures = Object.entries(config.features)
+    const enabledFeatures = Object.entries(config?.features)
       .filter(([, enabled]) => enabled)
       .map(([feature]) => feature);
-    console.log({
-      enabledFeatures,
-      simulation: config.simulation,
-      ui: config.ui,
-    });
   }
 
   /**
@@ -163,14 +156,12 @@ export class App {
    */
   public shutdown(): void {
     // Stop performance monitoring
-    if (this.performanceManager) {
-      this.performanceManager.stopMonitoring();
-    }
+    ifPattern(this.performanceManager, () => { this.performanceManager.stopMonitoring();
+     });
 
     // Cleanup memory panel component
-    if (this.memoryPanelComponent) {
-      // Cleanup memory panel component
-    }
+    ifPattern(this.memoryPanelComponent, () => { // Cleanup memory panel component
+     });
 
     this.initialized = false;
   }

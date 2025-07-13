@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { isMobileDevice } from '../system/mobileDetection';
 
 /**
@@ -54,7 +75,13 @@ export class MobileUIEnhancer {
       justifyContent: 'center',
     });
 
-    this.fullscreenButton.addEventListener('click', this.toggleFullscreen.bind(this));
+    this.eventPattern(fullscreenButton?.addEventListener('click', (event) => {
+  try {
+    (this.toggleFullscreen.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     document.body.appendChild(this.fullscreenButton);
   }
 
@@ -95,7 +122,13 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    handle.addEventListener('click', this.toggleBottomSheet.bind(this));
+    eventPattern(handle?.addEventListener('click', (event) => {
+  try {
+    (this.toggleBottomSheet.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     this.bottomSheet.appendChild(handle);
 
     // Add controls container
@@ -116,7 +149,7 @@ export class MobileUIEnhancer {
    * Move existing controls to bottom sheet
    */
   private moveControlsToBottomSheet(container: HTMLElement): void {
-    const existingControls = document.querySelector('.controls');
+    const existingControls = document?.querySelector('.controls');
     if (!existingControls) return;
 
     // Clone controls for mobile
@@ -136,21 +169,31 @@ export class MobileUIEnhancer {
     // Enhance all buttons and inputs
     const buttons = mobileControls.querySelectorAll('button');
     buttons.forEach(button => {
+  try {
       Object.assign(button.style, {
         minHeight: '48px',
         fontSize: '16px',
         borderRadius: '12px',
         padding: '12px',
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
 
     const inputs = mobileControls.querySelectorAll('input, select');
     inputs.forEach(input => {
+  try {
       Object.assign((input as HTMLElement).style, {
         minHeight: '48px',
         fontSize: '16px',
         borderRadius: '8px',
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
 
     container.appendChild(mobileControls);
@@ -176,7 +219,13 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    trigger.addEventListener('click', this.toggleBottomSheet.bind(this));
+    eventPattern(trigger?.addEventListener('click', (event) => {
+  try {
+    (this.toggleBottomSheet.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     document.body.appendChild(trigger);
   }
 
@@ -192,17 +241,34 @@ export class MobileUIEnhancer {
     // Prevent zoom on input focus
     const inputs = document.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
+  try {
       (input as HTMLElement).style.fontSize = '16px';
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     // Add touch feedback to all buttons
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
-      button.addEventListener('touchstart', () => {
+      eventPattern(button?.addEventListener('touchstart', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+})) => {
         button.style.transform = 'scale(0.95)';
       });
 
-      button.addEventListener('touchend', () => {
+      eventPattern(button?.addEventListener('touchend', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchend:', error);
+  }
+})) => {
         button.style.transform = 'scale(1)';
       });
     });
@@ -213,7 +279,7 @@ export class MobileUIEnhancer {
    */
   private setupMobileMetaTags(): void {
     // Ensure proper viewport
-    let viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement;
+    let viewportMeta = document?.querySelector('meta[name="viewport"]') as HTMLMetaElement;
     if (!viewportMeta) {
       viewportMeta = document.createElement('meta');
       viewportMeta.name = 'viewport';
@@ -246,10 +312,9 @@ export class MobileUIEnhancer {
           this.fullscreenButton.innerHTML = '⤠';
         }
       } else {
-        await document.exitFullscreen();
-        if (this.fullscreenButton) {
-          this.fullscreenButton.innerHTML = '⛶';
-        }
+  try { await document.exitFullscreen(); } catch (error) { console.error('Await error:', error); }
+        ifPattern(this.fullscreenButton, () => { this.fullscreenButton.innerHTML = '⛶';
+         });
       }
     } catch (error) { /* handled */ }
   }
@@ -284,30 +349,26 @@ export class MobileUIEnhancer {
    * Show bottom sheet
    */
   public showBottomSheet(): void {
-    if (this.bottomSheet && !this.isBottomSheetVisible) {
-      this.toggleBottomSheet();
-    }
+    ifPattern(this.bottomSheet && !this.isBottomSheetVisible, () => { this.toggleBottomSheet();
+     });
   }
 
   /**
    * Hide bottom sheet
    */
   public hideBottomSheet(): void {
-    if (this.bottomSheet && this.isBottomSheetVisible) {
-      this.toggleBottomSheet();
-    }
+    ifPattern(this.bottomSheet && this.isBottomSheetVisible, () => { this.toggleBottomSheet();
+     });
   }
 
   /**
    * Cleanup resources
    */
   public destroy(): void {
-    if (this.fullscreenButton) {
-      this.fullscreenButton.remove();
-    }
-    if (this.bottomSheet) {
-      this.bottomSheet.remove();
-    }
+    ifPattern(this.fullscreenButton, () => { this.fullscreenButton.remove();
+     });
+    ifPattern(this.bottomSheet, () => { this.bottomSheet.remove();
+     });
     document.body.classList.remove('mobile-optimized');
   }
 }

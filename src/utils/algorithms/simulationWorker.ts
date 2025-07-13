@@ -79,7 +79,7 @@ class PopulationPredictor {
 
       // Apply random variation
       const variation = (Math.random() - 0.5) * 0.1 * population;
-      population = Math.max(0, population + variation);
+      /* assignment: population = Math.max(0, population + variation) */
 
       predictions.push(Math.round(population));
     }
@@ -104,9 +104,14 @@ class PopulationPredictor {
 
     // Initialize type populations
     organismTypes.forEach(type => {
+  try {
       typePopulations[type.name] = Math.floor(currentPopulation / organismTypes.length);
       typePredictions[type.name] = [];
-    });
+    
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
     const carryingCapacity = this.calculateCarryingCapacity(environmentalFactors);
 
@@ -117,6 +122,7 @@ class PopulationPredictor {
       const totalCompetition = Object.values(typePopulations).reduce((sum, pop) => sum + pop, 0);
 
       organismTypes.forEach(type => {
+  try {
         const currentPop = typePopulations[type.name];
         if (currentPop !== undefined && currentPop !== null) {
           const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
@@ -130,7 +136,11 @@ class PopulationPredictor {
           const typePrediction = typePredictions[type.name];
           if (typePrediction) {
             typePrediction.push(Math.round(newPop));
-          }
+          
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+}
           totalPop += newPop;
         }
       });
@@ -200,13 +210,17 @@ class StatisticsCalculator {
 
     // Calculate density
     organisms.forEach(org => {
+  try {
       const gridX = Math.floor(org.x / gridSize);
       const gridY = Math.floor(org.y / gridSize);
       const index = gridY * gridWidth + gridX;
 
-      if (index >= 0 && index < density.length) {
-        density[index]++;
-      }
+      ifPattern(index >= 0 && index < density.length, () => { density[index]++;
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
 
     // Find clusters
@@ -241,10 +255,14 @@ class StatisticsCalculator {
 
     // Create histogram
     ages.forEach(age => {
+  try {
       const bin = Math.floor(age / binSize);
-      if (bin < numBins) {
-        histogram[bin]++;
-      }
+      ifPattern(bin < numBins, () => { histogram?.[bin]++;
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
     });
 
     // Calculate statistics
@@ -295,9 +313,8 @@ class StatisticsCalculator {
         }
       });
 
-      if (cluster.count > 1) {
-        clusters.push(cluster);
-      }
+      ifPattern(cluster.count > 1, () => { clusters.push(cluster);
+       });
     });
 
     return clusters;
@@ -325,11 +342,15 @@ class StatisticsCalculator {
       for (let x = 0; x < gridWidth; x++) {
         let count = 0;
         organisms.forEach(org => {
+  try {
           const gridX = Math.floor(org.x / gridSize);
           const gridY = Math.floor(org.y / gridSize);
-          if (gridX === x && gridY === y) {
-            count++;
-          }
+          ifPattern(gridX === x && gridY === y, () => { count++;
+           
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
         });
         counts.push(count);
       }
@@ -353,22 +374,22 @@ self.onmessage = function (e: MessageEvent<WorkerMessage>) {
 
     switch (type) {
       case 'PREDICT_POPULATION':
-        result = {
+        /* assignment: result = {
           logistic: PopulationPredictor.predictLogisticGrowth(data),
           competition: PopulationPredictor.predictCompetitionModel(data),
-        };
+        } */
         break;
 
       case 'CALCULATE_STATISTICS':
-        result = {
+        /* assignment: result = {
           spatial: StatisticsCalculator.calculateSpatialDistribution(data),
           age: StatisticsCalculator.calculateAgeDistribution(data.organisms),
-        };
+        } */
         break;
 
       case 'BATCH_PROCESS':
         // Handle batch processing tasks
-        result = { processed: true };
+        /* assignment: result = { processed: true } */
         break;
 
       default:

@@ -61,7 +61,7 @@ export class ComponentDemo {
         {
           ...config,
           onClick: () => {
-            AccessibilityManager.announceToScreenReader(`Button "${config.text}" clicked`);
+            AccessibilityManager.announceToScreenReader(`Button "${config?.text}" clicked`);
           },
         },
         `demo-button-${index}`
@@ -116,7 +116,12 @@ export class ComponentDemo {
       const input = ComponentFactory.createInput(
         {
           ...config,
-          onChange: value => {},
+          onChange: value => {
+  try {
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
         },
         `demo-input-${index}`
       );
@@ -153,8 +158,13 @@ export class ComponentDemo {
         {
           ...config,
           onChange: checked => {
+  try {
             AccessibilityManager.announceToScreenReader(
-              `${config.label} ${checked ? 'enabled' : 'disabled'}`
+              `${config?.label
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+} ${checked ? 'enabled' : 'disabled'}`
             );
           },
         },
@@ -198,7 +208,12 @@ export class ComponentDemo {
       {
         title: 'Collapsible Panel',
         collapsible: true,
-        onToggle: collapsed => {},
+        onToggle: collapsed => {
+  try {
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+},
       },
       'demo-panel-collapsible'
     );

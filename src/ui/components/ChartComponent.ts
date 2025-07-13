@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import {
   Chart,
   ChartConfiguration,
@@ -59,12 +80,11 @@ export class ChartComponent extends BaseComponent {
       </div>
     `;
 
-    this.canvas = this.element.querySelector('canvas') as HTMLCanvasElement;
+    this.canvas = this.element?.querySelector('canvas') as HTMLCanvasElement;
 
-    if (this.config.width && this.config.height) {
-      this.canvas.width = this.config.width;
+    ifPattern(this.config.width && this.config.height, () => { this.canvas.width = this.config.width;
       this.canvas.height = this.config.height;
-    }
+     });
   }
 
   private initializeChart(): void {
@@ -161,13 +181,12 @@ export class ChartComponent extends BaseComponent {
     if (!this.chart) return;
 
     this.chart.data.labels?.push(label);
-    this.chart.data.datasets[datasetIndex].data.push(value);
+    this.chart.data.datasets?.[datasetIndex].data.push(value);
 
     // Keep only last 50 points for performance
-    if (this.chart.data.labels!.length > 50) {
-      this.chart.data.labels?.shift();
-      this.chart.data.datasets[datasetIndex].data.shift();
-    }
+    ifPattern(this.chart.data.labels!.length > 50, () => { this.chart.data.labels?.shift();
+      this.chart.data.datasets?.[datasetIndex].data.shift();
+     });
 
     this.chart.update('none');
   }
@@ -179,9 +198,8 @@ export class ChartComponent extends BaseComponent {
     this.stopRealTimeUpdates();
     this.updateInterval = setInterval(() => {
       callback();
-      if (this.config.onDataUpdate && this.chart) {
-        this.config.onDataUpdate(this.chart);
-      }
+      ifPattern(this.config.onDataUpdate && this.chart, () => { this.config.onDataUpdate(this.chart);
+       });
     }, interval);
   }
 
@@ -189,10 +207,9 @@ export class ChartComponent extends BaseComponent {
    * Stop real-time updates
    */
   stopRealTimeUpdates(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
+    ifPattern(this.updateInterval, () => { clearInterval(this.updateInterval);
       this.updateInterval = null;
-    }
+     });
   }
 
   /**
@@ -212,17 +229,15 @@ export class ChartComponent extends BaseComponent {
    * Resize the chart
    */
   resize(): void {
-    if (this.chart) {
-      this.chart.resize();
-    }
+    ifPattern(this.chart, () => { this.chart.resize();
+     });
   }
 
   public unmount(): void {
     this.stopRealTimeUpdates();
-    if (this.chart) {
-      this.chart.destroy();
+    ifPattern(this.chart, () => { this.chart.destroy();
       this.chart = null;
-    }
+     });
     super.unmount();
   }
 }
@@ -369,10 +384,24 @@ export class OrganismDistributionChart extends ChartComponent {
       labels,
       datasets: [
         {
-          ...this.chart!.data.datasets[0],
+          ...this.chart!.data.datasets?.[0],
           data,
         },
       ],
     });
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

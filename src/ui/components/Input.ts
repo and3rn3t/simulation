@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { generateSecureUIId } from '../../utils/system/secureRandom';
 import { BaseComponent } from './BaseComponent';
 
@@ -39,9 +60,8 @@ export class Input extends BaseComponent {
 
   private setupInput(): void {
     // Create label if provided
-    if (this.config.label) {
-      this.createLabel();
-    }
+    ifPattern(this.config.label, () => { this.createLabel();
+     });
 
     // Create input wrapper
     const inputWrapper = document.createElement('div');
@@ -62,9 +82,8 @@ export class Input extends BaseComponent {
     this.element.appendChild(inputWrapper);
 
     // Create helper text if provided
-    if (this.config.helperText || this.config.errorText) {
-      this.createHelperText();
-    }
+    ifPattern(this.config.helperText || this.config.errorText, () => { this.createHelperText();
+     });
   }
 
   private createLabel(): void {
@@ -78,9 +97,8 @@ export class Input extends BaseComponent {
     this.label.setAttribute('for', inputId);
 
     // Mark as required
-    if (this.config.required) {
-      this.label.innerHTML += ' <span class="ui-input__required">*</span>';
-    }
+    ifPattern(this.config.required, () => { this.label.innerHTML += ' <span class="ui-input__required">*</span>';
+     });
 
     this.element.appendChild(this.label);
   }
@@ -100,74 +118,78 @@ export class Input extends BaseComponent {
   private updateHelperText(): void {
     if (!this.helperElement) return;
 
-    if (this.hasError && this.config.errorText) {
-      this.helperElement.textContent = this.config.errorText;
+    ifPattern(this.hasError && this.config.errorText, () => { this.helperElement.textContent = this.config.errorText;
       this.helperElement.className = 'ui-input__helper ui-input__helper--error';
-    } else if (this.config.helperText) {
-      this.helperElement.textContent = this.config.helperText;
+     }); else ifPattern(this.config.helperText, () => { this.helperElement.textContent = this.config.helperText;
       this.helperElement.className = 'ui-input__helper';
-    }
+     });
   }
 
   private setInputAttributes(): void {
-    if (this.config.placeholder) {
-      this.input.placeholder = this.config.placeholder;
-    }
+    ifPattern(this.config.placeholder, () => { this.input.placeholder = this.config.placeholder;
+     });
 
-    if (this.config.value !== undefined) {
-      this.input.value = this.config.value;
-    }
+    ifPattern(this.config.value !== undefined, () => { this.input.value = this.config.value;
+     });
 
-    if (this.config.disabled) {
-      this.input.disabled = true;
-    }
+    ifPattern(this.config.disabled, () => { this.input.disabled = true;
+     });
 
-    if (this.config.required) {
-      this.input.required = true;
-    }
+    ifPattern(this.config.required, () => { this.input.required = true;
+     });
 
-    if (this.config.min !== undefined) {
-      this.input.min = this.config.min.toString();
-    }
+    ifPattern(this.config.min !== undefined, () => { this.input.min = this.config.min.toString();
+     });
 
-    if (this.config.max !== undefined) {
-      this.input.max = this.config.max.toString();
-    }
+    ifPattern(this.config.max !== undefined, () => { this.input.max = this.config.max.toString();
+     });
 
-    if (this.config.step !== undefined) {
-      this.input.step = this.config.step.toString();
-    }
+    ifPattern(this.config.step !== undefined, () => { this.input.step = this.config.step.toString();
+     });
 
-    if (this.config.pattern) {
-      this.input.pattern = this.config.pattern;
-    }
+    ifPattern(this.config.pattern, () => { this.input.pattern = this.config.pattern;
+     });
 
-    if (this.config.ariaLabel) {
-      this.input.setAttribute('aria-label', this.config.ariaLabel);
-    }
+    ifPattern(this.config.ariaLabel, () => { this.input.setAttribute('aria-label', this.config.ariaLabel);
+     });
   }
 
   private setupEventListeners(): void {
-    this.input.addEventListener('input', event => {
-      const target = event.target as HTMLInputElement;
-      if (this.config.onChange) {
-        this.config.onChange(target.value);
-      }
+    this.eventPattern(input?.addEventListener('input', (event) => {
+  try {
+    (event => {
+      const target = event?.target as HTMLInputElement;
+      ifPattern(this.config.onChange, ()(event);
+  } catch (error) {
+    console.error('Event listener error for input:', error);
+  }
+})) => { this.config.onChange(target?.value);
+       });
     });
 
-    this.input.addEventListener('focus', () => {
+    this.eventPattern(input?.addEventListener('focus', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for focus:', error);
+  }
+})) => {
       this.element.classList.add('ui-input--focused');
-      if (this.config.onFocus) {
-        this.config.onFocus();
-      }
+      ifPattern(this.config.onFocus, () => { this.config.onFocus();
+       });
     });
 
-    this.input.addEventListener('blur', () => {
+    this.eventPattern(input?.addEventListener('blur', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for blur:', error);
+  }
+})) => {
       this.element.classList.remove('ui-input--focused');
       this.validateInput();
-      if (this.config.onBlur) {
-        this.config.onBlur();
-      }
+      ifPattern(this.config.onBlur, () => { this.config.onBlur();
+       });
     });
   }
 
@@ -197,9 +219,8 @@ export class Input extends BaseComponent {
   setError(hasError: boolean, errorText?: string): void {
     this.hasError = hasError;
 
-    if (errorText) {
-      this.config.errorText = errorText;
-    }
+    ifPattern(errorText, () => { this.config.errorText = errorText;
+     });
 
     this.element.classList.toggle('ui-input--error', hasError);
     this.updateHelperText();

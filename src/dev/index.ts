@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Development Tools Module
  * Centralizes all development and debugging tools
@@ -37,9 +58,8 @@ export function initializeDevTools(): void {
         } catch (error) {
           return `Error: ${error}`;
         }
-      } else if (args[0] === 'stop') {
-        const session = profiler.stopProfiling();
-        return session ? `Stopped profiling session: ${session.id}` : 'No active session';
+      } else ifPattern(args[0] === 'stop', () => { const session = profiler.stopProfiling();
+        return session ? `Stopped profiling session: ${session.id });` : 'No active session';
       } else {
         return 'Usage: profile [start|stop] [duration]';
       }
@@ -51,17 +71,25 @@ export function initializeDevTools(): void {
     description: 'List all profiling sessions',
     usage: 'sessions [clear]',
     execute: args => {
-      if (args[0] === 'clear') {
-        profiler.clearSessions();
+  try {
+      ifPattern(args[0] === 'clear', () => { profiler.clearSessions();
         return 'Cleared all sessions';
-      }
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
       const sessions = profiler.getAllSessions();
-      if (sessions.length === 0) {
-        return 'No profiling sessions found';
-      }
+      ifPattern(sessions.length === 0, () => { return 'No profiling sessions found';
+       });
       let output = 'Profiling Sessions:\n';
       sessions.forEach(session => {
-        const duration = session.duration ? `${(session.duration / 1000).toFixed(1)}s` : 'ongoing';
+  try {
+        const duration = session.duration ? `${(session.duration / 1000).toFixed(1)
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+}s` : 'ongoing';
         output += `  ${session.id} - ${duration} - Avg FPS: ${session.averages.fps.toFixed(1)}\n`;
       });
       return output;
@@ -73,21 +101,23 @@ export function initializeDevTools(): void {
     description: 'Export profiling session data',
     usage: 'export <sessionId>',
     execute: args => {
-      if (args.length === 0) {
-        return 'Usage: export <sessionId>';
-      }
+  try {
+      ifPattern(args.length === 0, () => { return 'Usage: export <sessionId>';
+       
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
       const sessionId = args[0];
-      if (!sessionId) {
-        return 'Session ID is required';
-      }
+      ifPattern(!sessionId, () => { return 'Session ID is required';
+       });
 
       try {
         const data = profiler.exportSession(sessionId);
         // Save to clipboard if available
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(data);
-          return `Exported session ${sessionId} to clipboard`;
+        ifPattern(navigator.clipboard, () => { navigator.clipboard.writeText(data);
+          return `Exported session ${sessionId }); to clipboard`;
         } else {
           return `Session data logged to console (clipboard not available)`;
         }
@@ -98,12 +128,17 @@ export function initializeDevTools(): void {
   });
 
   // Add global keyboard shortcuts
-  document.addEventListener('keydown', e => {
+  document?.addEventListener('keydown', (event) => {
+  try {
+    (e => {
     // Ctrl+Shift+D for debug mode
-    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-      e.preventDefault();
+    ifPattern(e.ctrlKey && e.shiftKey && e.key === 'D', ()(event);
+  } catch (error) {
+    console.error('Event listener error for keydown:', error);
+  }
+}) => { e.preventDefault();
       debugMode.toggle();
-    }
+     });
   });
 }
 
@@ -119,9 +154,14 @@ export function isDevelopmentMode(): boolean {
  */
 if (isDevelopmentMode()) {
   // Initialize after DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeDevTools);
-  } else {
+  ifPattern(document.readyState === 'loading', () => { document?.addEventListener('DOMContentLoaded', (event) => {
+  try {
+    (initializeDevTools)(event);
+  } catch (error) {
+    console.error('Event listener error for DOMContentLoaded:', error);
+  }
+});
+   }); else {
     initializeDevTools();
   }
 }

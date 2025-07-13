@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface ButtonConfig {
@@ -26,12 +47,10 @@ export class Button extends BaseComponent {
   private static generateClassName(config: ButtonConfig): string {
     const classes = ['ui-button'];
 
-    if (config.variant) {
-      classes.push(`ui-button--${config.variant}`);
+    ifPattern(config?.variant, () => { classes.push(`ui-button--${config?.variant });`);
     }
 
-    if (config.size) {
-      classes.push(`ui-button--${config.size}`);
+    ifPattern(config?.size, () => { classes.push(`ui-button--${config?.size });`);
     }
 
     return classes.join(' ');
@@ -41,34 +60,42 @@ export class Button extends BaseComponent {
     const button = this.element as HTMLButtonElement;
 
     // Set text content
-    if (this.config.icon) {
-      button.innerHTML = `<span class="ui-button__icon">${this.config.icon}</span><span class="ui-button__text">${this.config.text}</span>`;
+    ifPattern(this.config.icon, () => { button.innerHTML = `<span class="ui-button__icon">${this.config.icon });</span><span class="ui-button__text">${this.config.text}</span>`;
     } else {
       button.textContent = this.config.text;
     }
 
     // Set disabled state
-    if (this.config.disabled) {
-      button.disabled = true;
-    }
+    ifPattern(this.config.disabled, () => { button.disabled = true;
+     });
 
     // Set aria-label for accessibility
-    if (this.config.ariaLabel) {
-      this.setAriaAttribute('label', this.config.ariaLabel);
-    }
+    ifPattern(this.config.ariaLabel, () => { this.setAriaAttribute('label', this.config.ariaLabel);
+     });
 
     // Add click handler
-    if (this.config.onClick) {
-      this.addEventListener('click', this.config.onClick);
-    }
+    ifPattern(this.config.onClick, () => { this?.addEventListener('click', (event) => {
+  try {
+    (this.config.onClick)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+});
+     });
 
     // Add keyboard navigation
-    this.addEventListener('keydown', this.handleKeydown.bind(this));
+    this?.addEventListener('keydown', (event) => {
+  try {
+    (this.handleKeydown.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for keydown:', error);
+  }
+}));
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
+    if (event?.key === 'Enter' || event?.key === ' ') {
+      event?.preventDefault();
       if (this.config.onClick && !this.config.disabled) {
         this.config.onClick();
       }

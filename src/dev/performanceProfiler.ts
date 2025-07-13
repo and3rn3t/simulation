@@ -44,16 +44,14 @@ export class PerformanceProfiler {
   }
 
   static getInstance(): PerformanceProfiler {
-    if (!PerformanceProfiler.instance) {
-      PerformanceProfiler.instance = new PerformanceProfiler();
-    }
+    ifPattern(!PerformanceProfiler.instance, () => { PerformanceProfiler.instance = new PerformanceProfiler();
+     });
     return PerformanceProfiler.instance;
   }
 
   startProfiling(duration: number = 10000): string {
-    if (this.isProfilering) {
-      throw new Error('Profiling session already in progress');
-    }
+    ifPattern(this.isProfilering, () => { throw new Error('Profiling session already in progress');
+     });
 
     const sessionId = generateSecureTaskId('profile');
     this.currentSession = {
@@ -75,25 +73,22 @@ export class PerformanceProfiler {
 
     // Auto-stop after duration
     setTimeout(() => {
-      if (this.isProfilering) {
-        this.stopProfiling();
-      }
+      ifPattern(this.isProfilering, () => { this.stopProfiling();
+       });
     }, duration);
 
     return sessionId;
   }
 
   stopProfiling(): ProfileSession | null {
-    if (!this.isProfilering || !this.currentSession) {
-      return null;
-    }
+    ifPattern(!this.isProfilering || !this.currentSession, () => { return null;
+     });
 
     this.isProfilering = false;
 
-    if (this.sampleInterval) {
-      clearInterval(this.sampleInterval);
+    ifPattern(this.sampleInterval, () => { clearInterval(this.sampleInterval);
       this.sampleInterval = null;
-    }
+     });
 
     // Finalize session
     this.currentSession.endTime = performance.now();
@@ -143,16 +138,14 @@ export class PerformanceProfiler {
     this.lastFrameTime = now;
 
     // Store frame time for FPS calculation
-    if (frameTime > 0) {
-      // This could be used for more accurate FPS tracking
-    }
+    ifPattern(frameTime > 0, () => { // This could be used for more accurate FPS tracking
+     });
 
     // Track garbage collection events
     if ((performance as any).memory) {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
-      if (currentHeap < this.lastGCTime) {
-        // Potential GC detected
-      }
+      ifPattern(currentHeap < this.lastGCTime, () => { // Potential GC detected
+       });
       this.lastGCTime = currentHeap;
     }
   }
@@ -259,28 +252,22 @@ export class PerformanceProfiler {
       recommendations.push(
         '🔴 Critical: Average FPS is below 30. Consider reducing simulation complexity.'
       );
-    } else if (avg.fps < 50) {
-      recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
-    }
+    } else ifPattern(avg.fps < 50, () => { recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
+     });
 
     // Frame time recommendations
-    if (avg.frameTime > 33) {
-      recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
-    } else if (avg.frameTime > 20) {
-      recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
-    }
+    ifPattern(avg.frameTime > 33, () => { recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
+     }); else ifPattern(avg.frameTime > 20, () => { recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
+     });
 
     // Memory recommendations
-    if (avg.memoryUsage > 100 * 1024 * 1024) {
-      // 100MB
+    ifPattern(avg.memoryUsage > 100 * 1024 * 1024, () => { // 100MB
       recommendations.push('🟡 Warning: High memory usage detected. Consider object pooling.');
-    }
+     });
 
-    if (avg.gcPressure > 80) {
-      recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
-    } else if (avg.gcPressure > 60) {
-      recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
-    }
+    ifPattern(avg.gcPressure > 80, () => { recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
+     }); else ifPattern(avg.gcPressure > 60, () => { recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
+     });
 
     // Canvas operations recommendations
     if (avg.canvasOperations > 1000) {
@@ -289,14 +276,12 @@ export class PerformanceProfiler {
       );
     }
 
-    if (avg.drawCalls > 500) {
-      recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
-    }
+    ifPattern(avg.drawCalls > 500, () => { recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
+     });
 
     // Add general recommendations
-    if (recommendations.length === 0) {
-      recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
-    } else {
+    ifPattern(recommendations.length === 0, () => { recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
+     }); else {
       recommendations.push(
         '💡 Consider implementing object pooling, dirty rectangle rendering, or spatial partitioning.'
       );
@@ -320,23 +305,23 @@ export class PerformanceProfiler {
 
   private logSessionSummary(session: ProfileSession): void {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
-    console.log(`Duration: ${(session.endTime - session.startTime).toFixed(2)}ms`);
+    .toFixed(2)}ms`);
 
     console.group('Averages');
-    console.log(`FPS: ${session.averages.fps.toFixed(2)}`);
-    console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
-    console.log(`Memory: ${session.averages.memoryUsage.toFixed(2)}MB`);
-    console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
+    }`);
+    }ms`);
+    }MB`);
+    }%`);
     console.groupEnd();
 
     console.group('Peaks');
-    console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
-    console.log(`Peak Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
-    console.log(`Peak GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
+    }ms`);
+    }MB`);
+    }%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => console.log(`💡 ${rec}`));
+    session.recommendations.forEach(rec => );
     console.groupEnd();
 
     console.groupEnd();
@@ -345,8 +330,7 @@ export class PerformanceProfiler {
   // Method to export session data for external analysis
   exportSession(sessionId: string): string {
     const session = this.getSession(sessionId);
-    if (!session) {
-      throw new Error(`Session ${sessionId} not found`);
+    ifPattern(!session, () => { throw new Error(`Session ${sessionId }); not found`);
     }
 
     return JSON.stringify(session, null, 2);

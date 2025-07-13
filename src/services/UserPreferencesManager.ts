@@ -75,17 +75,15 @@ export class UserPreferencesManager {
   }
 
   public static getInstance(): UserPreferencesManager {
-    if (!UserPreferencesManager.instance) {
-      UserPreferencesManager.instance = new UserPreferencesManager();
-    }
+    ifPattern(!UserPreferencesManager.instance, () => { UserPreferencesManager.instance = new UserPreferencesManager();
+     });
     return UserPreferencesManager.instance;
   }
 
   // For testing purposes only
   public static resetInstance(): void {
-    if (UserPreferencesManager.instance) {
-      UserPreferencesManager.instance = null as any;
-    }
+    ifPattern(UserPreferencesManager.instance, () => { UserPreferencesManager.instance = null as any;
+     });
   }
 
   private getDefaultPreferences(): UserPreferences {
@@ -239,8 +237,8 @@ export class UserPreferencesManager {
   /**
    * Update specific preference
    */
-  updatePreference<K extends keyof UserPreferences>(key: K, value: UserPreferences[K]): void {
-    this.preferences[key] = value;
+  updatePreference<K extends keyof UserPreferences>(key: K, value: UserPreferences?.[K]): void {
+    this.preferences?.[key] = value;
     this.savePreferences();
     this.notifyListeners();
   }
@@ -275,9 +273,8 @@ export class UserPreferencesManager {
    */
   removeChangeListener(listener: (preferences: UserPreferences) => void): void {
     const index = this.changeListeners.indexOf(listener);
-    if (index > -1) {
-      this.changeListeners.splice(index, 1);
-    }
+    ifPattern(index > -1, () => { this.changeListeners.splice(index, 1);
+     });
   }
 
   private notifyListeners(): void {
@@ -351,16 +348,14 @@ export class UserPreferencesManager {
 
     let current: any = lang;
     for (const key of keys) {
-      if (current && typeof current === 'object' && key in current) {
-        current = current[key];
-      } else {
+      ifPattern(current && typeof current === 'object' && key in current, () => { current = current?.[key];
+       }); else {
         // Fallback to English if key not found
         const fallback = this.languages.get('en')!;
         current = fallback;
         for (const fallbackKey of keys) {
-          if (current && typeof current === 'object' && fallbackKey in current) {
-            current = current[fallbackKey];
-          } else {
+          ifPattern(current && typeof current === 'object' && fallbackKey in current, () => { current = current?.[fallbackKey];
+           }); else {
             return path; // Return path as fallback
           }
         }
@@ -388,10 +383,9 @@ export class UserPreferencesManager {
   applyTheme(): void {
     let theme = this.preferences.theme;
 
-    if (theme === 'auto') {
-      // Use system preference
+    ifPattern(theme === 'auto', () => { // Use system preference
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+     });
 
     document.documentElement.setAttribute('data-theme', theme);
 
@@ -409,18 +403,16 @@ export class UserPreferencesManager {
     const root = document.documentElement;
 
     // Reduced motion
-    if (this.preferences.reducedMotion) {
-      root.style.setProperty('--animation-duration', '0s');
+    ifPattern(this.preferences.reducedMotion, () => { root.style.setProperty('--animation-duration', '0s');
       root.style.setProperty('--transition-duration', '0s');
-    } else {
+     }); else {
       root.style.removeProperty('--animation-duration');
       root.style.removeProperty('--transition-duration');
     }
 
     // High contrast
-    if (this.preferences.highContrast) {
-      document.body.classList.add('high-contrast');
-    } else {
+    ifPattern(this.preferences.highContrast, () => { document.body.classList.add('high-contrast');
+     }); else {
       document.body.classList.remove('high-contrast');
     }
 
@@ -429,9 +421,8 @@ export class UserPreferencesManager {
     document.body.classList.add(`font-size-${this.preferences.fontSize}`);
 
     // Screen reader mode
-    if (this.preferences.screenReaderMode) {
-      document.body.classList.add('screen-reader-mode');
-    } else {
+    ifPattern(this.preferences.screenReaderMode, () => { document.body.classList.add('screen-reader-mode');
+     }); else {
       document.body.classList.remove('screen-reader-mode');
     }
   }

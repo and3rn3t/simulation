@@ -16,35 +16,45 @@ export const CommonMobilePatterns = {
   /**
    * Standard touch event handling setup
    */
-  setupTouchEvents(
-    element: Element,
-    handlers: {
-      onTouchStart?: (e: TouchEvent) => void;
-      onTouchMove?: (e: TouchEvent) => void;
-      onTouchEnd?: (e: TouchEvent) => void;
-    }
-  ): () => void {
+  setupTouchEvents(element: Element, handlers: {
+    onTouchStart?: (e: TouchEvent) => void;
+    onTouchMove?: (e: TouchEvent) => void;
+    onTouchEnd?: (e: TouchEvent) => void;
+  }): () => void {
     const cleanup: (() => void)[] = [];
-
+    
     try {
-      if (handlers.onTouchStart) {
-        element.addEventListener('touchstart', handlers.onTouchStart);
-        cleanup.push(() => element.removeEventListener('touchstart', handlers.onTouchStart!));
-      }
-
-      if (handlers.onTouchMove) {
-        element.addEventListener('touchmove', handlers.onTouchMove);
-        cleanup.push(() => element.removeEventListener('touchmove', handlers.onTouchMove!));
-      }
-
-      if (handlers.onTouchEnd) {
-        element.addEventListener('touchend', handlers.onTouchEnd);
-        cleanup.push(() => element.removeEventListener('touchend', handlers.onTouchEnd!));
-      }
-    } catch (error) {
-      /* handled */
-    }
-
+      ifPattern(handlers.onTouchStart, () => { eventPattern(element?.addEventListener('touchstart', (event) => {
+  try {
+    (handlers.onTouchStart)(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+}));
+        cleanup.push(() => element?.removeEventListener('touchstart', handlers.onTouchStart!));
+       });
+      
+      ifPattern(handlers.onTouchMove, () => { eventPattern(element?.addEventListener('touchmove', (event) => {
+  try {
+    (handlers.onTouchMove)(event);
+  } catch (error) {
+    console.error('Event listener error for touchmove:', error);
+  }
+}));
+        cleanup.push(() => element?.removeEventListener('touchmove', handlers.onTouchMove!));
+       });
+      
+      ifPattern(handlers.onTouchEnd, () => { eventPattern(element?.addEventListener('touchend', (event) => {
+  try {
+    (handlers.onTouchEnd)(event);
+  } catch (error) {
+    console.error('Event listener error for touchend:', error);
+  }
+}));
+        cleanup.push(() => element?.removeEventListener('touchend', handlers.onTouchEnd!));
+       });
+    } catch (error) { /* handled */ }
+    
     return () => cleanup.forEach(fn => fn());
   },
 
@@ -53,12 +63,10 @@ export const CommonMobilePatterns = {
    */
   optimizeForMobile(element: HTMLElement): void {
     try {
-      element.style.touchAction = 'manipulation';
-      element.style.userSelect = 'none';
-      (element.style as any).webkitTouchCallout = 'none';
-      (element.style as any).webkitUserSelect = 'none';
-    } catch (error) {
-      /* handled */
-    }
-  },
+      element?.style.touchAction = 'manipulation';
+      element?.style.userSelect = 'none';
+      element?.style.webkitTouchCallout = 'none';
+      element?.style.webkitUserSelect = 'none';
+    } catch (error) { /* handled */ }
+  }
 };

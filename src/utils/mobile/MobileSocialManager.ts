@@ -1,3 +1,24 @@
+
+class EventListenerManager {
+  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
+  
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({element, event, handler});
+  }
+  
+  static cleanup(): void {
+    this.listeners.forEach(({element, event, handler}) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Mobile Social Manager - Social sharing and collaborative features for mobile
  */
@@ -91,7 +112,13 @@ export class MobileSocialManager {
       transition: 'all 0.3s ease',
     });
 
-    this.shareButton.addEventListener('click', this.handleShareClick.bind(this));
+    this.eventPattern(shareButton?.addEventListener('click', (event) => {
+  try {
+    (this.handleShareClick.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     this.addHoverEffects(this.shareButton);
     document.body.appendChild(this.shareButton);
   }
@@ -127,7 +154,13 @@ export class MobileSocialManager {
       transition: 'all 0.3s ease',
     });
 
-    this.recordButton.addEventListener('click', this.handleRecordClick.bind(this));
+    this.eventPattern(recordButton?.addEventListener('click', (event) => {
+  try {
+    (this.handleRecordClick.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     this.addHoverEffects(this.recordButton);
     document.body.appendChild(this.recordButton);
   }
@@ -163,7 +196,13 @@ export class MobileSocialManager {
       transition: 'all 0.3s ease',
     });
 
-    screenshotButton.addEventListener('click', this.takeScreenshot.bind(this));
+    eventPattern(screenshotButton?.addEventListener('click', (event) => {
+  try {
+    (this.takeScreenshot.bind(this)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})));
     this.addHoverEffects(screenshotButton);
     document.body.appendChild(screenshotButton);
   }
@@ -172,19 +211,43 @@ export class MobileSocialManager {
    * Add hover effects to buttons
    */
   private addHoverEffects(button: HTMLButtonElement): void {
-    button.addEventListener('touchstart', () => {
+    eventPattern(button?.addEventListener('touchstart', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchstart:', error);
+  }
+})) => {
       button.style.transform = 'scale(0.9)';
     });
 
-    button.addEventListener('touchend', () => {
+    eventPattern(button?.addEventListener('touchend', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for touchend:', error);
+  }
+})) => {
       button.style.transform = 'scale(1)';
     });
 
-    button.addEventListener('mouseenter', () => {
+    eventPattern(button?.addEventListener('mouseenter', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for mouseenter:', error);
+  }
+})) => {
       button.style.transform = 'scale(1.1)';
     });
 
-    button.addEventListener('mouseleave', () => {
+    eventPattern(button?.addEventListener('mouseleave', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for mouseleave:', error);
+  }
+})) => {
       button.style.transform = 'scale(1)';
     });
   }
@@ -193,22 +256,28 @@ export class MobileSocialManager {
    * Setup keyboard shortcuts
    */
   private setupKeyboardShortcuts(): void {
-    document.addEventListener('keydown', event => {
+    eventPattern(document?.addEventListener('keydown', (event) => {
+  try {
+    (event => {
       // Ctrl/Cmd + S for screenshot
-      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-        event.preventDefault();
+      if ((event?.ctrlKey || event?.metaKey)(event);
+  } catch (error) {
+    console.error('Event listener error for keydown:', error);
+  }
+})) && event?.key === 's') {
+        event?.preventDefault();
         this.takeScreenshot();
       }
 
       // Ctrl/Cmd + R for record
-      if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
-        event.preventDefault();
+      if ((event?.ctrlKey || event?.metaKey) && event?.key === 'r') {
+        event?.preventDefault();
         this.handleRecordClick();
       }
 
       // Ctrl/Cmd + Shift + S for share
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'S') {
-        event.preventDefault();
+      if ((event?.ctrlKey || event?.metaKey) && event?.shiftKey && event?.key === 'S') {
+        event?.preventDefault();
         this.handleShareClick();
       }
     });
@@ -245,9 +314,8 @@ export class MobileSocialManager {
    * Handle record button click
    */
   private async handleRecordClick(): Promise<void> {
-    if (this.isRecording) {
-      await this.stopRecording();
-    } else {
+  try { ifPattern(this.isRecording, () => { await this.stopRecording(); } catch (error) { console.error('Await error:', error); }
+     }); else {
       await this.startRecording();
     }
   }
@@ -307,9 +375,8 @@ export class MobileSocialManager {
       this.recordedChunks = [];
 
       this.mediaRecorder.ondataavailable = event => {
-        if (event.data.size > 0) {
-          this.recordedChunks.push(event.data);
-        }
+        ifPattern(event?.data.size > 0, () => { this.recordedChunks.push(event?.data);
+         });
       };
 
       this.mediaRecorder.onstop = () => {
@@ -324,9 +391,8 @@ export class MobileSocialManager {
 
       // Auto-stop after max duration
       setTimeout(() => {
-        if (this.isRecording) {
-          this.stopRecording();
-        }
+        ifPattern(this.isRecording, () => { this.stopRecording();
+         });
       }, this.config.maxVideoLength * 1000);
     } catch { /* handled */ }
   }
@@ -363,9 +429,8 @@ export class MobileSocialManager {
         await navigator.share(shareData);
         this.trackShareEvent('native', 'success');
       } catch (error) {
-        if (error.name !== 'AbortError') {
-          this.showShareFallback();
-        }
+        ifPattern(error.name !== 'AbortError', () => { this.showShareFallback();
+         });
       }
     } else {
       this.showShareFallback();
@@ -425,6 +490,7 @@ export class MobileSocialManager {
 
     const shareOptions = content.querySelectorAll('.share-option');
     shareOptions.forEach(option => {
+  try {
       Object.assign((option as HTMLElement).style, {
         padding: '15px',
         border: 'none',
@@ -434,23 +500,44 @@ export class MobileSocialManager {
         fontSize: '12px',
         textAlign: 'center',
         transition: 'all 0.3s ease',
-      });
+      
+  } catch (error) {
+    console.error("Callback error:", error);
+  }
+});
 
-      option.addEventListener('click', event => {
-        const platform = (event.currentTarget as HTMLElement).dataset.platform!;
+      eventPattern(option?.addEventListener('click', (event) => {
+  try {
+    (event => {
+        const platform = (event?.currentTarget as HTMLElement)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})).dataset.platform!;
         this.handlePlatformShare(platform);
         modal.remove();
       });
     });
 
-    content.querySelector('#close-share-modal')?.addEventListener('click', () => {
+    content?.querySelector('#close-share-modal')?.addEventListener('click', (event) => {
+  try {
+    (()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}) => {
       modal.remove();
     });
 
-    modal.addEventListener('click', event => {
-      if (event.target === modal) {
-        modal.remove();
-      }
+    eventPattern(modal?.addEventListener('click', (event) => {
+  try {
+    (event => {
+      ifPattern(event?.target === modal, ()(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+})) => { modal.remove();
+       });
     });
 
     modal.appendChild(content);
@@ -479,14 +566,14 @@ export class MobileSocialManager {
         );
         break;
       case 'copy':
-        await this.copyToClipboard(url);
+  try { await this.copyToClipboard(url); } catch (error) { console.error('Await error:', error); }
         this.showToast('Link copied to clipboard!');
         break;
       case 'email':
         window.location.href = `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`;
         break;
       case 'download': {
-        const screenshot = await this.captureCanvas();
+  try { const screenshot = await this.captureCanvas(); } catch (error) { console.error('Await error:', error); }
         this.downloadImage(screenshot, 'simulation.png');
         break;
       }
@@ -542,10 +629,9 @@ export class MobileSocialManager {
     });
 
     mediaElement.src = src;
-    if (type === 'video') {
-      (mediaElement as HTMLVideoElement).controls = true;
+    ifPattern(type === 'video', () => { (mediaElement as HTMLVideoElement).controls = true;
       (mediaElement as HTMLVideoElement).autoplay = true;
-    }
+     });
 
     const buttonContainer = document.createElement('div');
     Object.assign(buttonContainer.style, {
@@ -555,28 +641,23 @@ export class MobileSocialManager {
     });
 
     const shareBtn = this.createPreviewButton('📤 Share', () => {
-      if (type === 'image') {
-        this.shareImage(src);
-      } else if (blob) {
-        this.shareVideo(blob);
-      }
+      ifPattern(type === 'image', () => { this.shareImage(src);
+       }); else ifPattern(blob, () => { this.shareVideo(blob);
+       });
       modal.remove();
     });
 
     const downloadBtn = this.createPreviewButton('💾 Download', () => {
-      if (type === 'image') {
-        this.downloadImage(src, 'simulation.png');
-      } else if (blob) {
-        this.downloadVideo(blob, 'simulation.webm');
-      }
+      ifPattern(type === 'image', () => { this.downloadImage(src, 'simulation.png');
+       }); else ifPattern(blob, () => { this.downloadVideo(blob, 'simulation.webm');
+       });
       modal.remove();
     });
 
     const closeBtn = this.createPreviewButton('✖️ Close', () => {
       modal.remove();
-      if (type === 'video') {
-        URL.revokeObjectURL(src);
-      }
+      ifPattern(type === 'video', () => { URL.revokeObjectURL(src);
+       });
     });
 
     buttonContainer.appendChild(shareBtn);
@@ -608,7 +689,13 @@ export class MobileSocialManager {
       transition: 'all 0.3s ease',
     });
 
-    button.addEventListener('click', onClick);
+    eventPattern(button?.addEventListener('click', (event) => {
+  try {
+    (onClick)(event);
+  } catch (error) {
+    console.error('Event listener error for click:', error);
+  }
+}));
     return button;
   }
 
@@ -631,16 +718,15 @@ export class MobileSocialManager {
         dataURL.includes('gif;base64,') ||
         dataURL.includes('webp;base64,'));
 
-    if (!isValidImageDataURL) {
-      throw new Error('Invalid image data URL format');
-    }
+    ifPattern(!isValidImageDataURL, () => { throw new Error('Invalid image data URL format');
+     });
 
-    const response = await fetch(dataURL);
+  try { const response = await fetch(dataURL); } catch (error) { console.error('Await error:', error); }
     return response.blob();
   }
 
   private async copyToClipboard(text: string): Promise<void> {
-    await navigator.clipboard.writeText(text);
+  try { await navigator.clipboard.writeText(text); } catch (error) { console.error('Await error:', error); }
   }
 
   private downloadImage(dataURL: string, filename: string): void {
@@ -660,7 +746,7 @@ export class MobileSocialManager {
   }
 
   private async shareImage(dataURL: string): Promise<void> {
-    const blob = await this.dataURLToBlob(dataURL);
+  try { const blob = await this.dataURLToBlob(dataURL); } catch (error) { console.error('Await error:', error); }
     const file = new File([blob], 'simulation.png', { type: 'image/png' });
 
     await this.share({
@@ -674,7 +760,7 @@ export class MobileSocialManager {
   private async shareVideo(blob: Blob): Promise<void> {
     const file = new File([blob], 'simulation.webm', { type: 'video/webm' });
 
-    await this.share({
+  try { await this.share({ } catch (error) { console.error('Await error:', error); }
       title: 'My Organism Simulation Video',
       text: 'Watch my ecosystem simulation in action!',
       url: window.location.href,
@@ -733,10 +819,9 @@ export class MobileSocialManager {
   }
 
   private hideRecordingIndicator(): void {
-    const indicator = document.getElementById('recording-indicator');
-    if (indicator) {
-      indicator.remove();
-    }
+    const indicator = document?.getElementById('recording-indicator');
+    ifPattern(indicator, () => { indicator.remove();
+     });
   }
 
   private showToast(message: string): void {
@@ -765,9 +850,8 @@ export class MobileSocialManager {
   }
 
   private vibrate(duration: number): void {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(duration);
-    }
+    ifPattern('vibrate' in navigator, () => { navigator.vibrate(duration);
+     });
   }
 
   private trackShareEvent(platform: string, status: string): void {
@@ -787,8 +871,21 @@ export class MobileSocialManager {
     if (this.shareButton) this.shareButton.remove();
     if (this.recordButton) this.recordButton.remove();
 
-    if (this.isRecording) {
-      this.stopRecording();
-    }
+    ifPattern(this.isRecording, () => { this.stopRecording();
+     });
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }
