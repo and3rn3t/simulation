@@ -1,5 +1,6 @@
-import { ErrorHandler, ErrorSeverity, SimulationError } from '../system/errorHandler';
 import type { OrganismType } from '../../models/organismTypes';
+import { ErrorHandler, ErrorSeverity, SimulationError } from '../system/errorHandler';
+import { generateSecureTaskId } from '../system/secureRandom';
 
 // Import worker types
 export interface WorkerMessage {
@@ -218,11 +219,11 @@ export class AlgorithmWorkerManager {
   }
 
   /**
-   * Generates a unique task ID
+   * Generates a unique task ID using cryptographically secure random values
    * @returns Unique task identifier
    */
   private generateTaskId(): string {
-    return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return generateSecureTaskId('task');
   }
 
   /**

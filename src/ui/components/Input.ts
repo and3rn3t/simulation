@@ -1,3 +1,4 @@
+import { generateSecureUIId } from '../../utils/system/secureRandom';
 import { BaseComponent } from './BaseComponent';
 
 export interface InputConfig {
@@ -71,8 +72,8 @@ export class Input extends BaseComponent {
     this.label.className = 'ui-input__label';
     this.label.textContent = this.config.label!;
 
-    // Generate unique ID for input
-    const inputId = `input-${Math.random().toString(36).substr(2, 9)}`;
+    // Generate unique ID for input using secure random
+    const inputId = generateSecureUIId('input');
     this.input.id = inputId;
     this.label.setAttribute('for', inputId);
 
@@ -88,7 +89,7 @@ export class Input extends BaseComponent {
     this.helperElement = document.createElement('div');
     this.helperElement.className = 'ui-input__helper';
 
-    const helperId = `helper-${Math.random().toString(36).substr(2, 9)}`;
+    const helperId = generateSecureUIId('helper');
     this.helperElement.id = helperId;
     this.input.setAttribute('aria-describedby', helperId);
 

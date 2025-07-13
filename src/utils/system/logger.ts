@@ -3,6 +3,8 @@
  * Provides structured logging with different categories and levels
  */
 
+import { generateSecureSessionId } from './secureRandom';
+
 /**
  * Log levels for different types of information
  */
@@ -106,26 +108,8 @@ export class Logger {
    * Generate a unique session ID using cryptographically secure random values
    */
   private generateSessionId(): string {
-    const timestamp = Date.now();
-    
-    // Use crypto.getRandomValues for secure random generation
-    const randomBytes = new Uint8Array(6);
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      crypto.getRandomValues(randomBytes);
-    } else {
-      // Fallback for environments without crypto API
-      for (let i = 0; i < randomBytes.length; i++) {
-        randomBytes[i] = Math.floor(Math.random() * 256);
-      }
-    }
-    
-    // Convert to base36 string
-    const randomStr = Array.from(randomBytes)
-      .map(byte => byte.toString(36))
-      .join('')
-      .substr(0, 9);
-    
-    return `session_${timestamp}_${randomStr}`;
+    // Use secure random utility for cryptographically secure session ID generation
+    return generateSecureSessionId('session');
   }
 
   /**

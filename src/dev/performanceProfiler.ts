@@ -3,6 +3,8 @@
  * Provides detailed performance analysis and optimization recommendations
  */
 
+import { generateSecureTaskId } from '../utils/system/secureRandom';
+
 export interface PerformanceMetrics {
   fps: number;
   frameTime: number;
@@ -49,7 +51,7 @@ export class PerformanceProfiler {
       throw new Error('Profiling session already in progress');
     }
 
-    const sessionId = `profile_${Date.now()}`;
+    const sessionId = generateSecureTaskId('profile');
     this.currentSession = {
       id: sessionId,
       startTime: performance.now(),

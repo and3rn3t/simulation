@@ -1,3 +1,4 @@
+import { generateSecureUIId } from '../../utils/system/secureRandom';
 import { BaseComponent } from './BaseComponent';
 
 export interface ToggleConfig {
@@ -45,8 +46,8 @@ export class Toggle extends BaseComponent {
     this.input.type = this.config.variant === 'checkbox' ? 'checkbox' : 'checkbox';
     this.input.className = 'ui-toggle__input';
 
-    // Generate unique ID
-    const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+    // Generate unique ID using secure random
+    const toggleId = generateSecureUIId('toggle');
     this.input.id = toggleId;
 
     // Set input attributes

@@ -2,6 +2,8 @@
  * Mobile Analytics Manager - Advanced analytics and performance monitoring for mobile
  */
 
+import { generateSecureSessionId, getSecureAnalyticsSample } from '../system/secureRandom';
+
 export interface MobileAnalyticsConfig {
   enablePerformanceMonitoring: boolean;
   enableUserBehaviorTracking: boolean;
@@ -56,7 +58,7 @@ export class MobileAnalyticsManager {
    * Initialize analytics tracking
    */
   private initializeAnalytics(): void {
-    if (Math.random() > this.config.sampleRate) {
+    if (getSecureAnalyticsSample() > this.config.sampleRate) {
       console.log('Analytics sampling - session not tracked');
       return;
     }
@@ -73,26 +75,8 @@ export class MobileAnalyticsManager {
    * Generate unique session ID using cryptographically secure random values
    */
   private generateSessionId(): string {
-    const timestamp = Date.now();
-    
-    // Use crypto.getRandomValues for secure random generation
-    const randomBytes = new Uint8Array(6);
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      crypto.getRandomValues(randomBytes);
-    } else {
-      // Fallback for environments without crypto API
-      for (let i = 0; i < randomBytes.length; i++) {
-        randomBytes[i] = Math.floor(Math.random() * 256);
-      }
-    }
-    
-    // Convert to base36 string
-    const randomStr = Array.from(randomBytes)
-      .map(byte => byte.toString(36))
-      .join('')
-      .substr(0, 9);
-    
-    return `mobile_${timestamp}_${randomStr}`;
+    // Use secure random utility for cryptographically secure session ID generation
+    return generateSecureSessionId('mobile');
   }
 
   /**
@@ -598,7 +582,7 @@ export class MobileAnalyticsManager {
     // Store in localStorage for offline mode
     const storedEvents = localStorage.getItem('offline_analytics') || '[]';
     let parsedEvents: any[] = [];
-    
+
     try {
       parsedEvents = JSON.parse(storedEvents);
       // Validate that it's actually an array
@@ -609,7 +593,7 @@ export class MobileAnalyticsManager {
       console.warn('Failed to parse stored analytics events, resetting:', error);
       parsedEvents = [];
     }
-    
+
     const allEvents = [...parsedEvents, ...events];
     localStorage.setItem('offline_analytics', JSON.stringify(allEvents));
   }

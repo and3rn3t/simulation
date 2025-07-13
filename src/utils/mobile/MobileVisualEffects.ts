@@ -1,4 +1,6 @@
 import { isMobileDevice } from '../system/mobileDetection';
+import { generateSecureUIId } from '../system/secureRandom';
+import { getParticleVelocity, getRandomColor, getShakeOffset } from '../system/simulationRandom';
 
 /**
  * Mobile Visual Effects - Optimized visual effects for mobile devices
@@ -114,7 +116,7 @@ export class MobileVisualEffects {
    */
   public createSuccessEffect(x: number, y: number): void {
     const effect: Effect = {
-      id: `success-${Date.now()}`,
+      id: generateSecureUIId('success'),
       type: 'success',
       x,
       y,
@@ -126,12 +128,14 @@ export class MobileVisualEffects {
 
     // Create particles
     for (let i = 0; i < this.config.particleCount; i++) {
+      const velocity = getParticleVelocity(4);
+      const position = getShakeOffset(40);
       this.particles.push(
         new Particle({
-          x: x + (Math.random() - 0.5) * 40,
-          y: y + (Math.random() - 0.5) * 40,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
+          x: x + position.x,
+          y: y + position.y,
+          vx: velocity.vx,
+          vy: velocity.vy,
           color: this.getSuccessColor(),
           life: 1.0,
           decay: 0.02,
@@ -152,7 +156,7 @@ export class MobileVisualEffects {
 
     // Red pulse effect
     const effect: Effect = {
-      id: `error-${Date.now()}`,
+      id: generateSecureUIId('error'),
       type: 'error',
       x,
       y,
@@ -171,7 +175,7 @@ export class MobileVisualEffects {
     if (this.config.quality === 'low') return; // Skip on low quality
 
     const effect: Effect = {
-      id: `birth-${Date.now()}`,
+      id: generateSecureUIId('birth'),
       type: 'birth',
       x,
       y,
@@ -207,7 +211,7 @@ export class MobileVisualEffects {
    */
   public createDeathEffect(x: number, y: number): void {
     const effect: Effect = {
-      id: `death-${Date.now()}`,
+      id: generateSecureUIId('death'),
       type: 'death',
       x,
       y,
@@ -241,7 +245,7 @@ export class MobileVisualEffects {
    */
   public createTouchRipple(x: number, y: number): void {
     const effect: Effect = {
-      id: `ripple-${Date.now()}`,
+      id: generateSecureUIId('ripple'),
       type: 'ripple',
       x,
       y,
@@ -285,7 +289,7 @@ export class MobileVisualEffects {
    */
   private getSuccessColor(): string {
     const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFD700'];
-    return colors[Math.floor(Math.random() * colors.length)];
+    return getRandomColor(colors);
   }
 
   /**
