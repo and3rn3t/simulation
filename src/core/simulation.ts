@@ -25,14 +25,13 @@ import { StatisticsManager } from '../utils/game/statisticsManager';
 import { MobileCanvasManager } from '../utils/mobile/MobileCanvasManager';
 import { ErrorHandler } from '../utils/system/errorHandler';
 import { Logger } from '../utils/system/logger';
-import { ifPattern } from '../utils/UltimatePatternConsolidator';
 
 // Advanced Mobile Features
-import { AdvancedMobileGestures } from '../utils/mobile/AdvancedMobileGestures.js';
-import { MobileAnalyticsManager } from '../utils/mobile/MobileAnalyticsManager.js';
-import { MobilePWAManager } from '../utils/mobile/MobilePWAManager.js';
-import { MobileSocialManager } from '../utils/mobile/MobileSocialManager.js';
-import { MobileVisualEffects } from '../utils/mobile/MobileVisualEffects.js';
+import { AdvancedMobileGestures } from '../utils/mobile/AdvancedMobileGestures';
+import { MobileAnalyticsManager } from '../utils/mobile/MobileAnalyticsManager';
+import { MobilePWAManager } from '../utils/mobile/MobilePWAManager';
+import { MobileSocialManager } from '../utils/mobile/MobileSocialManager';
+import { MobileVisualEffects } from '../utils/mobile/MobileVisualEffects';
 
 export class OrganismSimulation {
   private canvas: HTMLCanvasElement;
@@ -115,9 +114,11 @@ export class OrganismSimulation {
             Logger.getInstance().logUserAction(`Edge swipe from ${edge}`);
             this.handleEdgeSwipe(edge);
           },
-          onForceTouch: (force, x, y) => {
-            Logger.getInstance().logUserAction(`Force touch: ${force} at ${x},${y}`);
-            this.handleForceTouch(force, { x, y });
+          onForceTouch: (force, position) => {
+            Logger.getInstance().logUserAction(
+              `Force touch: ${force} at ${position.x},${position.y}`
+            );
+            this.handleForceTouch(force, position);
           },
         });
 
@@ -128,16 +129,13 @@ export class OrganismSimulation {
 
         // Initialize PWA Manager
         this.mobilePWAManager = new MobilePWAManager({
-          enableInstallPrompt: true,
           enableOfflineMode: true,
           enableNotifications: true,
         });
 
         // Initialize Analytics Manager
         this.mobileAnalyticsManager = new MobileAnalyticsManager({
-          enablePerformanceMonitoring: true,
-          enableUserBehaviorTracking: true,
-          enableErrorTracking: true,
+          enableDebugMode: false,
           sampleRate: 0.1,
         });
 
@@ -242,10 +240,10 @@ export class OrganismSimulation {
    * Handle force touch
    */
   private handleForceTouch(force: number, position: Position): void {
-    ifPattern(force > 0.7, () => {
+    if (force > 0.7) {
       // Strong force touch - create organism at position
       this.placeOrganismAt(position);
-    });
+    }
 
     // Dispatch gesture event for test interface
     window.dispatchEvent(
@@ -488,9 +486,9 @@ export class OrganismSimulation {
 
   setMaxPopulation(limit: number): void {
     try {
-      ifPattern(limit < 1 || limit > 5000, () => {
+      if (limit < 1 || limit > 5000) {
         throw new Error('Population limit must be between 1 and 5000');
-      });
+      }
       this.maxPopulation = limit;
       Logger.getInstance().logSystem(`Max population set to ${limit}`);
     } catch (error) {
@@ -536,10 +534,10 @@ export class OrganismSimulation {
 
     try {
       const currentTime = performance.now();
-      ifPattern(currentTime - this.lastUpdateTime < this.updateInterval, () => {
+      if (currentTime - this.lastUpdateTime < this.updateInterval) {
         this.animationId = requestAnimationFrame(() => this.animate());
         return;
-      });
+      }
 
       this.lastUpdateTime = currentTime;
 

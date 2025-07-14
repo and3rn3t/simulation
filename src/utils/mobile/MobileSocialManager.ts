@@ -132,7 +132,7 @@ export class MobileSocialManager {
     try {
       await navigator.share({ text: content });
       return true;
-    } catch (error) {
+    } catch (_error) {
       this.copyToClipboard(content);
       return false;
     }

@@ -1,3 +1,6 @@
+import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
+import { log } from '../system/logger';
+
 class EventListenerManager {
   private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
     [];
@@ -19,8 +22,6 @@ class EventListenerManager {
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
 }
-import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
-import { log } from '../system/logger';
 
 /**
  * Memory usage information interface
@@ -80,9 +81,9 @@ export class MemoryMonitor {
    * Get current memory usage information
    */
   getCurrentMemoryInfo(): MemoryInfo | null {
-    ifPattern(!this.isSupported, () => {
+    if (!this.isSupported) {
       return null;
-    });
+    }
 
     try {
       const memory = (performance as any).memory;
@@ -136,9 +137,9 @@ export class MemoryMonitor {
    * Start continuous memory monitoring
    */
   startMonitoring(intervalMs: number = 1000): void {
-    ifPattern(this.monitoringInterval !== null, () => {
+    if (this.monitoringInterval !== null) {
       this.stopMonitoring();
-    });
+    }
 
     this.monitoringInterval = window.setInterval(() => {
       this.updateMemoryHistory();
@@ -169,9 +170,9 @@ export class MemoryMonitor {
     this.memoryHistory.push(memInfo);
 
     // Keep history size manageable
-    ifPattern(this.memoryHistory.length > this.maxHistorySize, () => {
+    if (this.memoryHistory.length > this.maxHistorySize) {
       this.memoryHistory.shift();
-    });
+    }
   }
 
   /**
@@ -182,9 +183,9 @@ export class MemoryMonitor {
     const now = Date.now();
 
     // Avoid alert spam with cooldown
-    ifPattern(now - this.lastAlertTime < this.alertCooldown, () => {
+    if (now - this.lastAlertTime < this.alertCooldown) {
       return;
-    });
+    }
 
     const memInfo = this.getCurrentMemoryInfo();
     if (!memInfo) return;
@@ -346,19 +347,19 @@ export class MemoryMonitor {
       recommendations.push('Pause simulation to allow cleanup');
     }
 
-    ifPattern(stats.level === 'warning', () => {
+    if (stats.level === 'warning') {
       recommendations.push('Consider reducing simulation complexity');
       recommendations.push('Monitor memory usage closely');
-    });
+    }
 
-    ifPattern(stats.trend === 'increasing', () => {
+    if (stats.trend === 'increasing') {
       recommendations.push('Memory usage is trending upward - investigate memory leaks');
       recommendations.push('Check for objects not being properly released');
-    });
+    }
 
-    ifPattern(stats.averageUsage > 60, () => {
+    if (stats.averageUsage > 60) {
       recommendations.push('Average memory usage is high - consider optimizations');
-    });
+    }
 
     return recommendations;
   }
@@ -407,9 +408,9 @@ export class MemoryAwareCache<K, V> {
     this.cache.set(key, value);
 
     // Evict entries if needed
-    ifPattern(this.cache.size > this.maxSize, () => {
+    if (this.cache.size > this.maxSize) {
       this.evictOldEntries();
-    });
+    }
   }
 
   /**
@@ -442,10 +443,10 @@ export class MemoryAwareCache<K, V> {
 
     for (let i = 0; i < evictCount; i++) {
       const entry = entries[i];
-      ifPattern(entry, () => {
+      if (entry) {
         const [key] = entry;
         this.cache.delete(key);
-      });
+      }
     }
 
     log.logSystem('Cache evicted entries', { evictCount, remainingSize: this.cache.size });

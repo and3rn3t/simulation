@@ -1,0 +1,79 @@
+{
+  "sessionId": "1752451896239",
+  "timestamp": "2025-07-14T00:12:04.409Z",
+  "results": {
+    "preCheck": null,
+    "postCheck": {
+      "typescript": {
+        "success": false,
+        "errors": [
+          "src/config/ConfigManager.ts(27,59): error TS1144: '{' or ';' expected.\r",
+          "src/config/ConfigManager.ts(27,65): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(31,3): error TS1128: Declaration or statement expected.\r",
+          "src/config/ConfigManager.ts(31,28): error TS1005: ',' expected.\r",
+          "src/config/ConfigManager.ts(31,36): error TS1005: ',' expected.\r",
+          "src/config/ConfigManager.ts(31,58): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(31,60): error TS1434: Unexpected keyword or identifier.\r",
+          "src/config/ConfigManager.ts(35,3): error TS1128: Declaration or statement expected.\r",
+          "src/config/ConfigManager.ts(35,26): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(35,53): error TS1005: ';' expected.\r"
+        ],
+        "totalErrors": 1376
+      },
+      "eslint": {
+        "success": false,
+        "errors": [
+          "> simulation@0.0.0 lint",
+          "> eslint src/ --ext .ts,.tsx",
+          "C:\\git\\simulation\\src\\app\\App.ts",
+          "   27:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "   37:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "  114:11  warning  'enabledFeatures' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars",
+          "  159:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "  163:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "C:\\git\\simulation\\src\\config\\ConfigManager.ts",
+          "  27:58  error  Parsing error: '{' or ';' expected"
+        ],
+        "totalErrors": 159
+      },
+      "imports": {
+        "success": false,
+        "errors": [
+          "C:\\git\\simulation\\src\\models\\unlockables.ts: import { ifPattern } from '../utils/UltimatePatternConsolidator'",
+          "C:\\git\\simulation\\src\\utils\\system\\errorHandler.ts: import { ifPattern } from '../UltimatePatternConsolidator'"
+        ],
+        "totalErrors": 2
+      },
+      "patterns": {
+        "success": false,
+        "errors": [
+          "src\\app\\App.ts: /ifPattern\\s*\\(/",
+          "src\\config\\ConfigManager.ts: /ifPattern\\s*\\(/",
+          "src\\core\\organism.ts: /ifPattern\\s*\\(/",
+          "src\\core\\simulation.ts: /ifPattern\\s*\\(/",
+          "src\\dev\\debugMode.ts: /ifPattern\\s*\\(/",
+          "src\\dev\\debugMode.ts: /\\(\\(\\)\\(event\\);/",
+          "src\\dev\\debugMode.ts: /\\(\\(\\)\\(/",
+          "src\\dev\\developerConsole.ts: /ifPattern\\s*\\(/",
+          "src\\dev\\developerConsole.ts: /\\(\\(\\)\\(event\\);/",
+          "src\\dev\\developerConsole.ts: /\\(\\(\\)\\(/"
+        ],
+        "totalErrors": 86
+      },
+      "build": {
+        "success": true,
+        "errors": [],
+        "output": "\n> simulation@0.0.0 build\n> vite build\n\n\u001b[36mvite v6.3.5 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m✓\u001b[39m 33 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/\u001b[22m\u001b[32mregisterSW.js              \u001b[39m\u001b[1m\u001b[2m 0.13 kB\u001b[22m\u001b[1m\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[32mmanifest.webmanifest       \u001b[39m\u001b[1m\u001b[2m 0.37 kB\u001b[22m\u001b[1m\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m13.21 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  3.51 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[32massets/main-B82ENvCo.ts    \u001b[39m\u001b[1m\u001b[2m16.51 kB\u001b[22m\u001b[1m\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[35massets/style-C8ohZyzV.css  \u001b[39m\u001b[1m\u001b[2m22.39 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  4.74 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/vendor-l0sNRNKZ.js  \u001b[39m\u001b[1m\u001b[2m 0.00 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  0.02 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/index-CJkbbPSV.js   \u001b[39m\u001b[1m\u001b[2m81.13 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 22.17 kB\u001b[22m\n\u001b[32m✓ built in 1.20s\u001b[39m\n\nPWA v0.21.2\nmode      generateSW\nprecache  10 entries (137.84 KiB)\nfiles generated\n  dist/sw.js\n  dist/workbox-74f2ef77.js\n"
+      }
+    },
+    "buildStatus": null,
+    "rollbackPerformed": false
+  },
+  "warnings": [],
+  "errors": [],
+  "summary": {
+    "success": false,
+    "rollbackPerformed": false,
+    "backupCreated": false
+  }
+}
