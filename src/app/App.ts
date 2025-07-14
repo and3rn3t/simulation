@@ -24,9 +24,10 @@ export class App {
   }
 
   public static getInstance(config?: AppConfig): App {
-    if (!App.instance) { const finalConfig = config || createConfigFromEnv();
+    if (!App.instance) {
+      const finalConfig = config || createConfigFromEnv();
       App.instance = new App(finalConfig);
-      }
+    }
     return App.instance;
   }
 
@@ -34,8 +35,9 @@ export class App {
    * Initialize the application with error handling and component setup
    */
   public async initialize(): Promise<void> {
-    if (this.initialized) { return;
-      }
+    if (this.initialized) {
+      return;
+    }
 
     try {
       // Initialize global error handlers first
@@ -53,11 +55,19 @@ export class App {
 
       // Load environment-specific features
       if (this.configManager.isDevelopment()) {
-  try { await this.initializeDevelopmentFeatures(); } catch (error) { console.error('Await error:', error); }
+        try {
+          await this.initializeDevelopmentFeatures();
+        } catch (error) {
+          console.error('Await error:', error);
+        }
       }
 
       // Initialize simulation core
-  try { await this.initializeSimulation(); } catch (error) { console.error('Await error:', error); }
+      try {
+        await this.initializeSimulation();
+      } catch (error) {
+        console.error('Await error:', error);
+      }
 
       this.initialized = true;
 
@@ -157,12 +167,14 @@ export class App {
    */
   public shutdown(): void {
     // Stop performance monitoring
-    if (this.performanceManager) { this.performanceManager.stopMonitoring();
-      }
+    if (this.performanceManager) {
+      this.performanceManager.stopMonitoring();
+    }
 
     // Cleanup memory panel component
-    if (this.memoryPanelComponent) { // Cleanup memory panel component
-      }
+    if (this.memoryPanelComponent) {
+      // Cleanup memory panel component
+    }
 
     this.initialized = false;
   }

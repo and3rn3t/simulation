@@ -94,9 +94,9 @@ LABEL maintainer="simulation-team" \
 # We just need to ensure proper directory permissions
 
 # Security: Create necessary directories with proper permissions for existing nginx user
-RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
-    touch /var/log/nginx/error.log /var/log/nginx/access.log && \
-    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
+RUN mkdir -p /var/cache/nginx /tmp && \
+    touch /tmp/error.log && \
+    chown -R nginx:nginx /var/cache/nginx /tmp
 
 # Copy built assets from builder stage with secure permissions
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
@@ -112,7 +112,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
     chmod 755 /healthcheck.sh && \
     chown nginx:nginx /healthcheck.sh && \
     apk add --no-cache curl && \
-    rm -rf /tmp/* /var/tmp/* /var/log/* && \
+    rm -rf /var/tmp/* /var/log/* && \
     find /usr/share/nginx/html -type f -exec chmod 644 {} + && \
     find /usr/share/nginx/html -type d -exec chmod 755 {} + && \
     chown -R nginx:nginx /usr/share/nginx/html
