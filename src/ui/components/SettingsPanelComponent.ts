@@ -81,7 +81,7 @@ export class SettingsPanelComponent extends Modal {
    * Adds content to the modal element.
    * @param content HTMLElement to append
    */
-  private addContent(content: HTMLElement): void {
+  public addContent(content: HTMLElement): void {
     try {
       if (this.element) {
         this.element.appendChild(content);
