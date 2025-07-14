@@ -116,10 +116,12 @@ export class ComponentDemo {
       const input = ComponentFactory.createInput(
         {
           ...config,
-          onChange: value => {
+          onChange: _value => {
             try {
-            } catch (error) {
-              console.error('Callback error:', error);
+              // TODO: Implement input change handling
+              console.log('Input changed');
+            } catch (_error) {
+              console.error('Input change error');
             }
           },
         },
@@ -207,10 +209,12 @@ export class ComponentDemo {
       {
         title: 'Collapsible Panel',
         collapsible: true,
-        onToggle: collapsed => {
+        onToggle: _collapsed => {
           try {
-          } catch (error) {
-            console.error('Callback error:', error);
+            // TODO: Implement panel toggle handling
+            console.log('Panel toggled');
+          } catch (_error) {
+            console.error('Panel toggle error');
           }
         },
       },

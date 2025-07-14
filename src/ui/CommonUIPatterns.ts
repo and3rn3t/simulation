@@ -31,10 +31,11 @@ export const CommonUIPatterns = {
   createElement<T extends HTMLElement>(tag: string, className?: string): T | null {
     try {
       const element = document.createElement(tag) as T;
-      if (className) { element?.className = className;
-        }
+      if (className) { 
+        element.className = className;
+      }
       return element;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   },
@@ -50,7 +51,7 @@ export const CommonUIPatterns = {
     try {
       element?.addEventListener(event, handler);
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   },
@@ -61,7 +62,7 @@ export const CommonUIPatterns = {
   querySelector<T extends Element>(selector: string): T | null {
     try {
       return document.querySelector<T>(selector);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   },
@@ -75,7 +76,7 @@ export const CommonUIPatterns = {
         return true;
         }
       return false;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
