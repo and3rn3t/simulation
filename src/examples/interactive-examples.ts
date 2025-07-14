@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -103,39 +103,34 @@ export class InteractiveExamples {
     const runButton = document?.getElementById('run-example') as HTMLButtonElement;
     const clearButton = document?.getElementById('clear-output') as HTMLButtonElement;
 
-    eventPattern(selector?.addEventListener('change', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-});
-      const selectedExample = selector.value;
-      if (selectedExample) { this.displayExampleCode(selectedExample);
+    selector?.addEventListener('change', event => {
+      try {
+        const selectedExample = (event.target as HTMLSelectElement).value;
+        if (selectedExample) {
+          this.displayExampleCode(selectedExample);
         }
-    });
-
-    eventPattern(runButton?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-});
-      const selectedExample = selector.value;
-      if (selectedExample && this.examples.has(selectedExample)) {
-        this.runExample(selectedExample);
+      } catch (error) {
+        console.error('Event listener error for change:', error);
       }
     });
 
-    eventPattern(clearButton?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-});
-      this.clearOutput();
+    runButton?.addEventListener('click', event => {
+      try {
+        const selectedExample = selector.value;
+        if (selectedExample && this.examples.has(selectedExample)) {
+          this.runExample(selectedExample);
+        }
+      } catch (error) {
+        console.error('Event listener error for click:', error);
+      }
+    });
+
+    clearButton?.addEventListener('click', event => {
+      try {
+        this.clearOutput();
+      } catch (error) {
+        console.error('Event listener error for click:', error);
+      }
     });
   }
 
@@ -326,8 +321,9 @@ setInterval(trackStats, 1000);
    */
   private runExample(exampleName: string): void {
     const example = this.examples.get(exampleName);
-    if (example) { this.clearOutput();
-      this.logToConsole(`Running example: ${exampleName  }`);
+    if (example) {
+      this.clearOutput();
+      this.logToConsole(`Running example: ${exampleName}`);
 
       try {
         example();
@@ -367,14 +363,15 @@ setInterval(trackStats, 1000);
    */
   private createExampleCanvas(width: number = 400, height: number = 300): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
-    canvas?.width = width;
-    canvas?.height = height;
-    canvas?.style.border = '1px solid #ccc';
-    canvas?.style.backgroundColor = '#f0f0f0';
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.border = '1px solid #ccc';
+    canvas.style.backgroundColor = '#f0f0f0';
 
     const container = document?.getElementById('example-canvas-container');
-    if (container) { container.appendChild(canvas);
-      }
+    if (container) {
+      container.appendChild(canvas);
+    }
 
     return canvas;
   }
@@ -437,14 +434,13 @@ setInterval(trackStats, 1000);
     ];
 
     types.forEach(type => {
-  try {
-      this.logToConsole(
-        `${type.name
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
-      );
+      try {
+        this.logToConsole(
+          `${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
+        );
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
 
     // Create organisms of different types
@@ -538,9 +534,10 @@ setInterval(trackStats, 1000);
     const canvas = this.createExampleCanvas(400, 300);
     const ctx = canvas?.getContext('2d');
 
-    if (ctx) { organism.draw(ctx);
+    if (ctx) {
+      organism.draw(ctx);
       this.logToConsole('Drew custom organism on canvas');
-      }
+    }
   }
 
   private eventHandlingExample(): void {
@@ -559,9 +556,10 @@ setInterval(trackStats, 1000);
       this.logToConsole(`Population: ${stats.population}, Generation: ${stats.generation}`);
 
       monitorCount++;
-      if (monitorCount >= 5) { clearInterval(monitor);
+      if (monitorCount >= 5) {
+        clearInterval(monitor);
         this.logToConsole('Monitoring stopped');
-        }
+      }
     }, 2000);
 
     simulation.start();
@@ -597,14 +595,16 @@ setInterval(trackStats, 1000);
 
       this.logToConsole(`Stats - Pop: ${stats.population}, Gen: ${stats.generation}`);
 
-      if (statsHistory.length > 3) { const trend = statsHistory.slice(-3).map(s => s.population);
-        this.logToConsole(`Population trend: ${trend.join(' → ')  }`);
+      if (statsHistory.length > 3) {
+        const trend = statsHistory.slice(-3).map(s => s.population);
+        this.logToConsole(`Population trend: ${trend.join(' → ')}`);
       }
 
       trackingCount++;
-      if (trackingCount >= 5) { clearInterval(tracker);
+      if (trackingCount >= 5) {
+        clearInterval(tracker);
         this.logToConsole('Statistics tracking complete');
-        }
+      }
     }, 1500);
   }
 }
@@ -614,24 +614,23 @@ setInterval(trackStats, 1000);
  */
 export function initializeInteractiveExamples(containerId: string = 'interactive-examples'): void {
   const container = document?.getElementById(containerId);
-  if (!container) { return;
-    }
+  if (!container) {
+    return;
+  }
 
   new InteractiveExamples(container);
 }
 
 // Auto-initialize if container exists
 if (typeof window !== 'undefined') {
-  eventPattern(document?.addEventListener('DOMContentLoaded', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for DOMContentLoaded:', error);
-  }
-});
-    const container = document?.getElementById('interactive-examples');
-    if (container) {
-      initializeInteractiveExamples();
+  document?.addEventListener('DOMContentLoaded', event => {
+    try {
+      const container = document?.getElementById('interactive-examples');
+      if (container) {
+        initializeInteractiveExamples();
+      }
+    } catch (error) {
+      console.error('Event listener error for DOMContentLoaded:', error);
     }
   });
 }

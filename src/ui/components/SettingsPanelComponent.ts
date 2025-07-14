@@ -107,103 +107,110 @@ export class SettingsPanelComponent extends Modal {
     return tabContainer;
   }
 
-  private switchTab(): void  { try { // Update tab buttons
-    const tabs = this.element.querySelectorAll('[id^="settings-tab-"]');
-    tabs.forEach(tab => {
-  try {
-      const button = tab?.querySelector('button');
-      ifPattern(button, () => { button.className = button.className.replace('ui-button--primary', 'ui-button--secondary');
-       
-   } catch (error) { /* handled */ } }
-});
-    });
+  private switchTab(tabId: string): void {
+    try {
+      // Update tab buttons
+      const tabs = this.element.querySelectorAll('[id^="settings-tab-"]');
+      tabs.forEach(tab => {
+        try {
+          const button = tab?.querySelector('button');
+          if (button) {
+            button.className = button.className.replace('ui-button--primary', 'ui-button--secondary');
+          }
+        } catch (error) {
+          console.error('Tab button update error:', error);
+        }
+      });
 
-    const activeTab = this.element?.querySelector(`#settings-tab-${tabId} button`);
-    if (activeTab) {
-      activeTab.className = activeTab.className.replace(
-        'ui-button--secondary',
-        'ui-button--primary'
-      );
-    }
-
-    // Show/hide panels
-    const panels = this.element.querySelectorAll('.settings-panel');
-    panels.forEach(panel => {
-  try {
-      (panel as HTMLElement).style.display = 'none';
-    
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
-
-    const activePanel = this.element?.querySelector(`#${tabId}-panel`);
-    if (activePanel) { (activePanel as HTMLElement).style.display = 'block';
+      const activeTab = this.element?.querySelector(`#settings-tab-${tabId} button`);
+      if (activeTab) {
+        activeTab.className = activeTab.className.replace(
+          'ui-button--secondary',
+          'ui-button--primary'
+        );
       }
+
+      // Show/hide panels
+      const panels = this.element.querySelectorAll('.settings-panel');
+      panels.forEach(panel => {
+        try {
+          (panel as HTMLElement).style.display = 'none';
+        } catch (error) {
+          console.error('Panel hide error:', error);
+        }
+      });
+
+      const activePanel = this.element?.querySelector(`#${tabId}-panel`);
+      if (activePanel) {
+        (activePanel as HTMLElement).style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Switch tab error:', error);
+    }
   }
 
-  private createGeneralPanel(): HTMLElement  { try { const panel = document.createElement('div');
-    panel.id = 'general-panel';
-    panel.className = 'settings-panel';
+  private createGeneralPanel(): HTMLElement {
+    try {
+      const panel = document.createElement('div');
+      panel.id = 'general-panel';
+      panel.className = 'settings-panel';
 
-    const form = document.createElement('form');
-    form.className = 'settings-form';
+      const form = document.createElement('form');
+      form.className = 'settings-form';
 
-    // Language selection
-    const languageSection = document.createElement('div');
-    languageSection.className = 'settings-section';
-    languageSection.innerHTML = '<h3>Language & Localization</h3>';
+      // Language selection
+      const languageSection = document.createElement('div');
+      languageSection.className = 'settings-section';
+      languageSection.innerHTML = '<h3>Language & Localization</h3>';
 
-    const languageSelect = document.createElement('select');
-    languageSelect.className = 'ui-select';
-    this.preferencesManager.getAvailableLanguages().forEach(lang => {
-  try {
-      const option = document.createElement('option');
-      option.value = lang.code;
-      option.textContent = lang.name;
-      option.selected = lang.code === this.tempPreferences.language;
-      languageSelect.appendChild(option);
-    
-   } catch (error) { /* handled */ } }
-});
-    eventPattern(languageSelect?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.language = (e.target as HTMLSelectElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value;
-    });
+      const languageSelect = document.createElement('select');
+      languageSelect.className = 'ui-select';
+      this.preferencesManager.getAvailableLanguages().forEach(lang => {
+        try {
+          const option = document.createElement('option');
+          option.value = lang.code;
+          option.textContent = lang.name;
+          option.selected = lang.code === this.tempPreferences.language;
+          languageSelect.appendChild(option);
+        } catch (error) {
+          console.error('Language option creation error:', error);
+        }
+      });
 
-    languageSection.appendChild(this.createFieldWrapper('Language', languageSelect));
+      languageSelect?.addEventListener('change', (event) => {
+        try {
+          this.tempPreferences.language = (event.target as HTMLSelectElement).value;
+        } catch (error) {
+          console.error('Language change error:', error);
+        }
+      });
 
-    // Date format
-    const dateFormatSelect = document.createElement('select');
-    dateFormatSelect.className = 'ui-select';
-    ['US', 'EU', 'ISO'].forEach(format => {
-  try {
-      const option = document.createElement('option');
-      option.value = format;
-      option.textContent = format;
-      option.selected = format === this.tempPreferences.dateFormat;
-      dateFormatSelect.appendChild(option);
-    
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
-    eventPattern(dateFormatSelect?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.dateFormat = (e.target as HTMLSelectElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value as any;
-    });
+      languageSection.appendChild(this.createFieldWrapper('Language', languageSelect));
 
-    languageSection.appendChild(this.createFieldWrapper('Date Format', dateFormatSelect));
+      // Date format
+      const dateFormatSelect = document.createElement('select');
+      dateFormatSelect.className = 'ui-select';
+      ['US', 'EU', 'ISO'].forEach(format => {
+        try {
+          const option = document.createElement('option');
+          option.value = format;
+          option.textContent = format;
+          option.selected = format === this.tempPreferences.dateFormat;
+          dateFormatSelect.appendChild(option);
+        } catch (error) {
+          console.error('Date format option creation error:', error);
+        }
+      });
+
+      dateFormatSelect?.addEventListener('change', (event) => {
+        try {
+          this.tempPreferences.dateFormat = (event.target as HTMLSelectElement).value;
+        } catch (error) {
+          console.error('Date format change error:', error);
+        }
+      });
+
+      languageSection.appendChild(this.createFieldWrapper('Date Format', dateFormatSelect));
 
     // Simulation defaults
     const simulationSection = document.createElement('div');
@@ -222,16 +229,14 @@ export class SettingsPanelComponent extends Modal {
     const speedValue = document.createElement('span');
     speedValue.textContent = `${this.tempPreferences.defaultSpeed}x`;
 
-    eventPattern(speedSlider?.addEventListener('input', (event) => {
-  try {
-    (e => {
-      const value = parseFloat(e.target as HTMLInputElement) => {
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
-})).value);
-      this.tempPreferences.defaultSpeed = value;
-      speedValue.textContent = `${value}x`;
+    speedSlider?.addEventListener('input', (event) => {
+      try {
+        const value = parseFloat((event.target as HTMLInputElement).value);
+        this.tempPreferences.defaultSpeed = value;
+        speedValue.textContent = `${value}x`;
+      } catch (error) {
+        console.error('Speed slider change error:', error);
+      }
     });
 
     const speedContainer = document.createElement('div');
@@ -257,11 +262,15 @@ export class SettingsPanelComponent extends Modal {
 
     autoSaveToggle.mount(simulationSection);
 
-    form.appendChild(languageSection);
-    form.appendChild(simulationSection);
-    panel.appendChild(form);
+      form.appendChild(languageSection);
+      form.appendChild(simulationSection);
+      panel.appendChild(form);
 
-    return panel;
+      return panel;
+    } catch (error) {
+      console.error('Create general panel error:', error);
+      return document.createElement('div');
+    }
   }
 
   private createThemePanel(): HTMLElement {
