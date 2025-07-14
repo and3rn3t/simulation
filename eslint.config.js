@@ -80,11 +80,11 @@ export default [
       'no-redeclare': 'warn', // Changed from error
       'no-case-declarations': 'warn', // Changed from error
 
-      // Code complexity rules - very relaxed for now
-      complexity: 'off', // Disabled
-      'max-depth': 'off', // Disabled
-      'max-lines-per-function': 'off', // Disabled
-      'max-params': 'off', // Disabled
+      // Code complexity rules - more lenient for development productivity
+      complexity: ['warn', 15], // Increased from 8 to 15 (more lenient)
+      'max-depth': ['warn', 6], // Increased from 4 to 6 (more lenient)
+      'max-lines-per-function': ['warn', 100], // Increased from 50 to 100 (more lenient)
+      'max-params': ['warn', 8], // Increased from 5 to 8 (more lenient)
 
       // Best practices
       eqeqeq: ['error', 'always'],

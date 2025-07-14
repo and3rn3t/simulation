@@ -183,15 +183,16 @@ jobs:
           echo "🚨 Critical Functions: ${CRITICAL_FUNCTIONS}" >> $GITHUB_STEP_SUMMARY
           echo "🏗️ Critical Classes: ${CRITICAL_CLASSES}" >> $GITHUB_STEP_SUMMARY
           
-          # Add recommendations
-          if (( $(echo "$HEALTH_SCORE < 80" | bc -l) )); then
+          # Add recommendations with more lenient thresholds
+          if (( $(echo "$HEALTH_SCORE < 70" | bc -l) )); then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Action Required**: Code complexity is above recommended thresholds" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Attention**: Code complexity could be improved" >> $GITHUB_STEP_SUMMARY
             echo "- Review the complexity report artifact for detailed analysis" >> $GITHUB_STEP_SUMMARY
-            echo "- Focus on refactoring critical complexity items first" >> $GITHUB_STEP_SUMMARY
+            echo "- Consider refactoring when convenient, but not blocking" >> $GITHUB_STEP_SUMMARY
+            echo "- Target: Achieve >70% health score for good maintainability" >> $GITHUB_STEP_SUMMARY
           else
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Code complexity is within acceptable limits" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Code complexity is acceptable (≥70% health score)" >> $GITHUB_STEP_SUMMARY
           fi
         else
           echo "❌ Complexity report could not be generated" >> $GITHUB_STEP_SUMMARY

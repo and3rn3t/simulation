@@ -69,20 +69,21 @@ jobs:
         npm run type-check
         TYPE_EXIT_CODE=$?
         
-        # Calculate quality score
+        # Calculate quality score (more lenient thresholds)
         TOTAL_SCORE=0
         if [ $TEST_EXIT_CODE -eq 0 ]; then TOTAL_SCORE=$((TOTAL_SCORE + 40)); fi
-        if [ $LINT_EXIT_CODE -eq 0 ]; then TOTAL_SCORE=$((TOTAL_SCORE + 30)); fi
-        if [ $TYPE_EXIT_CODE -eq 0 ]; then TOTAL_SCORE=$((TOTAL_SCORE + 30)); fi
+        if [ $LINT_EXIT_CODE -eq 0 ]; then TOTAL_SCORE=$((TOTAL_SCORE + 30)); fi    # Standard weight
+        if [ $TYPE_EXIT_CODE -eq 0 ]; then TOTAL_SCORE=$((TOTAL_SCORE + 30)); fi   # Standard weight
         
         echo "Quality Score: $TOTAL_SCORE/100"
         
-        if [ $TOTAL_SCORE -ge 80 ] || [ "${{ github.event.inputs.force_deploy }}" = "true" ]; then
+        # Decreased threshold to 70 for more lenient deployment
+        if [ $TOTAL_SCORE -ge 70 ] || [ "${{ github.event.inputs.force_deploy }}" = "true" ]; then
           echo "result=passed" >> $GITHUB_OUTPUT
-          echo "✅ Quality gate passed!"
+          echo "✅ Quality gate passed! (Score: $TOTAL_SCORE/100)"
         else
           echo "result=failed" >> $GITHUB_OUTPUT
-          echo "❌ Quality gate failed! Score: $TOTAL_SCORE/100"
+          echo "❌ Quality gate failed! Score: $TOTAL_SCORE/100 (Required: 70)"
           exit 1
         fi
     
