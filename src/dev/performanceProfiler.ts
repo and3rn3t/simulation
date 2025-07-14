@@ -14,6 +14,7 @@ export interface PerformanceMetrics {
   drawCalls: number;
   updateTime: number;
   renderTime: number;
+  cpuUsage: number;
 }
 
 export interface ProfileSession {
@@ -44,14 +45,16 @@ export class PerformanceProfiler {
   }
 
   static getInstance(): PerformanceProfiler {
-    if (!PerformanceProfiler.instance) { PerformanceProfiler.instance = new PerformanceProfiler();
-      }
+    if (!PerformanceProfiler.instance) {
+      PerformanceProfiler.instance = new PerformanceProfiler();
+    }
     return PerformanceProfiler.instance;
   }
 
   startProfiling(duration: number = 10000): string {
-    if (this.isProfilering) { throw new Error('Profiling session already in progress');
-      }
+    if (this.isProfilering) {
+      throw new Error('Profiling session already in progress');
+    }
 
     const sessionId = generateSecureTaskId('profile');
     this.currentSession = {
@@ -73,22 +76,25 @@ export class PerformanceProfiler {
 
     // Auto-stop after duration
     setTimeout(() => {
-      if (this.isProfilering) { this.stopProfiling();
-        }
+      if (this.isProfilering) {
+        this.stopProfiling();
+      }
     }, duration);
 
     return sessionId;
   }
 
   stopProfiling(): ProfileSession | null {
-    if (!this.isProfilering || !this.currentSession) { return null;
-      }
+    if (!this.isProfilering || !this.currentSession) {
+      return null;
+    }
 
     this.isProfilering = false;
 
-    if (this.sampleInterval) { clearInterval(this.sampleInterval);
+    if (this.sampleInterval) {
+      clearInterval(this.sampleInterval);
       this.sampleInterval = null;
-      }
+    }
 
     // Finalize session
     this.currentSession.endTime = performance.now();
@@ -138,14 +144,16 @@ export class PerformanceProfiler {
     this.lastFrameTime = now;
 
     // Store frame time for FPS calculation
-    if (frameTime > 0) { // This could be used for more accurate FPS tracking
-      }
+    if (frameTime > 0) {
+      // This could be used for more accurate FPS tracking
+    }
 
     // Track garbage collection events
     if ((performance as any).memory) {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
-      if (currentHeap < this.lastGCTime) { // Potential GC detected
-        }
+      if (currentHeap < this.lastGCTime) {
+        // Potential GC detected
+      }
       this.lastGCTime = currentHeap;
     }
   }
@@ -184,6 +192,7 @@ export class PerformanceProfiler {
       drawCalls: 0, // Will be tracked separately
       updateTime: 0, // Will be measured in update loop
       renderTime: 0, // Will be measured in render loop
+      cpuUsage: 0, // Simplified CPU usage calculation
     };
 
     this.metricsBuffer.push(metrics);
@@ -226,6 +235,7 @@ export class PerformanceProfiler {
       drawCalls: metrics.reduce((sum, m) => sum + m.drawCalls, 0) / count,
       updateTime: metrics.reduce((sum, m) => sum + m.updateTime, 0) / count,
       renderTime: metrics.reduce((sum, m) => sum + m.renderTime, 0) / count,
+      cpuUsage: metrics.reduce((sum, m) => sum + m.cpuUsage, 0) / count,
     };
 
     // Calculate peaks
@@ -238,6 +248,7 @@ export class PerformanceProfiler {
       drawCalls: Math.max(...metrics.map(m => m.drawCalls)),
       updateTime: Math.max(...metrics.map(m => m.updateTime)),
       renderTime: Math.max(...metrics.map(m => m.renderTime)),
+      cpuUsage: Math.max(...metrics.map(m => m.cpuUsage)),
     };
   }
 
@@ -252,22 +263,28 @@ export class PerformanceProfiler {
       recommendations.push(
         '🔴 Critical: Average FPS is below 30. Consider reducing simulation complexity.'
       );
-    } else if (avg.fps < 50) { recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
-      }
+    } else if (avg.fps < 50) {
+      recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
+    }
 
     // Frame time recommendations
-    if (avg.frameTime > 33) { recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
-      } else if (avg.frameTime > 20) { recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
-      }
+    if (avg.frameTime > 33) {
+      recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
+    } else if (avg.frameTime > 20) {
+      recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
+    }
 
     // Memory recommendations
-    if (avg.memoryUsage > 100 * 1024 * 1024) { // 100MB
+    if (avg.memoryUsage > 100 * 1024 * 1024) {
+      // 100MB
       recommendations.push('🟡 Warning: High memory usage detected. Consider object pooling.');
-      }
+    }
 
-    if (avg.gcPressure > 80) { recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
-      } else if (avg.gcPressure > 60) { recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
-      }
+    if (avg.gcPressure > 80) {
+      recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
+    } else if (avg.gcPressure > 60) {
+      recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
+    }
 
     // Canvas operations recommendations
     if (avg.canvasOperations > 1000) {
@@ -276,12 +293,14 @@ export class PerformanceProfiler {
       );
     }
 
-    if (avg.drawCalls > 500) { recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
-      }
+    if (avg.drawCalls > 500) {
+      recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
+    }
 
     // Add general recommendations
-    if (recommendations.length === 0) { recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
-      } else {
+    if (recommendations.length === 0) {
+      recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
+    } else {
       recommendations.push(
         '💡 Consider implementing object pooling, dirty rectangle rendering, or spatial partitioning.'
       );
@@ -300,28 +319,30 @@ export class PerformanceProfiler {
       drawCalls: 0,
       updateTime: 0,
       renderTime: 0,
+      cpuUsage: 0,
     };
   }
 
   private logSessionSummary(session: ProfileSession): void {
     console.group(`📊 Performance Profile Summary - ${session.id}`);
-    .toFixed(2)}ms`);
+    console.log(`Duration: ${(session.endTime - session.startTime).toFixed(2)}ms`);
 
     console.group('Averages');
-    }`);
-    }ms`);
-    }MB`);
-    }%`);
+    console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
+    console.log(`Update Time: ${session.averages.updateTime.toFixed(2)}ms`);
+    console.log(`Memory Usage: ${session.averages.memoryUsage.toFixed(2)}MB`);
+    console.log(`CPU Usage: ${session.averages.cpuUsage.toFixed(2)}%`);
     console.groupEnd();
 
     console.group('Peaks');
-    }ms`);
-    }MB`);
-    }%`);
+    console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
+    console.log(`Max Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
+    console.log(`Max CPU: ${session.peaks.cpuUsage.toFixed(2)}%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => );
+    session.recommendations.forEach(rec => console.log(rec));
+    console.groupEnd();
     console.groupEnd();
 
     console.groupEnd();
@@ -330,17 +351,20 @@ export class PerformanceProfiler {
   // Method to export session data for external analysis
   exportSession(sessionId: string): string {
     const session = this.getSession(sessionId);
-    if (!session) { throw new Error(`Session ${sessionId  } not found`);
+    if (!session) {
+      throw new Error(`Session ${sessionId} not found`);
     }
 
     return JSON.stringify(session, null, 2);
   }
 
   // Method to import session data
-  importSession(): void  { try { try {
+  importSession(sessionData: string): void {
+    try {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
-     } catch (error) { /* handled */ } }`);
+    } catch (error) {
+      console.error('Failed to import session data:', error);
     }
   }
 }

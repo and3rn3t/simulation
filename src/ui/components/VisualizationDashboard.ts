@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -19,12 +19,12 @@ class EventListenerManager {
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
 }
+import { UserPreferencesManager } from '../../services/UserPreferencesManager';
 import { BaseComponent } from './BaseComponent';
+import { OrganismDistributionChart, PopulationChartComponent } from './ChartComponent';
 import { ComponentFactory } from './ComponentFactory';
-import { PopulationChartComponent, OrganismDistributionChart } from './ChartComponent';
 import { PopulationDensityHeatmap } from './HeatmapComponent';
 import { OrganismTrailComponent } from './OrganismTrailComponent';
-import { UserPreferencesManager } from '../../services/UserPreferencesManager';
 
 export interface VisualizationData {
   timestamp: Date;
@@ -114,7 +114,9 @@ export class VisualizationDashboard extends BaseComponent {
   private initializeComponents(): void {
     // Population chart
     this.populationChart = new PopulationChartComponent('population-chart');
-    const chartContainer = this.element?.querySelector('#population-chart-container') as HTMLElement;
+    const chartContainer = this.element?.querySelector(
+      '#population-chart-container'
+    ) as HTMLElement;
     this.populationChart.mount(chartContainer);
 
     // Distribution chart
@@ -148,23 +150,25 @@ export class VisualizationDashboard extends BaseComponent {
     this.trailComponent.mount(trailContainer);
   }
 
-  private setupControls(): void  { try { // Dashboard toggle
+  private setupControls(): void {
+    // Dashboard toggle
     const dashboardToggle = this.element?.querySelector('.dashboard-toggle') as HTMLButtonElement;
     const toggleIcon = this.element?.querySelector('.toggle-icon') as HTMLElement;
     const dashboardContent = this.element?.querySelector('.dashboard-content') as HTMLElement;
 
-    dashboardToggle?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-   } catch (error) { /* handled */ } }
-}) => {
-      this.isVisible = !this.isVisible;
-      dashboardContent.style.display = this.isVisible ? 'block' : 'none';
-      toggleIcon.textContent = this.isVisible ? '🔽' : '🔼';
+    dashboardToggle?.addEventListener('click', event => {
+      try {
+        this.isVisible = !this.isVisible;
+        dashboardContent.style.display = this.isVisible ? 'block' : 'none';
+        toggleIcon.textContent = this.isVisible ? '🔽' : '🔼';
 
-      if (this.isVisible) { this.startUpdates();
+        if (this.isVisible) {
+          this.startUpdates();
         } else {
-        this.stopUpdates();
+          this.stopUpdates();
+        }
+      } catch (error) {
+        console.error('Dashboard toggle error:', error);
       }
     });
 
@@ -214,18 +218,18 @@ export class VisualizationDashboard extends BaseComponent {
     const frequencyValue = document.createElement('span');
     frequencyValue.textContent = `${this.preferencesManager.getPreferences().chartUpdateInterval}ms`;
 
-    frequencySlider?.addEventListener('input', (event) => {
-  try {
-    (e => {
-      const value = parseInt(e.target as HTMLInputElement) => {
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
-}).value);
-      frequencyValue.textContent = `${value}ms`;
-      this.preferencesManager.updatePreference('chartUpdateInterval', value);
-      if (this.updateInterval) { this.restartUpdates();
+    frequencySlider?.addEventListener('input', event => {
+      try {
+        const target = event.target as HTMLInputElement;
+        const value = parseInt(target.value);
+        frequencyValue.textContent = `${value}ms`;
+        this.preferencesManager.updatePreference('chartUpdateInterval', value);
+        if (this.updateInterval) {
+          this.restartUpdates();
         }
+      } catch (error) {
+        console.error('Event listener error for input:', error);
+      }
     });
 
     const sliderContainer = document.createElement('div');
@@ -284,35 +288,39 @@ export class VisualizationDashboard extends BaseComponent {
 
       // Update trails
       data.positions.forEach(pos => {
-  try {
-        this.trailComponent.updateOrganismPosition(pos.id, pos.x, pos.y, pos.type);
-      
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+        try {
+          this.trailComponent.updateOrganismPosition(pos.id, pos.x, pos.y, pos.type);
+        } catch (error) {
+          console.error('Callback error:', error);
+        }
+      });
 
       // Update stats
       this.updateStats(data);
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   private updateStats(data: VisualizationData): void {
     // Total data points
     const totalDataPointsElement = this.element?.querySelector('#total-data-points') as HTMLElement;
-    if (totalDataPointsElement) { totalDataPointsElement.textContent = data.positions.length.toString();
-      }
+    if (totalDataPointsElement) {
+      totalDataPointsElement.textContent = data.positions.length.toString();
+    }
 
     // Update rate
     const updateRateElement = this.element?.querySelector('#update-rate') as HTMLElement;
-    if (updateRateElement) { const interval = this.preferencesManager.getPreferences().chartUpdateInterval;
-      updateRateElement.textContent = `${(interval / 1000).toFixed(1)  }s`;
+    if (updateRateElement) {
+      const interval = this.preferencesManager.getPreferences().chartUpdateInterval;
+      updateRateElement.textContent = `${(interval / 1000).toFixed(1)}s`;
     }
 
     // Memory usage (estimated)
     const memoryUsageElement = this.element?.querySelector('#memory-usage') as HTMLElement;
-    if (memoryUsageElement) { const estimatedMemory = this.estimateMemoryUsage(data);
-      memoryUsageElement.textContent = `${estimatedMemory.toFixed(1)  } MB`;
+    if (memoryUsageElement) {
+      const estimatedMemory = this.estimateMemoryUsage(data);
+      memoryUsageElement.textContent = `${estimatedMemory.toFixed(1)} MB`;
     }
   }
 
@@ -340,7 +348,7 @@ export class VisualizationDashboard extends BaseComponent {
         population: 0,
         births: 0,
         deaths: 0,
-        organismTypes: {} // TODO: Consider extracting to reduce closure scope,
+        organismTypes: {}, // TODO: Consider extracting to reduce closure scope
         positions: [],
       });
     }, interval);
@@ -350,15 +358,17 @@ export class VisualizationDashboard extends BaseComponent {
    * Stop automatic updates
    */
   stopUpdates(): void {
-    if (this.updateInterval) { clearInterval(this.updateInterval);
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
       this.updateInterval = null;
-      }
+    }
   }
 
   private restartUpdates(): void {
     this.stopUpdates();
-    if (this.isVisible) { this.startUpdates();
-      }
+    if (this.isVisible) {
+      this.startUpdates();
+    }
   }
 
   /**
@@ -396,8 +406,9 @@ export class VisualizationDashboard extends BaseComponent {
     this.populationChart.resize();
     this.distributionChart.resize();
 
-    if (this.simulationCanvas) { this.densityHeatmap.resize(this.simulationCanvas.width, this.simulationCanvas.height);
-      }
+    if (this.simulationCanvas) {
+      this.densityHeatmap.resize(this.simulationCanvas.width, this.simulationCanvas.height);
+    }
   }
 
   /**
@@ -405,8 +416,9 @@ export class VisualizationDashboard extends BaseComponent {
    */
   setVisible(visible: boolean): void {
     this.element.style.display = visible ? 'block' : 'none';
-    if (visible && this.isVisible) { this.startUpdates();
-      } else {
+    if (visible && this.isVisible) {
+      this.startUpdates();
+    } else {
       this.stopUpdates();
     }
   }

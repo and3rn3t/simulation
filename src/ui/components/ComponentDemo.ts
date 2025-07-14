@@ -117,11 +117,11 @@ export class ComponentDemo {
         {
           ...config,
           onChange: value => {
-  try {
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-},
+            try {
+            } catch (error) {
+              console.error('Callback error:', error);
+            }
+          },
         },
         `demo-input-${index}`
       );
@@ -158,14 +158,13 @@ export class ComponentDemo {
         {
           ...config,
           onChange: checked => {
-  try {
-            AccessibilityManager.announceToScreenReader(
-              `${config?.label
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-} ${checked ? 'enabled' : 'disabled'}`
-            );
+            try {
+              AccessibilityManager.announceToScreenReader(
+                `${config?.label} ${checked ? 'enabled' : 'disabled'}`
+              );
+            } catch (error) {
+              console.error('Callback error:', error);
+            }
           },
         },
         `demo-toggle-${index}`
@@ -209,11 +208,11 @@ export class ComponentDemo {
         title: 'Collapsible Panel',
         collapsible: true,
         onToggle: collapsed => {
-  try {
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-},
+          try {
+          } catch (error) {
+            console.error('Callback error:', error);
+          }
+        },
       },
       'demo-panel-collapsible'
     );

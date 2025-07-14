@@ -16,11 +16,9 @@ class EventListenerManager {
 }
 
 // Auto-cleanup on page unload
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
 }
-
-import { ifPattern } from '../UltimatePatternConsolidator';
 
 /**
  * Error handling utilities for the organism simulation
@@ -106,8 +104,9 @@ export class ErrorHandler {
    * Get the singleton instance of ErrorHandler
    */
   static getInstance(): ErrorHandler {
-    if (!ErrorHandler.instance) { ErrorHandler.instance = new ErrorHandler();
-     }
+    if (!ErrorHandler.instance) {
+      ErrorHandler.instance = new ErrorHandler();
+    }
     return ErrorHandler.instance;
   }
 
@@ -135,12 +134,14 @@ export class ErrorHandler {
     this.addToQueue(errorInfo);
 
     // Log the error
-    if (this.isLoggingEnabled) { this.logError(errorInfo);
-     }
+    if (this.isLoggingEnabled) {
+      this.logError(errorInfo);
+    }
 
     // Only show user notification for critical errors, and only if it's not during initial app startup
-    if (severity === ErrorSeverity.CRITICAL && context !== 'Application startup') { this.showCriticalErrorNotification(errorInfo);
-     }
+    if (severity === ErrorSeverity.CRITICAL && context !== 'Application startup') {
+      this.showCriticalErrorNotification(errorInfo);
+    }
   }
 
   /**
@@ -151,8 +152,9 @@ export class ErrorHandler {
     this.errorQueue.push(errorInfo);
 
     // Keep queue size manageable
-    if (this.errorQueue.length > this.maxQueueSize) { this.errorQueue.shift();
-     }
+    if (this.errorQueue.length > this.maxQueueSize) {
+      this.errorQueue.shift();
+    }
   }
 
   /**
@@ -160,18 +162,27 @@ export class ErrorHandler {
    * @param errorInfo - Error information to log
    */
   private logError(errorInfo: ErrorInfo): void {
-    const _logMessage = `[${errorInfo.severity.toUpperCase()}] ${errorInfo.error.name}: ${errorInfo.error.message}`;
-    const _contextMessage = errorInfo.context ? ` (Context: ${errorInfo.context})` : '';
+    const logMessage = `[${errorInfo.severity.toUpperCase()}] ${errorInfo.error.name}: ${errorInfo.error.message}`;
+    const contextMessage = errorInfo.context ? ` (Context: ${errorInfo.context})` : '';
+    const fullMessage = logMessage + contextMessage;
 
     switch (errorInfo.severity) {
       case ErrorSeverity.LOW:
+        console.info(fullMessage);
         break;
       case ErrorSeverity.MEDIUM:
+        console.warn(fullMessage);
         break;
       case ErrorSeverity.HIGH:
-      case ErrorSeverity.CRITICAL:
+        console.error(fullMessage);
         if (errorInfo.stackTrace) {
-          // TODO: Handle stack trace display
+          console.error('Stack trace:', errorInfo.stackTrace);
+        }
+        break;
+      case ErrorSeverity.CRITICAL:
+        console.error(fullMessage);
+        if (errorInfo.stackTrace) {
+          console.error('Stack trace:', errorInfo.stackTrace);
         }
         break;
     }

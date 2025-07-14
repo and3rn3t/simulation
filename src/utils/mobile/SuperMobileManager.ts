@@ -1,8 +1,8 @@
 /**
  * Super Mobile Manager
  * Consolidated mobile functionality to eliminate duplication
- * 
- * Replaces: MobileCanvasManager, MobilePerformanceManager, 
+ *
+ * Replaces: MobileCanvasManager, MobilePerformanceManager,
  * MobileUIEnhancer, MobileAnalyticsManager, MobileSocialManager
  */
 
@@ -15,8 +15,9 @@ export class SuperMobileManager {
   private analytics = { sessions: 0, events: [] as any[] };
 
   static getInstance(): SuperMobileManager {
-    if (!SuperMobileManager.instance) { SuperMobileManager.instance = new SuperMobileManager();
-      }
+    if (!SuperMobileManager.instance) {
+      SuperMobileManager.instance = new SuperMobileManager();
+    }
     return SuperMobileManager.instance;
   }
 
@@ -32,19 +33,19 @@ export class SuperMobileManager {
 
   private setupTouchHandling(): void {
     if (!this.canvas) return;
-    
+
     const touchHandler = (e: TouchEvent) => {
       e.preventDefault();
       this.trackEvent('touch_interaction');
     };
-    
-    this.canvas?.addEventListener('touchstart', (event) => {
-  try {
-    (touchHandler)(event);
-  } catch (error) {
-    console.error('Event listener error for touchstart:', error);
-  }
-});
+
+    this.canvas?.addEventListener('touchstart', event => {
+      try {
+        touchHandler(event);
+      } catch (error) {
+        console.error('Event listener error for touchstart:', error);
+      }
+    });
     this.touchHandlers.set('touchstart', touchHandler);
   }
 
@@ -61,7 +62,7 @@ export class SuperMobileManager {
   // === UI ENHANCEMENT ===
   enhanceUI(): void {
     if (!this.canvas) return;
-    
+
     this.canvas.style.touchAction = 'none';
     this.canvas.style.userSelect = 'none';
   }
@@ -77,9 +78,16 @@ export class SuperMobileManager {
 
   // === SOCIAL FEATURES ===
   shareContent(content: string): Promise<boolean> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       try {
-        if (navigator.share) { navigator.share({ text: content   }).then(().catch(error => console.error('Promise rejection:', error)) => resolve(true));
+        if (navigator.share) {
+          navigator
+            .share({ text: content })
+            .then(() => resolve(true))
+            .catch(error => {
+              console.error('Promise rejection:', error);
+              resolve(false);
+            });
         } else {
           // Fallback
           resolve(false);

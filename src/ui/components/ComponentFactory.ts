@@ -17,8 +17,9 @@ export class ComponentFactory {
    */
   static createButton(config: ButtonConfig, id?: string): Button {
     const button = new Button(config);
-    if (id) { this.components.set(id, button);
-      }
+    if (id) {
+      this.components.set(id, button);
+    }
     return button;
   }
 
@@ -27,8 +28,9 @@ export class ComponentFactory {
    */
   static createPanel(config: PanelConfig = {}, id?: string): Panel {
     const panel = new Panel(config);
-    if (id) { this.components.set(id, panel);
-      }
+    if (id) {
+      this.components.set(id, panel);
+    }
     return panel;
   }
 
@@ -37,8 +39,9 @@ export class ComponentFactory {
    */
   static createModal(config: ModalConfig = {}, id?: string): Modal {
     const modal = new Modal(config);
-    if (id) { this.components.set(id, modal);
-      }
+    if (id) {
+      this.components.set(id, modal);
+    }
     return modal;
   }
 
@@ -47,8 +50,9 @@ export class ComponentFactory {
    */
   static createInput(config: InputConfig = {}, id?: string): Input {
     const input = new Input(config);
-    if (id) { this.components.set(id, input);
-      }
+    if (id) {
+      this.components.set(id, input);
+    }
     return input;
   }
 
@@ -57,8 +61,9 @@ export class ComponentFactory {
    */
   static createToggle(config: ToggleConfig = {}, id?: string): Toggle {
     const toggle = new Toggle(config);
-    if (id) { this.components.set(id, toggle);
-      }
+    if (id) {
+      this.components.set(id, toggle);
+    }
     return toggle;
   }
 
@@ -113,8 +118,9 @@ export class ThemeManager {
     document.documentElement.setAttribute('data-theme', theme);
 
     // Update CSS custom properties based on theme
-    if (theme === 'light') { this.applyLightTheme();
-      } else {
+    if (theme === 'light') {
+      this.applyLightTheme();
+    } else {
       this.applyDarkTheme();
     }
   }
@@ -158,23 +164,22 @@ export class ThemeManager {
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('ui-theme') as 'light' | 'dark' | null;
 
-    if (savedTheme) { this.setTheme(savedTheme);
-      } else {
+    if (savedTheme) {
+      this.setTheme(savedTheme);
+    } else {
       // Use system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       this.setTheme(prefersDark ? 'dark' : 'light');
     }
 
     // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-  try {
-    (e => {
-      if (!localStorage.getItem('ui-theme')(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})) {
-        this.setTheme(e.matches ? 'dark' : 'light');
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      try {
+        if (!localStorage.getItem('ui-theme')) {
+          this.setTheme(event.matches ? 'dark' : 'light');
+        }
+      } catch (error) {
+        console.error('Event listener error for change:', error);
       }
     });
   }
@@ -232,23 +237,26 @@ export class AccessibilityManager {
             e.preventDefault();
           }
         } else {
-          if (document.activeElement === lastElement) { firstElement.focus();
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
             e.preventDefault();
-            }
+          }
         }
       }
     };
 
-    container?.addEventListener('keydown', (event) => {
-  try {
-    (handleKeyDown)(event);
-  } catch (error) {
-    console.error('Event listener error for keydown:', error);
-  }
-});
+    container?.addEventListener('keydown', event => {
+      try {
+        handleKeyDown(event);
+      } catch (error) {
+        console.error('Event listener error for keydown:', error);
+      }
+    });
 
     // Return cleanup function
-    return () => { const maxDepth = 100; if (arguments[arguments.length - 1] > maxDepth) return;
+    return () => {
+      const maxDepth = 100;
+      if (arguments[arguments.length - 1] > maxDepth) return;
       container?.removeEventListener('keydown', handleKeyDown);
     };
   }
@@ -269,5 +277,6 @@ export class AccessibilityManager {
 }
 
 // Auto-initialize theme on module load
-if (typeof window !== 'undefined') { ThemeManager.initializeTheme();
-  }
+if (typeof window !== 'undefined') {
+  ThemeManager.initializeTheme();
+}

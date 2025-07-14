@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -88,8 +88,9 @@ export class MobilePerformanceManager {
     if (!isMobile) return 60; // Desktop default
 
     // Check for battery saver mode or low battery
-    if (this.isLowPowerMode || this.batteryLevel < 0.2) { return 30; // Power saving mode
-      }
+    if (this.isLowPowerMode || this.batteryLevel < 0.2) {
+      return 30; // Power saving mode
+    }
 
     // Check device refresh rate capability
     const refreshRate = (screen as any).refreshRate || 60;
@@ -121,25 +122,21 @@ export class MobilePerformanceManager {
         this.isLowPowerMode = this.batteryLevel < 0.2;
 
         // Listen for battery changes
-        battery?.addEventListener('levelchange', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for levelchange:', error);
-  }
-}) => {
-          this.batteryLevel = battery.level;
-          this.adjustPerformanceForBattery();
+        battery?.addEventListener('levelchange', event => {
+          try {
+            this.batteryLevel = battery.level;
+            this.adjustPerformanceForBattery();
+          } catch (error) {
+            console.error('Event listener error for levelchange:', error);
+          }
         });
 
-        battery?.addEventListener('chargingchange', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for chargingchange:', error);
-  }
-}) => {
-          this.adjustPerformanceForBattery();
+        battery?.addEventListener('chargingchange', event => {
+          try {
+            this.adjustPerformanceForBattery();
+          } catch (error) {
+            console.error('Event listener error for chargingchange:', error);
+          }
         });
       }
     } catch (_error) {
@@ -168,8 +165,9 @@ export class MobilePerformanceManager {
         this.adjustPerformanceForFPS(fps);
       } // TODO: Consider extracting to reduce closure scope
 
-      if (!this.isDestroyed) { this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
-        }
+      if (!this.isDestroyed) {
+        this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
+      }
     };
 
     this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
@@ -230,9 +228,10 @@ export class MobilePerformanceManager {
 
     const targetFrameTime = 1000 / this.config.targetFPS;
 
-    if (this.frameTime < targetFrameTime * 0.8) { this.frameSkipCounter++;
+    if (this.frameTime < targetFrameTime * 0.8) {
+      this.frameSkipCounter++;
       return this.frameSkipCounter % 2 === 0; // Skip every other frame if running too fast
-      }
+    }
 
     this.frameSkipCounter = 0;
     return false;
@@ -258,14 +257,17 @@ export class MobilePerformanceManager {
   public getPerformanceRecommendations(): string[] {
     const recommendations: string[] = [];
 
-    if (this.batteryLevel < 0.2) { recommendations.push('Battery low - consider reducing simulation complexity');
-      }
+    if (this.batteryLevel < 0.2) {
+      recommendations.push('Battery low - consider reducing simulation complexity');
+    }
 
-    if (this.config.maxOrganisms > 500) { recommendations.push('High organism count may impact performance on mobile');
-      }
+    if (this.config.maxOrganisms > 500) {
+      recommendations.push('High organism count may impact performance on mobile');
+    }
 
-    if (!this.config.enableObjectPooling) { recommendations.push('Enable object pooling for better memory management');
-      }
+    if (!this.config.enableObjectPooling) {
+      recommendations.push('Enable object pooling for better memory management');
+    }
 
     if (!this.config.reducedEffects && this.shouldReduceEffects()) {
       recommendations.push('Consider reducing visual effects for better performance');
@@ -293,8 +295,9 @@ export class MobilePerformanceManager {
    */
   public destroy(): void {
     this.isDestroyed = true;
-    if (this.performanceMonitoringId) { cancelAnimationFrame(this.performanceMonitoringId);
+    if (this.performanceMonitoringId) {
+      cancelAnimationFrame(this.performanceMonitoringId);
       this.performanceMonitoringId = null;
-      }
+    }
   }
 }

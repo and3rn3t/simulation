@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -128,19 +128,18 @@ export class ControlPanelComponent extends Panel {
     speedDisplay.textContent = `Speed: ${this.speed}x`;
     speedDisplay.className = 'speed-display';
 
-    speedSlider?.addEventListener('input', (event) => {
-  try {
-    (e => {
-      const target = e.target as HTMLInputElement;
-      this.speed = parseFloat(target?.value)(event);
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
-});
-      speedDisplay.textContent = `Speed: ${this.speed}x`;
+    speedSlider?.addEventListener('input', event => {
+      try {
+        const target = event.target as HTMLInputElement;
+        this.speed = parseFloat(target?.value);
+        speedDisplay.textContent = `Speed: ${this.speed}x`;
 
-      if (this.controlConfig.onSpeedChange) { this.controlConfig.onSpeedChange(this.speed);
+        if (this.controlConfig.onSpeedChange) {
+          this.controlConfig.onSpeedChange(this.speed);
         }
+      } catch (error) {
+        console.error('Event listener error for input:', error);
+      }
     });
 
     speedContainer.appendChild(speedDisplay);
@@ -167,14 +166,14 @@ export class ControlPanelComponent extends Panel {
         variant: 'switch',
         checked: this.autoSpawn,
         onChange: checked => {
-  try {
-          this.autoSpawn = checked;
-          ifPattern(this.controlConfig.onAutoSpawnToggle, () => { this.controlConfig.onAutoSpawnToggle(checked);
-           
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+          try {
+            this.autoSpawn = checked;
+            if (this.controlConfig.onAutoSpawnToggle) {
+              this.controlConfig.onAutoSpawnToggle(checked);
+            }
+          } catch (error) {
+            console.error('Callback error:', error);
+          }
         },
       },
       'control-auto-spawn'
@@ -200,9 +199,11 @@ export class ControlPanelComponent extends Panel {
     }
 
     // Trigger callback
-    if (this.isRunning && this.controlConfig.onStart) { this.controlConfig.onStart();
-      } else if (!this.isRunning && this.controlConfig.onPause) { this.controlConfig.onPause();
-      }
+    if (this.isRunning && this.controlConfig.onStart) {
+      this.controlConfig.onStart();
+    } else if (!this.isRunning && this.controlConfig.onPause) {
+      this.controlConfig.onPause();
+    }
   }
 
   private handleReset(): void {
@@ -218,16 +219,18 @@ export class ControlPanelComponent extends Panel {
       });
     }
 
-    if (this.controlConfig.onReset) { this.controlConfig.onReset();
-      }
+    if (this.controlConfig.onReset) {
+      this.controlConfig.onReset();
+    }
   }
 
   /**
    * Update the running state from external sources
    */
   setRunning(running: boolean): void {
-    if (this.isRunning !== running) { this.togglePlayback();
-      }
+    if (this.isRunning !== running) {
+      this.togglePlayback();
+    }
   }
 
   /**
@@ -244,11 +247,13 @@ export class ControlPanelComponent extends Panel {
     this.speed = Math.max(0.1, Math.min(5, speed));
 
     const slider = this.element?.querySelector('.speed-slider') as HTMLInputElement;
-    if (slider) { slider.value = this.speed.toString();
-      }
+    if (slider) {
+      slider.value = this.speed.toString();
+    }
 
     const display = this.element?.querySelector('.speed-display');
-    if (display) { display.textContent = `Speed: ${this.speed  }x`;
+    if (display) {
+      display.textContent = `Speed: ${this.speed}x`;
     }
   }
 }

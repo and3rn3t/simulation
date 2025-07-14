@@ -5,7 +5,15 @@ export default defineConfig({
     environment: 'jsdom', // Changed to jsdom for better DOM testing
     setupFiles: ['./test/setup.ts'],
     include: ['**/*.test.ts', '**/*.spec.ts'],
-    exclude: ['node_modules', 'dist', '.git', 'e2e/**', 'test/performance/**', 'test/visual/**'],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.git',
+      'e2e/**',
+      'test/performance/**',
+      'test/visual/**',
+      '.deduplication-backups/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

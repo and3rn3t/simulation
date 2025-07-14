@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -49,8 +49,9 @@ export class Panel extends BaseComponent {
 
   private setupPanel(): void {
     // Create header if title, closable, or collapsible
-    if (this.config.title || this.config.closable || this.config.collapsible) { this.createHeader();
-      }
+    if (this.config.title || this.config.closable || this.config.collapsible) {
+      this.createHeader();
+    }
 
     // Create content area
     this.content = document.createElement('div');
@@ -58,8 +59,9 @@ export class Panel extends BaseComponent {
     this.element.appendChild(this.content);
 
     // Set up accessibility
-    if (this.config.ariaLabel) { this.setAriaAttribute('label', this.config.ariaLabel);
-      }
+    if (this.config.ariaLabel) {
+      this.setAriaAttribute('label', this.config.ariaLabel);
+    }
   }
 
   private createHeader(): void {
@@ -84,13 +86,13 @@ export class Panel extends BaseComponent {
       collapseBtn.className = 'ui-panel__collapse-btn';
       collapseBtn.innerHTML = '−';
       collapseBtn.setAttribute('aria-label', 'Toggle panel');
-      collapseBtn?.addEventListener('click', (event) => {
-  try {
-    (this.toggleCollapse.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-}));
+      collapseBtn?.addEventListener('click', event => {
+        try {
+          this.toggleCollapse.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
       controls.appendChild(collapseBtn);
     }
 
@@ -100,18 +102,19 @@ export class Panel extends BaseComponent {
       closeBtn.className = 'ui-panel__close-btn';
       closeBtn.innerHTML = '×';
       closeBtn.setAttribute('aria-label', 'Close panel');
-      closeBtn?.addEventListener('click', (event) => {
-  try {
-    (this.handleClose.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-}));
+      closeBtn?.addEventListener('click', event => {
+        try {
+          this.handleClose.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
       controls.appendChild(closeBtn);
     }
 
-    if (controls.children.length > 0) { this.header.appendChild(controls);
-      }
+    if (controls.children.length > 0) {
+      this.header.appendChild(controls);
+    }
 
     this.element.appendChild(this.header);
   }
@@ -127,13 +130,15 @@ export class Panel extends BaseComponent {
       }
     }
 
-    if (this.config.onToggle) { this.config.onToggle(this.collapsed);
-      }
+    if (this.config.onToggle) {
+      this.config.onToggle(this.collapsed);
+    }
   }
 
   private handleClose(): void {
-    if (this.config.onClose) { this.config.onClose();
-      } else {
+    if (this.config.onClose) {
+      this.config.onClose();
+    } else {
       this.unmount();
     }
   }
@@ -142,8 +147,9 @@ export class Panel extends BaseComponent {
    * Add content to the panel
    */
   addContent(content: HTMLElement | string): void {
-    if (typeof content === 'string') { this.content.innerHTML = content;
-      } else {
+    if (typeof content === 'string') {
+      this.content.innerHTML = content;
+    } else {
       this.content.appendChild(content);
     }
   }

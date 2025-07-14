@@ -30,6 +30,9 @@ export default defineConfig({
       '!test/performance/**',
     ],
 
+    // Explicit exclusions to avoid corrupted backup files
+    exclude: ['node_modules/**', 'dist/**', '.git/**', '.deduplication-backups/**', 'e2e/**'],
+
     // Essential test environment
     environment: 'jsdom',
 
