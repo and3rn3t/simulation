@@ -348,7 +348,7 @@ jobs:
     
     - name: Run Docker security scan
       id: trivy-scan
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       continue-on-error: true
       with:
         image-ref: 'organism-simulation:latest'

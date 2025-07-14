@@ -156,7 +156,7 @@ export class VisualizationDashboard extends BaseComponent {
     const toggleIcon = this.element?.querySelector('.toggle-icon') as HTMLElement;
     const dashboardContent = this.element?.querySelector('.dashboard-content') as HTMLElement;
 
-    dashboardToggle?.addEventListener('click', event => {
+    dashboardToggle?.addEventListener('click', _event => {
       try {
         this.isVisible = !this.isVisible;
         dashboardContent.style.display = this.isVisible ? 'block' : 'none';

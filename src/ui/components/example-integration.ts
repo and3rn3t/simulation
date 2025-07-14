@@ -64,7 +64,7 @@ export function initializeUIComponents() {
       label: 'Dark Mode',
       variant: 'switch',
       checked: false, // ThemeManager.getCurrentTheme() === 'dark',
-      onChange: (checked: boolean) => {
+      onChange: (_checked: boolean) => {
         // ThemeManager.setTheme(checked ? 'dark' : 'light');
         // ThemeManager.saveThemePreference();
       },

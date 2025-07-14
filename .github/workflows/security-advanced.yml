@@ -89,7 +89,7 @@ jobs:
       continue-on-error: true
     
     - name: Snyk vulnerability scan
-      uses: snyk/actions/node@master
+      uses: snyk/actions/node@v1
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
@@ -137,7 +137,7 @@ jobs:
     
     - name: TruffleHog OSS Secret Scanning (Diff Mode)
       if: steps.commit-range.outputs.scan_type == 'diff'
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@v3.80.2
       with:
         path: ./
         base: ${{ steps.commit-range.outputs.base }}
@@ -147,7 +147,7 @@ jobs:
     
     - name: TruffleHog OSS Secret Scanning (Filesystem Mode)
       if: steps.commit-range.outputs.scan_type == 'filesystem'
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@v3.80.2
       with:
         path: ./
         extra_args: --debug --only-verified --fail
@@ -209,7 +209,7 @@ jobs:
       run: docker build -t organism-simulation:latest .
     
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         image-ref: 'organism-simulation:latest'
         format: 'sarif'

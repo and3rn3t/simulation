@@ -122,7 +122,7 @@ export class MobilePerformanceManager {
         this.isLowPowerMode = this.batteryLevel < 0.2;
 
         // Listen for battery changes
-        battery?.addEventListener('levelchange', event => {
+        battery?.addEventListener('levelchange', _event => {
           try {
             this.batteryLevel = battery.level;
             this.adjustPerformanceForBattery();
@@ -131,7 +131,7 @@ export class MobilePerformanceManager {
           }
         });
 
-        battery?.addEventListener('chargingchange', event => {
+        battery?.addEventListener('chargingchange', _event => {
           try {
             this.adjustPerformanceForBattery();
           } catch (error) {

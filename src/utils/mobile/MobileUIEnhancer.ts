@@ -75,7 +75,7 @@ export class MobileUIEnhancer {
       justifyContent: 'center',
     });
 
-    this.fullscreenButton?.addEventListener('click', event => {
+    this.fullscreenButton?.addEventListener('click', _event => {
       try {
         this.toggleFullscreen();
       } catch (error) {
@@ -122,7 +122,7 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    handle?.addEventListener('click', event => {
+    handle?.addEventListener('click', _event => {
       try {
         this.toggleBottomSheet();
       } catch (error) {
@@ -217,7 +217,7 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    trigger?.addEventListener('click', event => {
+    trigger?.addEventListener('click', _event => {
       try {
         this.toggleBottomSheet();
       } catch (error) {
@@ -242,15 +242,15 @@ export class MobileUIEnhancer {
       inputs.forEach(input => {
         try {
           (input as HTMLElement).style.fontSize = '16px';
-        } catch (error) {
-          console.error('Input font size error:', error);
+        } catch (_error) {
+          console.error('Input font size error:', _error);
         }
       });
 
       // Add touch feedback to all buttons
       const buttons = document.querySelectorAll('button');
       buttons.forEach(button => {
-        button?.addEventListener('touchstart', event => {
+        button?.addEventListener('touchstart', _event => {
           try {
             button.style.transform = 'scale(0.95)';
           } catch (error) {
@@ -258,7 +258,7 @@ export class MobileUIEnhancer {
           }
         });
 
-        button?.addEventListener('touchend', event => {
+        button?.addEventListener('touchend', _event => {
           try {
             button.style.transform = 'scale(1)';
           } catch (error) {
