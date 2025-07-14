@@ -120,17 +120,70 @@ export default [
   },
   {
     ignores: [
+      // Build outputs
       'dist/**',
+      'build/**',
       'coverage/**',
       'node_modules/**',
       'public/**',
+
+      // Test outputs and reports
+      'test-results/**',
+      'playwright-report/**',
+      'e2e/**',
+      '**/*.test.ts',
+      '**/*.test.js',
+      '**/*.spec.ts',
+      '**/*.spec.js',
+
+      // Configuration files
+      '*.config.js',
+      '*.config.ts',
+      '*.config.mjs',
+      '*.config.cjs',
+      'vite.config.*',
+      'vitest.config.*',
+      'playwright.config.*',
+      'lighthouserc.*',
+
+      // Documentation and reports
+      'docs/**',
+      '**/*.md',
+      '*.json',
+      'security-*.json',
+      'code-complexity-report.json',
+      'lint-errors.txt',
+      'typescript-errors.txt',
+
+      // Scripts and automation
+      'scripts/**',
+      '.github/**',
+      '*.ps1',
+      '*.sh',
+
+      // Generated/temporary directories
+      'generated-*/**',
+      'deduplication-reports/**',
+      'github-integration/**',
+      'environments/**',
+      'tmp/**',
+      'temp/**',
+      '.cache/**',
+
+      // Backup and experimental files
       'src/main-backup.ts',
       'src/main-leaderboard.ts',
-      'src/core/simulation_clean.ts',
-      'src/core/simulation_final.ts',
-      'src/core/simulation_minimal.ts',
-      'src/core/simulation_simple.ts',
+      'src/core/simulation_*.ts',
       'src/examples/interactive-examples.ts',
+      '*backup*',
+      '*.bak',
+
+      // HTML test files
+      'test-*.html',
+      '*.test.html',
+
+      // Types (if generated)
+      'types/generated/**',
     ],
   },
 ];

@@ -233,84 +233,9 @@ function setupSimulationControls(): void {
   log.logSystem('🎛️ Setting up simulation controls...');
 
   try {
-    // Get control elements
-    const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
-    const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
-    const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
-    const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-    const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
-    const speedValue = document.getElementById('speed-value') as HTMLSpanElement;
-    const populationLimitSlider = document.getElementById('population-limit') as HTMLInputElement;
-    const populationLimitValue = document.getElementById(
-      'population-limit-value'
-    ) as HTMLSpanElement;
-    const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
-
-    // Setup button event listeners
-    if (startBtn && simulation) {
-      startBtn.addEventListener('click', () => {
-        if (simulation!.getStats().isRunning) {
-          handleGameOver();
-          simulation!.pause();
-        } else {
-          simulation!.start();
-        }
-      });
-    }
-
-    if (pauseBtn && simulation) {
-      pauseBtn.addEventListener('click', () => {
-        simulation!.pause();
-      });
-    }
-
-    if (resetBtn && simulation) {
-      resetBtn.addEventListener('click', () => {
-        simulation!.reset();
-        leaderboardManager.updateLeaderboardDisplay();
-      });
-    }
-
-    if (clearBtn && simulation) {
-      clearBtn.addEventListener('click', () => {
-        simulation!.clear();
-      });
-    }
-
-    // Setup slider controls
-    if (speedSlider && speedValue && simulation) {
-      speedSlider.addEventListener('input', () => {
-        const speed = parseInt(speedSlider.value);
-        simulation!.setSpeed(speed);
-        speedValue.textContent = `${speed}x`;
-        log.logSystem('🏃 Speed changed to:', speed);
-      });
-    }
-
-    if (populationLimitSlider && populationLimitValue && simulation) {
-      populationLimitSlider.addEventListener('input', () => {
-        const limit = parseInt(populationLimitSlider.value);
-        simulation!.setMaxPopulation(limit);
-        populationLimitValue.textContent = limit.toString();
-        log.logSystem('👥 Population limit changed to:', limit);
-      });
-    }
-
-    if (organismSelect && simulation) {
-      organismSelect.addEventListener('change', () => {
-        // Use setOrganismType instead of getOrganismTypeById which doesn't exist
-        simulation!.setOrganismType(organismSelect.value);
-        log.logSystem('🦠 Organism type changed to:', organismSelect.value);
-      });
-    }
-
-    // Setup challenge button - remove since startChallenge doesn't exist
-    // const challengeBtn = document.getElementById('start-challenge-btn');
-    // if (challengeBtn && simulation) {
-    //   challengeBtn.addEventListener('click', () => {
-    //     simulation!.startChallenge();
-    //   });
-    // }
+    setupButtonControls();
+    setupSliderControls();
+    setupSelectControls();
 
     log.logSystem('✅ Simulation controls setup successfully');
   } catch (error) {
@@ -320,6 +245,79 @@ function setupSimulationControls(): void {
       ErrorSeverity.HIGH,
       'Simulation controls setup'
     );
+  }
+}
+
+function setupButtonControls(): void {
+  const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
+  const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+
+  if (startBtn && simulation) {
+    startBtn.addEventListener('click', () => {
+      if (simulation!.getStats().isRunning) {
+        handleGameOver();
+        simulation!.pause();
+      } else {
+        simulation!.start();
+      }
+    });
+  }
+
+  if (pauseBtn && simulation) {
+    pauseBtn.addEventListener('click', () => {
+      simulation!.pause();
+    });
+  }
+
+  if (resetBtn && simulation) {
+    resetBtn.addEventListener('click', () => {
+      simulation!.reset();
+      leaderboardManager.updateLeaderboardDisplay();
+    });
+  }
+
+  if (clearBtn && simulation) {
+    clearBtn.addEventListener('click', () => {
+      simulation!.clear();
+    });
+  }
+}
+
+function setupSliderControls(): void {
+  const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
+  const speedValue = document.getElementById('speed-value') as HTMLSpanElement;
+  const populationLimitSlider = document.getElementById('population-limit') as HTMLInputElement;
+  const populationLimitValue = document.getElementById('population-limit-value') as HTMLSpanElement;
+
+  if (speedSlider && speedValue && simulation) {
+    speedSlider.addEventListener('input', () => {
+      const speed = parseInt(speedSlider.value);
+      simulation!.setSpeed(speed);
+      speedValue.textContent = `${speed}x`;
+      log.logSystem('🏃 Speed changed to:', speed);
+    });
+  }
+
+  if (populationLimitSlider && populationLimitValue && simulation) {
+    populationLimitSlider.addEventListener('input', () => {
+      const limit = parseInt(populationLimitSlider.value);
+      simulation!.setMaxPopulation(limit);
+      populationLimitValue.textContent = limit.toString();
+      log.logSystem('👥 Population limit changed to:', limit);
+    });
+  }
+}
+
+function setupSelectControls(): void {
+  const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
+
+  if (organismSelect && simulation) {
+    organismSelect.addEventListener('change', () => {
+      simulation!.setOrganismType(organismSelect.value);
+      log.logSystem('🦠 Organism type changed to:', organismSelect.value);
+    });
   }
 }
 
@@ -354,31 +352,50 @@ function handleGameOver(): void {
 // === DEVELOPMENT TOOLS ===
 
 function setupDevKeyboardShortcuts(): void {
-  document.addEventListener('keydown', event => {
-    // Ctrl/Cmd + Shift + D for debug mode
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D') {
-      event.preventDefault();
-      if (debugMode) {
-        debugMode.toggle();
-      }
-    }
+  document.addEventListener('keydown', handleDevKeyboardShortcut);
+}
 
-    // Ctrl/Cmd + Shift + C for console
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
-      event.preventDefault();
-      if (devConsole) {
-        devConsole.toggle();
-      }
-    }
+function handleDevKeyboardShortcut(event: KeyboardEvent): void {
+  if (isDebugShortcut(event)) {
+    handleDebugToggle(event);
+  } else if (isConsoleShortcut(event)) {
+    handleConsoleToggle(event);
+  } else if (isProfilerShortcut(event)) {
+    handleProfilerToggle(event);
+  }
+}
 
-    // Ctrl/Cmd + Shift + P for profiler
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'P') {
-      event.preventDefault();
-      if (performanceProfiler) {
-        performanceProfiler.toggle();
-      }
-    }
-  });
+function isDebugShortcut(event: KeyboardEvent): boolean {
+  return (event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D';
+}
+
+function isConsoleShortcut(event: KeyboardEvent): boolean {
+  return (event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C';
+}
+
+function isProfilerShortcut(event: KeyboardEvent): boolean {
+  return (event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'P';
+}
+
+function handleDebugToggle(event: KeyboardEvent): void {
+  event.preventDefault();
+  if (debugMode) {
+    debugMode.toggle();
+  }
+}
+
+function handleConsoleToggle(event: KeyboardEvent): void {
+  event.preventDefault();
+  if (devConsole) {
+    devConsole.toggle();
+  }
+}
+
+function handleProfilerToggle(event: KeyboardEvent): void {
+  event.preventDefault();
+  if (performanceProfiler) {
+    performanceProfiler.toggle();
+  }
 }
 
 // Lazy load development tools

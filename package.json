@@ -24,6 +24,8 @@
     "test:smoke": "node scripts/test/smoke-test.cjs",
     "test:smoke:staging": "node scripts/test/smoke-test.cjs staging",
     "test:smoke:production": "node scripts/test/smoke-test.cjs production",
+    "test:smart": "node scripts/smart-test-selection.mjs",
+    "test:smart-analysis": "EXECUTE_TESTS=false node scripts/smart-test-selection.mjs",
     "lint": "eslint src/ --ext .ts,.tsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx --fix",
     "format": "prettier --write src/ test/ e2e/",

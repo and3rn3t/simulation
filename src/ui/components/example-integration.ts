@@ -27,10 +27,19 @@ import './ui-components.css';
  * This demonstrates how to use the new components in the simulation
  */
 export function initializeUIComponents() {
-  // Initialize theme system
-  // ThemeManager.initializeTheme();
+  const demoContainer = createDemoContainer();
+  const demoPanel = createDemoPanel(demoContainer);
+  const content = createDemoContent();
 
-  // Create a demo container to showcase components
+  populateDemoContent(content);
+  demoPanel.addContent(content);
+  demoPanel.mount(demoContainer);
+  document.body.appendChild(demoContainer);
+
+  return demoPanel;
+}
+
+function createDemoContainer(): HTMLElement {
   const demoContainer = document.createElement('div');
   demoContainer.id = 'ui-demo';
   demoContainer.style.position = 'fixed';
@@ -40,9 +49,11 @@ export function initializeUIComponents() {
   demoContainer.style.maxHeight = '80vh';
   demoContainer.style.overflow = 'auto';
   demoContainer.style.zIndex = '1000';
+  return demoContainer;
+}
 
-  // Create a demo panel
-  const demoPanel = ComponentFactory.createPanel(
+function createDemoPanel(demoContainer: HTMLElement) {
+  return ComponentFactory.createPanel(
     {
       title: 'UI Components Demo',
       collapsible: true,
@@ -53,28 +64,37 @@ export function initializeUIComponents() {
     },
     'ui-demo-panel'
   );
+}
 
-  // Add some example content
+function createDemoContent(): HTMLElement {
   const content = document.createElement('div');
   content.style.padding = '1rem';
+  return content;
+}
 
-  // Theme toggle
+function populateDemoContent(content: HTMLElement): void {
+  addThemeToggle(content);
+  addExampleButtons(content);
+  addInputExample(content);
+  addModalExample(content);
+}
+
+function addThemeToggle(content: HTMLElement): void {
   const themeToggle = ComponentFactory.createToggle(
     {
       label: 'Dark Mode',
       variant: 'switch',
-      checked: false, // ThemeManager.getCurrentTheme() === 'dark',
+      checked: false,
       onChange: (_checked: boolean) => {
-        // ThemeManager.setTheme(checked ? 'dark' : 'light');
-        // ThemeManager.saveThemePreference();
+        // ThemeManager integration would go here
       },
     },
     'theme-toggle'
   );
-
   themeToggle.mount(content);
+}
 
-  // Example buttons
+function addExampleButtons(content: HTMLElement): void {
   const buttonContainer = document.createElement('div');
   buttonContainer.style.display = 'flex';
   buttonContainer.style.flexDirection = 'column';
@@ -96,10 +116,10 @@ export function initializeUIComponents() {
 
   primaryBtn.mount(buttonContainer);
   secondaryBtn.mount(buttonContainer);
-
   content.appendChild(buttonContainer);
+}
 
-  // Add input example
+function addInputExample(content: HTMLElement): void {
   const inputContainer = document.createElement('div');
   inputContainer.style.marginTop = '1rem';
 
@@ -112,8 +132,9 @@ export function initializeUIComponents() {
 
   exampleInput.mount(inputContainer);
   content.appendChild(inputContainer);
+}
 
-  // Modal example
+function addModalExample(content: HTMLElement): void {
   const modalBtn = ComponentFactory.createButton({
     text: 'Open Modal',
     variant: 'secondary',
@@ -138,22 +159,15 @@ export function initializeUIComponents() {
   modalContainer.style.marginTop = '1rem';
   modalBtn.mount(modalContainer);
   content.appendChild(modalContainer);
-
-  demoPanel.addContent(content);
-  demoPanel.mount(demoContainer);
-
-  document.body.appendChild(demoContainer);
-
-  return demoPanel;
 }
 
 // Auto-initialize if this file is imported
 if (typeof window !== 'undefined') {
   // Wait for DOM to be ready
   if (document.readyState === 'loading') {
-    document?.addEventListener('DOMContentLoaded', event => {
+    document?.addEventListener('DOMContentLoaded', _event => {
       try {
-        initializeUIComponents(event);
+        initializeUIComponents();
       } catch (error) {
         console.error('Event listener error for DOMContentLoaded:', error);
       }

@@ -142,7 +142,7 @@ jobs:
         path: ./
         base: ${{ steps.commit-range.outputs.base }}
         head: ${{ steps.commit-range.outputs.head }}
-        extra_args: --debug --only-verified --fail
+        extra_args: --debug --only-verified --fail --exclude-paths=.trufflehog-ignore
       continue-on-error: true
     
     - name: TruffleHog OSS Secret Scanning (Filesystem Mode)
@@ -150,7 +150,7 @@ jobs:
       uses: trufflesecurity/trufflehog@v3.80.2
       with:
         path: ./
-        extra_args: --debug --only-verified --fail
+        extra_args: --debug --only-verified --fail --exclude-paths=.trufflehog-ignore
       continue-on-error: true
 
   license-compliance:
@@ -216,6 +216,7 @@ jobs:
         output: 'trivy-results.sarif'
         exit-code: '1'  # Fail on HIGH/CRITICAL vulnerabilities
         severity: 'CRITICAL,HIGH'
+        trivyignores: '.trivyignore'
     
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3

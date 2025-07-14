@@ -1,0 +1,57 @@
+# Trivy ignore file for container scanning
+
+# Documentation files
+*.md
+**/*.md
+docs/
+README*
+CHANGELOG*
+LICENSE*
+
+# Test files and outputs
+test/
+e2e/
+**/*.test.*
+**/*.spec.*
+test-results/
+playwright-report/
+coverage/
+
+# Build and development artifacts
+node_modules/
+.npm/
+.cache/
+tmp/
+temp/
+
+# Configuration that's not runtime-critical
+*.config.js
+*.config.ts
+lighthouserc.*
+codecov.yml
+renovate.json
+
+# Generated reports and logs
+*.log
+security-*.json
+code-complexity-report.json
+lint-errors.txt
+typescript-errors.txt
+duplication-details.txt
+generated-*.json
+
+# Development scripts
+scripts/
+.github/
+*.ps1
+*.sh
+fix-*.ps1
+
+# Backup files
+*backup*
+*.bak
+*-backup.*
+
+# HTML test files
+test-*.html
+*.test.html

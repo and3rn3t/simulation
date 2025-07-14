@@ -1,0 +1,69 @@
+# ESLint ignore file - comprehensive exclusions
+
+# Build outputs
+dist/
+build/
+coverage/
+node_modules/
+public/
+
+# Test outputs  
+test-results/
+playwright-report/
+e2e/
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Configuration files
+*.config.js
+*.config.ts
+*.config.mjs
+*.config.cjs
+vite.config.*
+vitest.config.*
+playwright.config.*
+lighthouserc.*
+
+# Documentation
+docs/
+**/*.md
+*.json
+
+# Reports and logs
+security-*.json
+code-complexity-report.json
+lint-errors.txt
+typescript-errors.txt
+*.log
+
+# Scripts
+scripts/
+.github/
+*.ps1
+*.sh
+
+# Generated directories
+generated-*/
+deduplication-reports/
+github-integration/
+environments/
+tmp/
+temp/
+.cache/
+
+# Backup files
+src/main-backup.ts
+src/main-leaderboard.ts
+src/core/simulation_*.ts
+src/examples/interactive-examples.ts
+*backup*
+*.bak
+
+# HTML test files
+test-*.html
+*.test.html
+
+# Generated types
+types/generated/

@@ -193,75 +193,116 @@ export class ErrorHandler {
    * @param errorInfo - Critical error information
    */
   private showCriticalErrorNotification(errorInfo: ErrorInfo): void {
-    // Try to show a user-friendly notification
     try {
-      const notification = document.createElement('div');
-      notification.className = 'error-notification critical';
-
-      // Create elements safely without innerHTML
-      const content = document.createElement('div');
-      content.className = 'error-content';
-
-      const title = document.createElement('h3');
-      title.textContent = '⚠️ Critical Error';
-
-      const description = document.createElement('p');
-      description.textContent =
-        'The simulation encountered a critical error and may not function properly.';
-
-      const errorMessage = document.createElement('p');
-      const errorLabel = document.createElement('strong');
-      errorLabel.textContent = 'Error: ';
-      errorMessage.appendChild(errorLabel);
-      // Safely set error message to prevent XSS
-      const errorText = document.createTextNode(errorInfo.error.message || 'Unknown error');
-      errorMessage.appendChild(errorText);
-
-      const actions = document.createElement('div');
-      actions.className = 'error-actions';
-
-      const dismissBtn = document.createElement('button');
-      dismissBtn.textContent = 'Dismiss';
-      dismissBtn.addEventListener('click', () => {
-        notification.remove();
-      });
-
-      const reloadBtn = document.createElement('button');
-      reloadBtn.textContent = 'Reload Page';
-      reloadBtn.addEventListener('click', () => {
-        window.location.reload();
-      });
-
-      actions.appendChild(dismissBtn);
-      actions.appendChild(reloadBtn);
-
-      content.appendChild(title);
-      content.appendChild(description);
-      content.appendChild(errorMessage);
-      content.appendChild(actions);
+      const notification = this.createNotificationElement();
+      const content = this.createNotificationContent(errorInfo);
 
       notification.appendChild(content);
+      this.styleNotification(notification);
+      this.appendAndAutoRemove(notification);
+    } catch {
+      this.showFallbackAlert(errorInfo);
+    }
+  }
 
-      // Add styles
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ff4444;
-        color: white;
-        padding: 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 10000;
-        max-width: 400px;
-        font-family: Arial, sans-serif;
-      `;
+  private createNotificationElement(): HTMLElement {
+    const notification = document.createElement('div');
+    notification.className = 'error-notification critical';
+    return notification;
+  }
 
-      // Style the buttons
-      const buttons = notification.querySelectorAll('button');
-      buttons.forEach(button => {
-        try {
-          (button as HTMLButtonElement).style.cssText = `
+  private createNotificationContent(errorInfo: ErrorInfo): HTMLElement {
+    const content = document.createElement('div');
+    content.className = 'error-content';
+
+    content.appendChild(this.createTitle());
+    content.appendChild(this.createDescription());
+    content.appendChild(this.createErrorMessage(errorInfo));
+    content.appendChild(this.createActions());
+
+    return content;
+  }
+
+  private createTitle(): HTMLElement {
+    const title = document.createElement('h3');
+    title.textContent = '⚠️ Critical Error';
+    return title;
+  }
+
+  private createDescription(): HTMLElement {
+    const description = document.createElement('p');
+    description.textContent =
+      'The simulation encountered a critical error and may not function properly.';
+    return description;
+  }
+
+  private createErrorMessage(errorInfo: ErrorInfo): HTMLElement {
+    const errorMessage = document.createElement('p');
+    const errorLabel = document.createElement('strong');
+    errorLabel.textContent = 'Error: ';
+    errorMessage.appendChild(errorLabel);
+
+    const errorText = document.createTextNode(errorInfo.error.message || 'Unknown error');
+    errorMessage.appendChild(errorText);
+
+    return errorMessage;
+  }
+
+  private createActions(): HTMLElement {
+    const actions = document.createElement('div');
+    actions.className = 'error-actions';
+
+    const dismissBtn = this.createDismissButton();
+    const reloadBtn = this.createReloadButton();
+
+    actions.appendChild(dismissBtn);
+    actions.appendChild(reloadBtn);
+
+    return actions;
+  }
+
+  private createDismissButton(): HTMLButtonElement {
+    const dismissBtn = document.createElement('button');
+    dismissBtn.textContent = 'Dismiss';
+    dismissBtn.addEventListener('click', event => {
+      const notification = (event.target as HTMLElement).closest('.error-notification');
+      notification?.remove();
+    });
+    return dismissBtn;
+  }
+
+  private createReloadButton(): HTMLButtonElement {
+    const reloadBtn = document.createElement('button');
+    reloadBtn.textContent = 'Reload Page';
+    reloadBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+    return reloadBtn;
+  }
+
+  private styleNotification(notification: HTMLElement): void {
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff4444;
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      max-width: 400px;
+      font-family: Arial, sans-serif;
+    `;
+
+    this.styleButtons(notification);
+  }
+
+  private styleButtons(notification: HTMLElement): void {
+    const buttons = notification.querySelectorAll('button');
+    buttons.forEach(button => {
+      try {
+        (button as HTMLButtonElement).style.cssText = `
           background: rgba(255,255,255,0.2);
           border: 1px solid rgba(255,255,255,0.3);
           color: white;
@@ -270,27 +311,28 @@ export class ErrorHandler {
           border-radius: 4px;
           cursor: pointer;
         `;
-        } catch (error) {
-          console.error('Callback error:', error);
-        }
-      });
-
-      document.body.appendChild(notification);
-
-      // Auto-remove after 15 seconds
-      setTimeout(() => {
-        if (notification.parentElement) {
-          notification.remove();
-        }
-      }, 15000);
-    } catch {
-      // Fallback to alert if DOM manipulation fails
-      const shouldReload = confirm(
-        `Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`
-      );
-      if (shouldReload) {
-        window.location.reload();
+      } catch (error) {
+        console.error('Callback error:', error);
       }
+    });
+  }
+
+  private appendAndAutoRemove(notification: HTMLElement): void {
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 15000);
+  }
+
+  private showFallbackAlert(errorInfo: ErrorInfo): void {
+    const shouldReload = confirm(
+      `Critical Error: ${errorInfo.error.message}\n\nWould you like to reload the page?`
+    );
+    if (shouldReload) {
+      window.location.reload();
     }
   }
 

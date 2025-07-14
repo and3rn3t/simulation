@@ -298,43 +298,56 @@ export class MemoryPanelComponent {
     const stats = this.memoryMonitor.getMemoryStats();
     const recommendations = this.memoryMonitor.getMemoryRecommendations();
 
-    // Update usage
+    this.updateUsageDisplay(stats);
+    this.updateLevelDisplay(stats);
+    this.updateTrendDisplay(stats);
+    this.updatePoolDisplay();
+    this.updateRecommendationsDisplay(recommendations);
+  }
+
+  private updateUsageDisplay(stats: any): void {
     const usageElement = this.element?.querySelector('.memory-usage') as HTMLElement;
     const fillElement = this.element?.querySelector('.memory-fill') as HTMLElement;
+
     if (usageElement && fillElement) {
       usageElement.textContent = `${stats.percentage.toFixed(1)}%`;
       fillElement.style.width = `${Math.min(stats.percentage, 100)}%`;
-
-      // Color based on usage level
-      const level = stats.level;
-      fillElement.className = `memory-fill memory-${level}`;
+      fillElement.className = `memory-fill memory-${stats.level}`;
     }
+  }
 
-    // Update level
+  private updateLevelDisplay(stats: any): void {
     const levelElement = this.element?.querySelector('.memory-level') as HTMLElement;
+
     if (levelElement) {
       levelElement.textContent = stats.level;
       levelElement.className = `memory-level memory-${stats.level}`;
     }
+  }
 
-    // Update trend
+  private updateTrendDisplay(stats: any): void {
     const trendElement = this.element?.querySelector('.memory-trend') as HTMLElement;
+
     if (trendElement) {
       const trendIcon =
         stats.trend === 'increasing' ? '📈' : stats.trend === 'decreasing' ? '📉' : '➡️';
       trendElement.textContent = `${trendIcon} ${stats.trend}`;
     }
+  }
 
-    // Update pool stats (this would need to be passed from simulation)
+  private updatePoolDisplay(): void {
     const poolElement = this.element?.querySelector('.pool-stats') as HTMLElement;
+
     if (poolElement) {
       poolElement.textContent = 'Available'; // Placeholder
     }
+  }
 
-    // Update recommendations
+  private updateRecommendationsDisplay(recommendations: string[]): void {
     const recommendationsElement = this.element?.querySelector(
       '.recommendations-list'
     ) as HTMLElement;
+
     if (recommendationsElement) {
       if (recommendations.length > 0) {
         recommendationsElement.innerHTML = recommendations
