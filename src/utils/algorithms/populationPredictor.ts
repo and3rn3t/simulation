@@ -74,9 +74,16 @@ export class PopulationPredictor {
 
       let prediction: PopulationPrediction;
 
-      ifPattern(useWorkers && organisms.length > 100, () => { // Use web workers for large populations
-  try { prediction = await this.predictUsingWorkers(organisms, timeHorizon); } catch (error) { console.error('Await error:', error); }
-       }); else {
+      if (useWorkers && organisms.length > 100) {
+        // Use web workers for large populations
+        try {
+          prediction = await this.predictUsingWorkers(organisms, timeHorizon);
+        } catch (error) {
+          console.error('Worker prediction error:', error);
+          // Fallback to main thread
+          prediction = await this.predictUsingMainThread(organisms, timeHorizon);
+        }
+      } else {
         // Use main thread for small populations
         prediction = await this.predictUsingMainThread(organisms, timeHorizon);
       }
@@ -121,7 +128,13 @@ export class PopulationPredictor {
       predictionSteps: timeHorizon,
     };
 
-  try { const result = await algorithmWorkerManager.predictPopulation(workerData); } catch (error) { console.error('Await error:', error); }
+    let result;
+    try {
+      result = await algorithmWorkerManager.predictPopulation(workerData);
+    } catch (error) {
+      console.error('Worker prediction error:', error);
+      throw error;
+    }
 
     return {
       timeSteps: Array.from({ length: timeHorizon }, (_, i) => i),
@@ -153,32 +166,30 @@ export class PopulationPredictor {
 
     // Initialize type populations
     organismTypes.forEach(type => {
-  try {
-      populationByType[type.name] = [];
-    
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+      try {
+        populationByType[type.name] = [];
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
+    });
 
     // Simulate growth for each time step
     for (let t = 0; t < timeHorizon; t++) {
       let totalPop = 0;
 
       organismTypes.forEach(type => {
-  try {
-        const curve = growthCurves[type.name];
-        if (curve && curve.parameters) {
-          const population = this.calculatePopulationAtTime(t, curve, organisms.length);
-          const typePopulation = populationByType[type.name];
-          if (typePopulation) {
-            typePopulation.push(population);
-            totalPop += population;
-          
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-}
+        try {
+          const curve = growthCurves[type.name];
+          if (curve && curve.parameters) {
+            const population = this.calculatePopulationAtTime(t, curve, organisms.length);
+            const typePopulation = populationByType[type.name];
+            if (typePopulation) {
+              typePopulation.push(population);
+              totalPop += population;
+            }
+          }
+        } catch (error) {
+          console.error('Population calculation error:', error);
         }
       });
 
@@ -209,24 +220,23 @@ export class PopulationPredictor {
     const curves: Record<string, GrowthCurve> = {};
 
     organismTypes.forEach(type => {
-  try {
-      const environmentalModifier = this.calculateEnvironmentalModifier();
-      const carryingCapacity = this.calculateCarryingCapacity(type);
+      try {
+        const environmentalModifier = this.calculateEnvironmentalModifier();
+        const carryingCapacity = this.calculateCarryingCapacity(type);
 
-      curves[type.name] = {
-        type: 'logistic',
-        parameters: {
-          r: type.growthRate * 0.01 * environmentalModifier,
-          K: carryingCapacity,
-          t0: 0,
-          alpha: type.deathRate * 0.01,
-          beta: (1 - environmentalModifier) * 0.5,
-        
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-},
-      };
+        curves[type.name] = {
+          type: 'logistic',
+          parameters: {
+            r: type.growthRate * 0.01 * environmentalModifier,
+            K: carryingCapacity,
+            t0: 0,
+            alpha: type.deathRate * 0.01,
+            beta: (1 - environmentalModifier) * 0.5,
+          },
+        };
+      } catch (error) {
+        console.error('Growth curve calculation error:', error);
+      }
     });
 
     return curves;
@@ -313,8 +323,9 @@ export class PopulationPredictor {
    */
   private calculateConfidence(organisms: Organism[]): number {
     // No organisms = no confidence
-    if (organisms.length === 0) { return 0;
-      }
+    if (organisms.length === 0) {
+      return 0;
+    }
 
     let confidence = 0.5; // Base confidence
 
@@ -359,14 +370,13 @@ export class PopulationPredictor {
     const typeMap = new Map<string, OrganismType>();
 
     organisms.forEach(organism => {
-  try {
-      if (!typeMap.has(organism.type.name)) {
-        typeMap.set(organism.type.name, organism.type);
-      
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-}
+      try {
+        if (!typeMap.has(organism.type.name)) {
+          typeMap.set(organism.type.name, organism.type);
+        }
+      } catch (error) {
+        console.error('Organism type mapping error:', error);
+      }
     });
 
     return Array.from(typeMap.values());
@@ -434,8 +444,9 @@ export class PopulationPredictor {
     this.historicalData.push({ time, population });
 
     // Keep only recent data
-    if (this.historicalData.length > 100) { this.historicalData.shift();
-      }
+    if (this.historicalData.length > 100) {
+      this.historicalData.shift();
+    }
   }
 
   /**

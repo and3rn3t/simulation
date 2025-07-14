@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -61,47 +61,63 @@ export class MobileTouchHandler {
    */
   private setupTouchEvents(): void {
     // Prevent default touch behaviors
-    this.eventPattern(canvas?.addEventListener('touchstart', (event) => {
-  try {
-    (this.handleTouchStart.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for touchstart:', error);
-  }
-})), {
-      passive: false,
-    });
-    this.eventPattern(canvas?.addEventListener('touchmove', (event) => {
-  try {
-    (this.handleTouchMove.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for touchmove:', error);
-  }
-})), { passive: false });
-    this.eventPattern(canvas?.addEventListener('touchend', (event) => {
-  try {
-    (this.handleTouchEnd.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for touchend:', error);
-  }
-})), { passive: false });
-    this.eventPattern(canvas?.addEventListener('touchcancel', (event) => {
-  try {
-    (this.handleTouchCancel.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for touchcancel:', error);
-  }
-})), {
-      passive: false,
-    });
+    this.canvas?.addEventListener(
+      'touchstart',
+      event => {
+        try {
+          this.handleTouchStart.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchstart:', error);
+        }
+      },
+      {
+        passive: false,
+      }
+    );
+    this.canvas?.addEventListener(
+      'touchmove',
+      event => {
+        try {
+          this.handleTouchMove.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchmove:', error);
+        }
+      },
+      { passive: false }
+    );
+    this.canvas?.addEventListener(
+      'touchend',
+      event => {
+        try {
+          this.handleTouchEnd.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchend:', error);
+        }
+      },
+      { passive: false }
+    );
+    this.canvas?.addEventListener(
+      'touchcancel',
+      event => {
+        try {
+          this.handleTouchCancel.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchcancel:', error);
+        }
+      },
+      {
+        passive: false,
+      }
+    );
 
     // Prevent context menu on long press
-    this.eventPattern(canvas?.addEventListener('contextmenu', (event) => {
-  try {
-    (e => e.preventDefault()(event);
-  } catch (error) {
-    console.error('Event listener error for contextmenu:', error);
-  }
-})));
+    this.canvas?.addEventListener('contextmenu', event => {
+      try {
+        event.preventDefault();
+      } catch (error) {
+        console.error('Event listener error for contextmenu:', error);
+      }
+    });
   }
 
   /**
@@ -162,8 +178,9 @@ export class MobileTouchHandler {
         const deltaX = coords.x - this.lastPanPosition.x;
         const deltaY = coords.y - this.lastPanPosition.y;
 
-        if (this.callbacks.onPan) { this.callbacks.onPan(deltaX, deltaY);
-          }
+        if (this.callbacks.onPan) {
+          this.callbacks.onPan(deltaX, deltaY);
+        }
 
         this.lastPanPosition = coords;
       }
@@ -208,9 +225,10 @@ export class MobileTouchHandler {
             setTimeout(() => this.vibrate(25), 50);
           }
         } else {
-          if (this.callbacks.onTap) { this.callbacks.onTap(coords.x, coords.y);
+          if (this.callbacks.onTap) {
+            this.callbacks.onTap(coords.x, coords.y);
             this.vibrate(10); // Light vibration for tap
-            }
+          }
         }
 
         this.lastTapTime = now;
@@ -271,17 +289,19 @@ export class MobileTouchHandler {
    * Clear long press timer
    */
   private clearLongPressTimer(): void {
-    if (this.longPressTimer) { clearTimeout(this.longPressTimer);
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
       this.longPressTimer = undefined;
-      }
+    }
   }
 
   /**
    * Provide haptic feedback if available
    */
   private vibrate(duration: number): void {
-    if ('vibrate' in navigator) { navigator.vibrate(duration);
-      }
+    if ('vibrate' in navigator) {
+      navigator.vibrate(duration);
+    }
   }
 
   /**

@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -59,17 +59,16 @@ export class LazyLoader {
     this.memoryMonitor = MemoryMonitor.getInstance();
 
     // Listen for memory cleanup events
-    window?.addEventListener('memory-cleanup', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for memory-cleanup:', error);
-  }
-}) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent.detail?.level === 'aggressive') { this.clearAll();
+    window?.addEventListener('memory-cleanup', event => {
+      try {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail?.level === 'aggressive') {
+          this.clearAll();
         } else {
-        this.evictLeastRecentlyUsed();
+          this.evictLeastRecentlyUsed();
+        }
+      } catch (error) {
+        console.error('Event listener error for memory-cleanup:', error);
       }
     });
   }
@@ -78,8 +77,9 @@ export class LazyLoader {
    * Get singleton instance
    */
   static getInstance(): LazyLoader {
-    if (!LazyLoader.instance) { LazyLoader.instance = new LazyLoader();
-      }
+    if (!LazyLoader.instance) {
+      LazyLoader.instance = new LazyLoader();
+    }
     return LazyLoader.instance;
   }
 
@@ -100,7 +100,8 @@ export class LazyLoader {
   async load<T>(id: string): Promise<LoadResult<T>> {
     try {
       const loadable = this.loadables.get(id);
-      if (!loadable) { throw new Error(`Loadable with id '${id  }' not found`);
+      if (!loadable) {
+        throw new Error(`Loadable with id '${id}' not found`);
       }
 
       // Check if already loaded
@@ -115,7 +116,13 @@ export class LazyLoader {
 
       // Check if currently loading
       if (this.loadingPromises.has(id)) {
-  try { const data = await this.loadingPromises.get(id); } catch (error) { console.error('Await error:', error); }
+        let data;
+        try {
+          data = await this.loadingPromises.get(id);
+        } catch (error) {
+          console.error('Loading promise error:', error);
+          throw error;
+        }
         return {
           success: true,
           data: data as T,
@@ -129,8 +136,14 @@ export class LazyLoader {
       }
 
       // Load dependencies first
-  try { ifPattern(loadable.dependencies, () => { await this.loadDependencies(loadable.dependencies); } catch (error) { console.error('Await error:', error); }
-       });
+      if (loadable.dependencies) {
+        try {
+          await this.loadDependencies(loadable.dependencies);
+        } catch (error) {
+          console.error('Dependencies loading error:', error);
+          throw error;
+        }
+      }
 
       // Start loading
       const loadingPromise = this.performLoad(loadable);
@@ -181,7 +194,15 @@ export class LazyLoader {
     for (let i = 0; i < ids.length; i += batchSize) {
       const batch = ids.slice(i, i + batchSize);
       const batchPromises = batch.map(id => this.load(id));
-  try { const batchResults = await Promise.all(batchPromises).catch(error => console.error('Promise.all rejection:', error)); } catch (error) { console.error('Await error:', error); }
+
+      let batchResults;
+      try {
+        batchResults = await Promise.all(batchPromises);
+      } catch (error) {
+        console.error('Batch loading error:', error);
+        continue; // Skip this batch and continue with next
+      }
+
       results.push(...batchResults);
 
       // Check memory after each batch
@@ -202,8 +223,9 @@ export class LazyLoader {
    */
   unload(id: string): boolean {
     const loadable = this.loadables.get(id);
-    if (!loadable || !loadable.isLoaded) { return false;
-      }
+    if (!loadable || !loadable.isLoaded) {
+      return false;
+    }
 
     loadable.data = undefined;
     loadable.isLoaded = false;
@@ -226,9 +248,10 @@ export class LazyLoader {
    */
   getData<T>(id: string): T | undefined {
     const loadable = this.loadables.get(id);
-    if (loadable?.isLoaded) { this.updateLoadOrder(id);
+    if (loadable?.isLoaded) {
+      this.updateLoadOrder(id);
       return loadable.data as T;
-      }
+    }
     return undefined;
   }
 
@@ -237,7 +260,13 @@ export class LazyLoader {
    */
   private async loadDependencies(dependencies: string[]): Promise<void> {
     const loadPromises = dependencies.map(depId => this.load(depId));
-  try { await Promise.all(loadPromises).catch(error => console.error('Promise.all rejection:', error)); } catch (error) { console.error('Await error:', error); }
+    try {
+      await Promise.all(loadPromises).catch(error =>
+        console.error('Promise.all rejection:', error)
+      );
+    } catch (error) {
+      console.error('Await error:', error);
+    }
   }
 
   /**
@@ -261,8 +290,9 @@ export class LazyLoader {
    */
   private removeFromLoadOrder(id: string): void {
     const index = this.loadOrder.indexOf(id);
-    if (index !== -1) { this.loadOrder.splice(index, 1);
-      }
+    if (index !== -1) {
+      this.loadOrder.splice(index, 1);
+    }
   }
 
   /**

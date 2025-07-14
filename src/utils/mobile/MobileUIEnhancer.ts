@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -75,13 +75,13 @@ export class MobileUIEnhancer {
       justifyContent: 'center',
     });
 
-    this.eventPattern(fullscreenButton?.addEventListener('click', (event) => {
-  try {
-    (this.toggleFullscreen.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-})));
+    this.fullscreenButton?.addEventListener('click', event => {
+      try {
+        this.toggleFullscreen();
+      } catch (error) {
+        console.error('Fullscreen toggle error:', error);
+      }
+    });
     document.body.appendChild(this.fullscreenButton);
   }
 
@@ -122,13 +122,13 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    eventPattern(handle?.addEventListener('click', (event) => {
-  try {
-    (this.toggleBottomSheet.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-})));
+    handle?.addEventListener('click', event => {
+      try {
+        this.toggleBottomSheet();
+      } catch (error) {
+        console.error('Bottom sheet toggle error:', error);
+      }
+    });
     this.bottomSheet.appendChild(handle);
 
     // Add controls container
@@ -169,31 +169,29 @@ export class MobileUIEnhancer {
     // Enhance all buttons and inputs
     const buttons = mobileControls.querySelectorAll('button');
     buttons.forEach(button => {
-  try {
-      Object.assign(button.style, {
-        minHeight: '48px',
-        fontSize: '16px',
-        borderRadius: '12px',
-        padding: '12px',
-      
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+      try {
+        Object.assign(button.style, {
+          minHeight: '48px',
+          fontSize: '16px',
+          borderRadius: '12px',
+          padding: '12px',
+        });
+      } catch (error) {
+        console.error('Button style error:', error);
+      }
     });
 
     const inputs = mobileControls.querySelectorAll('input, select');
     inputs.forEach(input => {
-  try {
-      Object.assign((input as HTMLElement).style, {
-        minHeight: '48px',
-        fontSize: '16px',
-        borderRadius: '8px',
-      
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+      try {
+        Object.assign((input as HTMLElement).style, {
+          minHeight: '48px',
+          fontSize: '16px',
+          borderRadius: '8px',
+        });
+      } catch (error) {
+        console.error('Input style error:', error);
+      }
     });
 
     container.appendChild(mobileControls);
@@ -219,56 +217,58 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    eventPattern(trigger?.addEventListener('click', (event) => {
-  try {
-    (this.toggleBottomSheet.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-})));
+    trigger?.addEventListener('click', event => {
+      try {
+        this.toggleBottomSheet();
+      } catch (error) {
+        console.error('Bottom sheet trigger error:', error);
+      }
+    });
     document.body.appendChild(trigger);
   }
 
   /**
    * Enhance existing controls for mobile
    */
-  private enhanceExistingControls(): void  { try { if (!this.isMobile()) return;
+  private enhanceExistingControls(): void {
+    try {
+      if (!this.isMobile()) return;
 
-    // Add mobile-specific CSS class to body
-    document.body.classList.add('mobile-optimized');
+      // Add mobile-specific CSS class to body
+      document.body.classList.add('mobile-optimized');
 
-    // Prevent zoom on input focus
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-  try {
-      (input as HTMLElement).style.fontSize = '16px';
-    
-   } catch (error) { /* handled */ } }
-});
-
-    // Add touch feedback to all buttons
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-      eventPattern(button?.addEventListener('touchstart', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for touchstart:', error);
-  }
-});
-        button.style.transform = 'scale(0.95)';
+      // Prevent zoom on input focus
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        try {
+          (input as HTMLElement).style.fontSize = '16px';
+        } catch (error) {
+          console.error('Input font size error:', error);
+        }
       });
 
-      eventPattern(button?.addEventListener('touchend', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for touchend:', error);
-  }
-});
-        button.style.transform = 'scale(1)';
+      // Add touch feedback to all buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button?.addEventListener('touchstart', event => {
+          try {
+            button.style.transform = 'scale(0.95)';
+          } catch (error) {
+            console.error('Touch start error:', error);
+          }
+        });
+
+        button?.addEventListener('touchend', event => {
+          try {
+            button.style.transform = 'scale(1)';
+          } catch (error) {
+            console.error('Touch end error:', error);
+          }
+        });
       });
-    });
+    } catch (error) {
+      console.error('Enhance existing controls error:', error);
+    }
   }
 
   /**
@@ -309,11 +309,18 @@ export class MobileUIEnhancer {
           this.fullscreenButton.innerHTML = '⤠';
         }
       } else {
-  try { await document.exitFullscreen(); } catch (error) { console.error('Await error:', error); }
-        if (this.fullscreenButton) { this.fullscreenButton.innerHTML = '⛶';
-          }
+        try {
+          await document.exitFullscreen();
+        } catch (error) {
+          console.error('Exit fullscreen error:', error);
+        }
+        if (this.fullscreenButton) {
+          this.fullscreenButton.innerHTML = '⛶';
+        }
       }
-    } catch (error) { /* handled */ }
+    } catch (error) {
+      console.error('Fullscreen toggle error:', error);
+    }
   }
 
   /**
@@ -346,26 +353,30 @@ export class MobileUIEnhancer {
    * Show bottom sheet
    */
   public showBottomSheet(): void {
-    if (this.bottomSheet && !this.isBottomSheetVisible) { this.toggleBottomSheet();
-      }
+    if (this.bottomSheet && !this.isBottomSheetVisible) {
+      this.toggleBottomSheet();
+    }
   }
 
   /**
    * Hide bottom sheet
    */
   public hideBottomSheet(): void {
-    if (this.bottomSheet && this.isBottomSheetVisible) { this.toggleBottomSheet();
-      }
+    if (this.bottomSheet && this.isBottomSheetVisible) {
+      this.toggleBottomSheet();
+    }
   }
 
   /**
    * Cleanup resources
    */
   public destroy(): void {
-    if (this.fullscreenButton) { this.fullscreenButton.remove();
-      }
-    if (this.bottomSheet) { this.bottomSheet.remove();
-      }
+    if (this.fullscreenButton) {
+      this.fullscreenButton.remove();
+    }
+    if (this.bottomSheet) {
+      this.bottomSheet.remove();
+    }
     document.body.classList.remove('mobile-optimized');
   }
 }

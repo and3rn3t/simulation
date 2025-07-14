@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -88,14 +88,12 @@ export class EnhancedVisualizationIntegration {
     settingsButton.textContent = '⚙️ Settings';
     settingsButton.title = 'Open Settings';
     settingsButton.className = 'control-btn';
-    eventPattern(settingsButton?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-});
-      this.settingsPanel.mount(document.body);
+    settingsButton?.addEventListener('click', _event => {
+      try {
+        this.settingsPanel.mount(document.body);
+      } catch (error) {
+        console.error('Settings button click error:', error);
+      }
     });
 
     controlsContainer.appendChild(settingsButton);
@@ -104,23 +102,20 @@ export class EnhancedVisualizationIntegration {
   private setupEventListeners(): void {
     // Listen for preference changes
     this.preferencesManager.addChangeListener(preferences => {
-  try {
-      this.handlePreferenceChange(preferences);
-    
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+      try {
+        this.handlePreferenceChange(preferences);
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
+    });
 
     // Listen for window resize
-    eventPattern(window?.addEventListener('resize', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for resize:', error);
-  }
-});
-      this.visualizationDashboard.resize();
+    window?.addEventListener('resize', _event => {
+      try {
+        this.visualizationDashboard.resize();
+      } catch (error) {
+        console.error('Window resize error:', error);
+      }
     });
 
     // Listen for simulation events (these would be actual simulation events)
@@ -132,37 +127,31 @@ export class EnhancedVisualizationIntegration {
     // For demonstration purposes, we'll simulate some data updates
 
     // Example: Listen for organism creation
-    eventPattern(document?.addEventListener('organismCreated', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for organismCreated:', error);
-  }
-});
-      this.updateVisualizationData();
+    document?.addEventListener('organismCreated', _event => {
+      try {
+        this.updateVisualizationData();
+      } catch (error) {
+        console.error('Event listener error for organismCreated:', error);
+      }
     });
 
     // Example: Listen for organism death
-    eventPattern(document?.addEventListener('organismDied', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for organismDied:', error);
-  }
-});
-      this.updateVisualizationData();
+    document?.addEventListener('organismDied', _event => {
+      try {
+        this.updateVisualizationData();
+      } catch (error) {
+        console.error('Event listener error for organismDied:', error);
+      }
     });
 
     // Example: Listen for simulation tick
-    eventPattern(document?.addEventListener('simulationTick', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for simulationTick:', error);
-  }
-});
-      const gameState = event?.detail;
-      this.updateVisualizationData(gameState);
+    document?.addEventListener('simulationTick', event => {
+      try {
+        const gameState = (event as CustomEvent)?.detail;
+        this.updateVisualizationData(gameState);
+      } catch (error) {
+        console.error('Event listener error for simulationTick:', error);
+      }
     });
   }
 
@@ -307,8 +296,9 @@ export class EnhancedVisualizationIntegration {
 export function initializeEnhancedVisualization(): EnhancedVisualizationIntegration | null {
   const simulationCanvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
 
-  if (!simulationCanvas) { return null;
-    }
+  if (!simulationCanvas) {
+    return null;
+  }
 
   try {
     const integration = new EnhancedVisualizationIntegration(simulationCanvas);
@@ -322,13 +312,14 @@ export function initializeEnhancedVisualization(): EnhancedVisualizationIntegrat
 }
 
 // Auto-initialize when DOM is ready
-ifPattern(document.readyState === 'loading', () => { eventPattern(document?.addEventListener('DOMContentLoaded', (event) => {
-  try {
-    (initializeEnhancedVisualization)(event);
-  } catch (error) {
-    console.error('Event listener error for DOMContentLoaded:', error);
-  }
-}));
- }); else {
+if (document.readyState === 'loading') {
+  document?.addEventListener('DOMContentLoaded', _event => {
+    try {
+      initializeEnhancedVisualization();
+    } catch (error) {
+      console.error('Event listener error for DOMContentLoaded:', error);
+    }
+  });
+} else {
   initializeEnhancedVisualization();
 }

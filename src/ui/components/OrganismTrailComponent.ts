@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -68,8 +68,9 @@ export class OrganismTrailComponent extends BaseComponent {
 
     this.canvas = canvas;
     const ctx = canvas?.getContext('2d');
-    if (!ctx) { throw new Error('Failed to get 2D context for trail canvas');
-      }
+    if (!ctx) {
+      throw new Error('Failed to get 2D context for trail canvas');
+    }
     this.ctx = ctx;
 
     this.createElement();
@@ -110,45 +111,40 @@ export class OrganismTrailComponent extends BaseComponent {
   private setupControls(): void {
     // Trail toggle
     const toggle = this.element?.querySelector('.trail-toggle input') as HTMLInputElement;
-    eventPattern(toggle?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.config.showTrails = (e.target as HTMLInputElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).checked;
-      if (!this.config.showTrails) { this.clearAllTrails();
+    toggle?.addEventListener('change', event => {
+      try {
+        this.config.showTrails = (event.target as HTMLInputElement).checked;
+        if (!this.config.showTrails) {
+          this.clearAllTrails();
         }
+      } catch (error) {
+        console.error('Event listener error for change:', error);
+      }
     });
 
     // Trail length control
     const lengthSlider = this.element?.querySelector('.trail-length') as HTMLInputElement;
     const lengthValue = this.element?.querySelector('.trail-length-value') as HTMLElement;
-    eventPattern(lengthSlider?.addEventListener('input', (event) => {
-  try {
-    (e => {
-      this.config.maxTrailLength = parseInt(e.target as HTMLInputElement) => {
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
-})).value);
-      lengthValue.textContent = this.config.maxTrailLength.toString();
-      this.trimAllTrails();
+    lengthSlider?.addEventListener('input', event => {
+      try {
+        this.config.maxTrailLength = parseInt((event.target as HTMLInputElement).value);
+        lengthValue.textContent = this.config.maxTrailLength.toString();
+        this.trimAllTrails();
+      } catch (error) {
+        console.error('Event listener error for input:', error);
+      }
     });
 
     // Trail width control
     const widthSlider = this.element?.querySelector('.trail-width') as HTMLInputElement;
     const widthValue = this.element?.querySelector('.trail-width-value') as HTMLElement;
-    eventPattern(widthSlider?.addEventListener('input', (event) => {
-  try {
-    (e => {
-      this.config.trailWidth = parseFloat(e.target as HTMLInputElement) => {
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
-})).value);
-      widthValue.textContent = this.config.trailWidth.toString();
+    widthSlider?.addEventListener('input', event => {
+      try {
+        this.config.trailWidth = parseFloat((event.target as HTMLInputElement).value);
+        widthValue.textContent = this.config.trailWidth.toString();
+      } catch (error) {
+        console.error('Event listener error for input:', error);
+      }
     });
   }
 
@@ -179,8 +175,9 @@ export class OrganismTrailComponent extends BaseComponent {
     });
 
     // Trim trail if too long
-    if (trail.positions.length > this.config.maxTrailLength) { trail.positions.shift();
-      }
+    if (trail.positions.length > this.config.maxTrailLength) {
+      trail.positions.shift();
+    }
   }
 
   /**
@@ -199,13 +196,13 @@ export class OrganismTrailComponent extends BaseComponent {
 
   private trimAllTrails(): void {
     this.trails.forEach(trail => {
-  try {
-      ifPattern(trail.positions.length > this.config.maxTrailLength, () => { trail.positions = trail.positions.slice(-this.config.maxTrailLength);
-       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-});
+      try {
+        if (trail.positions.length > this.config.maxTrailLength) {
+          trail.positions = trail.positions.slice(-this.config.maxTrailLength);
+        }
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
   }
 
@@ -224,45 +221,44 @@ export class OrganismTrailComponent extends BaseComponent {
     const currentTime = Date.now();
 
     this.trails.forEach(trail => {
-  try {
-      if (trail.positions.length < 2) return;
+      try {
+        if (trail.positions.length < 2) return;
 
-      this.ctx.save();
-      this.ctx.strokeStyle = trail.color;
-      this.ctx.lineWidth = this.config.trailWidth;
-      this.ctx.lineCap = 'round';
-      this.ctx.lineJoin = 'round';
+        this.ctx.save();
+        this.ctx.strokeStyle = trail.color;
+        this.ctx.lineWidth = this.config.trailWidth;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
 
-      // Draw trail with fading effect
-      for (let i = 1; i < trail.positions.length; i++) {
-        const prev = trail.positions[i - 1];
-        const curr = trail.positions[i];
+        // Draw trail with fading effect
+        for (let i = 1; i < trail.positions.length; i++) {
+          const prev = trail.positions[i - 1];
+          const curr = trail.positions[i];
 
-        // Calculate age-based opacity
-        const age = currentTime - curr.timestamp;
-        const maxAge = 10000; // 10 seconds
-        const opacity = Math.max(0, 1 - age / maxAge);
+          // Calculate age-based opacity
+          const age = currentTime - curr.timestamp;
+          const maxAge = 10000; // 10 seconds
+          const opacity = Math.max(0, 1 - age / maxAge);
 
-        // Calculate position-based opacity (newer positions are more opaque)
-        const positionOpacity = i / trail.positions.length;
+          // Calculate position-based opacity (newer positions are more opaque)
+          const positionOpacity = i / trail.positions.length;
 
-        const finalOpacity = Math.min(opacity, positionOpacity) * 0.8;
+          const finalOpacity = Math.min(opacity, positionOpacity) * 0.8;
 
-        if (finalOpacity > 0.1) {
-          this.ctx.globalAlpha = finalOpacity;
+          if (finalOpacity > 0.1) {
+            this.ctx.globalAlpha = finalOpacity;
 
-          this.ctx.beginPath();
-          this.ctx.moveTo(prev.x, prev.y);
-          this.ctx.lineTo(curr.x, curr.y);
-          this.ctx.stroke();
-        
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-}
+            this.ctx.beginPath();
+            this.ctx.moveTo(prev.x, prev.y);
+            this.ctx.lineTo(curr.x, curr.y);
+            this.ctx.stroke();
+          }
+        }
+
+        this.ctx.restore();
+      } catch (error) {
+        console.error('Callback error:', error);
       }
-
-      this.ctx.restore();
     });
 
     // Clean up old trail points
@@ -277,8 +273,9 @@ export class OrganismTrailComponent extends BaseComponent {
       trail.positions = trail.positions.filter(pos => currentTime - pos.timestamp < maxAge);
 
       // Remove trail if no positions left
-      if (trail.positions.length === 0) { this.trails.delete(id);
-        }
+      if (trail.positions.length === 0) {
+        this.trails.delete(id);
+      }
     });
   }
 
@@ -292,9 +289,11 @@ export class OrganismTrailComponent extends BaseComponent {
     const activeTrailsElement = this.element?.querySelector('.active-trails') as HTMLElement;
     const totalPointsElement = this.element?.querySelector('.total-points') as HTMLElement;
 
-    if (activeTrailsElement) { activeTrailsElement.textContent = `Active Trails: ${activeTrails  }`;
+    if (activeTrailsElement) {
+      activeTrailsElement.textContent = `Active Trails: ${activeTrails}`;
     }
-    if (totalPointsElement) { totalPointsElement.textContent = `Total Points: ${totalPoints  }`;
+    if (totalPointsElement) {
+      totalPointsElement.textContent = `Total Points: ${totalPoints}`;
     }
   }
 
@@ -334,50 +333,49 @@ export class OrganismTrailComponent extends BaseComponent {
     let totalTrails = 0;
 
     this.trails.forEach(trail => {
-  try {
-      if (trail.positions.length < 2) return;
+      try {
+        if (trail.positions.length < 2) return;
 
-      totalTrails++;
-      let trailDistance = 0;
-      let prevDirection = 0;
-      let trailDirectionChanges = 0;
+        totalTrails++;
+        let trailDistance = 0;
+        let prevDirection = 0;
+        let trailDirectionChanges = 0;
 
-      for (let i = 1; i < trail.positions.length; i++) {
-        const prev = trail.positions[i - 1];
-        const curr = trail.positions[i];
+        for (let i = 1; i < trail.positions.length; i++) {
+          const prev = trail.positions[i - 1];
+          const curr = trail.positions[i];
 
-        const dx = curr.x - prev.x;
-        const dy = curr.y - prev.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+          const dx = curr.x - prev.x;
+          const dy = curr.y - prev.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
-        trailDistance += distance;
+          trailDistance += distance;
 
-        // Calculate direction change
-        const direction = Math.atan2(dy, dx);
-        if (i > 1) {
-          const directionChange = Math.abs(direction - prevDirection);
-          if (directionChange > Math.PI / 4) {
-            // 45 degrees
-            trailDirectionChanges++;
-          
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
-}
+          // Calculate direction change
+          const direction = Math.atan2(dy, dx);
+          if (i > 1) {
+            const directionChange = Math.abs(direction - prevDirection);
+            if (directionChange > Math.PI / 4) {
+              // 45 degrees
+              trailDirectionChanges++;
+            }
+          }
+          prevDirection = direction;
         }
-        prevDirection = direction;
-      }
 
-      totalDistance += trailDistance;
-      directionChanges += trailDirectionChanges;
+        totalDistance += trailDistance;
+        directionChanges += trailDirectionChanges;
 
-      // Calculate speed (distance per time)
-      if (trail.positions.length > 1) {
-        const timeSpan =
-          trail.positions[trail.positions.length - 1].timestamp - trail.positions[0].timestamp;
-        if (timeSpan > 0) {
-          totalSpeed += trailDistance / (timeSpan / 1000); // pixels per second
+        // Calculate speed (distance per time)
+        if (trail.positions.length > 1) {
+          const timeSpan =
+            trail.positions[trail.positions.length - 1].timestamp - trail.positions[0].timestamp;
+          if (timeSpan > 0) {
+            totalSpeed += trailDistance / (timeSpan / 1000); // pixels per second
+          }
         }
+      } catch (error) {
+        console.error('Callback error:', error);
       }
     });
 
@@ -418,9 +416,10 @@ export class OrganismTrailComponent extends BaseComponent {
   }
 
   public unmount(): void {
-    if (this.animationFrame) { cancelAnimationFrame(this.animationFrame);
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
-      }
+    }
     this.clearAllTrails();
     super.unmount();
   }

@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -50,44 +50,53 @@ export class Modal extends BaseComponent {
     this.setupModal();
   }
 
-  private setupModal(): void  { try { // Create backdrop if enabled
-    if (this.config.backdrop) {
-      this.backdrop = document.createElement('div');
-      this.backdrop.className = 'ui-modal__backdrop';
-      this.eventPattern(backdrop?.addEventListener('click', (event) => {
-  try {
-    (this.handleBackdropClick.bind(this)(event);
-   } catch (error) { /* handled */ } }
-})));
-      this.element.appendChild(this.backdrop);
-    }
-
-    // Create dialog
-    this.dialog = document.createElement('div');
-    this.dialog.className = `ui-modal__dialog ${this.config.size ? `ui-modal__dialog--${this.config.size}` : ''}`;
-    this.element.appendChild(this.dialog);
-
-    // Create header if title or closable
-    if (this.config.title || this.config.closable) { this.createHeader();
+  private setupModal(): void {
+    try {
+      // Create backdrop if enabled
+      if (this.config.backdrop) {
+        this.backdrop = document.createElement('div');
+        this.backdrop.className = 'ui-modal__backdrop';
+        this.backdrop?.addEventListener('click', event => {
+          try {
+            this.handleBackdropClick(event);
+          } catch (error) {
+            console.error('Backdrop click error:', error);
+          }
+        });
+        this.element.appendChild(this.backdrop);
       }
 
-    // Create content area
-    this.content = document.createElement('div');
-    this.content.className = 'ui-modal__content';
-    this.dialog.appendChild(this.content);
+      // Create dialog
+      this.dialog = document.createElement('div');
+      this.dialog.className = `ui-modal__dialog ${this.config.size ? `ui-modal__dialog--${this.config.size}` : ''}`;
+      this.element.appendChild(this.dialog);
 
-    // Set up keyboard navigation
-    ifPattern(this.config.keyboard, () => { eventPattern(this?.addEventListener('keydown', (event) => {
-  try {
-    (this.handleKeydown.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for keydown:', error);
-  }
-})));
-     });
+      // Create header if title or closable
+      if (this.config.title || this.config.closable) {
+        this.createHeader();
+      }
 
-    // Initially hidden
-    this.element.style.display = 'none';
+      // Create content area
+      this.content = document.createElement('div');
+      this.content.className = 'ui-modal__content';
+      this.dialog.appendChild(this.content);
+
+      // Set up keyboard navigation
+      if (this.config.keyboard) {
+        this.element?.addEventListener('keydown', event => {
+          try {
+            this.handleKeydown(event);
+          } catch (error) {
+            console.error('Keydown event error:', error);
+          }
+        });
+      }
+
+      // Initially hidden
+      this.element.style.display = 'none';
+    } catch (error) {
+      console.error('Modal setup error:', error);
+    }
   }
 
   private createHeader(): void {
@@ -109,13 +118,13 @@ export class Modal extends BaseComponent {
       closeBtn.className = 'ui-modal__close-btn';
       closeBtn.innerHTML = '×';
       closeBtn.setAttribute('aria-label', 'Close modal');
-      eventPattern(closeBtn?.addEventListener('click', (event) => {
-  try {
-    (this.close.bind(this)(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-})));
+      closeBtn?.addEventListener('click', _event => {
+        try {
+          this.close();
+        } catch (error) {
+          console.error('Close button error:', error);
+        }
+      });
       header.appendChild(closeBtn);
     }
 
@@ -123,17 +132,20 @@ export class Modal extends BaseComponent {
   }
 
   private handleBackdropClick(event: MouseEvent): void {
-    if (event?.target === this.backdrop) { this.close();
-      }
+    if (event?.target === this.backdrop) {
+      this.close();
+    }
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    if (event?.key === 'Escape' && this.isOpen) { this.close();
-      }
+    if (event?.key === 'Escape' && this.isOpen) {
+      this.close();
+    }
 
     // Trap focus within modal
-    if (event?.key === 'Tab') { this.trapFocus(event);
-      }
+    if (event?.key === 'Tab') {
+      this.trapFocus(event);
+    }
   }
 
   private trapFocus(event: KeyboardEvent): void {
@@ -150,9 +162,10 @@ export class Modal extends BaseComponent {
         event?.preventDefault();
       }
     } else {
-      if (document.activeElement === lastElement) { firstElement.focus();
+      if (document.activeElement === lastElement) {
+        firstElement.focus();
         event?.preventDefault();
-        }
+      }
     }
   }
 
@@ -178,13 +191,15 @@ export class Modal extends BaseComponent {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       ) as HTMLElement;
 
-      ifPattern(firstFocusable, () => { firstFocusable.focus();
-       } // TODO: Consider extracting to reduce closure scope);
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
     });
 
     // Trigger open callback
-    if (this.config.onOpen) { this.config.onOpen();
-      }
+    if (this.config.onOpen) {
+      this.config.onOpen();
+    }
   }
 
   /**
@@ -200,20 +215,23 @@ export class Modal extends BaseComponent {
     document.body.classList.remove('ui-modal-open');
 
     // Restore previous focus
-    if (this.previousFocus) { this.previousFocus.focus();
-      }
+    if (this.previousFocus) {
+      this.previousFocus.focus();
+    }
 
     // Trigger close callback
-    if (this.config.onClose) { this.config.onClose();
-      }
+    if (this.config.onClose) {
+      this.config.onClose();
+    }
   }
 
   /**
    * Add content to the modal
    */
   addContent(content: HTMLElement | string): void {
-    if (typeof content === 'string') { this.content.innerHTML = content;
-      } else {
+    if (typeof content === 'string') {
+      this.content.innerHTML = content;
+    } else {
       this.content.appendChild(content);
     }
   }
@@ -244,12 +262,14 @@ export class Modal extends BaseComponent {
     this.element.setAttribute('aria-modal', 'true');
     this.element.setAttribute('tabindex', '-1');
 
-    if (this.config && this.config.title) { this.element.setAttribute('aria-labelledby', 'modal-title');
-      }
+    if (this.config && this.config.title) {
+      this.element.setAttribute('aria-labelledby', 'modal-title');
+    }
   }
 
   protected override onUnmount(): void {
-    if (this.isOpen) { this.close();
-      }
+    if (this.isOpen) {
+      this.close();
+    }
   }
 }

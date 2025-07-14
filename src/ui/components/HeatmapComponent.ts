@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -82,8 +82,9 @@ export class HeatmapComponent extends BaseComponent {
     this.canvas.height = this.config.height;
 
     const ctx = this.canvas.getContext('2d');
-    if (!ctx) { throw new Error('Failed to get 2D context for heatmap canvas');
-      }
+    if (!ctx) {
+      throw new Error('Failed to get 2D context for heatmap canvas');
+    }
     this.ctx = ctx;
 
     // Initialize data grid
@@ -94,28 +95,34 @@ export class HeatmapComponent extends BaseComponent {
       .fill(null)
       .map(() => Array(cols).fill(0));
 
-    if (this.config.showLegend) { this.createLegend();
-      }
+    if (this.config.showLegend) {
+      this.createLegend();
+    }
   }
 
-  private setupEventListeners(): void  { try { if (this.config.onCellClick) {
-      this.canvas?.addEventListener('click', (event) => {
-  try {
-    (event => {
-        const rect = this.canvas.getBoundingClientRect()(event);
-   } catch (error) { /* handled */ } }
-});
-        const x = event?.clientX - rect.left;
-        const y = event?.clientY - rect.top;
+  private setupEventListeners(): void {
+    try {
+      if (this.config.onCellClick) {
+        this.canvas?.addEventListener('click', event => {
+          try {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event?.clientX - rect.left;
+            const y = event?.clientY - rect.top;
 
-        const cellX = Math.floor(x / this.config.cellSize);
-        const cellY = Math.floor(y / this.config.cellSize);
+            const cellX = Math.floor(x / this.config.cellSize);
+            const cellY = Math.floor(y / this.config.cellSize);
 
-        if (cellY < this.data.length && cellX < this.data[cellY].length) {
-          const value = this.data[cellY][cellX];
-          this.config.onCellClick!(cellX, cellY, value);
-        }
-      });
+            if (cellY < this.data.length && cellX < this.data[cellY].length) {
+              const value = this.data[cellY][cellX];
+              this.config.onCellClick!(cellX, cellY, value);
+            }
+          } catch (_error) {
+            /* handled */
+          }
+        });
+      }
+    } catch (_error) {
+      /* handled */
     }
   }
 
@@ -136,31 +143,44 @@ export class HeatmapComponent extends BaseComponent {
 
     // Create gradient for legend
     const legendBar = legendContainer?.querySelector('.legend-bar') as HTMLElement;
-    if (legendBar) { const gradient = this.config.colorScheme!.join(', ');
-      legendBar.style.background = `linear-gradient(to right, ${gradient  })`;
+    if (legendBar) {
+      const gradient = this.config.colorScheme!.join(', ');
+      legendBar.style.background = `linear-gradient(to right, ${gradient})`;
     }
   }
 
   /**
    * Update heatmap data from organism positions
    */
-  updateFromPositions(): void  { try { // Clear previous data
-    this.data = this.data.map(row => row.fill(0));
+  updateFromPositions(positions: { x: number; y: number }[]): void {
+    try {
+      // Clear previous data
+      this.data = this.data.map(row => row.fill(0));
 
-    // Count organisms in each cell
-    positions.forEach(pos => {
-  try {
-      const cellX = Math.floor(pos.x / this.config.cellSize);
-      const cellY = Math.floor(pos.y / this.config.cellSize);
+      // Count organisms in each cell
+      positions.forEach(pos => {
+        try {
+          const cellX = Math.floor(pos.x / this.config.cellSize);
+          const cellY = Math.floor(pos.y / this.config.cellSize);
 
-      ifPattern(cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length, () => { this.data[cellY][cellX]++;
-       
-   } catch (error) { /* handled */ } }
-});
-    });
+          if (
+            cellY >= 0 &&
+            cellY < this.data.length &&
+            cellX >= 0 &&
+            cellX < this.data[cellY].length
+          ) {
+            this.data[cellY][cellX]++;
+          }
+        } catch (_error) {
+          /* handled */
+        }
+      });
 
-    this.updateMinMax();
-    this.render();
+      this.updateMinMax();
+      this.render();
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   /**
@@ -172,25 +192,32 @@ export class HeatmapComponent extends BaseComponent {
     this.render();
   }
 
-  private updateMinMax(): void  { try { this.maxValue = 0;
-    this.minValue = Infinity;
+  private updateMinMax(): void {
+    try {
+      this.maxValue = 0;
+      this.minValue = Infinity;
 
-    this.data.forEach(row => {
-  try {
-      row.forEach(value => {
-        if (value > this.maxValue) this.maxValue = value;
-        if (value < this.minValue) this.minValue = value;
-      
-   } catch (error) { /* handled */ } }
-});
-    });
+      this.data.forEach(row => {
+        try {
+          row.forEach(value => {
+            if (value > this.maxValue) this.maxValue = value;
+            if (value < this.minValue) this.minValue = value;
+          });
+        } catch (_error) {
+          /* handled */
+        }
+      });
 
-    if (this.minValue === Infinity) this.minValue = 0;
+      if (this.minValue === Infinity) this.minValue = 0;
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   private getColorForValue(value: number): string {
-    if (this.maxValue === this.minValue) { return this.config.colorScheme![0];
-      }
+    if (this.maxValue === this.minValue) {
+      return this.config.colorScheme![0];
+    }
 
     const normalized = (value - this.minValue) / (this.maxValue - this.minValue);
     const colorIndex = Math.floor(normalized * (this.config.colorScheme!.length - 1));
@@ -248,8 +275,9 @@ export class HeatmapComponent extends BaseComponent {
     const cellX = Math.floor(x / this.config.cellSize);
     const cellY = Math.floor(y / this.config.cellSize);
 
-    if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) { return this.data[cellY][cellX];
-      }
+    if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) {
+      return this.data[cellY][cellX];
+    }
 
     return 0;
   }
@@ -298,7 +326,7 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
           '#f44336', // Red (high density)
         ],
         onCellClick: (x, y, value) => {
-          has ${value} organisms`);
+          console.log(`Cell (${x}, ${y}) has ${value} organisms`);
         },
       },
       id
@@ -321,9 +349,10 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
    * Stop automatic updates
    */
   stopAutoUpdate(): void {
-    if (this.updateInterval) { clearInterval(this.updateInterval);
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
       this.updateInterval = null;
-      }
+    }
   }
 
   public unmount(): void {

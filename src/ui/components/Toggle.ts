@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -50,10 +50,12 @@ export class Toggle extends BaseComponent {
   private static generateClassName(config: ToggleConfig): string {
     const classes = ['ui-toggle'];
 
-    if (config?.variant) { classes.push(`ui-toggle--${config?.variant  }`);
+    if (config?.variant) {
+      classes.push(`ui-toggle--${config?.variant}`);
     }
 
-    if (config?.size) { classes.push(`ui-toggle--${config?.size  }`);
+    if (config?.size) {
+      classes.push(`ui-toggle--${config?.size}`);
     }
 
     return classes.join(' ');
@@ -84,8 +86,9 @@ export class Toggle extends BaseComponent {
     }
 
     // Create label if provided
-    if (this.config.label) { this.createLabel(toggleId);
-      }
+    if (this.config.label) {
+      this.createLabel(toggleId);
+    }
 
     // Add event listeners
     this.setupEventListeners();
@@ -94,8 +97,9 @@ export class Toggle extends BaseComponent {
     this.element.appendChild(this.input);
     this.element.appendChild(toggleElement);
 
-    if (this.label) { this.element.appendChild(this.label);
-      }
+    if (this.label) {
+      this.element.appendChild(this.label);
+    }
   }
 
   private createLabel(toggleId: string): void {
@@ -106,64 +110,61 @@ export class Toggle extends BaseComponent {
   }
 
   private setInputAttributes(): void {
-    if (this.config.checked) { this.input.checked = true;
+    if (this.config.checked) {
+      this.input.checked = true;
       this.element.classList.add('ui-toggle--checked');
-      }
+    }
 
-    if (this.config.disabled) { this.input.disabled = true;
+    if (this.config.disabled) {
+      this.input.disabled = true;
       this.element.classList.add('ui-toggle--disabled');
-      }
+    }
 
-    if (this.config.ariaLabel) { this.input.setAttribute('aria-label', this.config.ariaLabel);
-      }
+    if (this.config.ariaLabel) {
+      this.input.setAttribute('aria-label', this.config.ariaLabel);
+    }
   }
 
   private setupEventListeners(): void {
-    this.eventPattern(input?.addEventListener('change', (event) => {
-  try {
-    (event => {
-      const target = event?.target as HTMLInputElement;
-      this.element.classList.toggle('ui-toggle--checked', target?.checked)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-}));
+    this.input?.addEventListener('change', event => {
+      try {
+        const target = event?.target as HTMLInputElement;
+        this.element.classList.toggle('ui-toggle--checked', target?.checked);
 
-      if (this.config.onChange) { this.config.onChange(target?.checked);
+        if (this.config.onChange) {
+          this.config.onChange(target?.checked);
         }
+      } catch (error) {
+        console.error('Event listener error for change:', error);
+      }
     });
 
-    this.eventPattern(input?.addEventListener('focus', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for focus:', error);
-  }
-});
-      this.element.classList.add('ui-toggle--focused');
+    this.input?.addEventListener('focus', _event => {
+      try {
+        this.element.classList.add('ui-toggle--focused');
+      } catch (error) {
+        console.error('Event listener error for focus:', error);
+      }
     });
 
-    this.eventPattern(input?.addEventListener('blur', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for blur:', error);
-  }
-});
-      this.element.classList.remove('ui-toggle--focused');
+    this.input?.addEventListener('blur', _event => {
+      try {
+        this.element.classList.remove('ui-toggle--focused');
+      } catch (error) {
+        console.error('Event listener error for blur:', error);
+      }
     });
 
     // Add keyboard support for better accessibility
-    this.eventPattern(input?.addEventListener('keydown', (event) => {
-  try {
-    (event => {
-      ifPattern(event?.key === ' ', ()(event);
-  } catch (error) {
-    console.error('Event listener error for keydown:', error);
-  }
-}); event?.preventDefault();
-        this.toggle();
-       });
+    this.input?.addEventListener('keydown', event => {
+      try {
+        if (event?.key === ' ') {
+          event?.preventDefault();
+          this.toggle();
+        }
+      } catch (error) {
+        console.error('Event listener error for keydown:', error);
+      }
     });
   }
 
@@ -189,8 +190,9 @@ export class Toggle extends BaseComponent {
   toggle(): void {
     this.setChecked(!this.isChecked());
 
-    if (this.config.onChange) { this.config.onChange(this.isChecked());
-      }
+    if (this.config.onChange) {
+      this.config.onChange(this.isChecked());
+    }
   }
 
   /**
