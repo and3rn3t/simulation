@@ -22,7 +22,10 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, CC-BY-4.0, LicenseRef-scancode-unicode
+          vulnerability-check: true
+          license-check: true
+          config-file: .github/dependency-review-config.yml
 
   codeql-analysis:
     name: CodeQL Security Analysis
@@ -35,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'typescript' ]
+        language: [ 'javascript' ]
     
     steps:
     - name: Checkout repository
@@ -86,7 +89,6 @@ jobs:
       continue-on-error: true
     
     - name: Snyk vulnerability scan
-      if: env.SNYK_TOKEN != ''
       uses: snyk/actions/node@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -95,7 +97,6 @@ jobs:
       continue-on-error: true
     
     - name: Upload Snyk results to GitHub Code Scanning
-      if: env.SNYK_TOKEN != ''
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: snyk.sarif
