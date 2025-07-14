@@ -305,14 +305,12 @@ export class SettingsPanelComponent extends Modal {
     console.error("Callback error:", error);
   }
 });
-    eventPattern(themeSelect?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.theme = (e.target as HTMLSelectElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value as any;
+    themeSelect?.addEventListener('change', (event) => {
+      try {
+        this.tempPreferences.theme = (event.target as HTMLSelectElement).value as any;
+      } catch (error) {
+        console.error('Theme change error:', error);
+      }
     });
 
     themeSection.appendChild(this.createFieldWrapper('Theme', themeSelect));
@@ -327,14 +325,12 @@ export class SettingsPanelComponent extends Modal {
     primaryColor.type = 'color';
     primaryColor.value = this.tempPreferences.customColors.primary;
     primaryColor.className = 'ui-color-picker';
-    eventPattern(primaryColor?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.customColors.primary = (e.target as HTMLInputElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value;
+    primaryColor?.addEventListener('change', (event) => {
+      try {
+        this.tempPreferences.customColors.primary = (event.target as HTMLInputElement).value;
+      } catch (error) {
+        console.error('Primary color change error:', error);
+      }
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Primary Color', primaryColor));
@@ -344,14 +340,12 @@ export class SettingsPanelComponent extends Modal {
     secondaryColor.type = 'color';
     secondaryColor.value = this.tempPreferences.customColors.secondary;
     secondaryColor.className = 'ui-color-picker';
-    eventPattern(secondaryColor?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.customColors.secondary = (e.target as HTMLInputElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value;
+    secondaryColor?.addEventListener('change', (event) => {
+      try {
+        this.tempPreferences.customColors.secondary = (event.target as HTMLInputElement).value;
+      } catch (error) {
+        console.error('Secondary color change error:', error);
+      }
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Secondary Color', secondaryColor));
@@ -361,14 +355,12 @@ export class SettingsPanelComponent extends Modal {
     accentColor.type = 'color';
     accentColor.value = this.tempPreferences.customColors.accent;
     accentColor.className = 'ui-color-picker';
-    eventPattern(accentColor?.addEventListener('change', (event) => {
-  try {
-    (e => {
-      this.tempPreferences.customColors.accent = (e.target as HTMLInputElement)(event);
-  } catch (error) {
-    console.error('Event listener error for change:', error);
-  }
-})).value;
+    accentColor?.addEventListener('change', (event) => {
+      try {
+        this.tempPreferences.customColors.accent = (event.target as HTMLInputElement).value;
+      } catch (error) {
+        console.error('Accent color change error:', error);
+      }
     });
 
     colorsSection.appendChild(this.createFieldWrapper('Accent Color', accentColor));
