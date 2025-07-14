@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -58,8 +58,9 @@ export class DebugMode {
   }
 
   static getInstance(): DebugMode {
-    if (!DebugMode.instance) { DebugMode.instance = new DebugMode();
-      }
+    if (!DebugMode.instance) {
+      DebugMode.instance = new DebugMode();
+    }
     return DebugMode.instance;
   }
 
@@ -105,9 +106,10 @@ export class DebugMode {
     this.frameTimeHistory.push(frameTime);
 
     // Keep only last 60 frames for rolling average
-    if (this.fpsHistory.length > 60) { this.fpsHistory.shift();
+    if (this.fpsHistory.length > 60) {
+      this.fpsHistory.shift();
       this.frameTimeHistory.shift();
-      }
+    }
 
     // Calculate averages
     this.debugInfo.fps = this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
@@ -115,9 +117,11 @@ export class DebugMode {
       this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length;
   }
 
-  private createDebugPanel(): void  { try { this.debugPanel = document.createElement('div');
-    this.debugPanel.id = 'debug-panel';
-    this.debugPanel.innerHTML = `
+  private createDebugPanel(): void {
+    try {
+      this.debugPanel = document.createElement('div');
+      this.debugPanel.id = 'debug-panel';
+      this.debugPanel.innerHTML = `
       <div class="debug-header">
         <h3>🐛 Debug Panel</h3>
         <button id="debug-close">×</button>
@@ -168,43 +172,48 @@ export class DebugMode {
       </div>
     `;
 
-    this.styleDebugPanel();
-    document.body.appendChild(this.debugPanel);
+      this.styleDebugPanel();
+      document.body.appendChild(this.debugPanel);
 
-    // Add event listeners
-    const closeBtn = this.debugPanel?.querySelector('#debug-close');
-    closeBtn?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-   } catch (error) { /* handled */ } }
-}) => this.disable());
+      // Add event listeners
+      const closeBtn = this.debugPanel?.querySelector('#debug-close');
+      closeBtn?.addEventListener('click', _event => {
+        try {
+          this.disable();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const dumpStateBtn = this.debugPanel?.querySelector('#debug-dump-state');
-    dumpStateBtn?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-}) => this.dumpState());
+      const dumpStateBtn = this.debugPanel?.querySelector('#debug-dump-state');
+      dumpStateBtn?.addEventListener('click', _event => {
+        try {
+          this.dumpState();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const profileBtn = this.debugPanel?.querySelector('#debug-performance-profile');
-    profileBtn?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-}) => this.startPerformanceProfile());
+      const profileBtn = this.debugPanel?.querySelector('#debug-performance-profile');
+      profileBtn?.addEventListener('click', _event => {
+        try {
+          this.startPerformanceProfile();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const gcBtn = this.debugPanel?.querySelector('#debug-memory-gc');
-    gcBtn?.addEventListener('click', (event) => {
-  try {
-    (event) => {
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
-}) => this.forceGarbageCollection());
+      const gcBtn = this.debugPanel?.querySelector('#debug-memory-gc');
+      gcBtn?.addEventListener('click', _event => {
+        try {
+          this.forceGarbageCollection();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error creating debug panel:', error);
+    }
   }
 
   private styleDebugPanel(): void {
@@ -302,9 +311,10 @@ export class DebugMode {
   }
 
   private stopUpdating(): void {
-    if (this.updateInterval) { clearInterval(this.updateInterval);
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
       this.updateInterval = null;
-      }
+    }
   }
 
   private updateDebugDisplay(): void {
@@ -327,9 +337,10 @@ export class DebugMode {
   }
 
   private removeDebugPanel(): void {
-    if (this.debugPanel) { this.debugPanel.remove();
+    if (this.debugPanel) {
+      this.debugPanel.remove();
       this.debugPanel = null;
-      }
+    }
   }
 
   private dumpState(): void {
@@ -361,7 +372,7 @@ export class DebugMode {
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {
-        } // TODO: Consider extracting to reduce closure scopems`);
+        console.log(`${entry.name}: ${entry.duration?.toFixed(2)}ms`);
       });
       console.groupEnd();
     }, 5000); // Profile for 5 seconds
@@ -371,7 +382,8 @@ export class DebugMode {
     if ((window as any).gc) {
       (window as any).gc();
     } else {
-      '
+      console.log(
+        'Manual garbage collection not available. Try running Chrome with --js-flags="--expose-gc"'
       );
     }
   }
