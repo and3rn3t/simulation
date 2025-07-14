@@ -9,7 +9,7 @@ export class NullSafetyUtils {
    */
   static safeGet<T>(obj: any, path: string, fallback?: T): T | undefined {
     try {
-      return path.split('.').reduce((current, key) => current?.[key], obj) ?? fallback;
+      return path.split('.').reduce((current, key) => current[key], obj) ?? fallback;
     } catch {
       return fallback;
     }

@@ -147,7 +147,7 @@ export class MobileTouchHandler {
 
       if (!this.isPanning) {
         // Check if we've moved enough to start panning
-        const startCoords = this.getTouchCoordinates(event?.changedTouches?.[0]);
+        const startCoords = this.getTouchCoordinates(event?.changedTouches[0]);
         const distance = Math.sqrt(
           Math.pow(coords.x - startCoords.x, 2) + Math.pow(coords.y - startCoords.y, 2)
         );
@@ -162,8 +162,8 @@ export class MobileTouchHandler {
         const deltaX = coords.x - this.lastPanPosition.x;
         const deltaY = coords.y - this.lastPanPosition.y;
 
-        ifPattern(this.callbacks.onPan, () => { this.callbacks.onPan(deltaX, deltaY);
-         });
+        if (this.callbacks.onPan) { this.callbacks.onPan(deltaX, deltaY);
+          }
 
         this.lastPanPosition = coords;
       }
@@ -196,7 +196,7 @@ export class MobileTouchHandler {
       // All touches ended
       if (!this.isPanning && this.touches.length === 1) {
         // This was a tap
-        const touch = event?.changedTouches?.[0];
+        const touch = event?.changedTouches[0];
         const coords = this.getTouchCoordinates(touch);
 
         // Check for double tap
@@ -208,9 +208,9 @@ export class MobileTouchHandler {
             setTimeout(() => this.vibrate(25), 50);
           }
         } else {
-          ifPattern(this.callbacks.onTap, () => { this.callbacks.onTap(coords.x, coords.y);
+          if (this.callbacks.onTap) { this.callbacks.onTap(coords.x, coords.y);
             this.vibrate(10); // Light vibration for tap
-           });
+            }
         }
 
         this.lastTapTime = now;
@@ -271,17 +271,17 @@ export class MobileTouchHandler {
    * Clear long press timer
    */
   private clearLongPressTimer(): void {
-    ifPattern(this.longPressTimer, () => { clearTimeout(this.longPressTimer);
+    if (this.longPressTimer) { clearTimeout(this.longPressTimer);
       this.longPressTimer = undefined;
-     });
+      }
   }
 
   /**
    * Provide haptic feedback if available
    */
   private vibrate(duration: number): void {
-    ifPattern('vibrate' in navigator, () => { navigator.vibrate(duration);
-     });
+    if ('vibrate' in navigator) { navigator.vibrate(duration);
+      }
   }
 
   /**

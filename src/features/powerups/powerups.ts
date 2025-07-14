@@ -110,9 +110,9 @@ export class PowerUpManager {
       return null;
     }
 
-    ifPattern(powerUp.duration > 0, () => { powerUp.active = true;
+    if (powerUp.duration > 0) { powerUp.active = true;
       powerUp.endTime = Date.now() + powerUp.duration * 1000;
-     });
+      }
 
     this.score -= powerUp.cost;
     this.updatePowerUpButtons();
@@ -125,9 +125,9 @@ export class PowerUpManager {
   updatePowerUps(): void {
     const now = Date.now();
     for (const powerUp of this.powerups) {
-      ifPattern(powerUp.active && now > powerUp.endTime, () => { powerUp.active = false;
+      if (powerUp.active && now > powerUp.endTime) { powerUp.active = false;
         powerUp.endTime = 0;
-       });
+        }
     }
     this.updatePowerUpButtons();
   }

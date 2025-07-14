@@ -75,8 +75,8 @@ export class LeaderboardManager {
   private loadLeaderboard(): void {
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
-      ifPattern(saved, () => { this.entries = JSON.parse(saved);
-       });
+      if (saved) { this.entries = JSON.parse(saved);
+        }
     } catch (_error) {
       this.entries = [];
     }

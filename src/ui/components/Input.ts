@@ -60,8 +60,8 @@ export class Input extends BaseComponent {
 
   private setupInput(): void {
     // Create label if provided
-    ifPattern(this.config.label, () => { this.createLabel();
-     });
+    if (this.config.label) { this.createLabel();
+      }
 
     // Create input wrapper
     const inputWrapper = document.createElement('div');
@@ -82,8 +82,8 @@ export class Input extends BaseComponent {
     this.element.appendChild(inputWrapper);
 
     // Create helper text if provided
-    ifPattern(this.config.helperText || this.config.errorText, () => { this.createHelperText();
-     });
+    if (this.config.helperText || this.config.errorText) { this.createHelperText();
+      }
   }
 
   private createLabel(): void {
@@ -97,8 +97,8 @@ export class Input extends BaseComponent {
     this.label.setAttribute('for', inputId);
 
     // Mark as required
-    ifPattern(this.config.required, () => { this.label.innerHTML += ' <span class="ui-input__required">*</span>';
-     });
+    if (this.config.required) { this.label.innerHTML += ' <span class="ui-input__required">*</span>';
+      }
 
     this.element.appendChild(this.label);
   }
@@ -118,40 +118,40 @@ export class Input extends BaseComponent {
   private updateHelperText(): void {
     if (!this.helperElement) return;
 
-    ifPattern(this.hasError && this.config.errorText, () => { this.helperElement.textContent = this.config.errorText;
+    if (this.hasError && this.config.errorText) { this.helperElement.textContent = this.config.errorText;
       this.helperElement.className = 'ui-input__helper ui-input__helper--error';
-     }); else ifPattern(this.config.helperText, () => { this.helperElement.textContent = this.config.helperText;
+      } else if (this.config.helperText) { this.helperElement.textContent = this.config.helperText;
       this.helperElement.className = 'ui-input__helper';
-     });
+      }
   }
 
   private setInputAttributes(): void {
-    ifPattern(this.config.placeholder, () => { this.input.placeholder = this.config.placeholder;
-     });
+    if (this.config.placeholder) { this.input.placeholder = this.config.placeholder;
+      }
 
-    ifPattern(this.config.value !== undefined, () => { this.input.value = this.config.value;
-     });
+    if (this.config.value !== undefined) { this.input.value = this.config.value;
+      }
 
-    ifPattern(this.config.disabled, () => { this.input.disabled = true;
-     });
+    if (this.config.disabled) { this.input.disabled = true;
+      }
 
-    ifPattern(this.config.required, () => { this.input.required = true;
-     });
+    if (this.config.required) { this.input.required = true;
+      }
 
-    ifPattern(this.config.min !== undefined, () => { this.input.min = this.config.min.toString();
-     });
+    if (this.config.min !== undefined) { this.input.min = this.config.min.toString();
+      }
 
-    ifPattern(this.config.max !== undefined, () => { this.input.max = this.config.max.toString();
-     });
+    if (this.config.max !== undefined) { this.input.max = this.config.max.toString();
+      }
 
-    ifPattern(this.config.step !== undefined, () => { this.input.step = this.config.step.toString();
-     });
+    if (this.config.step !== undefined) { this.input.step = this.config.step.toString();
+      }
 
-    ifPattern(this.config.pattern, () => { this.input.pattern = this.config.pattern;
-     });
+    if (this.config.pattern) { this.input.pattern = this.config.pattern;
+      }
 
-    ifPattern(this.config.ariaLabel, () => { this.input.setAttribute('aria-label', this.config.ariaLabel);
-     });
+    if (this.config.ariaLabel) { this.input.setAttribute('aria-label', this.config.ariaLabel);
+      }
   }
 
   private setupEventListeners(): void {
@@ -163,33 +163,33 @@ export class Input extends BaseComponent {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
-})) => { this.config.onChange(target?.value);
+}); this.config.onChange(target?.value);
        });
     });
 
     this.eventPattern(input?.addEventListener('focus', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for focus:', error);
   }
-})) => {
+});
       this.element.classList.add('ui-input--focused');
-      ifPattern(this.config.onFocus, () => { this.config.onFocus();
-       });
+      if (this.config.onFocus) { this.config.onFocus();
+        }
     });
 
     this.eventPattern(input?.addEventListener('blur', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for blur:', error);
   }
-})) => {
+});
       this.element.classList.remove('ui-input--focused');
       this.validateInput();
-      ifPattern(this.config.onBlur, () => { this.config.onBlur();
-       });
+      if (this.config.onBlur) { this.config.onBlur();
+        }
     });
   }
 
@@ -219,8 +219,8 @@ export class Input extends BaseComponent {
   setError(hasError: boolean, errorText?: string): void {
     this.hasError = hasError;
 
-    ifPattern(errorText, () => { this.config.errorText = errorText;
-     });
+    if (errorText) { this.config.errorText = errorText;
+      }
 
     this.element.classList.toggle('ui-input--error', hasError);
     this.updateHelperText();

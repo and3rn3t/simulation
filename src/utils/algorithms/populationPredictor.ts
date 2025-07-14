@@ -313,8 +313,8 @@ export class PopulationPredictor {
    */
   private calculateConfidence(organisms: Organism[]): number {
     // No organisms = no confidence
-    ifPattern(organisms.length === 0, () => { return 0;
-     });
+    if (organisms.length === 0) { return 0;
+      }
 
     let confidence = 0.5; // Base confidence
 
@@ -434,8 +434,8 @@ export class PopulationPredictor {
     this.historicalData.push({ time, population });
 
     // Keep only recent data
-    ifPattern(this.historicalData.length > 100, () => { this.historicalData.shift();
-     });
+    if (this.historicalData.length > 100) { this.historicalData.shift();
+      }
   }
 
   /**

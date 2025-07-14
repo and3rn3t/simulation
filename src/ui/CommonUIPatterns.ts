@@ -31,8 +31,8 @@ export const CommonUIPatterns = {
   createElement<T extends HTMLElement>(tag: string, className?: string): T | null {
     try {
       const element = document.createElement(tag) as T;
-      ifPattern(className, () => { element?.className = className;
-       });
+      if (className) { element?.className = className;
+        }
       return element;
     } catch (error) {
       return null;
@@ -71,9 +71,9 @@ export const CommonUIPatterns = {
    */
   mountComponent(parent: Element, child: Element): boolean {
     try {
-      ifPattern(parent && child, () => { parent.appendChild(child);
+      if (parent && child) { parent.appendChild(child);
         return true;
-       });
+        }
       return false;
     } catch (error) {
       return false;

@@ -23,8 +23,8 @@ export class NotificationComponent {
     setTimeout(() => {
       notification.classList.add('hide');
       setTimeout(() => {
-        ifPattern(notification.parentNode, () => { this.container.removeChild(notification);
-         });
+        if (notification.parentNode) { this.container.removeChild(notification);
+          }
       }, 300);
     }, duration);
   }

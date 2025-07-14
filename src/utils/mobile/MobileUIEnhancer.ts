@@ -232,8 +232,7 @@ export class MobileUIEnhancer {
   /**
    * Enhance existing controls for mobile
    */
-  private enhanceExistingControls(): void {
-    if (!this.isMobile()) return;
+  private enhanceExistingControls(): void  { try { if (!this.isMobile()) return;
 
     // Add mobile-specific CSS class to body
     document.body.classList.add('mobile-optimized');
@@ -244,9 +243,7 @@ export class MobileUIEnhancer {
   try {
       (input as HTMLElement).style.fontSize = '16px';
     
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 });
 
     // Add touch feedback to all buttons
@@ -254,21 +251,21 @@ export class MobileUIEnhancer {
     buttons.forEach(button => {
       eventPattern(button?.addEventListener('touchstart', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for touchstart:', error);
   }
-})) => {
+});
         button.style.transform = 'scale(0.95)';
       });
 
       eventPattern(button?.addEventListener('touchend', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for touchend:', error);
   }
-})) => {
+});
         button.style.transform = 'scale(1)';
       });
     });
@@ -313,8 +310,8 @@ export class MobileUIEnhancer {
         }
       } else {
   try { await document.exitFullscreen(); } catch (error) { console.error('Await error:', error); }
-        ifPattern(this.fullscreenButton, () => { this.fullscreenButton.innerHTML = '⛶';
-         });
+        if (this.fullscreenButton) { this.fullscreenButton.innerHTML = '⛶';
+          }
       }
     } catch (error) { /* handled */ }
   }
@@ -349,26 +346,26 @@ export class MobileUIEnhancer {
    * Show bottom sheet
    */
   public showBottomSheet(): void {
-    ifPattern(this.bottomSheet && !this.isBottomSheetVisible, () => { this.toggleBottomSheet();
-     });
+    if (this.bottomSheet && !this.isBottomSheetVisible) { this.toggleBottomSheet();
+      }
   }
 
   /**
    * Hide bottom sheet
    */
   public hideBottomSheet(): void {
-    ifPattern(this.bottomSheet && this.isBottomSheetVisible, () => { this.toggleBottomSheet();
-     });
+    if (this.bottomSheet && this.isBottomSheetVisible) { this.toggleBottomSheet();
+      }
   }
 
   /**
    * Cleanup resources
    */
   public destroy(): void {
-    ifPattern(this.fullscreenButton, () => { this.fullscreenButton.remove();
-     });
-    ifPattern(this.bottomSheet, () => { this.bottomSheet.remove();
-     });
+    if (this.fullscreenButton) { this.fullscreenButton.remove();
+      }
+    if (this.bottomSheet) { this.bottomSheet.remove();
+      }
     document.body.classList.remove('mobile-optimized');
   }
 }

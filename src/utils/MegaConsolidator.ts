@@ -29,7 +29,7 @@ export class MegaConsolidator {
 
   // Replace all assignments
   static set(obj: any, key: string, value: any): void {
-    if (obj && key) obj?.[key] = value;
+    if (obj && key) obj[key] = value;
   }
 
   // Replace all function calls
@@ -57,7 +57,7 @@ export class MegaConsolidator {
 
   // Replace all getters
   static get(obj: any, key: string, fallback?: any): any {
-    return obj?.[key] ?? fallback;
+    return obj[key] ?? fallback;
   }
 }
 

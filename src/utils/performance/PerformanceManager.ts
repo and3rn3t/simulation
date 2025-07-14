@@ -14,8 +14,8 @@ export class PerformanceManager {
   }
 
   static getInstance(): PerformanceManager {
-    ifPattern(!PerformanceManager.instance, () => { PerformanceManager.instance = new PerformanceManager();
-     });
+    if (!PerformanceManager.instance) { PerformanceManager.instance = new PerformanceManager();
+      }
     return PerformanceManager.instance;
   }
 
@@ -23,8 +23,8 @@ export class PerformanceManager {
    * Start performance monitoring
    */
   startMonitoring(intervalMs: number = 1000): void {
-    ifPattern(this.monitoring, () => { return;
-     });
+    if (this.monitoring) { return;
+      }
 
     this.monitoring = true;
     this.monitoringInterval = setInterval(() => {
@@ -38,13 +38,13 @@ export class PerformanceManager {
    * Stop performance monitoring
    */
   stopMonitoring(): void {
-    ifPattern(!this.monitoring, () => { return;
-     });
+    if (!this.monitoring) { return;
+      }
 
     this.monitoring = false;
-    ifPattern(this.monitoringInterval, () => { clearInterval(this.monitoringInterval);
+    if (this.monitoringInterval) { clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
-     });
+      }
 
     log.logSystem('Performance monitoring stopped');
   }

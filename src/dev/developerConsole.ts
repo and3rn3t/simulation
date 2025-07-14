@@ -47,8 +47,8 @@ export class DeveloperConsole {
   }
 
   static getInstance(): DeveloperConsole {
-    ifPattern(!DeveloperConsole.instance, () => { DeveloperConsole.instance = new DeveloperConsole();
-     });
+    if (!DeveloperConsole.instance) { DeveloperConsole.instance = new DeveloperConsole();
+      }
     return DeveloperConsole.instance;
   }
 
@@ -73,8 +73,8 @@ export class DeveloperConsole {
   }
 
   toggle(): void {
-    ifPattern(this.isVisible, () => { this.hide();
-     }); else {
+    if (this.isVisible) { this.hide();
+      } else {
       this.show();
     }
   }
@@ -102,11 +102,11 @@ export class DeveloperConsole {
   async executeCommand(input: string): Promise<string> {
     const [commandName, ...args] = input.trim().split(' ');
 
-    ifPattern(!commandName, () => { return '';
-     });
+    if (!commandName) { return '';
+      }
 
     const command = this.commands.get(commandName.toLowerCase());
-    ifPattern(!command, () => { return `Unknown command: ${commandName });. Type "help" for available commands.`;
+    if (!command) { return `Unknown command: ${commandName  }. Type "help" for available commands.`;
     }
 
     try {
@@ -117,8 +117,7 @@ export class DeveloperConsole {
     }
   }
 
-  private createConsoleElement(): void {
-    this.consoleElement = document.createElement('div');
+  private createConsoleElement(): void  { try { this.consoleElement = document.createElement('div');
     this.consoleElement.id = 'dev-console';
     this.consoleElement.innerHTML = `
       <div class="console-header">
@@ -142,10 +141,8 @@ export class DeveloperConsole {
     const closeBtn = document?.getElementById('console-close');
     closeBtn?.addEventListener('click', (event) => {
   try {
-    (()(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
+    (event) => {
+   } catch (error) { /* handled */ } }
 }) => this.hide());
 
     this.inputElement?.addEventListener('keydown', (event) => {
@@ -305,40 +302,36 @@ export class DeveloperConsole {
     }
 
     const command = this.commands.get(commandName.toLowerCase());
-    ifPattern(!command, () => { this.log(`Unknown command: ${commandName });. Type "help" for available commands.`, 'error');
+    if (!command) { this.log(`Unknown command: ${commandName  }. Type "help" for available commands.`, 'error');
       return;
     }
 
     try {
       const result = await command.execute(args);
-      ifPattern(result, () => { this.log(result, 'success');
-       });
+      if (result) { this.log(result, 'success');
+        }
     } catch (error) {
       this.log(`Error executing command: ${error}`, 'error');
     }
   }
 
-  private setupKeyboardShortcuts(): void {
-    document?.addEventListener('keydown', (event) => {
+  private setupKeyboardShortcuts(): void  { try { document?.addEventListener('keydown', (event) => {
   try {
     (e => {
       // Ctrl+` or Ctrl+~ to toggle console
       if (e.ctrlKey && (e.key === '`' || e.key === '~')(event);
-  } catch (error) {
-    console.error('Event listener error for keydown:', error);
-  }
+   } catch (error) { /* handled */ } }
 })) {
         e.preventDefault();
         this.toggle();
       }
       // Escape to hide console
-      else ifPattern(e.key === 'Escape' && this.isVisible, () => { this.hide();
-       });
+      else if (e.key === 'Escape' && this.isVisible) { this.hide();
+        }
     });
   }
 
-  private initializeDefaultCommands(): void {
-    this.registerCommand({
+  private initializeDefaultCommands(): void  { try { this.registerCommand({
       name: 'help',
       description: 'Show available commands',
       usage: 'help [command]',
@@ -348,19 +341,17 @@ export class DeveloperConsole {
           let output = 'Available commands:\n';
           this.commands.forEach((cmd, name) => {
             output += `  ${name
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 } - ${cmd.description}\n`;
           });
           output += '\nType "help <command>" for detailed usage.';
           return output;
         } else {
           const commandToHelp = args[0];
-          ifPattern(!commandToHelp, () => { return 'Invalid command name provided.';
-           });
+          if (!commandToHelp) { return 'Invalid command name provided.';
+            }
           const cmd = this.commands.get(commandToHelp);
-          ifPattern(cmd, () => { return `${cmd.name });: ${cmd.description}\nUsage: ${cmd.usage}`;
+          if (cmd) { return `${cmd.name  }: ${cmd.description}\nUsage: ${cmd.usage}`;
           } else {
             return `Unknown command: ${args[0]}`;
           }
@@ -373,8 +364,8 @@ export class DeveloperConsole {
       description: 'Clear console output',
       usage: 'clear',
       execute: () => {
-        ifPattern(this.outputElement, () => { this.outputElement.innerHTML = '';
-         });
+        if (this.outputElement) { this.outputElement.innerHTML = '';
+          }
         return '';
       },
     });
@@ -420,8 +411,8 @@ export class DeveloperConsole {
 });
 
         const action = args[0];
-        ifPattern(!action, () => { return 'Action is required. Usage: localStorage [get|set|remove|clear] [key] [value]';
-         });
+        if (!action) { return 'Action is required. Usage: localStorage [get|set|remove|clear] [key] [value]';
+          }
 
         switch (action) {
           case 'get': {
@@ -472,13 +463,13 @@ export class DeveloperConsole {
 } = require('./debugMode');
         const debugMode = DebugMode.getInstance();
 
-        ifPattern(args.length === 0, () => { debugMode.toggle();
+        if (args.length === 0) { debugMode.toggle();
           return 'Debug mode toggled';
-         }); else ifPattern(args[0] === 'on', () => { debugMode.enable();
+          } else if (args[0] === 'on') { debugMode.enable();
           return 'Debug mode enabled';
-         }); else ifPattern(args[0] === 'off', () => { debugMode.disable();
+          } else if (args[0] === 'off') { debugMode.disable();
           return 'Debug mode disabled';
-         }); else {
+          } else {
           return 'Usage: debug [on|off]';
         }
       },

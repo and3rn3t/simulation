@@ -15,8 +15,8 @@ export class SuperMobileManager {
   private analytics = { sessions: 0, events: [] as any[] };
 
   static getInstance(): SuperMobileManager {
-    ifPattern(!SuperMobileManager.instance, () => { SuperMobileManager.instance = new SuperMobileManager();
-     });
+    if (!SuperMobileManager.instance) { SuperMobileManager.instance = new SuperMobileManager();
+      }
     return SuperMobileManager.instance;
   }
 
@@ -79,7 +79,7 @@ export class SuperMobileManager {
   shareContent(content: string): Promise<boolean> {
     return new Promise((resolve) => {
       try {
-        ifPattern(navigator.share, () => { navigator.share({ text: content  });).then(().catch(error => console.error('Promise rejection:', error)) => resolve(true));
+        if (navigator.share) { navigator.share({ text: content   }).then(().catch(error => console.error('Promise rejection:', error)) => resolve(true));
         } else {
           // Fallback
           resolve(false);

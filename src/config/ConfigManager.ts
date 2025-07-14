@@ -12,24 +12,26 @@ export class ConfigManager {
   }
 
   public static initialize(config: AppConfig): ConfigManager {
-    ifPattern(ConfigManager.instance, () => { throw new Error('ConfigManager already initialized');
-     });
+    if (ConfigManager.instance) {
+      throw new Error('ConfigManager already initialized');
+    }
     ConfigManager.instance = new ConfigManager(config);
     return ConfigManager.instance;
   }
 
   public static getInstance(): ConfigManager {
-    ifPattern(!ConfigManager.instance, () => { throw new Error('ConfigManager not initialized. Call initialize() first.');
-     });
+    if (!ConfigManager.instance) {
+      throw new Error('ConfigManager not initialized. Call initialize() first.');
+    }
     return ConfigManager.instance;
   }
 
-  public get<K extends keyof AppConfig>(key: K): AppConfig?.[K] {
-    return this.config?.[key];
+  public get<K extends keyof AppConfig>(key: K): AppConfig[K] {
+    return this.config[key];
   }
 
   public getFeature(feature: keyof AppConfig['features']): boolean {
-    return this.config.features?.[feature];
+    return this.config.features[feature];
   }
 
   public getEnvironment(): AppConfig['environment'] {

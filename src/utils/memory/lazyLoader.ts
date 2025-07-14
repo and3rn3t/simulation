@@ -61,14 +61,14 @@ export class LazyLoader {
     // Listen for memory cleanup events
     window?.addEventListener('memory-cleanup', (event) => {
   try {
-    ((event: Event)(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for memory-cleanup:', error);
   }
 }) => {
       const customEvent = event as CustomEvent;
-      ifPattern(customEvent.detail?.level === 'aggressive', () => { this.clearAll();
-       }); else {
+      if (customEvent.detail?.level === 'aggressive') { this.clearAll();
+        } else {
         this.evictLeastRecentlyUsed();
       }
     });
@@ -78,8 +78,8 @@ export class LazyLoader {
    * Get singleton instance
    */
   static getInstance(): LazyLoader {
-    ifPattern(!LazyLoader.instance, () => { LazyLoader.instance = new LazyLoader();
-     });
+    if (!LazyLoader.instance) { LazyLoader.instance = new LazyLoader();
+      }
     return LazyLoader.instance;
   }
 
@@ -100,7 +100,7 @@ export class LazyLoader {
   async load<T>(id: string): Promise<LoadResult<T>> {
     try {
       const loadable = this.loadables.get(id);
-      ifPattern(!loadable, () => { throw new Error(`Loadable with id '${id });' not found`);
+      if (!loadable) { throw new Error(`Loadable with id '${id  }' not found`);
       }
 
       // Check if already loaded
@@ -202,8 +202,8 @@ export class LazyLoader {
    */
   unload(id: string): boolean {
     const loadable = this.loadables.get(id);
-    ifPattern(!loadable || !loadable.isLoaded, () => { return false;
-     });
+    if (!loadable || !loadable.isLoaded) { return false;
+      }
 
     loadable.data = undefined;
     loadable.isLoaded = false;
@@ -226,9 +226,9 @@ export class LazyLoader {
    */
   getData<T>(id: string): T | undefined {
     const loadable = this.loadables.get(id);
-    ifPattern(loadable?.isLoaded, () => { this.updateLoadOrder(id);
+    if (loadable?.isLoaded) { this.updateLoadOrder(id);
       return loadable.data as T;
-     });
+      }
     return undefined;
   }
 
@@ -261,8 +261,8 @@ export class LazyLoader {
    */
   private removeFromLoadOrder(id: string): void {
     const index = this.loadOrder.indexOf(id);
-    ifPattern(index !== -1, () => { this.loadOrder.splice(index, 1);
-     });
+    if (index !== -1) { this.loadOrder.splice(index, 1);
+      }
   }
 
   /**

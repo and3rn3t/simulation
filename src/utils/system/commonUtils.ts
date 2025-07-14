@@ -102,9 +102,9 @@ export function getElementSafely<T extends HTMLElement>(
 ): T | null {
   try {
     const element = document?.getElementById(id) as T;
-    ifPattern(!element, () => { handleValidationError('DOM element', id, 'existing element');
+    if (!element) { handleValidationError('DOM element', id, 'existing element');
       return null;
-     });
+      }
 
     if (expectedType && element?.tagName.toLowerCase() !== expectedType.toLowerCase()) {
       handleValidationError('DOM element type', element?.tagName, expectedType);
@@ -130,11 +130,11 @@ export function getCanvasContextSafely(
   contextType: '2d' = '2d'
 ): CanvasRenderingContext2D | null {
   try {
-    ifPattern(!canvas, () => { throw new CanvasError('Canvas element is null or undefined');
-     });
+    if (!canvas) { throw new CanvasError('Canvas element is null or undefined');
+      }
 
     const context = canvas?.getContext(contextType);
-    ifPattern(!context, () => { throw new CanvasError(`Failed to get ${contextType }); context from canvas`);
+    if (!context) { throw new CanvasError(`Failed to get ${contextType  } context from canvas`);
     }
 
     return context;
@@ -154,12 +154,12 @@ export function getCanvasContextSafely(
 export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
   element: HTMLElement,
   type: K,
-  handler: (event: HTMLElementEventMap?.[K]) => void,
+  handler: (event: HTMLElementEventMap[K]) => void,
   options?: boolean | AddEventListenerOptions
 ): void {
   try {
-    ifPattern(!element, () => { throw new DOMError('Cannot add event listener to null element');
-     });
+    if (!element) { throw new DOMError('Cannot add event listener to null element');
+      }
 
     const wrappedHandler = withEventErrorHandling(handler, type);
     element?.addEventListener(type, wrappedHandler, options);
@@ -204,7 +204,7 @@ export function validateParameters(
 ): boolean {
   try {
     for (const [paramName, validation] of Object.entries(validations)) {
-      const value = params?.[paramName];
+      const value = params[paramName];
 
       // Check required parameters
       if (validation.required && (value === undefined || value === null)) {
@@ -213,9 +213,9 @@ export function validateParameters(
       }
 
       // Check type if value exists
-      ifPattern(value !== undefined && value !== null && typeof value !== validation.type, () => { handleValidationError(paramName, value, validation.type);
+      if (value !== undefined && value !== null && typeof value !== validation.type) { handleValidationError(paramName, value, validation.type);
         return false;
-       });
+        }
 
       // Custom validation
       if (validation.validator && value !== undefined && value !== null) {

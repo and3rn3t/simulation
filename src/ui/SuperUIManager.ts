@@ -9,8 +9,8 @@ export class SuperUIManager {
   private listeners = new Map<string, EventListener[]>();
 
   static getInstance(): SuperUIManager {
-    ifPattern(!SuperUIManager.instance, () => { SuperUIManager.instance = new SuperUIManager();
-     });
+    if (!SuperUIManager.instance) { SuperUIManager.instance = new SuperUIManager();
+      }
     return SuperUIManager.instance;
   }
 

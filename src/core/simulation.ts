@@ -442,8 +442,8 @@ export class OrganismSimulation {
       }
 
       // Reset should leave the simulation in stopped state
-      // ifPattern(wasRunning, () => { //   this.start();
-      //  });
+      // if (wasRunning) { //   this.start();
+      //   }
 
       Logger.getInstance().logSystem('Simulation reset');
     } catch (error) {

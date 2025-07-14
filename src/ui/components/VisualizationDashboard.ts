@@ -148,25 +148,22 @@ export class VisualizationDashboard extends BaseComponent {
     this.trailComponent.mount(trailContainer);
   }
 
-  private setupControls(): void {
-    // Dashboard toggle
+  private setupControls(): void  { try { // Dashboard toggle
     const dashboardToggle = this.element?.querySelector('.dashboard-toggle') as HTMLButtonElement;
     const toggleIcon = this.element?.querySelector('.toggle-icon') as HTMLElement;
     const dashboardContent = this.element?.querySelector('.dashboard-content') as HTMLElement;
 
     dashboardToggle?.addEventListener('click', (event) => {
   try {
-    (()(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
+    (event) => {
+   } catch (error) { /* handled */ } }
 }) => {
       this.isVisible = !this.isVisible;
       dashboardContent.style.display = this.isVisible ? 'block' : 'none';
       toggleIcon.textContent = this.isVisible ? '🔽' : '🔼';
 
-      ifPattern(this.isVisible, () => { this.startUpdates();
-       }); else {
+      if (this.isVisible) { this.startUpdates();
+        } else {
         this.stopUpdates();
       }
     });
@@ -220,15 +217,15 @@ export class VisualizationDashboard extends BaseComponent {
     frequencySlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      const value = parseInt((e.target as HTMLInputElement)(event);
+      const value = parseInt(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
 }).value);
       frequencyValue.textContent = `${value}ms`;
       this.preferencesManager.updatePreference('chartUpdateInterval', value);
-      ifPattern(this.updateInterval, () => { this.restartUpdates();
-       });
+      if (this.updateInterval) { this.restartUpdates();
+        }
     });
 
     const sliderContainer = document.createElement('div');
@@ -303,19 +300,19 @@ export class VisualizationDashboard extends BaseComponent {
   private updateStats(data: VisualizationData): void {
     // Total data points
     const totalDataPointsElement = this.element?.querySelector('#total-data-points') as HTMLElement;
-    ifPattern(totalDataPointsElement, () => { totalDataPointsElement.textContent = data.positions.length.toString();
-     });
+    if (totalDataPointsElement) { totalDataPointsElement.textContent = data.positions.length.toString();
+      }
 
     // Update rate
     const updateRateElement = this.element?.querySelector('#update-rate') as HTMLElement;
-    ifPattern(updateRateElement, () => { const interval = this.preferencesManager.getPreferences().chartUpdateInterval;
-      updateRateElement.textContent = `${(interval / 1000).toFixed(1) });s`;
+    if (updateRateElement) { const interval = this.preferencesManager.getPreferences().chartUpdateInterval;
+      updateRateElement.textContent = `${(interval / 1000).toFixed(1)  }s`;
     }
 
     // Memory usage (estimated)
     const memoryUsageElement = this.element?.querySelector('#memory-usage') as HTMLElement;
-    ifPattern(memoryUsageElement, () => { const estimatedMemory = this.estimateMemoryUsage(data);
-      memoryUsageElement.textContent = `${estimatedMemory.toFixed(1) }); MB`;
+    if (memoryUsageElement) { const estimatedMemory = this.estimateMemoryUsage(data);
+      memoryUsageElement.textContent = `${estimatedMemory.toFixed(1)  } MB`;
     }
   }
 
@@ -353,15 +350,15 @@ export class VisualizationDashboard extends BaseComponent {
    * Stop automatic updates
    */
   stopUpdates(): void {
-    ifPattern(this.updateInterval, () => { clearInterval(this.updateInterval);
+    if (this.updateInterval) { clearInterval(this.updateInterval);
       this.updateInterval = null;
-     });
+      }
   }
 
   private restartUpdates(): void {
     this.stopUpdates();
-    ifPattern(this.isVisible, () => { this.startUpdates();
-     });
+    if (this.isVisible) { this.startUpdates();
+      }
   }
 
   /**
@@ -399,8 +396,8 @@ export class VisualizationDashboard extends BaseComponent {
     this.populationChart.resize();
     this.distributionChart.resize();
 
-    ifPattern(this.simulationCanvas, () => { this.densityHeatmap.resize(this.simulationCanvas.width, this.simulationCanvas.height);
-     });
+    if (this.simulationCanvas) { this.densityHeatmap.resize(this.simulationCanvas.width, this.simulationCanvas.height);
+      }
   }
 
   /**
@@ -408,8 +405,8 @@ export class VisualizationDashboard extends BaseComponent {
    */
   setVisible(visible: boolean): void {
     this.element.style.display = visible ? 'block' : 'none';
-    ifPattern(visible && this.isVisible, () => { this.startUpdates();
-     }); else {
+    if (visible && this.isVisible) { this.startUpdates();
+      } else {
       this.stopUpdates();
     }
   }

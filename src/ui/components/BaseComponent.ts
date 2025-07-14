@@ -29,8 +29,8 @@ export abstract class BaseComponent {
 
   constructor(tagName: string = 'div', className?: string) {
     this.element = document.createElement(tagName);
-    ifPattern(className, () => { this.element.className = className;
-     });
+    if (className) { this.element.className = className;
+      }
     this.setupAccessibility();
   }
 
@@ -38,8 +38,8 @@ export abstract class BaseComponent {
    * Mount the component to a parent element
    */
   mount(parent: HTMLElement): void {
-    ifPattern(this.mounted, () => { return;
-     });
+    if (this.mounted) { return;
+      }
 
     parent.appendChild(this.element);
     this.mounted = true;
@@ -50,8 +50,8 @@ export abstract class BaseComponent {
    * Unmount the component from its parent
    */
   unmount(): void {
-    ifPattern(!this.mounted || !this.element.parentNode, () => { return;
-     });
+    if (!this.mounted || !this.element.parentNode) { return;
+      }
 
     this.element.parentNode.removeChild(this.element);
     this.mounted = false;
@@ -77,7 +77,7 @@ export abstract class BaseComponent {
    */
   protected addEventListener<K extends keyof HTMLElementEventMap>(
     type: K,
-    listener: (this: HTMLElement, ev: HTMLElementEventMap?.[K]) => any,
+    listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions
   ): void {
     this.element?.addEventListener(type, listener, options);

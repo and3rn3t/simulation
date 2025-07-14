@@ -88,8 +88,8 @@ export class MobilePerformanceManager {
     if (!isMobile) return 60; // Desktop default
 
     // Check for battery saver mode or low battery
-    ifPattern(this.isLowPowerMode || this.batteryLevel < 0.2, () => { return 30; // Power saving mode
-     });
+    if (this.isLowPowerMode || this.batteryLevel < 0.2) { return 30; // Power saving mode
+      }
 
     // Check device refresh rate capability
     const refreshRate = (screen as any).refreshRate || 60;
@@ -123,7 +123,7 @@ export class MobilePerformanceManager {
         // Listen for battery changes
         battery?.addEventListener('levelchange', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for levelchange:', error);
   }
@@ -134,7 +134,7 @@ export class MobilePerformanceManager {
 
         battery?.addEventListener('chargingchange', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for chargingchange:', error);
   }
@@ -168,8 +168,8 @@ export class MobilePerformanceManager {
         this.adjustPerformanceForFPS(fps);
       } // TODO: Consider extracting to reduce closure scope
 
-      ifPattern(!this.isDestroyed, () => { this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
-       });
+      if (!this.isDestroyed) { this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
+        }
     };
 
     this.performanceMonitoringId = requestAnimationFrame(measurePerformance);
@@ -230,9 +230,9 @@ export class MobilePerformanceManager {
 
     const targetFrameTime = 1000 / this.config.targetFPS;
 
-    ifPattern(this.frameTime < targetFrameTime * 0.8, () => { this.frameSkipCounter++;
+    if (this.frameTime < targetFrameTime * 0.8) { this.frameSkipCounter++;
       return this.frameSkipCounter % 2 === 0; // Skip every other frame if running too fast
-     });
+      }
 
     this.frameSkipCounter = 0;
     return false;
@@ -258,14 +258,14 @@ export class MobilePerformanceManager {
   public getPerformanceRecommendations(): string[] {
     const recommendations: string[] = [];
 
-    ifPattern(this.batteryLevel < 0.2, () => { recommendations.push('Battery low - consider reducing simulation complexity');
-     });
+    if (this.batteryLevel < 0.2) { recommendations.push('Battery low - consider reducing simulation complexity');
+      }
 
-    ifPattern(this.config.maxOrganisms > 500, () => { recommendations.push('High organism count may impact performance on mobile');
-     });
+    if (this.config.maxOrganisms > 500) { recommendations.push('High organism count may impact performance on mobile');
+      }
 
-    ifPattern(!this.config.enableObjectPooling, () => { recommendations.push('Enable object pooling for better memory management');
-     });
+    if (!this.config.enableObjectPooling) { recommendations.push('Enable object pooling for better memory management');
+      }
 
     if (!this.config.reducedEffects && this.shouldReduceEffects()) {
       recommendations.push('Consider reducing visual effects for better performance');
@@ -293,8 +293,8 @@ export class MobilePerformanceManager {
    */
   public destroy(): void {
     this.isDestroyed = true;
-    ifPattern(this.performanceMonitoringId, () => { cancelAnimationFrame(this.performanceMonitoringId);
+    if (this.performanceMonitoringId) { cancelAnimationFrame(this.performanceMonitoringId);
       this.performanceMonitoringId = null;
-     });
+      }
   }
 }

@@ -149,15 +149,13 @@ export class UnlockableOrganismManager {
           break;
       }
 
-      ifPattern(shouldUnlock, () => {
-        organism.unlocked = true;
+      if (shouldUnlock) { organism.unlocked = true;
         newlyUnlocked.push(organism);
-      });
+       }
     }
 
-    ifPattern(newlyUnlocked.length > 0, () => {
-      this.updateOrganismSelect();
-    });
+    if (newlyUnlocked.length > 0) { this.updateOrganismSelect();
+     }
 
     return newlyUnlocked;
   }

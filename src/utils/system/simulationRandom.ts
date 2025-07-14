@@ -14,8 +14,8 @@ export class SimulationRandom {
   private constructor() {}
 
   public static getInstance(): SimulationRandom {
-    ifPattern(!SimulationRandom.instance, () => { SimulationRandom.instance = new SimulationRandom();
-     });
+    if (!SimulationRandom.instance) { SimulationRandom.instance = new SimulationRandom();
+      }
     return SimulationRandom.instance;
   }
 

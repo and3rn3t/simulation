@@ -106,9 +106,8 @@ export class ErrorHandler {
    * Get the singleton instance of ErrorHandler
    */
   static getInstance(): ErrorHandler {
-    ifPattern(!ErrorHandler.instance, () => {
-      ErrorHandler.instance = new ErrorHandler();
-    });
+    if (!ErrorHandler.instance) { ErrorHandler.instance = new ErrorHandler();
+     }
     return ErrorHandler.instance;
   }
 
@@ -136,14 +135,12 @@ export class ErrorHandler {
     this.addToQueue(errorInfo);
 
     // Log the error
-    ifPattern(this.isLoggingEnabled, () => {
-      this.logError(errorInfo);
-    });
+    if (this.isLoggingEnabled) { this.logError(errorInfo);
+     }
 
     // Only show user notification for critical errors, and only if it's not during initial app startup
-    ifPattern(severity === ErrorSeverity.CRITICAL && context !== 'Application startup', () => {
-      this.showCriticalErrorNotification(errorInfo);
-    });
+    if (severity === ErrorSeverity.CRITICAL && context !== 'Application startup') { this.showCriticalErrorNotification(errorInfo);
+     }
   }
 
   /**
@@ -154,9 +151,8 @@ export class ErrorHandler {
     this.errorQueue.push(errorInfo);
 
     // Keep queue size manageable
-    ifPattern(this.errorQueue.length > this.maxQueueSize, () => {
-      this.errorQueue.shift();
-    });
+    if (this.errorQueue.length > this.maxQueueSize) { this.errorQueue.shift();
+     }
   }
 
   /**

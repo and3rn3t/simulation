@@ -44,14 +44,14 @@ export class PerformanceProfiler {
   }
 
   static getInstance(): PerformanceProfiler {
-    ifPattern(!PerformanceProfiler.instance, () => { PerformanceProfiler.instance = new PerformanceProfiler();
-     });
+    if (!PerformanceProfiler.instance) { PerformanceProfiler.instance = new PerformanceProfiler();
+      }
     return PerformanceProfiler.instance;
   }
 
   startProfiling(duration: number = 10000): string {
-    ifPattern(this.isProfilering, () => { throw new Error('Profiling session already in progress');
-     });
+    if (this.isProfilering) { throw new Error('Profiling session already in progress');
+      }
 
     const sessionId = generateSecureTaskId('profile');
     this.currentSession = {
@@ -73,22 +73,22 @@ export class PerformanceProfiler {
 
     // Auto-stop after duration
     setTimeout(() => {
-      ifPattern(this.isProfilering, () => { this.stopProfiling();
-       });
+      if (this.isProfilering) { this.stopProfiling();
+        }
     }, duration);
 
     return sessionId;
   }
 
   stopProfiling(): ProfileSession | null {
-    ifPattern(!this.isProfilering || !this.currentSession, () => { return null;
-     });
+    if (!this.isProfilering || !this.currentSession) { return null;
+      }
 
     this.isProfilering = false;
 
-    ifPattern(this.sampleInterval, () => { clearInterval(this.sampleInterval);
+    if (this.sampleInterval) { clearInterval(this.sampleInterval);
       this.sampleInterval = null;
-     });
+      }
 
     // Finalize session
     this.currentSession.endTime = performance.now();
@@ -138,14 +138,14 @@ export class PerformanceProfiler {
     this.lastFrameTime = now;
 
     // Store frame time for FPS calculation
-    ifPattern(frameTime > 0, () => { // This could be used for more accurate FPS tracking
-     });
+    if (frameTime > 0) { // This could be used for more accurate FPS tracking
+      }
 
     // Track garbage collection events
     if ((performance as any).memory) {
       const currentHeap = (performance as any).memory.usedJSHeapSize;
-      ifPattern(currentHeap < this.lastGCTime, () => { // Potential GC detected
-       });
+      if (currentHeap < this.lastGCTime) { // Potential GC detected
+        }
       this.lastGCTime = currentHeap;
     }
   }
@@ -252,22 +252,22 @@ export class PerformanceProfiler {
       recommendations.push(
         '🔴 Critical: Average FPS is below 30. Consider reducing simulation complexity.'
       );
-    } else ifPattern(avg.fps < 50, () => { recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
-     });
+    } else if (avg.fps < 50) { recommendations.push('🟡 Warning: Average FPS is below 50. Optimization recommended.');
+      }
 
     // Frame time recommendations
-    ifPattern(avg.frameTime > 33, () => { recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
-     }); else ifPattern(avg.frameTime > 20, () => { recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
-     });
+    if (avg.frameTime > 33) { recommendations.push('🔴 Critical: Frame time exceeds 33ms (30 FPS threshold).');
+      } else if (avg.frameTime > 20) { recommendations.push('🟡 Warning: Frame time exceeds 20ms. Consider optimizations.');
+      }
 
     // Memory recommendations
-    ifPattern(avg.memoryUsage > 100 * 1024 * 1024, () => { // 100MB
+    if (avg.memoryUsage > 100 * 1024 * 1024) { // 100MB
       recommendations.push('🟡 Warning: High memory usage detected. Consider object pooling.');
-     });
+      }
 
-    ifPattern(avg.gcPressure > 80, () => { recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
-     }); else ifPattern(avg.gcPressure > 60, () => { recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
-     });
+    if (avg.gcPressure > 80) { recommendations.push('🔴 Critical: High GC pressure. Reduce object allocations.');
+      } else if (avg.gcPressure > 60) { recommendations.push('🟡 Warning: Moderate GC pressure. Consider optimization.');
+      }
 
     // Canvas operations recommendations
     if (avg.canvasOperations > 1000) {
@@ -276,12 +276,12 @@ export class PerformanceProfiler {
       );
     }
 
-    ifPattern(avg.drawCalls > 500, () => { recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
-     });
+    if (avg.drawCalls > 500) { recommendations.push('🟡 Warning: High draw call count. Consider instanced rendering.');
+      }
 
     // Add general recommendations
-    ifPattern(recommendations.length === 0, () => { recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
-     }); else {
+    if (recommendations.length === 0) { recommendations.push('✅ Performance looks good! No immediate optimizations needed.');
+      } else {
       recommendations.push(
         '💡 Consider implementing object pooling, dirty rectangle rendering, or spatial partitioning.'
       );
@@ -330,19 +330,17 @@ export class PerformanceProfiler {
   // Method to export session data for external analysis
   exportSession(sessionId: string): string {
     const session = this.getSession(sessionId);
-    ifPattern(!session, () => { throw new Error(`Session ${sessionId }); not found`);
+    if (!session) { throw new Error(`Session ${sessionId  } not found`);
     }
 
     return JSON.stringify(session, null, 2);
   }
 
   // Method to import session data
-  importSession(sessionData: string): void {
-    try {
+  importSession(): void  { try { try {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
-    } catch (error) {
-      throw new Error(`Failed to import session: ${error}`);
+     } catch (error) { /* handled */ } }`);
     }
   }
 }

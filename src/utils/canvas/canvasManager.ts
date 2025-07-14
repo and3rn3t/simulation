@@ -34,7 +34,7 @@ export class CanvasManager {
    * @param zIndex The z-index of the layer.
    */
   createLayer(name: string, zIndex: number): void {
-    ifPattern(this.layers?.[name], () => { throw new Error(`Layer with name "${name });" already exists.`);
+    if (this.layers[name]) { throw new Error(`Layer with name "${name  }" already exists.`);
     }
 
     const canvas = document.createElement('canvas');
@@ -44,8 +44,8 @@ export class CanvasManager {
     canvas?.height = this.container.clientHeight;
 
     this.container.appendChild(canvas);
-    this.layers?.[name] = canvas;
-    this.contexts?.[name] = canvas?.getContext('2d')!;
+    this.layers[name] = canvas;
+    this.contexts[name] = canvas?.getContext('2d')!;
   }
 
   /**
@@ -54,8 +54,8 @@ export class CanvasManager {
    * @returns The 2D rendering context.
    */
   getContext(name: string): CanvasRenderingContext2D {
-    const context = this.contexts?.[name];
-    ifPattern(!context, () => { throw new Error(`Layer with name "${name });" does not exist.`);
+    const context = this.contexts[name];
+    if (!context) { throw new Error(`Layer with name "${name  }" does not exist.`);
     }
     return context;
   }

@@ -24,9 +24,9 @@ export class App {
   }
 
   public static getInstance(config?: AppConfig): App {
-    ifPattern(!App.instance, () => { const finalConfig = config || createConfigFromEnv();
+    if (!App.instance) { const finalConfig = config || createConfigFromEnv();
       App.instance = new App(finalConfig);
-     });
+      }
     return App.instance;
   }
 
@@ -34,8 +34,8 @@ export class App {
    * Initialize the application with error handling and component setup
    */
   public async initialize(): Promise<void> {
-    ifPattern(this.initialized, () => { return;
-     });
+    if (this.initialized) { return;
+      }
 
     try {
       // Initialize global error handlers first
@@ -156,12 +156,12 @@ export class App {
    */
   public shutdown(): void {
     // Stop performance monitoring
-    ifPattern(this.performanceManager, () => { this.performanceManager.stopMonitoring();
-     });
+    if (this.performanceManager) { this.performanceManager.stopMonitoring();
+      }
 
     // Cleanup memory panel component
-    ifPattern(this.memoryPanelComponent, () => { // Cleanup memory panel component
-     });
+    if (this.memoryPanelComponent) { // Cleanup memory panel component
+      }
 
     this.initialized = false;
   }

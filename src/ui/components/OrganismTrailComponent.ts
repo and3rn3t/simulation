@@ -68,8 +68,8 @@ export class OrganismTrailComponent extends BaseComponent {
 
     this.canvas = canvas;
     const ctx = canvas?.getContext('2d');
-    ifPattern(!ctx, () => { throw new Error('Failed to get 2D context for trail canvas');
-     });
+    if (!ctx) { throw new Error('Failed to get 2D context for trail canvas');
+      }
     this.ctx = ctx;
 
     this.createElement();
@@ -118,8 +118,8 @@ export class OrganismTrailComponent extends BaseComponent {
     console.error('Event listener error for change:', error);
   }
 })).checked;
-      ifPattern(!this.config.showTrails, () => { this.clearAllTrails();
-       });
+      if (!this.config.showTrails) { this.clearAllTrails();
+        }
     });
 
     // Trail length control
@@ -128,7 +128,7 @@ export class OrganismTrailComponent extends BaseComponent {
     eventPattern(lengthSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      this.config.maxTrailLength = parseInt((e.target as HTMLInputElement)(event);
+      this.config.maxTrailLength = parseInt(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
@@ -143,7 +143,7 @@ export class OrganismTrailComponent extends BaseComponent {
     eventPattern(widthSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      this.config.trailWidth = parseFloat((e.target as HTMLInputElement)(event);
+      this.config.trailWidth = parseFloat(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
@@ -179,8 +179,8 @@ export class OrganismTrailComponent extends BaseComponent {
     });
 
     // Trim trail if too long
-    ifPattern(trail.positions.length > this.config.maxTrailLength, () => { trail.positions.shift();
-     });
+    if (trail.positions.length > this.config.maxTrailLength) { trail.positions.shift();
+      }
   }
 
   /**
@@ -277,8 +277,8 @@ export class OrganismTrailComponent extends BaseComponent {
       trail.positions = trail.positions.filter(pos => currentTime - pos.timestamp < maxAge);
 
       // Remove trail if no positions left
-      ifPattern(trail.positions.length === 0, () => { this.trails.delete(id);
-       });
+      if (trail.positions.length === 0) { this.trails.delete(id);
+        }
     });
   }
 
@@ -292,9 +292,9 @@ export class OrganismTrailComponent extends BaseComponent {
     const activeTrailsElement = this.element?.querySelector('.active-trails') as HTMLElement;
     const totalPointsElement = this.element?.querySelector('.total-points') as HTMLElement;
 
-    ifPattern(activeTrailsElement, () => { activeTrailsElement.textContent = `Active Trails: ${activeTrails });`;
+    if (activeTrailsElement) { activeTrailsElement.textContent = `Active Trails: ${activeTrails  }`;
     }
-    ifPattern(totalPointsElement, () => { totalPointsElement.textContent = `Total Points: ${totalPoints });`;
+    if (totalPointsElement) { totalPointsElement.textContent = `Total Points: ${totalPoints  }`;
     }
   }
 
@@ -304,7 +304,7 @@ export class OrganismTrailComponent extends BaseComponent {
   exportTrailData(): { [id: string]: OrganismTrail } {
     const data: { [id: string]: OrganismTrail } = {};
     this.trails.forEach((trail, id) => {
-      data?.[id] = { ...trail };
+      data[id] = { ...trail };
     });
     return data;
   }
@@ -418,9 +418,9 @@ export class OrganismTrailComponent extends BaseComponent {
   }
 
   public unmount(): void {
-    ifPattern(this.animationFrame, () => { cancelAnimationFrame(this.animationFrame);
+    if (this.animationFrame) { cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
-     });
+      }
     this.clearAllTrails();
     super.unmount();
   }

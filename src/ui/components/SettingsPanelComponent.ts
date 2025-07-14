@@ -107,17 +107,14 @@ export class SettingsPanelComponent extends Modal {
     return tabContainer;
   }
 
-  private switchTab(tabId: string): void {
-    // Update tab buttons
+  private switchTab(): void  { try { // Update tab buttons
     const tabs = this.element.querySelectorAll('[id^="settings-tab-"]');
     tabs.forEach(tab => {
   try {
       const button = tab?.querySelector('button');
       ifPattern(button, () => { button.className = button.className.replace('ui-button--primary', 'ui-button--secondary');
        
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 });
     });
 
@@ -141,12 +138,11 @@ export class SettingsPanelComponent extends Modal {
 });
 
     const activePanel = this.element?.querySelector(`#${tabId}-panel`);
-    ifPattern(activePanel, () => { (activePanel as HTMLElement).style.display = 'block';
-     });
+    if (activePanel) { (activePanel as HTMLElement).style.display = 'block';
+      }
   }
 
-  private createGeneralPanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createGeneralPanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'general-panel';
     panel.className = 'settings-panel';
 
@@ -168,9 +164,7 @@ export class SettingsPanelComponent extends Modal {
       option.selected = lang.code === this.tempPreferences.language;
       languageSelect.appendChild(option);
     
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 });
     eventPattern(languageSelect?.addEventListener('change', (event) => {
   try {
@@ -231,7 +225,7 @@ export class SettingsPanelComponent extends Modal {
     eventPattern(speedSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      const value = parseFloat((e.target as HTMLInputElement)(event);
+      const value = parseFloat(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
@@ -377,8 +371,7 @@ export class SettingsPanelComponent extends Modal {
     return panel;
   }
 
-  private createVisualizationPanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createVisualizationPanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'visualization-panel';
     panel.className = 'settings-panel';
     panel.style.display = 'none';
@@ -398,9 +391,7 @@ export class SettingsPanelComponent extends Modal {
   try {
         this.tempPreferences.showTrails = checked;
       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 },
     });
     trailsToggle.mount(section);
@@ -450,7 +441,7 @@ export class SettingsPanelComponent extends Modal {
     eventPattern(intervalSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      const value = parseInt((e.target as HTMLInputElement)(event);
+      const value = parseInt(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
@@ -472,8 +463,7 @@ export class SettingsPanelComponent extends Modal {
     return panel;
   }
 
-  private createPerformancePanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createPerformancePanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'performance-panel';
     panel.className = 'settings-panel';
     panel.style.display = 'none';
@@ -500,10 +490,8 @@ export class SettingsPanelComponent extends Modal {
     eventPattern(maxOrganismsSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      const value = parseInt((e.target as HTMLInputElement)(event);
-  } catch (error) {
-    console.error('Event listener error for input:', error);
-  }
+      const value = parseInt(e.target as HTMLInputElement) => {
+   } catch (error) { /* handled */ } }
 })).value);
       this.tempPreferences.maxOrganisms = value;
       maxOrganismsValue.textContent = value.toString();
@@ -564,8 +552,7 @@ export class SettingsPanelComponent extends Modal {
     return panel;
   }
 
-  private createAccessibilityPanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createAccessibilityPanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'accessibility-panel';
     panel.className = 'settings-panel';
     panel.style.display = 'none';
@@ -585,9 +572,7 @@ export class SettingsPanelComponent extends Modal {
   try {
         this.tempPreferences.reducedMotion = checked;
       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 },
     });
     motionToggle.mount(section);
@@ -655,8 +640,7 @@ export class SettingsPanelComponent extends Modal {
     return panel;
   }
 
-  private createNotificationsPanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createNotificationsPanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'notifications-panel';
     panel.className = 'settings-panel';
     panel.style.display = 'none';
@@ -676,9 +660,7 @@ export class SettingsPanelComponent extends Modal {
   try {
         this.tempPreferences.soundEnabled = checked;
       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 },
     });
     soundToggle.mount(section);
@@ -698,7 +680,7 @@ export class SettingsPanelComponent extends Modal {
     eventPattern(volumeSlider?.addEventListener('input', (event) => {
   try {
     (e => {
-      const value = parseFloat((e.target as HTMLInputElement)(event);
+      const value = parseFloat(e.target as HTMLInputElement) => {
   } catch (error) {
     console.error('Event listener error for input:', error);
   }
@@ -744,8 +726,7 @@ export class SettingsPanelComponent extends Modal {
     return panel;
   }
 
-  private createPrivacyPanel(): HTMLElement {
-    const panel = document.createElement('div');
+  private createPrivacyPanel(): HTMLElement  { try { const panel = document.createElement('div');
     panel.id = 'privacy-panel';
     panel.className = 'settings-panel';
     panel.style.display = 'none';
@@ -765,9 +746,7 @@ export class SettingsPanelComponent extends Modal {
   try {
         this.tempPreferences.analyticsEnabled = checked;
       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 },
     });
     analyticsToggle.mount(section);

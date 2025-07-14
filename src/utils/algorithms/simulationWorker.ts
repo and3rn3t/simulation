@@ -257,7 +257,7 @@ class StatisticsCalculator {
     ages.forEach(age => {
   try {
       const bin = Math.floor(age / binSize);
-      ifPattern(bin < numBins, () => { histogram?.[bin]++;
+      ifPattern(bin < numBins, () => { histogram[bin]++;
        
   } catch (error) {
     console.error("Callback error:", error);
@@ -313,8 +313,8 @@ class StatisticsCalculator {
         }
       });
 
-      ifPattern(cluster.count > 1, () => { clusters.push(cluster);
-       });
+      if (cluster.count > 1) { clusters.push(cluster);
+        }
     });
 
     return clusters;

@@ -47,10 +47,10 @@ export class Button extends BaseComponent {
   private static generateClassName(config: ButtonConfig): string {
     const classes = ['ui-button'];
 
-    ifPattern(config?.variant, () => { classes.push(`ui-button--${config?.variant });`);
+    if (config?.variant) { classes.push(`ui-button--${config?.variant  }`);
     }
 
-    ifPattern(config?.size, () => { classes.push(`ui-button--${config?.size });`);
+    if (config?.size) { classes.push(`ui-button--${config?.size  }`);
     }
 
     return classes.join(' ');
@@ -60,18 +60,18 @@ export class Button extends BaseComponent {
     const button = this.element as HTMLButtonElement;
 
     // Set text content
-    ifPattern(this.config.icon, () => { button.innerHTML = `<span class="ui-button__icon">${this.config.icon });</span><span class="ui-button__text">${this.config.text}</span>`;
+    if (this.config.icon) { button.innerHTML = `<span class="ui-button__icon">${this.config.icon  }</span><span class="ui-button__text">${this.config.text}</span>`;
     } else {
       button.textContent = this.config.text;
     }
 
     // Set disabled state
-    ifPattern(this.config.disabled, () => { button.disabled = true;
-     });
+    if (this.config.disabled) { button.disabled = true;
+      }
 
     // Set aria-label for accessibility
-    ifPattern(this.config.ariaLabel, () => { this.setAriaAttribute('label', this.config.ariaLabel);
-     });
+    if (this.config.ariaLabel) { this.setAriaAttribute('label', this.config.ariaLabel);
+      }
 
     // Add click handler
     ifPattern(this.config.onClick, () => { this?.addEventListener('click', (event) => {

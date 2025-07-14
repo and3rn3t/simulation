@@ -105,23 +105,23 @@ export class InteractiveExamples {
 
     eventPattern(selector?.addEventListener('change', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for change:', error);
   }
-})) => {
+});
       const selectedExample = selector.value;
-      ifPattern(selectedExample, () => { this.displayExampleCode(selectedExample);
-       });
+      if (selectedExample) { this.displayExampleCode(selectedExample);
+        }
     });
 
     eventPattern(runButton?.addEventListener('click', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for click:', error);
   }
-})) => {
+});
       const selectedExample = selector.value;
       if (selectedExample && this.examples.has(selectedExample)) {
         this.runExample(selectedExample);
@@ -130,11 +130,11 @@ export class InteractiveExamples {
 
     eventPattern(clearButton?.addEventListener('click', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for click:', error);
   }
-})) => {
+});
       this.clearOutput();
     });
   }
@@ -274,7 +274,7 @@ const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 const monitorStats = () => {
   const stats = simulation.getStats();
 
-  ifPattern(stats.population > 50, () => {   });
+  if (stats.population > 50) {   }
 };
 
 // Monitor every 2 seconds
@@ -307,9 +307,9 @@ const trackStats = () => {
     ...stats
   });
 
-  ifPattern(statsHistory.length > 10, () => { .map(s => s.population)
+  if (statsHistory.length > 10) { .map(s => s.population)
     );
-   });
+    }
 };
 
 setInterval(trackStats, 1000);
@@ -326,8 +326,8 @@ setInterval(trackStats, 1000);
    */
   private runExample(exampleName: string): void {
     const example = this.examples.get(exampleName);
-    ifPattern(example, () => { this.clearOutput();
-      this.logToConsole(`Running example: ${exampleName });`);
+    if (example) { this.clearOutput();
+      this.logToConsole(`Running example: ${exampleName  }`);
 
       try {
         example();
@@ -373,8 +373,8 @@ setInterval(trackStats, 1000);
     canvas?.style.backgroundColor = '#f0f0f0';
 
     const container = document?.getElementById('example-canvas-container');
-    ifPattern(container, () => { container.appendChild(canvas);
-     });
+    if (container) { container.appendChild(canvas);
+      }
 
     return canvas;
   }
@@ -538,9 +538,9 @@ setInterval(trackStats, 1000);
     const canvas = this.createExampleCanvas(400, 300);
     const ctx = canvas?.getContext('2d');
 
-    ifPattern(ctx, () => { organism.draw(ctx);
+    if (ctx) { organism.draw(ctx);
       this.logToConsole('Drew custom organism on canvas');
-     });
+      }
   }
 
   private eventHandlingExample(): void {
@@ -559,9 +559,9 @@ setInterval(trackStats, 1000);
       this.logToConsole(`Population: ${stats.population}, Generation: ${stats.generation}`);
 
       monitorCount++;
-      ifPattern(monitorCount >= 5, () => { clearInterval(monitor);
+      if (monitorCount >= 5) { clearInterval(monitor);
         this.logToConsole('Monitoring stopped');
-       });
+        }
     }, 2000);
 
     simulation.start();
@@ -597,14 +597,14 @@ setInterval(trackStats, 1000);
 
       this.logToConsole(`Stats - Pop: ${stats.population}, Gen: ${stats.generation}`);
 
-      ifPattern(statsHistory.length > 3, () => { const trend = statsHistory.slice(-3).map(s => s.population);
-        this.logToConsole(`Population trend: ${trend.join(' → ') });`);
+      if (statsHistory.length > 3) { const trend = statsHistory.slice(-3).map(s => s.population);
+        this.logToConsole(`Population trend: ${trend.join(' → ')  }`);
       }
 
       trackingCount++;
-      ifPattern(trackingCount >= 5, () => { clearInterval(tracker);
+      if (trackingCount >= 5) { clearInterval(tracker);
         this.logToConsole('Statistics tracking complete');
-       });
+        }
     }, 1500);
   }
 }
@@ -614,8 +614,8 @@ setInterval(trackStats, 1000);
  */
 export function initializeInteractiveExamples(containerId: string = 'interactive-examples'): void {
   const container = document?.getElementById(containerId);
-  ifPattern(!container, () => { return;
-   });
+  if (!container) { return;
+    }
 
   new InteractiveExamples(container);
 }
@@ -624,11 +624,11 @@ export function initializeInteractiveExamples(containerId: string = 'interactive
 if (typeof window !== 'undefined') {
   eventPattern(document?.addEventListener('DOMContentLoaded', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for DOMContentLoaded:', error);
   }
-})) => {
+});
     const container = document?.getElementById('interactive-examples');
     if (container) {
       initializeInteractiveExamples();

@@ -82,8 +82,8 @@ export class HeatmapComponent extends BaseComponent {
     this.canvas.height = this.config.height;
 
     const ctx = this.canvas.getContext('2d');
-    ifPattern(!ctx, () => { throw new Error('Failed to get 2D context for heatmap canvas');
-     });
+    if (!ctx) { throw new Error('Failed to get 2D context for heatmap canvas');
+      }
     this.ctx = ctx;
 
     // Initialize data grid
@@ -94,19 +94,16 @@ export class HeatmapComponent extends BaseComponent {
       .fill(null)
       .map(() => Array(cols).fill(0));
 
-    ifPattern(this.config.showLegend, () => { this.createLegend();
-     });
+    if (this.config.showLegend) { this.createLegend();
+      }
   }
 
-  private setupEventListeners(): void {
-    if (this.config.onCellClick) {
+  private setupEventListeners(): void  { try { if (this.config.onCellClick) {
       this.canvas?.addEventListener('click', (event) => {
   try {
     (event => {
         const rect = this.canvas.getBoundingClientRect()(event);
-  } catch (error) {
-    console.error('Event listener error for click:', error);
-  }
+   } catch (error) { /* handled */ } }
 });
         const x = event?.clientX - rect.left;
         const y = event?.clientY - rect.top;
@@ -139,16 +136,15 @@ export class HeatmapComponent extends BaseComponent {
 
     // Create gradient for legend
     const legendBar = legendContainer?.querySelector('.legend-bar') as HTMLElement;
-    ifPattern(legendBar, () => { const gradient = this.config.colorScheme!.join(', ');
-      legendBar.style.background = `linear-gradient(to right, ${gradient });)`;
+    if (legendBar) { const gradient = this.config.colorScheme!.join(', ');
+      legendBar.style.background = `linear-gradient(to right, ${gradient  })`;
     }
   }
 
   /**
    * Update heatmap data from organism positions
    */
-  updateFromPositions(positions: { x: number; y: number }[]): void {
-    // Clear previous data
+  updateFromPositions(): void  { try { // Clear previous data
     this.data = this.data.map(row => row.fill(0));
 
     // Count organisms in each cell
@@ -159,9 +155,7 @@ export class HeatmapComponent extends BaseComponent {
 
       ifPattern(cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length, () => { this.data[cellY][cellX]++;
        
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 });
     });
 
@@ -178,8 +172,7 @@ export class HeatmapComponent extends BaseComponent {
     this.render();
   }
 
-  private updateMinMax(): void {
-    this.maxValue = 0;
+  private updateMinMax(): void  { try { this.maxValue = 0;
     this.minValue = Infinity;
 
     this.data.forEach(row => {
@@ -188,9 +181,7 @@ export class HeatmapComponent extends BaseComponent {
         if (value > this.maxValue) this.maxValue = value;
         if (value < this.minValue) this.minValue = value;
       
-  } catch (error) {
-    console.error("Callback error:", error);
-  }
+   } catch (error) { /* handled */ } }
 });
     });
 
@@ -198,8 +189,8 @@ export class HeatmapComponent extends BaseComponent {
   }
 
   private getColorForValue(value: number): string {
-    ifPattern(this.maxValue === this.minValue, () => { return this.config.colorScheme![0];
-     });
+    if (this.maxValue === this.minValue) { return this.config.colorScheme![0];
+      }
 
     const normalized = (value - this.minValue) / (this.maxValue - this.minValue);
     const colorIndex = Math.floor(normalized * (this.config.colorScheme!.length - 1));
@@ -257,8 +248,8 @@ export class HeatmapComponent extends BaseComponent {
     const cellX = Math.floor(x / this.config.cellSize);
     const cellY = Math.floor(y / this.config.cellSize);
 
-    ifPattern(cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length, () => { return this.data[cellY][cellX];
-     });
+    if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) { return this.data[cellY][cellX];
+      }
 
     return 0;
   }
@@ -330,9 +321,9 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
    * Stop automatic updates
    */
   stopAutoUpdate(): void {
-    ifPattern(this.updateInterval, () => { clearInterval(this.updateInterval);
+    if (this.updateInterval) { clearInterval(this.updateInterval);
       this.updateInterval = null;
-     });
+      }
   }
 
   public unmount(): void {

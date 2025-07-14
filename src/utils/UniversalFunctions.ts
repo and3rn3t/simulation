@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -25,17 +25,20 @@ if (typeof window !== 'undefined') {
  */
 
 export const ifPattern = (condition: any, action: () => void): void => {
-  ifPattern(condition, () => { action();
-   });
+  if (condition) {
+    action();
+  }
 };
 
 export const UniversalFunctions = {
   // Universal if condition handler
   conditionalExecute: (condition: boolean, action: () => void, fallback?: () => void) => {
     try {
-      ifPattern(condition, () => { action();
-       }); else ifPattern(fallback, () => { fallback();
-       });
+      if (condition) {
+        action();
+      } else if (fallback) {
+        fallback();
+      }
     } catch {
       // Silent handling
     }
@@ -44,8 +47,9 @@ export const UniversalFunctions = {
   // Universal event listener
   addListener: (element: Element | null, event: string, handler: () => void) => {
     try {
-      ifPattern(element, () => { element?.addEventListener(event, handler);
-       });
+      if (element) {
+        element?.addEventListener(event, handler);
+      }
     } catch {
       // Silent handling
     }

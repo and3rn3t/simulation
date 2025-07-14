@@ -90,11 +90,11 @@ export class EnhancedVisualizationIntegration {
     settingsButton.className = 'control-btn';
     eventPattern(settingsButton?.addEventListener('click', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for click:', error);
   }
-})) => {
+});
       this.settingsPanel.mount(document.body);
     });
 
@@ -115,11 +115,11 @@ export class EnhancedVisualizationIntegration {
     // Listen for window resize
     eventPattern(window?.addEventListener('resize', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for resize:', error);
   }
-})) => {
+});
       this.visualizationDashboard.resize();
     });
 
@@ -134,33 +134,33 @@ export class EnhancedVisualizationIntegration {
     // Example: Listen for organism creation
     eventPattern(document?.addEventListener('organismCreated', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for organismCreated:', error);
   }
-})) => {
+});
       this.updateVisualizationData();
     });
 
     // Example: Listen for organism death
     eventPattern(document?.addEventListener('organismDied', (event) => {
   try {
-    (()(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for organismDied:', error);
   }
-})) => {
+});
       this.updateVisualizationData();
     });
 
     // Example: Listen for simulation tick
     eventPattern(document?.addEventListener('simulationTick', (event) => {
   try {
-    ((event: any)(event);
+    (event) => {
   } catch (error) {
     console.error('Event listener error for simulationTick:', error);
   }
-})) => {
+});
       const gameState = event?.detail;
       this.updateVisualizationData(gameState);
     });
@@ -307,8 +307,8 @@ export class EnhancedVisualizationIntegration {
 export function initializeEnhancedVisualization(): EnhancedVisualizationIntegration | null {
   const simulationCanvas = document?.getElementById('simulation-canvas') as HTMLCanvasElement;
 
-  ifPattern(!simulationCanvas, () => { return null;
-   });
+  if (!simulationCanvas) { return null;
+    }
 
   try {
     const integration = new EnhancedVisualizationIntegration(simulationCanvas);

@@ -69,8 +69,8 @@ export class AlgorithmWorkerManager {
    */
   async initialize(): Promise<void> {
     try {
-      ifPattern(this.isInitialized, () => { return;
-       });
+      if (this.isInitialized) { return;
+        }
 
       // Create worker pool
       for (let i = 0; i < this.workerCount; i++) {
@@ -195,14 +195,14 @@ export class AlgorithmWorkerManager {
   private handleWorkerMessage(response: WorkerResponse): void {
     const task = this.pendingTasks.get(response.id);
 
-    ifPattern(!task, () => { return; // Task may have timed out
-     });
+    if (!task) { return; // Task may have timed out
+      }
 
     clearTimeout(task.timeout);
     this.pendingTasks.delete(response.id);
 
-    ifPattern(response.type === 'ERROR', () => { task.reject(new SimulationError(response.data.message, 'WORKER_TASK_ERROR'));
-     }); else {
+    if (response.type === 'ERROR') { task.reject(new SimulationError(response.data.message, 'WORKER_TASK_ERROR'));
+      } else {
       task.resolve(response.data);
     }
   }
@@ -212,12 +212,12 @@ export class AlgorithmWorkerManager {
    * @returns Next worker instance
    */
   private getNextWorker(): Worker {
-    ifPattern(this.workers.length === 0, () => { throw new Error('No workers available');
-     });
+    if (this.workers.length === 0) { throw new Error('No workers available');
+      }
 
     const worker = this.workers[this.currentWorkerIndex];
-    ifPattern(!worker, () => { throw new Error('Worker at current index is undefined');
-     });
+    if (!worker) { throw new Error('Worker at current index is undefined');
+      }
 
     this.currentWorkerIndex = (this.currentWorkerIndex + 1) % this.workers.length;
     return worker;

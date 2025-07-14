@@ -81,12 +81,12 @@ export class QuadTree {
         return false;
       }
 
-      ifPattern(this.organisms.length < this.capacity, () => { this.organisms.push(organism);
+      if (this.organisms.length < this.capacity) { this.organisms.push(organism);
         return true;
-       });
+        }
 
-      ifPattern(!this.divided, () => { this.subdivide();
-       });
+      if (!this.divided) { this.subdivide();
+        }
 
       return (
         this.northeast!.insert(organism) ||
@@ -240,8 +240,8 @@ export class QuadTree {
         const dy = organism.y - center.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        ifPattern(distance <= radius, () => { result.push(organism);
-         });
+        if (distance <= radius) { result.push(organism);
+          }
       }
 
       return result;
@@ -385,8 +385,8 @@ export class SpatialPartitioningManager {
       this.totalRebuildOperations++;
 
       // Keep only the last 100 rebuild times for average calculation
-      ifPattern(this.rebuildTimes.length > 100, () => { this.rebuildTimes.shift();
-       });
+      if (this.rebuildTimes.length > 100) { this.rebuildTimes.shift();
+        }
     } catch { /* handled */ }
   }
 

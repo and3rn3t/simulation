@@ -49,8 +49,8 @@ export class Panel extends BaseComponent {
 
   private setupPanel(): void {
     // Create header if title, closable, or collapsible
-    ifPattern(this.config.title || this.config.closable || this.config.collapsible, () => { this.createHeader();
-     });
+    if (this.config.title || this.config.closable || this.config.collapsible) { this.createHeader();
+      }
 
     // Create content area
     this.content = document.createElement('div');
@@ -58,8 +58,8 @@ export class Panel extends BaseComponent {
     this.element.appendChild(this.content);
 
     // Set up accessibility
-    ifPattern(this.config.ariaLabel, () => { this.setAriaAttribute('label', this.config.ariaLabel);
-     });
+    if (this.config.ariaLabel) { this.setAriaAttribute('label', this.config.ariaLabel);
+      }
   }
 
   private createHeader(): void {
@@ -110,8 +110,8 @@ export class Panel extends BaseComponent {
       controls.appendChild(closeBtn);
     }
 
-    ifPattern(controls.children.length > 0, () => { this.header.appendChild(controls);
-     });
+    if (controls.children.length > 0) { this.header.appendChild(controls);
+      }
 
     this.element.appendChild(this.header);
   }
@@ -127,13 +127,13 @@ export class Panel extends BaseComponent {
       }
     }
 
-    ifPattern(this.config.onToggle, () => { this.config.onToggle(this.collapsed);
-     });
+    if (this.config.onToggle) { this.config.onToggle(this.collapsed);
+      }
   }
 
   private handleClose(): void {
-    ifPattern(this.config.onClose, () => { this.config.onClose();
-     }); else {
+    if (this.config.onClose) { this.config.onClose();
+      } else {
       this.unmount();
     }
   }
@@ -142,8 +142,8 @@ export class Panel extends BaseComponent {
    * Add content to the panel
    */
   addContent(content: HTMLElement | string): void {
-    ifPattern(typeof content === 'string', () => { this.content.innerHTML = content;
-     }); else {
+    if (typeof content === 'string') { this.content.innerHTML = content;
+      } else {
       this.content.appendChild(content);
     }
   }

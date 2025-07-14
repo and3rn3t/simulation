@@ -14,7 +14,7 @@ export class IoCContainer {
 
   resolve<T>(key: string): T {
     const instance = this.services.get(key);
-    ifPattern(!instance, () => { throw new Error(`Service with key '${key });' is not registered.`);
+    if (!instance) { throw new Error(`Service with key '${key  }' is not registered.`);
     }
     return instance;
   }
