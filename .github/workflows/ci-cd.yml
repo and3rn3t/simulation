@@ -322,12 +322,23 @@ jobs:
         # Wait for container to be ready
         sleep 15
         
-        # Test main application (nginx serves static files, no separate health endpoint)
-        echo "Testing Docker container..."
-        curl -f -v http://localhost:8080/ || exit 1
+        # Check container logs for debugging
+        echo "=== Container logs ==="
+        docker logs test-container
         
         # Check if container is still running
-        docker ps | grep test-container || exit 1
+        echo "=== Container status ==="
+        docker ps -a | grep test-container || echo "Container not found"
+        
+        # Test main application (nginx serves static files)
+        echo "Testing Docker container..."
+        curl -f -v --max-time 10 http://localhost:8080/ || {
+          echo "=== Additional debugging ==="
+          docker logs test-container
+          docker exec test-container ps aux || echo "Can't exec into container"
+          docker exec test-container netstat -tlnp || echo "Can't check ports"
+          exit 1
+        }
         
         # Stop and remove container
         docker stop test-container
