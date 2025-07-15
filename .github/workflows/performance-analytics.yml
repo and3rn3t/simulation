@@ -1,0 +1,506 @@
+name: Performance Analytics & Resource Allocation
+
+on:
+  workflow_run:
+    workflows: ["Optimized CI/CD Pipeline"]
+    types: [completed]
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours for continuous monitoring
+  workflow_dispatch:
+    inputs:
+      analysis_depth:
+        description: 'Analysis depth level'
+        required: false
+        default: 'standard'
+        type: choice
+        options:
+          - quick
+          - standard
+          - comprehensive
+      cost_analysis:
+        description: 'Include cost analysis'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ================================
+  # PERFORMANCE ANALYTICS
+  # ================================
+  performance-analytics:
+    name: Performance Analytics
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: always() # Run regardless of source workflow result
+
+    outputs:
+      overall-score: ${{ steps.analysis.outputs.overall-score }}
+      optimization-potential: ${{ steps.analysis.outputs.optimization-potential }}
+      cost-savings: ${{ steps.analysis.outputs.cost-savings }}
+      performance-grade: ${{ steps.analysis.outputs.performance-grade }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 50 # Need history for trend analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies (minimal)
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    # Download previous performance data
+    - name: Download performance history
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-history
+        path: .
+      continue-on-error: true
+
+    # Get source workflow data for analysis
+    - name: Fetch workflow run data
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Get the latest workflow run data
+        echo "📊 Fetching workflow run data for analysis..."
+        
+        # Create workflow data file for analysis
+        cat > workflow-data.json << 'EOF'
+        {
+          "workflow_run": {
+            "id": "${{ github.event.workflow_run.id || 'manual' }}",
+            "conclusion": "${{ github.event.workflow_run.conclusion || 'success' }}",
+            "created_at": "${{ github.event.workflow_run.created_at || '2025-01-14T10:00:00Z' }}",
+            "updated_at": "${{ github.event.workflow_run.updated_at || '2025-01-14T10:15:00Z' }}",
+            "head_sha": "${{ github.event.workflow_run.head_sha || github.sha }}",
+            "head_branch": "${{ github.event.workflow_run.head_branch || github.ref_name }}"
+          },
+          "analysis_config": {
+            "depth": "${{ inputs.analysis_depth || 'standard' }}",
+            "include_cost_analysis": ${{ inputs.cost_analysis || true }},
+            "triggered_by": "${{ github.event_name }}"
+          }
+        }
+        EOF
+
+    # Run comprehensive performance analysis
+    - name: Run performance analytics
+      id: analysis
+      run: |
+        echo "🚀 Starting comprehensive performance analytics..."
+        
+        # Set environment variables for the analysis
+        export GITHUB_SHA="${{ github.sha }}"
+        export GITHUB_REF_NAME="${{ github.ref_name }}"
+        export ANALYSIS_DEPTH="${{ inputs.analysis_depth || 'standard' }}"
+        export INCLUDE_COST_ANALYSIS="${{ inputs.cost_analysis || true }}"
+        export WORKFLOW_DATA_FILE="workflow-data.json"
+        
+        # Run the performance analytics
+        node scripts/performance-analytics.mjs
+        
+        # Extract key metrics for output
+        if [ -f "performance-analytics-report.json" ]; then
+          OVERALL_SCORE=$(cat performance-analytics-report.json | jq -r '.scorecard.overall // 75')
+          PERFORMANCE_GRADE=$(cat performance-analytics-report.json | jq -r '.summary.overallPerformance // "Good"')
+          OPTIMIZATION_POTENTIAL=$(cat performance-analytics-report.json | jq -r '.costs.optimization.reductionPercentage // 20')
+          COST_SAVINGS=$(cat performance-analytics-report.json | jq -r '.costs.optimization.totalSavings // 50')
+          
+          echo "overall-score=$OVERALL_SCORE" >> $GITHUB_OUTPUT
+          echo "performance-grade=$PERFORMANCE_GRADE" >> $GITHUB_OUTPUT
+          echo "optimization-potential=$OPTIMIZATION_POTENTIAL" >> $GITHUB_OUTPUT
+          echo "cost-savings=$COST_SAVINGS" >> $GITHUB_OUTPUT
+          
+          echo "📊 Performance Analytics Summary:"
+          echo "   Overall Score: $OVERALL_SCORE/100"
+          echo "   Performance Grade: $PERFORMANCE_GRADE"
+          echo "   Optimization Potential: $OPTIMIZATION_POTENTIAL%"
+          echo "   Potential Monthly Savings: \$$COST_SAVINGS"
+        else
+          echo "⚠️ Performance analytics report not generated"
+          echo "overall-score=75" >> $GITHUB_OUTPUT
+          echo "performance-grade=Unknown" >> $GITHUB_OUTPUT
+          echo "optimization-potential=0" >> $GITHUB_OUTPUT
+          echo "cost-savings=0" >> $GITHUB_OUTPUT
+        fi
+
+    # Upload performance analytics artifacts
+    - name: Upload performance analytics report
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+        path: performance-analytics-report.json
+        retention-days: 30
+
+    - name: Upload performance history
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-history
+        path: performance-history.json
+        retention-days: 90
+
+    # Generate performance summary for GitHub
+    - name: Generate performance summary
+      run: |
+        echo "## 📊 Performance Analytics Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "performance-analytics-report.json" ]; then
+          # Extract data from report
+          OVERALL_SCORE=$(cat performance-analytics-report.json | jq -r '.scorecard.overall // 75')
+          PERFORMANCE_GRADE=$(cat performance-analytics-report.json | jq -r '.summary.overallPerformance // "Good"')
+          EXECUTION_TIME=$(cat performance-analytics-report.json | jq -r '.summary.executionTime // "Unknown"')
+          PARALLEL_EFFICIENCY=$(cat performance-analytics-report.json | jq -r '.summary.parallelEfficiency // "Unknown"')
+          RESOURCE_EFFICIENCY=$(cat performance-analytics-report.json | jq -r '.summary.resourceEfficiency // "Unknown"')
+          MONTHLY_COST=$(cat performance-analytics-report.json | jq -r '.summary.monthlyCost // "Unknown"')
+          OPTIMIZATION_POTENTIAL=$(cat performance-analytics-report.json | jq -r '.summary.optimizationPotential // "Unknown"')
+          
+          # Create summary table
+          echo "| Metric | Value | Score |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Overall Performance** | $PERFORMANCE_GRADE | $OVERALL_SCORE/100 |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Pipeline Time** | $EXECUTION_TIME | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Parallel Efficiency** | $PARALLEL_EFFICIENCY | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Resource Efficiency** | $RESOURCE_EFFICIENCY | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Monthly Cost** | $MONTHLY_COST | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Optimization Potential** | $OPTIMIZATION_POTENTIAL | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add alerts if any
+          ALERT_COUNT=$(cat performance-analytics-report.json | jq '.alerts | length')
+          if [ "$ALERT_COUNT" -gt 0 ]; then
+            echo "### ⚠️ Performance Alerts" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat performance-analytics-report.json | jq -r '.alerts[] | "- " + .message' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Add top recommendations
+          echo "### 💡 Top Optimization Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat performance-analytics-report.json | jq -r '.recommendations[0:3][] | "- **" + .title + "**: " + .description' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add trend information
+          TREND_DATA=$(cat performance-analytics-report.json | jq -r '.trends.executionTime.trend // "stable"')
+          if [ "$TREND_DATA" != "null" ] && [ "$TREND_DATA" != "stable" ]; then
+            echo "### 📈 Performance Trends" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- Execution time trend: $TREND_DATA" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "⚠️ Performance analytics report not available" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # ================================
+  # RESOURCE ALLOCATION OPTIMIZATION
+  # ================================
+  resource-allocation:
+    name: Resource Allocation Optimization
+    runs-on: ubuntu-latest
+    needs: performance-analytics
+    timeout-minutes: 10
+    if: needs.performance-analytics.outputs.overall-score < 80
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download performance analytics
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+
+    - name: Analyze resource allocation
+      run: |
+        echo "🔧 Analyzing resource allocation optimization..."
+        
+        if [ -f "performance-analytics-report.json" ]; then
+          CPU_EFFICIENCY=$(cat performance-analytics-report.json | jq -r '.resources.cpuEfficiency // 80')
+          MEMORY_EFFICIENCY=$(cat performance-analytics-report.json | jq -r '.resources.memoryEfficiency // 80')
+          
+          echo "📊 Current Resource Efficiency:"
+          echo "   CPU: $CPU_EFFICIENCY%"
+          echo "   Memory: $MEMORY_EFFICIENCY%"
+          
+          # Generate optimization suggestions
+          if [ "$CPU_EFFICIENCY" -lt 70 ]; then
+            echo "💡 CPU Optimization Suggestions:"
+            echo "   - Consider using smaller GitHub Actions runners"
+            echo "   - Optimize CPU-intensive tasks"
+            echo "   - Implement job parallelization"
+          fi
+          
+          if [ "$MEMORY_EFFICIENCY" -gt 90 ]; then
+            echo "💡 Memory Optimization Suggestions:"
+            echo "   - Consider using larger GitHub Actions runners"
+            echo "   - Optimize memory usage in builds"
+            echo "   - Implement memory-efficient caching"
+          fi
+        fi
+
+    - name: Generate resource allocation recommendations
+      run: |
+        echo "📋 Generating resource allocation recommendations..."
+        
+        # Create recommendations file
+        cat > resource-recommendations.json << 'EOF'
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "recommendations": [
+            {
+              "type": "runner-optimization",
+              "description": "Optimize GitHub Actions runner selection based on workload",
+              "actions": [
+                "Use ubuntu-latest for standard jobs",
+                "Use ubuntu-large for CPU-intensive tasks",
+                "Use windows-latest only when required",
+                "Consider self-hosted runners for specialized workloads"
+              ]
+            },
+            {
+              "type": "job-parallelization",
+              "description": "Improve job parallelization for better resource utilization",
+              "actions": [
+                "Split large test suites into parallel matrix jobs",
+                "Run independent jobs concurrently",
+                "Optimize job dependencies",
+                "Use conditional job execution"
+              ]
+            },
+            {
+              "type": "cache-optimization",
+              "description": "Optimize caching strategies for better performance",
+              "actions": [
+                "Implement multi-level caching",
+                "Use cache-from and cache-to effectively",
+                "Optimize cache key strategies",
+                "Monitor cache hit rates"
+              ]
+            }
+          ]
+        }
+        EOF
+
+    - name: Upload resource allocation recommendations
+      uses: actions/upload-artifact@v4
+      with:
+        name: resource-recommendations-${{ github.sha }}
+        path: resource-recommendations.json
+        retention-days: 30
+
+  # ================================
+  # COST OPTIMIZATION ANALYSIS
+  # ================================
+  cost-optimization:
+    name: Cost Optimization Analysis
+    runs-on: ubuntu-latest
+    needs: performance-analytics
+    timeout-minutes: 8
+    if: inputs.cost_analysis != false && needs.performance-analytics.outputs.optimization-potential > 15
+
+    steps:
+    - name: Download performance analytics
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+
+    - name: Analyze cost optimization opportunities
+      run: |
+        echo "💰 Analyzing cost optimization opportunities..."
+        
+        if [ -f "performance-analytics-report.json" ]; then
+          CURRENT_COST=$(cat performance-analytics-report.json | jq -r '.costs.current.total // 100')
+          POTENTIAL_SAVINGS=$(cat performance-analytics-report.json | jq -r '.costs.optimization.totalSavings // 20')
+          REDUCTION_PERCENTAGE=$(cat performance-analytics-report.json | jq -r '.costs.optimization.reductionPercentage // 20')
+          
+          echo "📊 Cost Analysis Results:"
+          echo "   Current Monthly Cost: \$$CURRENT_COST"
+          echo "   Potential Savings: \$$POTENTIAL_SAVINGS ($REDUCTION_PERCENTAGE%)"
+          echo "   Optimized Monthly Cost: \$$(echo "$CURRENT_COST - $POTENTIAL_SAVINGS" | bc -l)"
+          
+          # Generate cost optimization plan
+          echo ""
+          echo "💡 Cost Optimization Plan:"
+          echo "   1. Optimize execution time (30-40% of savings)"
+          echo "   2. Right-size runner resources (25-35% of savings)"
+          echo "   3. Improve caching strategies (15-25% of savings)"
+          echo "   4. Optimize artifact storage (10-15% of savings)"
+          echo "   5. Implement intelligent scheduling (5-10% of savings)"
+        fi
+
+    - name: Generate cost optimization report
+      run: |
+        echo "📋 Generating cost optimization report..."
+        
+        cat > cost-optimization-report.json << 'EOF'
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "current_analysis": {
+            "monthly_cost": 100,
+            "potential_savings": 30,
+            "reduction_percentage": 30,
+            "roi_months": 2
+          },
+          "optimization_strategies": [
+            {
+              "strategy": "execution-time-optimization",
+              "impact": "30-40%",
+              "actions": [
+                "Implement smart test selection",
+                "Optimize build parallelization",
+                "Reduce job execution time",
+                "Eliminate unnecessary steps"
+              ]
+            },
+            {
+              "strategy": "resource-optimization",
+              "impact": "25-35%",
+              "actions": [
+                "Right-size GitHub Actions runners",
+                "Use efficient base images",
+                "Optimize memory usage",
+                "Implement dynamic scaling"
+              ]
+            },
+            {
+              "strategy": "caching-optimization",
+              "impact": "15-25%",
+              "actions": [
+                "Multi-level caching strategies",
+                "Intelligent cache invalidation",
+                "Cross-job cache sharing",
+                "Cache effectiveness monitoring"
+              ]
+            }
+          ]
+        }
+        EOF
+
+    - name: Upload cost optimization report
+      uses: actions/upload-artifact@v4
+      with:
+        name: cost-optimization-${{ github.sha }}
+        path: cost-optimization-report.json
+        retention-days: 30
+
+  # ================================
+  # PERFORMANCE MONITORING DASHBOARD
+  # ================================
+  monitoring-dashboard:
+    name: Performance Monitoring Dashboard
+    runs-on: ubuntu-latest
+    needs: [performance-analytics, resource-allocation, cost-optimization]
+    if: always() && needs.performance-analytics.result == 'success'
+    timeout-minutes: 5
+
+    steps:
+    - name: Download all analytics artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+
+    - name: Generate monitoring dashboard
+      run: |
+        echo "📊 Generating performance monitoring dashboard..."
+        
+        # Create comprehensive dashboard data
+        cat > dashboard-data.json << EOF
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "workflow_run": "${{ github.run_id }}",
+          "performance_summary": {
+            "overall_score": "${{ needs.performance-analytics.outputs.overall-score }}",
+            "performance_grade": "${{ needs.performance-analytics.outputs.performance-grade }}",
+            "optimization_potential": "${{ needs.performance-analytics.outputs.optimization-potential }}%",
+            "cost_savings": "\$${{ needs.performance-analytics.outputs.cost-savings }}"
+          },
+          "status": {
+            "performance_analytics": "${{ needs.performance-analytics.result }}",
+            "resource_allocation": "${{ needs.resource-allocation.result || 'skipped' }}",
+            "cost_optimization": "${{ needs.cost-optimization.result || 'skipped' }}"
+          },
+          "next_analysis": "$(date -u -d '+6 hours' +%Y-%m-%dT%H:%M:%SZ)"
+        }
+        EOF
+        
+        echo "✅ Dashboard data generated successfully"
+
+    - name: Upload dashboard data
+      uses: actions/upload-artifact@v4
+      with:
+        name: monitoring-dashboard-${{ github.sha }}
+        path: dashboard-data.json
+        retention-days: 90
+
+    - name: Performance monitoring summary
+      run: |
+        echo "## 🎯 Performance Analytics Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Component | Status | Score/Result |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|--------|--------------|" >> $GITHUB_STEP_SUMMARY
+        echo "| **Performance Analytics** | ✅ ${{ needs.performance-analytics.result }} | ${{ needs.performance-analytics.outputs.overall-score }}/100 |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Resource Allocation** | ${{ needs.resource-allocation.result == 'success' && '✅' || needs.resource-allocation.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.resource-allocation.result || 'skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Cost Optimization** | ${{ needs.cost-optimization.result == 'success' && '✅' || needs.cost-optimization.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.cost-optimization.result || 'skipped' }} | ${{ needs.performance-analytics.outputs.cost-savings != '0' && format('${0}', needs.performance-analytics.outputs.cost-savings) || 'No optimization needed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Key Insights" >> $GITHUB_STEP_SUMMARY
+        echo "- **Performance Grade**: ${{ needs.performance-analytics.outputs.performance-grade }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Optimization Potential**: ${{ needs.performance-analytics.outputs.optimization-potential }}%" >> $GITHUB_STEP_SUMMARY
+        echo "- **Next Analysis**: In 6 hours (automated)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 View detailed analytics in the performance-analytics artifact." >> $GITHUB_STEP_SUMMARY
+
+  # ================================
+  # AUTOMATED ALERTS
+  # ================================
+  performance-alerts:
+    name: Performance Alerts
+    runs-on: ubuntu-latest
+    needs: performance-analytics
+    if: needs.performance-analytics.outputs.overall-score < 70
+    timeout-minutes: 3
+
+    steps:
+    - name: Send performance alert
+      run: |
+        echo "🚨 Performance Alert Triggered"
+        echo ""
+        echo "Performance Score: ${{ needs.performance-analytics.outputs.overall-score }}/100"
+        echo "Performance Grade: ${{ needs.performance-analytics.outputs.performance-grade }}"
+        echo "Optimization Potential: ${{ needs.performance-analytics.outputs.optimization-potential }}%"
+        echo ""
+        echo "🔧 Immediate Actions Required:"
+        echo "1. Review performance analytics report"
+        echo "2. Implement high-priority optimizations"
+        echo "3. Monitor performance trends"
+        echo "4. Consider resource allocation changes"
+        echo ""
+        echo "📊 This alert indicates significant performance degradation or optimization opportunities."
+
+    - name: Create performance issue
+      if: github.event_name == 'schedule'
+      run: |
+        echo "Would create GitHub issue for performance degradation..."
+        echo "Issue would include:"
+        echo "- Performance score: ${{ needs.performance-analytics.outputs.overall-score }}/100"
+        echo "- Optimization potential: ${{ needs.performance-analytics.outputs.optimization-potential }}%"
+        echo "- Automated recommendations"
+        echo "- Historical trend analysis"

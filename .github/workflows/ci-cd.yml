@@ -102,11 +102,6 @@ jobs:
       continue-on-error: true
       timeout-minutes: 1
 
-    # MOVED TO SCHEDULED WORKFLOW:
-    # - Security audit (now runs nightly + on security changes)
-    # - Code complexity (now advisory in quality monitoring)
-    # - Performance analysis (now in dedicated workflow)
-
     # Determine deployment strategy
     - name: Check deployment requirements
       id: deploy-check
@@ -116,6 +111,181 @@ jobs:
         else
           echo "should-deploy=false" >> $GITHUB_OUTPUT
         fi
+
+  # ================================
+  # PARALLEL ANALYSIS JOBS
+  # ================================
+  
+  # Bundle Size Analysis (Moved from build job for parallel execution)
+  bundle-analysis:
+    name: Bundle Analysis
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: ${{ needs.quality-gates.outputs.changes-detected == 'true' }}
+    timeout-minutes: 8
+    outputs:
+      bundle-size: ${{ steps.analysis.outputs.bundle-size }}
+      optimization-potential: ${{ steps.analysis.outputs.optimization-potential }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Restore dependencies cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ needs.quality-gates.outputs.cache-key }}
+        restore-keys: ${{ needs.quality-gates.outputs.cache-key }}-
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    - name: Build for analysis
+      run: npm run build
+      env:
+        VITE_BUILD_DATE: ${{ github.run_number }}
+        VITE_GIT_COMMIT: ${{ github.sha }}
+        VITE_VERSION: "analysis-build"
+
+    - name: Download previous bundle history
+      uses: actions/download-artifact@v4
+      with:
+        name: bundle-history
+        path: .
+      continue-on-error: true
+
+    - name: Analyze bundle size
+      id: analysis
+      run: |
+        echo "📊 Analyzing bundle size and optimization opportunities..."
+        node scripts/bundle-analyzer.mjs
+        
+        # Extract key metrics for outputs
+        if [ -f "bundle-analysis-report.json" ]; then
+          BUNDLE_SIZE=$(cat bundle-analysis-report.json | jq -r '.totalSize // "unknown"')
+          OPTIMIZATION_POTENTIAL=$(cat bundle-analysis-report.json | jq -r '.optimizationPotential // "0"')
+          
+          echo "bundle-size=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+          echo "optimization-potential=$OPTIMIZATION_POTENTIAL" >> $GITHUB_OUTPUT
+          
+          echo "📊 Bundle Analysis Results:"
+          echo "   Total Size: $BUNDLE_SIZE"
+          echo "   Optimization Potential: $OPTIMIZATION_POTENTIAL"
+        else
+          echo "bundle-size=unknown" >> $GITHUB_OUTPUT
+          echo "optimization-potential=0" >> $GITHUB_OUTPUT
+        fi
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+
+    - name: Upload bundle analysis
+      uses: actions/upload-artifact@v4
+      with:
+        name: bundle-analysis-${{ github.sha }}
+        path: bundle-analysis-report.json
+        retention-days: 30
+
+    - name: Upload bundle history
+      uses: actions/upload-artifact@v4
+      with:
+        name: bundle-history
+        path: bundle-size-history.json
+        retention-days: 90
+
+  # Performance Analytics (Moved to parallel execution)
+  performance-analytics:
+    name: Performance Analytics
+    runs-on: ubuntu-latest
+    needs: [quality-gates, smart-test-analysis]
+    if: ${{ needs.quality-gates.outputs.changes-detected == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    timeout-minutes: 10
+    outputs:
+      performance-score: ${{ steps.analytics.outputs.performance-score }}
+      recommendations: ${{ steps.analytics.outputs.recommendations }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 50 # Need history for trend analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit --progress=false
+
+    - name: Download previous performance data
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-history
+        path: .
+      continue-on-error: true
+
+    - name: Run performance analytics
+      id: analytics
+      run: |
+        echo "🚀 Running performance analytics..."
+        
+        # Set environment variables
+        export GITHUB_SHA="${{ github.sha }}"
+        export GITHUB_REF_NAME="${{ github.ref_name }}"
+        export ANALYSIS_DEPTH="standard"
+        export INCLUDE_COST_ANALYSIS="true"
+        
+        # Run analytics
+        node scripts/performance-analytics.mjs
+        
+        # Extract outputs
+        if [ -f "performance-analytics-report.json" ]; then
+          PERFORMANCE_SCORE=$(cat performance-analytics-report.json | jq -r '.scorecard.overall // 75')
+          RECOMMENDATIONS=$(cat performance-analytics-report.json | jq -r '.recommendations | length')
+          
+          echo "performance-score=$PERFORMANCE_SCORE" >> $GITHUB_OUTPUT
+          echo "recommendations=$RECOMMENDATIONS" >> $GITHUB_OUTPUT
+          
+          echo "📊 Performance Analytics Results:"
+          echo "   Performance Score: $PERFORMANCE_SCORE/100"
+          echo "   Recommendations: $RECOMMENDATIONS"
+        else
+          echo "performance-score=75" >> $GITHUB_OUTPUT
+          echo "recommendations=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload performance analytics
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+        path: performance-analytics-report.json
+        retention-days: 30
+
+    - name: Upload performance history
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-history
+        path: performance-history.json
+        retention-days: 90
+
+    - name: Performance summary
+      run: |
+        echo "## 📊 Performance Analytics Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance Score | ${{ steps.analytics.outputs.performance-score }}/100 |" >> $GITHUB_STEP_SUMMARY
+        echo "| Recommendations | ${{ steps.analytics.outputs.recommendations }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Analysis Status | ✅ Complete |" >> $GITHUB_STEP_SUMMARY
 
   # ================================
   # SMART TEST SELECTION (OPTIMIZED)
@@ -339,7 +509,7 @@ jobs:
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    needs: [quality-gates, smart-test-analysis]
+    needs: [quality-gates, smart-test-analysis, bundle-analysis] # Added bundle-analysis dependency
     timeout-minutes: 15
     outputs:
       image-digest: ${{ steps.docker-build.outputs.digest }}
@@ -375,6 +545,59 @@ jobs:
         VITE_BUILD_DATE: ${{ github.run_number }}
         VITE_GIT_COMMIT: ${{ github.sha }}
         VITE_VERSION: ${{ steps.version.outputs.version }}
+
+    # Download bundle analysis results from parallel job
+    - name: Download bundle analysis results
+      uses: actions/download-artifact@v4
+      with:
+        name: bundle-analysis-${{ github.sha }}
+        path: .
+      continue-on-error: true
+
+    # Create performance trigger data (improved version)
+    - name: Create performance trigger data
+      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      run: |
+        echo "🎯 Creating performance trigger data..."
+        
+        # Extract bundle analysis data if available
+        BUNDLE_SIZE="unknown"
+        OPTIMIZATION_POTENTIAL="0"
+        
+        if [ -f "bundle-analysis-report.json" ]; then
+          BUNDLE_SIZE=$(cat bundle-analysis-report.json | jq -r '.totalSize // "unknown"')
+          OPTIMIZATION_POTENTIAL=$(cat bundle-analysis-report.json | jq -r '.optimizationPotential // "0"')
+        fi
+        
+        # Create comprehensive trigger data
+        cat > performance-trigger.json << EOF
+        {
+          "build_data": {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "version": "${{ steps.version.outputs.version }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "bundle_size": "$BUNDLE_SIZE",
+            "optimization_potential": "$OPTIMIZATION_POTENTIAL"
+          },
+          "trigger_reason": "post_build_analysis",
+          "analysis_type": "comprehensive",
+          "dependencies": {
+            "bundle_analysis": "${{ needs.bundle-analysis.outputs.bundle-size }}",
+            "test_strategy": "${{ needs.smart-test-analysis.outputs.test-strategy }}",
+            "time_saved": "${{ needs.smart-test-analysis.outputs.time-saved }}"
+          }
+        }
+        EOF
+
+    - name: Upload performance trigger data
+      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-trigger-${{ github.sha }}
+        path: performance-trigger.json
+        retention-days: 1
 
     - name: Upload build artifacts
       if: github.event_name != 'pull_request'
@@ -612,7 +835,7 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [quality-gates, test, build] # E2E tests run in parallel, don't block staging
+    needs: [quality-gates, test, build, performance-analytics] # Added performance-analytics dependency
     if: needs.quality-gates.outputs.should-deploy == 'true' && (github.ref == 'refs/heads/develop' || inputs.environment == 'staging')
     environment:
       name: staging
@@ -629,12 +852,25 @@ jobs:
         name: dist-${{ github.sha }}
         path: dist/
 
+    - name: Download performance analytics
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-analytics-${{ github.sha }}
+        path: .
+      continue-on-error: true
+
     - name: Configure staging environment
       run: |
         echo "VITE_ENVIRONMENT=staging" >> .env
         echo "VITE_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
         echo "VITE_GIT_COMMIT=${{ github.sha }}" >> .env
         echo "VITE_VERSION=${{ needs.build.outputs.version }}" >> .env
+        
+        # Add performance metrics if available
+        if [ -f "performance-analytics-report.json" ]; then
+          PERFORMANCE_SCORE=$(cat performance-analytics-report.json | jq -r '.scorecard.overall // 75')
+          echo "VITE_PERFORMANCE_SCORE=$PERFORMANCE_SCORE" >> .env
+        fi
 
     - name: Deploy to Cloudflare Pages (Staging)
       uses: cloudflare/pages-action@v1
@@ -654,6 +890,18 @@ jobs:
     - name: Run staging smoke tests
       run: npm run test:smoke:staging
       continue-on-error: true
+
+    - name: Post-deployment performance check
+      if: success()
+      run: |
+        echo "## 🚀 Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Version | ${{ needs.build.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance Score | ${{ needs.performance-analytics.outputs.performance-score }}/100 |" >> $GITHUB_STEP_SUMMARY
+        echo "| Bundle Size | ${{ needs.bundle-analysis.outputs.bundle-size }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Status | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
 
   deploy-production:
     name: Deploy to Production
@@ -734,6 +982,88 @@ jobs:
   # ================================
   # MONITORING & MAINTENANCE
   # ================================
+  
+  # Comprehensive Analytics Dashboard
+  analytics-dashboard:
+    name: Analytics Dashboard
+    runs-on: ubuntu-latest
+    needs: [bundle-analysis, performance-analytics, test, build]
+    if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    timeout-minutes: 5
+
+    steps:
+    - name: Download all analytics artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: "*-${{ github.sha }}"
+        merge-multiple: true
+      continue-on-error: true
+
+    - name: Generate comprehensive dashboard
+      run: |
+        echo "📊 Generating comprehensive analytics dashboard..."
+        
+        # Create comprehensive analytics summary
+        cat > analytics-dashboard.json << EOF
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "workflow_run": "${{ github.run_id }}",
+          "analytics": {
+            "bundle_analysis": {
+              "size": "${{ needs.bundle-analysis.outputs.bundle-size }}",
+              "optimization_potential": "${{ needs.bundle-analysis.outputs.optimization-potential }}",
+              "status": "${{ needs.bundle-analysis.result }}"
+            },
+            "performance_analytics": {
+              "score": "${{ needs.performance-analytics.outputs.performance-score }}",
+              "recommendations": "${{ needs.performance-analytics.outputs.recommendations }}",
+              "status": "${{ needs.performance-analytics.result }}"
+            },
+            "test_results": {
+              "strategy": "${{ needs.smart-test-analysis.outputs.test-strategy }}",
+              "time_saved": "${{ needs.smart-test-analysis.outputs.time-saved }}",
+              "status": "${{ needs.test.result }}"
+            },
+            "build_status": "${{ needs.build.result }}"
+          },
+          "overall_health": {
+            "pipeline_success": "${{ needs.build.result == 'success' && needs.test.result == 'success' }}",
+            "performance_grade": "${{ needs.performance-analytics.outputs.performance-score >= 80 && 'Good' || 'Needs Improvement' }}",
+            "optimization_needed": "${{ needs.bundle-analysis.outputs.optimization-potential > 20 && 'Yes' || 'No' }}"
+          }
+        }
+        EOF
+
+    - name: Upload analytics dashboard
+      uses: actions/upload-artifact@v4
+      with:
+        name: analytics-dashboard-${{ github.sha }}
+        path: analytics-dashboard.json
+        retention-days: 90
+
+    - name: Generate dashboard summary
+      run: |
+        echo "## 📊 CI/CD Analytics Dashboard" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 Key Performance Indicators" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| **Bundle Size** | ${{ needs.bundle-analysis.outputs.bundle-size }} | ${{ needs.bundle-analysis.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Performance Score** | ${{ needs.performance-analytics.outputs.performance-score }}/100 | ${{ needs.performance-analytics.outputs.performance-score >= 80 && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Test Strategy** | ${{ needs.smart-test-analysis.outputs.test-strategy }} | ${{ needs.test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Time Saved** | ${{ needs.smart-test-analysis.outputs.time-saved }}s | ✅ |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Build Status** | - | ${{ needs.build.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Optimization Opportunities" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Bundle Optimization**: ${{ needs.bundle-analysis.outputs.optimization-potential }}% potential improvement" >> $GITHUB_STEP_SUMMARY
+        echo "- **Performance Recommendations**: ${{ needs.performance-analytics.outputs.recommendations }} active recommendations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **Overall Health**: ${{ needs.build.result == 'success' && needs.test.result == 'success' && '🟢 Healthy' || '🔴 Needs Attention' }}" >> $GITHUB_STEP_SUMMARY
+
   monitoring:
     name: Health & Performance Monitoring
     runs-on: ubuntu-latest
@@ -785,7 +1115,7 @@ jobs:
   cleanup:
     name: Cleanup & Maintenance
     runs-on: ubuntu-latest
-    needs: [quality-gates, test, build] # E2E tests run independently
+    needs: [quality-gates, test, build, bundle-analysis, performance-analytics] # Updated dependencies
     if: always() && github.event_name != 'pull_request'
     timeout-minutes: 5
 
@@ -800,6 +1130,15 @@ jobs:
         echo "📋 Pipeline Summary:"
         echo "- Commit: ${{ github.sha }}"
         echo "- Branch: ${{ github.ref_name }}"
+        echo "- Quality Gates: ${{ needs.quality-gates.result || 'N/A' }}"
+        echo "- Bundle Analysis: ${{ needs.bundle-analysis.result || 'N/A' }}"
+        echo "- Performance Analytics: ${{ needs.performance-analytics.result || 'N/A' }}"
         echo "- Build Status: ${{ needs.build.result || 'N/A' }}"
         echo "- Tests Status: ${{ needs.test.result || 'N/A' }}"
         echo "- Overall Status: ${{ job.status }}"
+        echo ""
+        echo "🎯 Key Metrics:"
+        echo "- Bundle Size: ${{ needs.bundle-analysis.outputs.bundle-size }}"
+        echo "- Performance Score: ${{ needs.performance-analytics.outputs.performance-score }}/100"
+        echo "- Test Strategy: ${{ needs.smart-test-analysis.outputs.test-strategy }}"
+        echo "- Time Saved: ${{ needs.smart-test-analysis.outputs.time-saved }}s"

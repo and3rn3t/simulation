@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-07-14T23:34:30.295Z",
+  "totalSize": 186999,
+  "totalSizeFormatted": "182.62 KB",
+  "fileCount": 17,
+  "budgetStatus": "pass",
+  "budgetPercentage": 6,
+  "largestFiles": [
+    {
+      "path": "assets\\index-DXkis-I9.js",
+      "size": 82131,
+      "sizeFormatted": "80.21 KB",
+      "extension": ".js"
+    },
+    {
+      "path": "assets\\style-C8ohZyzV.css",
+      "size": 22394,
+      "sizeFormatted": "21.87 KB",
+      "extension": ".css"
+    },
+    {
+      "path": "workbox-74f2ef77.js",
+      "size": 21352,
+      "sizeFormatted": "20.85 KB",
+      "extension": ".js"
+    },
+    {
+      "path": "assets\\main-bXtG19lK.ts",
+      "size": 16589,
+      "sizeFormatted": "16.20 KB",
+      "extension": ".ts"
+    },
+    {
+      "path": "index.html",
+      "size": 13207,
+      "sizeFormatted": "12.90 KB",
+      "extension": ".html"
+    }
+  ]
+}

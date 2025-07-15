@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-07-15T01:33:57.544Z",
+  "commit": "unknown",
+  "branch": "unknown",
+  "summary": {
+    "overallPerformance": "Excellent",
+    "executionTime": "17m 13s",
+    "parallelEfficiency": "144%",
+    "resourceEfficiency": "83%",
+    "monthlyCost": "$21.27",
+    "optimizationPotential": "$6.01 (28%)"
+  },
+  "execution": {
+    "totalExecutionTime": 1490,
+    "actualPipelineTime": 1033,
+    "parallelEfficiency": 144,
+    "jobMetrics": {
+      "qualityGates": {
+        "executionTime": 87,
+        "status": "success",
+        "cpuUsage": 0.4360149572239787,
+        "memoryUsage": 0.4105500780631125
+      },
+      "smartTestAnalysis": {
+        "executionTime": 70,
+        "status": "success",
+        "cpuUsage": 0.6550728115059872,
+        "memoryUsage": 0.5141000872151995
+      },
+      "tests": {
+        "executionTime": 176,
+        "status": "success",
+        "cpuUsage": 0.6213929828000647,
+        "memoryUsage": 0.779463462381287
+      },
+      "build": {
+        "executionTime": 281,
+        "status": "success",
+        "cpuUsage": 0.9298918432487151,
+        "memoryUsage": 0.6267438322427759
+      },
+      "e2eTests": {
+        "executionTime": 876,
+        "status": "success",
+        "cpuUsage": 0.5449693538147163,
+        "memoryUsage": 0.8487217186777907
+      }
+    },
+    "averageJobTime": 298,
+    "fastestJob": {
+      "name": "smartTestAnalysis",
+      "time": 70
+    },
+    "slowestJob": {
+      "name": "e2eTests",
+      "time": 876
+    }
+  },
+  "resources": {
+    "averageCpuUtilization": 64,
+    "averageMemoryUtilization": 64,
+    "cpuEfficiency": 80,
+    "memoryEfficiency": 85,
+    "optimizationPotential": {
+      "cpu": 16,
+      "memory": 11
+    },
+    "concurrentJobCapacity": 1,
+    "resourceBottlenecks": [
+      {
+        "job": "build",
+        "resource": "cpu",
+        "usage": 0.9298918432487151
+      }
+    ]
+  },
+  "costs": {
+    "current": {
+      "compute": 13.77,
+      "storage": 1.25,
+      "bandwidth": 6.25,
+      "total": 21.27
+    },
+    "optimization": {
+      "timeOptimization": 4.13,
+      "resourceOptimization": 1.38,
+      "storageOptimization": 0.5,
+      "totalSavings": 6.01,
+      "reductionPercentage": 28
+    },
+    "projectedMonthlyCost": 15.26
+  },
+  "trends": {},
+  "recommendations": [],
+  "alerts": [
+    {
+      "type": "high-cost-optimization-potential",
+      "severity": "medium",
+      "message": "High cost optimization potential (28% reduction possible)",
+      "savingsAmount": 6.009333333333334,
+      "recommendation": "Implement suggested optimizations for significant cost savings"
+    }
+  ],
+  "scorecard": {
+    "performance": 115,
+    "efficiency": 83,
+    "cost": 72,
+    "reliability": 100,
+    "overall": 98
+  }
+}
