@@ -155,9 +155,9 @@ export class ControlPanelComponent extends Panel {
     section.innerHTML = '<h4>Options</h4>';
 
     const optionsContainer = document.createElement('div');
-    optionsContainer?.style.display = 'flex';
-    optionsContainer?.style.flexDirection = 'column';
-    optionsContainer?.style.gap = 'var(--ui-space-sm)';
+    optionsContainer.style.display = 'flex';
+    optionsContainer.style.flexDirection = 'column';
+    optionsContainer.style.gap = 'var(--ui-space-sm)';
 
     // Auto-spawn toggle
     const autoSpawnToggle = ComponentFactory.createToggle(

@@ -1,10 +1,7 @@
 export class SimulationService {
-  startSimulation(): void {
-    }
+  startSimulation(): void {}
 
-  pauseSimulation(): void {
-    }
+  pauseSimulation(): void {}
 
-  resetSimulation(): void {
-    }
+  resetSimulation(): void {}
 }

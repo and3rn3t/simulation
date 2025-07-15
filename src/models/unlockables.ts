@@ -1,4 +1,3 @@
-import { ifPattern } from '../utils/UltimatePatternConsolidator';
 import { BehaviorType, type OrganismType } from './organismTypes';
 
 /**
@@ -149,13 +148,15 @@ export class UnlockableOrganismManager {
           break;
       }
 
-      if (shouldUnlock) { organism.unlocked = true;
+      if (shouldUnlock) {
+        organism.unlocked = true;
         newlyUnlocked.push(organism);
-       }
+      }
     }
 
-    if (newlyUnlocked.length > 0) { this.updateOrganismSelect();
-     }
+    if (newlyUnlocked.length > 0) {
+      this.updateOrganismSelect();
+    }
 
     return newlyUnlocked;
   }
@@ -187,7 +188,7 @@ export class UnlockableOrganismManager {
 
     // Add new unlocked organisms to the select
     for (const organism of this.unlockableOrganisms) {
-      ifPattern(organism.unlocked, () => {
+      if (organism.unlocked) {
         const existingOption = organismSelect?.querySelector(`option[value="${organism.id}"]`);
         if (!existingOption) {
           const option = document.createElement('option');
@@ -195,7 +196,7 @@ export class UnlockableOrganismManager {
           option.textContent = `${organism.name} (${organism.description})`;
           organismSelect.appendChild(option);
         }
-      });
+      }
     }
   }
 

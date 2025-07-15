@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -34,14 +34,15 @@ export class CanvasManager {
    * @param zIndex The z-index of the layer.
    */
   createLayer(name: string, zIndex: number): void {
-    if (this.layers[name]) { throw new Error(`Layer with name "${name  }" already exists.`);
+    if (this.layers[name]) {
+      throw new Error(`Layer with name "${name}" already exists.`);
     }
 
     const canvas = document.createElement('canvas');
-    canvas?.style.position = 'absolute';
-    canvas?.style.zIndex = zIndex.toString();
-    canvas?.width = this.container.clientWidth;
-    canvas?.height = this.container.clientHeight;
+    canvas.style.position = 'absolute';
+    canvas.style.zIndex = zIndex.toString();
+    canvas.width = this.container.clientWidth;
+    canvas.height = this.container.clientHeight;
 
     this.container.appendChild(canvas);
     this.layers[name] = canvas;
@@ -55,7 +56,8 @@ export class CanvasManager {
    */
   getContext(name: string): CanvasRenderingContext2D {
     const context = this.contexts[name];
-    if (!context) { throw new Error(`Layer with name "${name  }" does not exist.`);
+    if (!context) {
+      throw new Error(`Layer with name "${name}" does not exist.`);
     }
     return context;
   }
@@ -77,8 +79,8 @@ export class CanvasManager {
     const height = this.container.clientHeight;
 
     for (const canvas of Object.values(this.layers)) {
-      canvas?.width = width;
-      canvas?.height = height;
+      canvas.width = width;
+      canvas.height = height;
     }
   }
 }

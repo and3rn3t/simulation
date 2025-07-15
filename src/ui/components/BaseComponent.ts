@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -29,8 +29,9 @@ export abstract class BaseComponent {
 
   constructor(tagName: string = 'div', className?: string) {
     this.element = document.createElement(tagName);
-    if (className) { this.element.className = className;
-      }
+    if (className) {
+      this.element.className = className;
+    }
     this.setupAccessibility();
   }
 
@@ -38,8 +39,9 @@ export abstract class BaseComponent {
    * Mount the component to a parent element
    */
   mount(parent: HTMLElement): void {
-    if (this.mounted) { return;
-      }
+    if (this.mounted) {
+      return;
+    }
 
     parent.appendChild(this.element);
     this.mounted = true;
@@ -50,8 +52,9 @@ export abstract class BaseComponent {
    * Unmount the component from its parent
    */
   unmount(): void {
-    if (!this.mounted || !this.element.parentNode) { return;
-      }
+    if (!this.mounted || !this.element.parentNode) {
+      return;
+    }
 
     this.element.parentNode.removeChild(this.element);
     this.mounted = false;

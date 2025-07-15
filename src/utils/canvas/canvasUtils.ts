@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -48,14 +48,16 @@ export class CanvasUtils {
 
   constructor(canvas: HTMLCanvasElement) {
     try {
-      if (!canvas) { throw new CanvasError('Canvas element is required');
-        }
+      if (!canvas) {
+        throw new CanvasError('Canvas element is required');
+      }
 
       this.canvas = canvas;
 
       const ctx = canvas?.getContext('2d');
-      if (!ctx) { throw new CanvasError('Failed to get 2D rendering context');
-        }
+      if (!ctx) {
+        throw new CanvasError('Failed to get 2D rendering context');
+      }
       this.ctx = ctx;
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -74,7 +76,9 @@ export class CanvasUtils {
     try {
       this.ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -99,7 +103,9 @@ export class CanvasUtils {
       }
 
       this.ctx.stroke();
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -128,7 +134,9 @@ export class CanvasUtils {
         this.canvas.width / 2,
         this.canvas.height / 2 + 20
       );
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -144,8 +152,9 @@ export class CanvasUtils {
         throw new CanvasError('Invalid coordinates provided for preview organism');
       }
 
-      if (typeof size !== 'number' || size <= 0) { throw new CanvasError('Invalid size provided for preview organism');
-        }
+      if (typeof size !== 'number' || size <= 0) {
+        throw new CanvasError('Invalid size provided for preview organism');
+      }
 
       this.ctx.save();
       this.ctx.globalAlpha = CANVAS_CONFIG.PREVIEW_ALPHA;
@@ -154,7 +163,9 @@ export class CanvasUtils {
       this.ctx.arc(x, y, size, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.restore();
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -164,8 +175,9 @@ export class CanvasUtils {
    */
   getMouseCoordinates(event: MouseEvent): { x: number; y: number } {
     try {
-      if (!event) { throw new CanvasError('Mouse event is required');
-        }
+      if (!event) {
+        throw new CanvasError('Mouse event is required');
+      }
 
       const rect = this.canvas.getBoundingClientRect();
       return {
@@ -190,8 +202,9 @@ export class CanvasUtils {
    */
   getTouchCoordinates(event: TouchEvent): { x: number; y: number } {
     try {
-      if (!event || !event?.touches || event?.touches.length === 0) { throw new CanvasError('Touch event with touches is required');
-        }
+      if (!event || !event?.touches || event?.touches.length === 0) {
+        throw new CanvasError('Touch event with touches is required');
+      }
 
       const rect = this.canvas.getBoundingClientRect();
       const touch = event?.touches[0];
@@ -217,9 +230,11 @@ export class CanvasUtils {
    */
   getEventCoordinates(event: MouseEvent | TouchEvent): { x: number; y: number } {
     try {
-      if (event instanceof MouseEvent) { return this.getMouseCoordinates(event);
-        } else if (event instanceof TouchEvent) { return this.getTouchCoordinates(event);
-        } else {
+      if (event instanceof MouseEvent) {
+        return this.getMouseCoordinates(event);
+      } else if (event instanceof TouchEvent) {
+        return this.getTouchCoordinates(event);
+      } else {
         throw new CanvasError('Event must be MouseEvent or TouchEvent');
       }
     } catch (error) {

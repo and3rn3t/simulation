@@ -40,8 +40,9 @@ export class Organism {
         throw new OrganismError('Invalid position coordinates provided');
       }
 
-      if (!type) { throw new OrganismError('Organism type is required');
-        }
+      if (!type) {
+        throw new OrganismError('Organism type is required');
+      }
 
       this.x = x;
       this.y = y;
@@ -70,8 +71,9 @@ export class Organism {
         throw new OrganismError('Invalid deltaTime provided');
       }
 
-      if (canvasWidth <= 0 || canvasHeight <= 0) { throw new OrganismError('Invalid canvas dimensions provided');
-        }
+      if (canvasWidth <= 0 || canvasHeight <= 0) {
+        throw new OrganismError('Invalid canvas dimensions provided');
+      }
 
       this.age += deltaTime;
 
@@ -165,8 +167,9 @@ export class Organism {
    */
   draw(ctx: CanvasRenderingContext2D): void {
     try {
-      if (!ctx) { throw new CanvasError('Canvas context is required for drawing');
-        }
+      if (!ctx) {
+        throw new CanvasError('Canvas context is required for drawing');
+      }
 
       ctx.fillStyle = this.type.color;
       ctx.beginPath();

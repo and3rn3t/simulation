@@ -132,10 +132,7 @@ export class SecureRandom {
   public getRandomFloat(config: SecureRandomConfig): number {
     const randomBytes = this.getRandomBytes(4, config);
     const randomInt =
-      (randomBytes[0] << 24) |
-      (randomBytes[1] << 16) |
-      (randomBytes[2] << 8) |
-      randomBytes[3];
+      (randomBytes[0] << 24) | (randomBytes[1] << 16) | (randomBytes[2] << 8) | randomBytes[3];
     return (randomInt >>> 0) / 0x100000000; // Convert to 0-1 range
   }
 

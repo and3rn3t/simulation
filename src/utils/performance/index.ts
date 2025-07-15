@@ -1,2 +1,2 @@
-// Mega export - consolidated from index.ts
-export * from '../MasterExports';
+// Performance utilities index
+// TODO: Add performance utility exports when available

@@ -6,6 +6,5 @@ export class StatisticsService {
     };
   }
 
-  logStatistics(): void {
-    }
+  logStatistics(): void {}
 }

@@ -700,53 +700,53 @@ button:active {
 
   /* Mobile-optimized control buttons */
   .button-group button {
-    min-width: 48px;  /* Minimum touch target size */
+    min-width: 48px; /* Minimum touch target size */
     min-height: 48px;
     font-size: 1.2em;
     border-radius: 12px;
     margin: 4px;
   }
-  
+
   .control-group {
     margin: 8px 0;
   }
-  
+
   .controls {
     padding: 15px;
     gap: 20px;
   }
-  
+
   /* Larger touch targets for sliders */
-  input[type="range"] {
+  input[type='range'] {
     height: 40px;
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
     cursor: pointer;
   }
-  
-  input[type="range"]::-webkit-slider-thumb {
+
+  input[type='range']::-webkit-slider-thumb {
     height: 32px;
     width: 32px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: #4caf50;
     cursor: pointer;
     -webkit-appearance: none;
     appearance: none;
     border: 2px solid #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
-  
-  input[type="range"]::-moz-range-thumb {
+
+  input[type='range']::-moz-range-thumb {
     height: 32px;
     width: 32px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: #4caf50;
     cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
-  
+
   /* Select dropdown improvements */
   select {
     min-height: 48px;
@@ -1198,7 +1198,9 @@ button:active {
   }
 
   .mobile-fullscreen-btn {
-    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease !important;
   }
 
   .mobile-fullscreen-btn:hover {
@@ -1221,7 +1223,7 @@ button:active {
   }
 
   .mobile-controls button {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
     color: white !important;
     border: none !important;
     font-weight: 600 !important;
@@ -1250,7 +1252,7 @@ button:active {
 
   .mobile-controls input:focus,
   .mobile-controls select:focus {
-    border-color: #4CAF50 !important;
+    border-color: #4caf50 !important;
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
     outline: none !important;
   }

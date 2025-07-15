@@ -22,8 +22,9 @@ const MOBILE_INDICATORS = [
  * @returns {boolean} True if mobile device detected
  */
 export function isMobileDevice(): boolean {
-  if (typeof navigator === 'undefined' || !navigator.userAgent) { return false;
-    }
+  if (typeof navigator === 'undefined' || !navigator.userAgent) {
+    return false;
+  }
 
   const userAgent = navigator.userAgent;
 

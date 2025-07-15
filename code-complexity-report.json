@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-13T02:36:54.773Z",
+  "timestamp": "2025-07-15T23:35:57.635Z",
   "thresholds": {
     "function": {
       "simple": {
@@ -43,24 +43,2188 @@
     }
   },
   "summary": {
-    "healthScore": 84.2,
+    "healthScore": {
+      "overall": 87.3,
+      "functions": 90.9,
+      "classes": 78.7
+    },
     "functions": {
-      "total": 1912,
-      "simple": 1579,
-      "moderate": 261,
-      "complex": 59,
-      "critical": 13
+      "total": 24854,
+      "simple": 19970,
+      "moderate": 3754,
+      "complex": 890,
+      "critical": 240
     },
     "classes": {
-      "total": 96,
-      "simple": 51,
-      "moderate": 17,
-      "complex": 16,
-      "critical": 12
+      "total": 1622,
+      "simple": 1102,
+      "moderate": 250,
+      "complex": 160,
+      "critical": 110
     }
   },
   "details": {
     "criticalFunctions": [
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752543971563\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752543971563\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752543971563\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544225817\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544225817\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544225817\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544330284\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544330284\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544330284\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544425238\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544425238\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544425238\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544525729\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544525729\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544525729\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544574753\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544574753\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544574753\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752544775667\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752544775667\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752544775667\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752545105432\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752545105432\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752545105432\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateInitialIssues",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\github-integration-setup.js",
+        "line": 131,
+        "metrics": {
+          "lines": 127,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
+          "params": 0
+        }
+      },
+      {
+        "name": "findSourceFiles",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 78,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 12
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 2
+        }
+      },
+      {
+        "name": "classifyComplexity",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\code-complexity-audit.cjs",
+        "line": 303,
+        "metrics": {
+          "lines": 45,
+          "complexity": 23,
+          "params": 0
+        }
+      },
+      {
+        "name": "extractFunctionBody",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\security\\file-permission-audit.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "findFiles",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\security\\file-permission-audit.js",
+        "line": 60,
+        "metrics": {
+          "lines": 27,
+          "complexity": 8,
+          "params": 9
+        }
+      },
+      {
+        "name": "generateReport",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\validate-workflows.js",
+        "line": 322,
+        "metrics": {
+          "lines": 69,
+          "complexity": 17,
+          "params": 0
+        }
+      },
+      {
+        "name": "registerCommand",
+        "file": ".deduplication-backups\\backup-1752622361957\\src\\dev\\developerConsole.ts",
+        "line": 447,
+        "metrics": {
+          "lines": 54,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "fn",
+        "file": ".deduplication-backups\\backup-1752622361957\\test\\setup.ts",
+        "line": 185,
+        "metrics": {
+          "lines": 104,
+          "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "if",
+        "file": ".deduplication-backups\\backup-1752622361957\\test\\setup.ts",
+        "line": 569,
+        "metrics": {
+          "lines": 371,
+          "complexity": 45,
+          "params": 0
+        }
+      },
       {
         "name": "generateInitialIssues",
         "file": "scripts\\github-integration-setup.js",
@@ -78,6 +2242,16 @@
         "metrics": {
           "lines": 127,
           "complexity": 2,
+          "params": 0
+        }
+      },
+      {
+        "name": "generateOptimizationRecommendations",
+        "file": "scripts\\performance-analytics.mjs",
+        "line": 404,
+        "metrics": {
+          "lines": 108,
+          "complexity": 4,
           "params": 0
         }
       },
@@ -112,6 +2286,126 @@
         }
       },
       {
+        "name": "extractFunctionBody",
+        "file": "scripts\\quality\\duplication-detector.cjs",
+        "line": 297,
+        "metrics": {
+          "lines": 197,
+          "complexity": 22,
+          "params": 0
+        }
+      },
+      {
+        "name": "createMegaConsolidator",
+        "file": "scripts\\quality\\extreme-duplication-killer.cjs",
+        "line": 163,
+        "metrics": {
+          "lines": 107,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addGlobalErrorHandling",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 31,
+        "metrics": {
+          "lines": 150,
+          "complexity": 26,
+          "params": 0
+        }
+      },
+      {
+        "name": "addNullSafetyChecks",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 182,
+        "metrics": {
+          "lines": 135,
+          "complexity": 20,
+          "params": 0
+        }
+      },
+      {
+        "name": "addPromiseErrorHandling",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 318,
+        "metrics": {
+          "lines": 136,
+          "complexity": 16,
+          "params": 0
+        }
+      },
+      {
+        "name": "addResourceCleanup",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 455,
+        "metrics": {
+          "lines": 192,
+          "complexity": 15,
+          "params": 0
+        }
+      },
+      {
+        "name": "createReliabilityUtilities",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 648,
+        "metrics": {
+          "lines": 140,
+          "complexity": 11,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeMobileUtilities",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 60,
+        "metrics": {
+          "lines": 119,
+          "complexity": 8,
+          "params": 0
+        }
+      },
+      {
+        "name": "mergeUIComponents",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 180,
+        "metrics": {
+          "lines": 134,
+          "complexity": 21,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperUtilityLibrary",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 326,
+        "metrics": {
+          "lines": 153,
+          "complexity": 10,
+          "params": 0
+        }
+      },
+      {
+        "name": "createSuperTypeDefinitions",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 578,
+        "metrics": {
+          "lines": 149,
+          "complexity": 29,
+          "params": 0
+        }
+      },
+      {
+        "name": "createConsolidationReport",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 995,
+        "metrics": {
+          "lines": 119,
+          "complexity": 1,
+          "params": 0
+        }
+      },
+      {
         "name": "findFiles",
         "file": "scripts\\security\\file-permission-audit.cjs",
         "line": 60,
@@ -132,41 +2426,21 @@
         }
       },
       {
-        "name": "addEventListener",
-        "file": "src\\main-backup.ts",
-        "line": 596,
+        "name": "generateReport",
+        "file": "scripts\\validate-workflows.js",
+        "line": 322,
         "metrics": {
-          "lines": 59,
-          "complexity": 20,
+          "lines": 69,
+          "complexity": 17,
           "params": 0
         }
       },
       {
-        "name": "initializeUIComponents",
-        "file": "src\\ui\\components\\example-integration.ts",
-        "line": 8,
+        "name": "registerCommand",
+        "file": "src\\dev\\developerConsole.ts",
+        "line": 447,
         "metrics": {
-          "lines": 120,
-          "complexity": 2,
-          "params": 0
-        }
-      },
-      {
-        "name": "initializeUIComponents",
-        "file": "src\\ui\\components\\example-integration.ts",
-        "line": 8,
-        "metrics": {
-          "lines": 120,
-          "complexity": 2,
-          "params": 0
-        }
-      },
-      {
-        "name": "if",
-        "file": "src\\utils\\mobile\\MobileTestInterface.ts",
-        "line": 83,
-        "metrics": {
-          "lines": 40,
+          "lines": 54,
           "complexity": 16,
           "params": 0
         }
@@ -174,7 +2448,7 @@
       {
         "name": "fn",
         "file": "test\\setup.ts",
-        "line": 151,
+        "line": 185,
         "metrics": {
           "lines": 104,
           "complexity": 2,
@@ -184,15 +2458,942 @@
       {
         "name": "if",
         "file": "test\\setup.ts",
-        "line": 527,
+        "line": 569,
         "metrics": {
-          "lines": 299,
-          "complexity": 38,
+          "lines": 371,
+          "complexity": 45,
           "params": 0
         }
       }
     ],
     "criticalClasses": [
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752543971563\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752543971563\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752543971563\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752543971563\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752543971563\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544225817\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544225817\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544225817\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544225817\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544225817\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544330284\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544330284\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544330284\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544330284\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544330284\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544425238\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544425238\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544425238\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544425238\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544425238\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544525729\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544525729\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544525729\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544525729\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544525729\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544574753\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544574753\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544574753\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544574753\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544574753\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752544775667\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752544775667\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752544775667\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752544775667\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752544775667\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752545105432\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752545105432\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752545105432\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752545105432\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752545105432\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 401
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
+      {
+        "name": "RandomSecurityAuditor",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\security\\audit-random-security.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 26,
+          "lines": 388
+        }
+      },
+      {
+        "name": "WorkflowTroubleshooter",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\troubleshoot-project-workflow.mjs",
+        "line": 55,
+        "metrics": {
+          "methods": 29,
+          "lines": 317
+        }
+      },
+      {
+        "name": "WorkflowValidator",
+        "file": ".deduplication-backups\\backup-1752622361957\\scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
+        "name": "OrganismSimulation",
+        "file": ".deduplication-backups\\backup-1752622361957\\src\\core\\simulation.ts",
+        "line": 36,
+        "metrics": {
+          "methods": 40,
+          "lines": 631
+        }
+      },
+      {
+        "name": "DeveloperConsole",
+        "file": ".deduplication-backups\\backup-1752622361957\\src\\dev\\developerConsole.ts",
+        "line": 34,
+        "metrics": {
+          "methods": 40,
+          "lines": 499
+        }
+      },
+      {
+        "name": "SettingsPanelComponent",
+        "file": ".deduplication-backups\\backup-1752622361957\\src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": ".deduplication-backups\\backup-1752622361957\\src\\utils\\memory\\cacheOptimizedStructures.ts",
+        "line": 9,
+        "metrics": {
+          "methods": 26,
+          "lines": 416
+        }
+      },
+      {
+        "name": "BundleAnalyzer",
+        "file": "scripts\\bundle-analyzer.mjs",
+        "line": 60,
+        "metrics": {
+          "methods": 36,
+          "lines": 556
+        }
+      },
+      {
+        "name": "PerformanceAnalyzer",
+        "file": "scripts\\performance-analytics.mjs",
+        "line": 57,
+        "metrics": {
+          "methods": 49,
+          "lines": 714
+        }
+      },
+      {
+        "name": "SafeReliabilityFixer",
+        "file": "scripts\\quality\\safe-reliability-fixer.cjs",
+        "line": 11,
+        "metrics": {
+          "methods": 52,
+          "lines": 829
+        }
+      },
+      {
+        "name": "UltraAggressiveConsolidation",
+        "file": "scripts\\quality\\ultra-aggressive-consolidation.cjs",
+        "line": 13,
+        "metrics": {
+          "methods": 46,
+          "lines": 1113
+        }
+      },
       {
         "name": "RandomSecurityAuditor",
         "file": "scripts\\security\\audit-random-security.cjs",
@@ -212,93 +3413,48 @@
         }
       },
       {
+        "name": "WorkflowValidator",
+        "file": "scripts\\validate-workflows.js",
+        "line": 22,
+        "metrics": {
+          "methods": 49,
+          "lines": 370
+        }
+      },
+      {
         "name": "OrganismSimulation",
         "file": "src\\core\\simulation.ts",
-        "line": 15,
+        "line": 36,
         "metrics": {
-          "methods": 37,
-          "lines": 605
-        }
-      },
-      {
-        "name": "OrganismSimulation",
-        "file": "src\\core\\simulation_clean.ts",
-        "line": 38,
-        "metrics": {
-          "methods": 39,
-          "lines": 877
-        }
-      },
-      {
-        "name": "OrganismSimulation",
-        "file": "src\\core\\simulation_final.ts",
-        "line": 25,
-        "metrics": {
-          "methods": 45,
-          "lines": 630
-        }
-      },
-      {
-        "name": "OrganismSimulation",
-        "file": "src\\core\\simulation_minimal.ts",
-        "line": 16,
-        "metrics": {
-          "methods": 35,
-          "lines": 586
-        }
-      },
-      {
-        "name": "OrganismSimulation",
-        "file": "src\\core\\simulation_simple.ts",
-        "line": 15,
-        "metrics": {
-          "methods": 37,
-          "lines": 598
+          "methods": 40,
+          "lines": 631
         }
       },
       {
         "name": "DeveloperConsole",
         "file": "src\\dev\\developerConsole.ts",
-        "line": 13,
+        "line": 34,
         "metrics": {
-          "methods": 30,
-          "lines": 415
+          "methods": 40,
+          "lines": 499
         }
       },
       {
         "name": "SettingsPanelComponent",
         "file": "src\\ui\\components\\SettingsPanelComponent.ts",
+        "line": 30,
+        "metrics": {
+          "methods": 46,
+          "lines": 890
+        }
+      },
+      {
+        "name": "OrganismSoA",
+        "file": "src\\utils\\memory\\cacheOptimizedStructures.ts",
         "line": 9,
         "metrics": {
-          "methods": 3,
-          "lines": 713
-        }
-      },
-      {
-        "name": "AdvancedMobileGestures",
-        "file": "src\\utils\\mobile\\AdvancedMobileGestures.ts",
-        "line": 14,
-        "metrics": {
           "methods": 26,
-          "lines": 326
-        }
-      },
-      {
-        "name": "MobileAnalyticsManager",
-        "file": "src\\utils\\mobile\\MobileAnalyticsManager.ts",
-        "line": 31,
-        "metrics": {
-          "methods": 25,
-          "lines": 607
-        }
-      },
-      {
-        "name": "MobileSocialManager",
-        "file": "src\\utils\\mobile\\MobileSocialManager.ts",
-        "line": 21,
-        "metrics": {
-          "methods": 20,
-          "lines": 786
+          "lines": 416
         }
       }
     ]
@@ -308,29 +3464,29 @@
       "priority": "critical",
       "type": "function",
       "action": "Break down critical complexity functions",
-      "count": 13,
+      "count": 240,
       "examples": [
-        "scripts\\github-integration-setup.js:generateInitialIssues()",
-        "scripts\\github-integration-setup.js:generateInitialIssues()",
-        "scripts\\quality\\code-complexity-audit.cjs:findSourceFiles()"
+        ".deduplication-backups\\backup-1752543971563\\scripts\\github-integration-setup.js:generateInitialIssues()",
+        ".deduplication-backups\\backup-1752543971563\\scripts\\github-integration-setup.js:generateInitialIssues()",
+        ".deduplication-backups\\backup-1752543971563\\scripts\\performance-analytics.mjs:generateOptimizationRecommendations()"
       ]
     },
     {
       "priority": "high",
       "type": "function",
       "action": "Refactor complex functions using decomposition pattern",
-      "count": 59,
+      "count": 890,
       "target": "Reduce to under 5 complex functions"
     },
     {
       "priority": "critical",
       "type": "class",
       "action": "Extract responsibilities from oversized classes",
-      "count": 12,
+      "count": 110,
       "examples": [
-        "scripts\\security\\audit-random-security.cjs:RandomSecurityAuditor",
-        "scripts\\troubleshoot-project-workflow.mjs:WorkflowTroubleshooter",
-        "src\\core\\simulation.ts:OrganismSimulation"
+        ".deduplication-backups\\backup-1752543971563\\scripts\\bundle-analyzer.mjs:BundleAnalyzer",
+        ".deduplication-backups\\backup-1752543971563\\scripts\\performance-analytics.mjs:PerformanceAnalyzer",
+        ".deduplication-backups\\backup-1752543971563\\scripts\\quality\\safe-reliability-fixer.cjs:SafeReliabilityFixer"
       ]
     }
   ]

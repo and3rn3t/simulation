@@ -53,7 +53,7 @@ export class ResourceCleanupManager {
         this.timers.delete(id);
       }
     }, delay);
-    
+
     this.timers.add(id);
     return id;
   }
@@ -66,19 +66,19 @@ export class ResourceCleanupManager {
         console.warn('Interval callback error:', error);
       }
     }, interval);
-    
+
     this.intervals.add(id);
     return id;
   }
 
   // Safe event listener management
   safeAddEventListener(
-    element: EventTarget, 
-    event: string, 
+    element: EventTarget,
+    event: string,
     handler: EventListener,
     options?: AddEventListenerOptions
   ): () => void {
-    const safeHandler: EventListener = (e) => {
+    const safeHandler: EventListener = e => {
       try {
         handler(e);
       } catch (error) {
@@ -87,7 +87,7 @@ export class ResourceCleanupManager {
     };
 
     element.addEventListener(event, safeHandler, options);
-    
+
     const listenerRecord = { element, event, handler: safeHandler };
     this.eventListeners.push(listenerRecord);
 
@@ -112,7 +112,7 @@ export class ResourceCleanupManager {
       // Clear timers
       this.timers.forEach(id => clearTimeout(id));
       this.timers.clear();
-      
+
       console.log('✅ Partial cleanup completed');
     } catch (error) {
       console.warn('Partial cleanup error:', error);
@@ -167,7 +167,7 @@ export class ResourceCleanupManager {
       timers: this.timers.size,
       intervals: this.intervals.size,
       eventListeners: this.eventListeners.length,
-      cleanupTasks: this.cleanupTasks.length
+      cleanupTasks: this.cleanupTasks.length,
     };
   }
 }

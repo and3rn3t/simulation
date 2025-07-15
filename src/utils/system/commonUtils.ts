@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -102,9 +102,10 @@ export function getElementSafely<T extends HTMLElement>(
 ): T | null {
   try {
     const element = document?.getElementById(id) as T;
-    if (!element) { handleValidationError('DOM element', id, 'existing element');
+    if (!element) {
+      handleValidationError('DOM element', id, 'existing element');
       return null;
-      }
+    }
 
     if (expectedType && element?.tagName.toLowerCase() !== expectedType.toLowerCase()) {
       handleValidationError('DOM element type', element?.tagName, expectedType);
@@ -130,11 +131,13 @@ export function getCanvasContextSafely(
   contextType: '2d' = '2d'
 ): CanvasRenderingContext2D | null {
   try {
-    if (!canvas) { throw new CanvasError('Canvas element is null or undefined');
-      }
+    if (!canvas) {
+      throw new CanvasError('Canvas element is null or undefined');
+    }
 
     const context = canvas?.getContext(contextType);
-    if (!context) { throw new CanvasError(`Failed to get ${contextType  } context from canvas`);
+    if (!context) {
+      throw new CanvasError(`Failed to get ${contextType} context from canvas`);
     }
 
     return context;
@@ -158,8 +161,9 @@ export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
   options?: boolean | AddEventListenerOptions
 ): void {
   try {
-    if (!element) { throw new DOMError('Cannot add event listener to null element');
-      }
+    if (!element) {
+      throw new DOMError('Cannot add event listener to null element');
+    }
 
     const wrappedHandler = withEventErrorHandling(handler, type);
     element?.addEventListener(type, wrappedHandler, options);
@@ -178,7 +182,9 @@ export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
 export function requestAnimationFrameSafely(
   callback: (timestamp: number) => void,
   animationName: string
-): number | null { const maxDepth = 100; if (arguments[arguments.length - 1] > maxDepth) return;
+): number | null {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   try {
     const wrappedCallback = withAnimationErrorHandling(callback, animationName);
     return requestAnimationFrame(wrappedCallback);
@@ -213,9 +219,10 @@ export function validateParameters(
       }
 
       // Check type if value exists
-      if (value !== undefined && value !== null && typeof value !== validation.type) { handleValidationError(paramName, value, validation.type);
+      if (value !== undefined && value !== null && typeof value !== validation.type) {
+        handleValidationError(paramName, value, validation.type);
         return false;
-        }
+      }
 
       // Custom validation
       if (validation.validator && value !== undefined && value !== null) {

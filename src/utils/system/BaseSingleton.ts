@@ -4,10 +4,7 @@
 export abstract class BaseSingleton {
   private static instances: Map<string, any> = new Map();
 
-  protected static getInstance<T extends BaseSingleton>(
-    this: new () => T,
-    className: string
-  ): T {
+  protected static getInstance<T extends BaseSingleton>(this: new () => T, className: string): T {
     if (!BaseSingleton.instances.has(className)) {
       BaseSingleton.instances.set(className, new this());
     }

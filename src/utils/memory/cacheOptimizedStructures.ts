@@ -97,8 +97,9 @@ export class OrganismSoA {
     type: OrganismType,
     reproduced: boolean = false
   ): number {
-    if (this.size >= this.capacity) { this.resize();
-      }
+    if (this.size >= this.capacity) {
+      this.resize();
+    }
 
     const index = this.size;
     const typeIdx = this.registerOrganismType(type);
@@ -117,8 +118,9 @@ export class OrganismSoA {
    * Remove an organism by swapping with the last element
    */
   removeOrganism(index: number): void {
-    if (index < 0 || index >= this.size) { return;
-      }
+    if (index < 0 || index >= this.size) {
+      return;
+    }
 
     // Swap with last element
     const lastIndex = this.size - 1;
@@ -155,29 +157,33 @@ export class OrganismSoA {
    * Update organism age
    */
   updateAge(index: number, deltaTime: number): void {
-    if (index >= 0 && index < this.size) { const currentAge = this.age[index];
+    if (index >= 0 && index < this.size) {
+      const currentAge = this.age[index];
       if (currentAge !== undefined) this.age[index] = currentAge + deltaTime;
-      }
+    }
   }
 
   /**
    * Mark organism as reproduced
    */
   markReproduced(index: number): void {
-    if (index >= 0 && index < this.size) { this.reproduced[index] = 1;
-      }
+    if (index >= 0 && index < this.size) {
+      this.reproduced[index] = 1;
+    }
   }
 
   /**
    * Get organism type by index
    */
   getOrganismType(index: number): OrganismType | null {
-    if (index < 0 || index >= this.size) { return null;
-      }
+    if (index < 0 || index >= this.size) {
+      return null;
+    }
 
     const typeIdx = this.typeIndex[index];
-    if (typeIdx === undefined || typeIdx < 0 || typeIdx >= this.organismTypes.length) { return null;
-      }
+    if (typeIdx === undefined || typeIdx < 0 || typeIdx >= this.organismTypes.length) {
+      return null;
+    }
     return this.organismTypes[typeIdx] || null;
   }
 
@@ -185,12 +191,14 @@ export class OrganismSoA {
    * Check if organism can reproduce
    */
   canReproduce(index: number): boolean {
-    if (index < 0 || index >= this.size) { return false;
-      }
+    if (index < 0 || index >= this.size) {
+      return false;
+    }
 
     const type = this.getOrganismType(index);
-    if (!type) { return false;
-      }
+    if (!type) {
+      return false;
+    }
 
     return (
       this.age[index] > 20 && this.reproduced[index] === 0 && Math.random() < type.growthRate * 0.01
@@ -201,12 +209,14 @@ export class OrganismSoA {
    * Check if organism should die
    */
   shouldDie(index: number): boolean {
-    if (index < 0 || index >= this.size) { return false;
-      }
+    if (index < 0 || index >= this.size) {
+      return false;
+    }
 
     const type = this.getOrganismType(index);
-    if (!type) { return true; // If we can't determine type, consider it dead
-      }
+    if (!type) {
+      return true; // If we can't determine type, consider it dead
+    }
 
     return this.age[index] > type.maxAge || Math.random() < type.deathRate * 0.001;
   }
@@ -215,17 +225,20 @@ export class OrganismSoA {
    * Get organism data as plain object
    */
   getOrganism(index: number): Organism | null {
-    if (index < 0 || index >= this.size) { return null;
-      }
+    if (index < 0 || index >= this.size) {
+      return null;
+    }
 
     const type = this.getOrganismType(index);
-    if (!type) { return null;
-      }
+    if (!type) {
+      return null;
+    }
 
     const x = this.x[index];
     const y = this.y[index];
-    if (x === undefined || y === undefined) { return null;
-      }
+    if (x === undefined || y === undefined) {
+      return null;
+    }
 
     const organism = new Organism(x, y, type);
     organism.age = this.age[index];
@@ -241,9 +254,10 @@ export class OrganismSoA {
     this.clear();
 
     // Ensure capacity
-    if (organisms.length > this.capacity) { this.capacity = organisms.length * 2;
+    if (organisms.length > this.capacity) {
+      this.capacity = organisms.length * 2;
       this.allocateArrays();
-      }
+    }
 
     for (const organism of organisms) {
       this.addOrganism(organism.x, organism.y, organism.age, organism.type, organism.reproduced);
@@ -258,8 +272,9 @@ export class OrganismSoA {
 
     for (let i = 0; i < this.size; i++) {
       const organism = this.getOrganism(i);
-      if (organism) { organisms.push(organism);
-        }
+      if (organism) {
+        organisms.push(organism);
+      }
     }
 
     return organisms;

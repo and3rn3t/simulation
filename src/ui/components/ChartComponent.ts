@@ -1,14 +1,14 @@
-
 class EventListenerManager {
-  private static listeners: Array<{element: EventTarget, event: string, handler: EventListener}> = [];
-  
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
   static addListener(element: EventTarget, event: string, handler: EventListener): void {
     element.addEventListener(event, handler);
-    this.listeners.push({element, event, handler});
+    this.listeners.push({ element, event, handler });
   }
-  
+
   static cleanup(): void {
-    this.listeners.forEach(({element, event, handler}) => {
+    this.listeners.forEach(({ element, event, handler }) => {
       element?.removeEventListener?.(event, handler);
     });
     this.listeners = [];
@@ -82,9 +82,10 @@ export class ChartComponent extends BaseComponent {
 
     this.canvas = this.element?.querySelector('canvas') as HTMLCanvasElement;
 
-    if (this.config.width && this.config.height) { this.canvas.width = this.config.width;
+    if (this.config.width && this.config.height) {
+      this.canvas.width = this.config.width;
       this.canvas.height = this.config.height;
-      }
+    }
   }
 
   private initializeChart(): void {
@@ -184,9 +185,10 @@ export class ChartComponent extends BaseComponent {
     this.chart.data.datasets[datasetIndex].data.push(value);
 
     // Keep only last 50 points for performance
-    if (this.chart.data.labels!.length > 50) { this.chart.data.labels?.shift();
+    if (this.chart.data.labels!.length > 50) {
+      this.chart.data.labels?.shift();
       this.chart.data.datasets[datasetIndex].data.shift();
-      }
+    }
 
     this.chart.update('none');
   }
@@ -198,8 +200,9 @@ export class ChartComponent extends BaseComponent {
     this.stopRealTimeUpdates();
     this.updateInterval = setInterval(() => {
       callback();
-      if (this.config.onDataUpdate && this.chart) { this.config.onDataUpdate(this.chart);
-        }
+      if (this.config.onDataUpdate && this.chart) {
+        this.config.onDataUpdate(this.chart);
+      }
     }, interval);
   }
 
@@ -207,9 +210,10 @@ export class ChartComponent extends BaseComponent {
    * Stop real-time updates
    */
   stopRealTimeUpdates(): void {
-    if (this.updateInterval) { clearInterval(this.updateInterval);
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
       this.updateInterval = null;
-      }
+    }
   }
 
   /**
@@ -229,15 +233,17 @@ export class ChartComponent extends BaseComponent {
    * Resize the chart
    */
   resize(): void {
-    if (this.chart) { this.chart.resize();
-      }
+    if (this.chart) {
+      this.chart.resize();
+    }
   }
 
   public unmount(): void {
     this.stopRealTimeUpdates();
-    if (this.chart) { this.chart.destroy();
+    if (this.chart) {
+      this.chart.destroy();
       this.chart = null;
-      }
+    }
     super.unmount();
   }
 }

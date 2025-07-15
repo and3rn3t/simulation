@@ -52,7 +52,7 @@ export class SuperMobileManager {
   // === PERFORMANCE MANAGEMENT ===
   private optimizePerformance(): void {
     this.performanceMetrics.set('fps', 60);
-    this.performanceMetrics.set('memory', performance.memory?.usedJSHeapSize || 0);
+    this.performanceMetrics.set('memory', (performance as any).memory?.usedJSHeapSize || 0);
   }
 
   getPerformanceMetrics(): Map<string, number> {
