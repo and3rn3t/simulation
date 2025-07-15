@@ -1,0 +1,7 @@
+organization=and3rn3t
+projectKey=and3rn3t_simulation
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.65494
+dashboardUrl=https://sonarcloud.io/dashboard?id=and3rn3t_simulation
+ceTaskId=AZgQeyzzV0oJCAyVnXX4
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZgQeyzzV0oJCAyVnXX4
