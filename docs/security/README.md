@@ -4,6 +4,10 @@
 
 This directory contains comprehensive security documentation for the organism simulation project, focusing on preventing command injection vulnerabilities and other critical security hotspots identified by SonarCloud.
 
+## Purpose
+
+This folder contains all documentation related to security improvements, audits, and fixes.
+
 ## 📚 Documentation Files
 
 ### [Security Best Practices Guide](./SECURITY_BEST_PRACTICES.md)
