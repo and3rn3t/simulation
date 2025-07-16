@@ -132,6 +132,7 @@
     "wrangler": "^4.24.3"
   },
   "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.4.0",
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^4.1.0",
