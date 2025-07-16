@@ -12,22 +12,22 @@
  * Integrates with CI/CD pipeline for automated quality gates.
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // Project root directory
-const PROJECT_ROOT = path.resolve(__dirname, "../..");
+const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 // Color codes for console output
 const colors = {
-  reset: "\x1b[0m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
-  cyan: "\x1b[36m",
-  bright: "\x1b[1m",
+  reset: '\x1b[0m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  bright: '\x1b[1m',
 };
 
 // Complexity thresholds based on project analysis
@@ -49,7 +49,7 @@ const COMPLEXITY_THRESHOLDS = {
 /**
  * Enhanced logging with colors and timestamps
  */
-function log(message, type = "info") {
+function log(message, type = 'info') {
   const timestamp = new Date().toISOString().substr(11, 8);
   const typeColors = {
     info: colors.blue,
@@ -60,11 +60,11 @@ function log(message, type = "info") {
   };
 
   const icon = {
-    info: "ℹ️",
-    success: "✅",
-    warning: "⚠️",
-    error: "❌",
-    critical: "🚨",
+    info: 'ℹ️',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌',
+    critical: '🚨',
   }[type];
 
   console.log(
@@ -77,15 +77,8 @@ function log(message, type = "info") {
  */
 function findSourceFiles(
   directory,
-  extensions = ["js", "mjs", "cjs", "ts", "tsx"],
-  excludeDirs = [
-    "node_modules",
-    ".git",
-    "dist",
-    "coverage",
-    "build",
-    "playwright-report",
-  ]
+  extensions = ['js', 'mjs', 'cjs', 'ts', 'tsx'],
+  excludeDirs = ['node_modules', '.git', 'dist', 'coverage', 'build', 'playwright-report']
 ) {
   const files = [];
 
@@ -106,7 +99,7 @@ function findSourceFiles(
         }
       }
     } catch (error) {
-      log(`Error reading directory ${dir}: ${error.message}`, "warning");
+      log(`Error reading directory ${dir}: ${error.message}`, 'warning');
     }
   }
 
@@ -136,7 +129,7 @@ function calculateCyclomaticComplexity(functionCode) {
 
   let complexity = 1; // Base complexity
 
-  complexityPatterns.forEach((pattern) => {
+  complexityPatterns.forEach(pattern => {
     const matches = functionCode.match(pattern);
     if (matches) {
       complexity += matches.length;
@@ -164,20 +157,18 @@ function extractFunctions(content, filePath) {
     /async\s+function\s+(\w+)\s*\(([^)]*)\)\s*{/g,
   ];
 
-  functionPatterns.forEach((pattern) => {
+  functionPatterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(content)) !== null) {
-      const functionName = match[1] || "anonymous";
-      const params = match[2]
-        ? match[2].split(",").filter((p) => p.trim()).length
-        : 0;
+      const functionName = match[1] || 'anonymous';
+      const params = match[2] ? match[2].split(',').filter(p => p.trim()).length : 0;
 
       // Find the complete function body
       const startIndex = match.index;
       const functionBody = extractFunctionBody(content, startIndex);
 
       if (functionBody) {
-        const lines = functionBody.split("\n").length;
+        const lines = functionBody.split('\n').length;
         const complexity = calculateCyclomaticComplexity(functionBody);
 
         functions.push({
@@ -186,7 +177,7 @@ function extractFunctions(content, filePath) {
           lines,
           params,
           complexity,
-          startLine: content.substring(0, startIndex).split("\n").length,
+          startLine: content.substring(0, startIndex).split('\n').length,
         });
       }
     }
@@ -199,15 +190,15 @@ function extractFunctions(content, filePath) {
  * Extract complete function body using bracket matching
  */
 function extractFunctionBody(content, startIndex) {
-  const openBraceIndex = content.indexOf("{", startIndex);
+  const openBraceIndex = content.indexOf('{', startIndex);
   if (openBraceIndex === -1) return null;
 
   let braceCount = 0;
   let endIndex = openBraceIndex;
 
   for (let i = openBraceIndex; i < content.length; i++) {
-    if (content[i] === "{") braceCount++;
-    if (content[i] === "}") braceCount--;
+    if (content[i] === '{') braceCount++;
+    if (content[i] === '}') braceCount--;
 
     if (braceCount === 0) {
       endIndex = i;
@@ -234,7 +225,7 @@ function extractClasses(content, filePath) {
     const classBody = extractFunctionBody(content, startIndex);
     if (classBody) {
       const methods = extractMethodsFromClass(classBody);
-      const lines = classBody.split("\n").length;
+      const lines = classBody.split('\n').length;
 
       classes.push({
         name: className,
@@ -242,7 +233,7 @@ function extractClasses(content, filePath) {
         methods: methods.length,
         lines,
         methodDetails: methods,
-        startLine: content.substring(0, startIndex).split("\n").length,
+        startLine: content.substring(0, startIndex).split('\n').length,
       });
     }
   }
@@ -262,21 +253,21 @@ function extractMethodsFromClass(classBody) {
     /set\s+(\w+)\s*\([^)]*\)\s*{/g, // Setters
   ];
 
-  methodPatterns.forEach((pattern) => {
+  methodPatterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(classBody)) !== null) {
       const methodName = match[1];
-      if (methodName !== "constructor") {
+      if (methodName !== 'constructor') {
         // Skip constructor for method count
         methods.push({
           name: methodName,
-          type: pattern.source.includes("async")
-            ? "async"
-            : pattern.source.includes("get")
-              ? "getter"
-              : pattern.source.includes("set")
-                ? "setter"
-                : "method",
+          type: pattern.source.includes('async')
+            ? 'async'
+            : pattern.source.includes('get')
+              ? 'getter'
+              : pattern.source.includes('set')
+                ? 'setter'
+                : 'method',
         });
       }
     }
@@ -290,18 +281,18 @@ function extractMethodsFromClass(classBody) {
  */
 function analyzeFile(filePath) {
   try {
-    const content = fs.readFileSync(filePath, "utf8");
+    const content = fs.readFileSync(filePath, 'utf8');
     const functions = extractFunctions(content, filePath);
     const classes = extractClasses(content, filePath);
 
     return {
       file: path.relative(PROJECT_ROOT, filePath),
-      lines: content.split("\n").length,
+      lines: content.split('\n').length,
       functions,
       classes,
     };
   } catch (error) {
-    log(`Error analyzing ${filePath}: ${error.message}`, "warning");
+    log(`Error analyzing ${filePath}: ${error.message}`, 'warning');
     return null;
   }
 }
@@ -312,67 +303,64 @@ function analyzeFile(filePath) {
 function classifyComplexity(type, metrics) {
   const thresholds = COMPLEXITY_THRESHOLDS[type];
 
-  if (type === "function") {
+  if (type === 'function') {
     if (
       metrics.lines <= thresholds.simple.lines &&
       metrics.complexity <= thresholds.simple.complexity &&
       metrics.params <= thresholds.simple.params
     ) {
-      return "simple";
+      return 'simple';
     } else if (
       metrics.lines <= thresholds.moderate.lines &&
       metrics.complexity <= thresholds.moderate.complexity &&
       metrics.params <= thresholds.moderate.params
     ) {
-      return "moderate";
+      return 'moderate';
     } else if (
       metrics.lines <= thresholds.complex.lines &&
       metrics.complexity <= thresholds.complex.complexity &&
       metrics.params <= thresholds.complex.params
     ) {
-      return "complex";
+      return 'complex';
     } else {
-      return "critical";
+      return 'critical';
     }
-  } else if (type === "class") {
-    if (
-      metrics.methods <= thresholds.simple.methods &&
-      metrics.lines <= thresholds.simple.lines
-    ) {
-      return "simple";
+  } else if (type === 'class') {
+    if (metrics.methods <= thresholds.simple.methods && metrics.lines <= thresholds.simple.lines) {
+      return 'simple';
     } else if (
       metrics.methods <= thresholds.moderate.methods &&
       metrics.lines <= thresholds.moderate.lines
     ) {
-      return "moderate";
+      return 'moderate';
     } else if (
       metrics.methods <= thresholds.complex.methods &&
       metrics.lines <= thresholds.complex.lines
     ) {
-      return "complex";
+      return 'complex';
     } else {
-      return "critical";
+      return 'critical';
     }
   }
 
-  return "unknown";
+  return 'unknown';
 }
 
 /**
  * Generate complexity report for all functions
  */
 function generateFunctionComplexityReport(allResults) {
-  log("\n📊 Analyzing Function Complexity...", "info");
+  log('\n📊 Analyzing Function Complexity...', 'info');
 
   const allFunctions = [];
-  allResults.forEach((result) => {
+  allResults.forEach(result => {
     if (result && result.functions) {
       allFunctions.push(...result.functions);
     }
   });
 
   if (allFunctions.length === 0) {
-    log("No functions found for analysis", "warning");
+    log('No functions found for analysis', 'warning');
     return {
       functions: [],
       summary: { total: 0, simple: 0, moderate: 0, complex: 0, critical: 0 },
@@ -387,60 +375,54 @@ function generateFunctionComplexityReport(allResults) {
     critical: [],
   };
 
-  allFunctions.forEach((func) => {
-    const level = classifyComplexity("function", func);
+  allFunctions.forEach(func => {
+    const level = classifyComplexity('function', func);
     complexityBreakdown[level].push(func);
   });
 
   // Report results
   const total = allFunctions.length;
-  log(`📈 Function Complexity Analysis (${total} functions):`, "info");
+  log(`📈 Function Complexity Analysis (${total} functions):`, 'info');
   log(
     `  ✅ Simple: ${complexityBreakdown.simple.length} (${((complexityBreakdown.simple.length / total) * 100).toFixed(1)}%)`,
-    "success"
+    'success'
   );
   log(
     `  ⚠️ Moderate: ${complexityBreakdown.moderate.length} (${((complexityBreakdown.moderate.length / total) * 100).toFixed(1)}%)`,
-    "warning"
+    'warning'
   );
   log(
     `  🔧 Complex: ${complexityBreakdown.complex.length} (${((complexityBreakdown.complex.length / total) * 100).toFixed(1)}%)`,
-    "error"
+    'error'
   );
   log(
     `  🚨 Critical: ${complexityBreakdown.critical.length} (${((complexityBreakdown.critical.length / total) * 100).toFixed(1)}%)`,
-    "critical"
+    'critical'
   );
 
   // Report critical complexity functions
   if (complexityBreakdown.critical.length > 0) {
-    log(
-      "\n🚨 Critical Complexity Functions Requiring Immediate Attention:",
-      "critical"
-    );
-    complexityBreakdown.critical.forEach((func) => {
+    log('\n🚨 Critical Complexity Functions Requiring Immediate Attention:', 'critical');
+    complexityBreakdown.critical.forEach(func => {
       log(
         `  ${func.file}:${func.startLine} - ${func.name}() [${func.lines} lines, complexity ${func.complexity}, ${func.params} params]`,
-        "error"
+        'error'
       );
     });
   }
 
   // Report complex functions
   if (complexityBreakdown.complex.length > 0) {
-    log("\n🔧 Complex Functions Recommended for Refactoring:", "warning");
-    complexityBreakdown.complex.slice(0, 10).forEach((func) => {
+    log('\n🔧 Complex Functions Recommended for Refactoring:', 'warning');
+    complexityBreakdown.complex.slice(0, 10).forEach(func => {
       // Show top 10
       log(
         `  ${func.file}:${func.startLine} - ${func.name}() [${func.lines} lines, complexity ${func.complexity}]`,
-        "warning"
+        'warning'
       );
     });
     if (complexityBreakdown.complex.length > 10) {
-      log(
-        `  ... and ${complexityBreakdown.complex.length - 10} more`,
-        "warning"
-      );
+      log(`  ... and ${complexityBreakdown.complex.length - 10} more`, 'warning');
     }
   }
 
@@ -461,21 +443,18 @@ function generateFunctionComplexityReport(allResults) {
  * Generate complexity report for all classes
  */
 function generateClassComplexityReport(allResults) {
-  log("\n🏗️ Analyzing Class Complexity...", "info");
+  log('\n🏗️ Analyzing Class Complexity...', 'info');
 
   const allClasses = [];
-  allResults.forEach((result) => {
+  allResults.forEach(result => {
     if (result && result.classes) {
       allClasses.push(...result.classes);
     }
   });
 
   if (allClasses.length === 0) {
-    log("No classes found for analysis", "warning");
-    return {
-      classes: [],
-      summary: { total: 0, simple: 0, moderate: 0, complex: 0, critical: 0 },
-    };
+    log('No classes found for analysis', 'warning');
+    return { classes: [], summary: { total: 0, simple: 0, moderate: 0, complex: 0, critical: 0 } };
   }
 
   // Classify classes by complexity
@@ -486,41 +465,38 @@ function generateClassComplexityReport(allResults) {
     critical: [],
   };
 
-  allClasses.forEach((cls) => {
-    const level = classifyComplexity("class", cls);
+  allClasses.forEach(cls => {
+    const level = classifyComplexity('class', cls);
     complexityBreakdown[level].push(cls);
   });
 
   // Report results
   const total = allClasses.length;
-  log(`📊 Class Complexity Analysis (${total} classes):`, "info");
+  log(`📊 Class Complexity Analysis (${total} classes):`, 'info');
   log(
     `  ✅ Simple: ${complexityBreakdown.simple.length} (${((complexityBreakdown.simple.length / total) * 100).toFixed(1)}%)`,
-    "success"
+    'success'
   );
   log(
     `  ⚠️ Moderate: ${complexityBreakdown.moderate.length} (${((complexityBreakdown.moderate.length / total) * 100).toFixed(1)}%)`,
-    "warning"
+    'warning'
   );
   log(
     `  🔧 Complex: ${complexityBreakdown.complex.length} (${((complexityBreakdown.complex.length / total) * 100).toFixed(1)}%)`,
-    "error"
+    'error'
   );
   log(
     `  🚨 Critical: ${complexityBreakdown.critical.length} (${((complexityBreakdown.critical.length / total) * 100).toFixed(1)}%)`,
-    "critical"
+    'critical'
   );
 
   // Report critical complexity classes
   if (complexityBreakdown.critical.length > 0) {
-    log(
-      "\n🚨 Critical Complexity Classes Requiring Restructuring:",
-      "critical"
-    );
-    complexityBreakdown.critical.forEach((cls) => {
+    log('\n🚨 Critical Complexity Classes Requiring Restructuring:', 'critical');
+    complexityBreakdown.critical.forEach(cls => {
       log(
         `  ${cls.file}:${cls.startLine} - ${cls.name} [${cls.methods} methods, ${cls.lines} lines]`,
-        "error"
+        'error'
       );
     });
   }
@@ -544,8 +520,7 @@ function generateClassComplexityReport(allResults) {
 function calculateHealthScore(functionReport, classReport) {
   const functionScore =
     functionReport.summary.total > 0
-      ? ((functionReport.summary.simple +
-          functionReport.summary.moderate * 0.7) /
+      ? ((functionReport.summary.simple + functionReport.summary.moderate * 0.7) /
           functionReport.summary.total) *
         100
       : 100;
@@ -585,13 +560,13 @@ function generateComplexityReport(functionReport, classReport, healthScore) {
       classes: classReport.summary,
     },
     details: {
-      criticalFunctions: functionReport.breakdown.critical.map((f) => ({
+      criticalFunctions: functionReport.breakdown.critical.map(f => ({
         name: f.name,
         file: f.file,
         line: f.startLine,
         metrics: { lines: f.lines, complexity: f.complexity, params: f.params },
       })),
-      criticalClasses: classReport.breakdown.critical.map((c) => ({
+      criticalClasses: classReport.breakdown.critical.map(c => ({
         name: c.name,
         file: c.file,
         line: c.startLine,
@@ -601,15 +576,11 @@ function generateComplexityReport(functionReport, classReport, healthScore) {
     recommendations: generateRecommendations(functionReport, classReport),
   };
 
-  const reportPath = path.join(
-    PROJECT_ROOT,
-    "reports",
-    "code-complexity-report.json"
-  );
+  const reportPath = path.join(PROJECT_ROOT, 'code-complexity-report.json');
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   fs.chmodSync(reportPath, 0o644);
 
-  log(`📋 Complexity report saved: ${reportPath}`, "info");
+  log(`📋 Complexity report saved: ${reportPath}`, 'info');
   return report;
 }
 
@@ -622,36 +593,32 @@ function generateRecommendations(functionReport, classReport) {
   // Function-based recommendations
   if (functionReport.breakdown.critical.length > 0) {
     recommendations.push({
-      priority: "critical",
-      type: "function",
-      action: "Break down critical complexity functions",
+      priority: 'critical',
+      type: 'function',
+      action: 'Break down critical complexity functions',
       count: functionReport.breakdown.critical.length,
-      examples: functionReport.breakdown.critical
-        .slice(0, 3)
-        .map((f) => `${f.file}:${f.name}()`),
+      examples: functionReport.breakdown.critical.slice(0, 3).map(f => `${f.file}:${f.name}()`),
     });
   }
 
   if (functionReport.breakdown.complex.length > 5) {
     recommendations.push({
-      priority: "high",
-      type: "function",
-      action: "Refactor complex functions using decomposition pattern",
+      priority: 'high',
+      type: 'function',
+      action: 'Refactor complex functions using decomposition pattern',
       count: functionReport.breakdown.complex.length,
-      target: "Reduce to under 5 complex functions",
+      target: 'Reduce to under 5 complex functions',
     });
   }
 
   // Class-based recommendations
   if (classReport.breakdown.critical.length > 0) {
     recommendations.push({
-      priority: "critical",
-      type: "class",
-      action: "Extract responsibilities from oversized classes",
+      priority: 'critical',
+      type: 'class',
+      action: 'Extract responsibilities from oversized classes',
       count: classReport.breakdown.critical.length,
-      examples: classReport.breakdown.critical
-        .slice(0, 3)
-        .map((c) => `${c.file}:${c.name}`),
+      examples: classReport.breakdown.critical.slice(0, 3).map(c => `${c.file}:${c.name}`),
     });
   }
 
@@ -664,9 +631,9 @@ function generateRecommendations(functionReport, classReport) {
 
   if (functionComplexityRatio > 0.2) {
     recommendations.push({
-      priority: "medium",
-      type: "architecture",
-      action: "Implement complexity monitoring in CI/CD pipeline",
+      priority: 'medium',
+      type: 'architecture',
+      action: 'Implement complexity monitoring in CI/CD pipeline',
       reason: `${(functionComplexityRatio * 100).toFixed(1)}% of functions are complex or critical`,
     });
   }
@@ -679,17 +646,17 @@ function generateRecommendations(functionReport, classReport) {
  */
 function runComplexityAudit() {
   console.log(`${colors.bright}📊 Code Complexity Audit${colors.reset}`);
-  console.log("===============================\n");
+  console.log('===============================\n');
 
-  log("🔍 Scanning source files...", "info");
+  log('🔍 Scanning source files...', 'info');
   const sourceFiles = findSourceFiles(PROJECT_ROOT);
-  log(`Found ${sourceFiles.length} source files to analyze`, "info");
+  log(`Found ${sourceFiles.length} source files to analyze`, 'info');
 
   // Analyze all files
   const results = sourceFiles.map(analyzeFile).filter(Boolean);
 
   if (results.length === 0) {
-    log("❌ No files could be analyzed", "error");
+    log('❌ No files could be analyzed', 'error');
     return 1;
   }
 
@@ -702,44 +669,39 @@ function runComplexityAudit() {
   generateComplexityReport(functionReport, classReport, healthScore);
 
   // Final summary
-  console.log("\n" + "=".repeat(50));
+  console.log('\n' + '='.repeat(50));
   console.log(`${colors.bright}📊 COMPLEXITY AUDIT SUMMARY${colors.reset}`);
-  console.log("=".repeat(50));
+  console.log('='.repeat(50));
 
   log(
     `🎯 Overall Health Score: ${healthScore.overall.toFixed(1)}%`,
-    healthScore.overall >= 80
-      ? "success"
-      : healthScore.overall >= 60
-        ? "warning"
-        : "error"
+    healthScore.overall >= 80 ? 'success' : healthScore.overall >= 60 ? 'warning' : 'error'
   );
 
   log(
     `📈 Function Quality: ${healthScore.functions.toFixed(1)}%`,
-    healthScore.functions >= 80 ? "success" : "warning"
+    healthScore.functions >= 80 ? 'success' : 'warning'
   );
 
   log(
     `🏗️ Class Quality: ${healthScore.classes.toFixed(1)}%`,
-    healthScore.classes >= 80 ? "success" : "warning"
+    healthScore.classes >= 80 ? 'success' : 'warning'
   );
 
   // CI/CD exit codes
-  const criticalIssues =
-    functionReport.summary.critical + classReport.summary.critical;
-  const isWarnOnly = process.argv.includes("--warn-only");
+  const criticalIssues = functionReport.summary.critical + classReport.summary.critical;
+  const isWarnOnly = process.argv.includes('--warn-only');
 
   if (isWarnOnly) {
     // In warn-only mode, always exit with 0 but report issues
     if (criticalIssues > 0) {
       log(
         `⚠️ ${criticalIssues} critical complexity issues found - consider refactoring`,
-        "warning"
+        'warning'
       );
-      log("� Running in warn-only mode - build will continue", "info");
+      log('� Running in warn-only mode - build will continue', 'info');
     } else {
-      log("✅ No critical complexity issues found", "success");
+      log('✅ No critical complexity issues found', 'success');
     }
     return 0;
   } else {
@@ -747,20 +709,17 @@ function runComplexityAudit() {
     if (criticalIssues > 0) {
       log(
         `�🚨 ${criticalIssues} critical complexity issues found - requires immediate attention`,
-        "critical"
+        'critical'
       );
       return 1; // Fail CI/CD
     } else if (healthScore.overall < 70) {
-      log("⚠️ Code quality below acceptable threshold (70%)", "warning");
+      log('⚠️ Code quality below acceptable threshold (70%)', 'warning');
       return 1; // Fail CI/CD
     } else if (healthScore.overall < 80) {
-      log(
-        "⚠️ Code quality needs improvement but within acceptable range",
-        "warning"
-      );
+      log('⚠️ Code quality needs improvement but within acceptable range', 'warning');
       return 0; // Pass but warn
     } else {
-      log("✅ Code complexity within acceptable limits", "success");
+      log('✅ Code complexity within acceptable limits', 'success');
       return 0; // Pass
     }
   }
@@ -772,7 +731,7 @@ if (require.main === module) {
     const exitCode = runComplexityAudit();
     process.exit(exitCode);
   } catch (error) {
-    log(`Complexity audit failed: ${error.message}`, "critical");
+    log(`Complexity audit failed: ${error.message}`, 'critical');
     process.exit(1);
   }
 }

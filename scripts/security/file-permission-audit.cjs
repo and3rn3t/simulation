@@ -439,11 +439,7 @@ function generateSecurityReport(results) {
     100
   ).toFixed(1);
 
-  const reportPath = path.join(
-    PROJECT_ROOT,
-    "reports",
-    "security-audit-report.json"
-  );
+  const reportPath = path.join(PROJECT_ROOT, "security-audit-report.json");
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   fs.chmodSync(reportPath, 0o644); // Apply our own security best practice!
 
