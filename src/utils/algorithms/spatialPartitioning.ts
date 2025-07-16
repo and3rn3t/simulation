@@ -274,7 +274,9 @@ export class QuadTree {
       this.northwest = undefined;
       this.southeast = undefined;
       this.southwest = undefined;
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -391,7 +393,9 @@ export class SpatialPartitioningManager {
       if (this.rebuildTimes.length > 100) {
         this.rebuildTimes.shift();
       }
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**

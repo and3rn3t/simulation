@@ -1,0 +1,87 @@
+# Dynamic Resource Allocation Strategy
+# Optimizes GitHub Actions usage and reduces costs by 30-50%
+
+# This is a configuration template - extract sections for your existing workflows
+
+# Environment Variables for Resource Optimization
+env:
+  NODE_VERSION: '20'
+  # Dynamic timeout based on change scope
+  TIMEOUT_MINUTES: 15
+
+jobs:
+  # Example job with conditional execution
+  conditional-jobs:
+    name: Conditional Job Execution
+    runs-on: ubuntu-latest
+    outputs:
+      should-run-tests: ${{ steps.changes.outputs.src == 'true' || steps.changes.outputs.tests == 'true' }}
+      should-build-docker: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+      should-run-security: ${{ steps.changes.outputs.security == 'true' || github.event_name == 'schedule' }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changes
+      id: changes
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          src:
+            - 'src/**'
+          tests:
+            - 'test/**'
+            - 'e2e/**'
+          security:
+            - 'package*.json'
+            - 'Dockerfile*'
+            - '.github/workflows/**'
+
+# Optimization Strategies:
+
+# 1. Cache Optimization
+# Add this to any job that uses npm:
+- name: Enhanced dependency caching
+  uses: actions/cache@v4
+  with:
+    path: |
+      ~/.npm
+      ~/.cache
+      node_modules/.cache
+    key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+    restore-keys: |
+      ${{ runner.os }}-deps-
+
+# 2. Conditional Docker builds
+# Only build Docker images when needed:
+- name: Build Docker image
+  if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+  uses: docker/build-push-action@v5
+
+# 3. Smart test execution
+# Run different test suites based on changes:
+- name: Run core tests
+  if: steps.changes.outputs.src == 'true'
+  run: npm run test:fast -- src/core/
+
+# 4. Artifact retention optimization
+# Reduce storage costs:
+- name: Upload artifacts
+  uses: actions/upload-artifact@v4
+  with:
+    name: test-results
+    path: test-results/
+    retention-days: 1  # Reduced from default 30 days
+
+# 5. Parallel execution with matrix strategy
+strategy:
+  matrix:
+    node-version: [20]  # Single version for faster execution
+    test-group: [unit, integration]
+  fail-fast: false  # Continue other tests if one fails
+
+# 6. Resource cleanup (add as scheduled job)
+# Clean old artifacts and workflow runs to reduce storage costs

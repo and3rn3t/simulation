@@ -3,12 +3,12 @@
  * Optimized for speed with minimal mocking
  */
 
-import { beforeAll, vi } from 'vitest';
+import { beforeAll, vi } from "vitest";
 
 // Fast DOM setup
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -21,7 +21,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Essential Canvas mock (lightweight)
-if (typeof HTMLCanvasElement !== 'undefined') {
+if (typeof HTMLCanvasElement !== "undefined") {
   HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
     fillRect: vi.fn(),
     clearRect: vi.fn(),
@@ -57,7 +57,7 @@ global.Worker = vi.fn().mockImplementation(() => ({
 
 // Essential URL mock
 global.URL = {
-  createObjectURL: vi.fn(() => 'blob:mock-url'),
+  createObjectURL: vi.fn(() => "blob:mock-url"),
   revokeObjectURL: vi.fn(),
 } as any;
 
@@ -72,7 +72,7 @@ if (process.env.CI) {
 }
 
 // Essential Chart.js mock (minimal)
-vi.mock('chart.js', () => ({
+vi.mock("chart.js", () => ({
   Chart: vi.fn().mockImplementation(() => ({
     destroy: vi.fn(),
     update: vi.fn(),
@@ -95,6 +95,6 @@ vi.mock('chart.js', () => ({
 // Test timeout warning
 beforeAll(() => {
   if (process.env.CI) {
-    console.log('🚀 Running in fast CI mode - complex tests excluded');
+    console.log("🚀 Running in fast CI mode - complex tests excluded");
   }
 });

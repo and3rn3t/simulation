@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { MemoryMonitor } from '../../utils/memory/memoryMonitor';
 import { log } from '../../utils/system/logger';
 import './MemoryPanelComponent.css';
@@ -20,7 +41,7 @@ export class MemoryPanelComponent {
     this.handleMobileViewport();
 
     // Set initial visibility state to match CSS default (hidden)
-    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    const panel = this.element?.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       panel.classList.remove('visible'); // Ensure it starts hidden
     }
@@ -64,7 +85,7 @@ export class MemoryPanelComponent {
   private adjustMobilePosition(): void {
     if (!this.isMobile) return;
 
-    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    const panel = this.element?.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       // Ensure the panel doesn't extend beyond viewport
       const viewportWidth = window.innerWidth;
@@ -148,15 +169,25 @@ export class MemoryPanelComponent {
    * Set up event listeners
    */
   private setupEventListeners(): void {
-    const toggleButton = this.element.querySelector('.memory-toggle-fixed') as HTMLButtonElement;
-    const cleanupButton = this.element.querySelector('.memory-cleanup') as HTMLButtonElement;
-    const forceGcButton = this.element.querySelector('.memory-force-gc') as HTMLButtonElement;
-    const toggleSoaButton = this.element.querySelector('.memory-toggle-soa') as HTMLButtonElement;
+    const toggleButton = this.element?.querySelector('.memory-toggle-fixed') as HTMLButtonElement;
+    const cleanupButton = this.element?.querySelector('.memory-cleanup') as HTMLButtonElement;
+    const forceGcButton = this.element?.querySelector('.memory-force-gc') as HTMLButtonElement;
+    const toggleSoaButton = this.element?.querySelector('.memory-toggle-soa') as HTMLButtonElement;
 
-    toggleButton?.addEventListener('click', () => this.toggle());
-    cleanupButton?.addEventListener('click', () => this.triggerCleanup());
-    forceGcButton?.addEventListener('click', () => this.forceGarbageCollection());
-    toggleSoaButton?.addEventListener('click', () => this.toggleSoA());
+    toggleButton?.addEventListener('click', () => {
+      this.toggle();
+    });
+
+    cleanupButton?.addEventListener('click', () => {
+      this.triggerCleanup();
+    });
+    forceGcButton?.addEventListener('click', () => {
+      this.forceGarbageCollection();
+    });
+
+    toggleSoaButton?.addEventListener('click', () => {
+      this.toggleSoA();
+    });
 
     // Listen for memory cleanup events
     window.addEventListener('memory-cleanup', () => {
@@ -208,7 +239,7 @@ export class MemoryPanelComponent {
   public toggle(): void {
     // On mobile, check if we have enough space before showing
     if (!this.isVisible && this.isMobile) {
-      const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+      const panel = this.element?.querySelector('.memory-panel') as HTMLElement;
       if (panel) {
         const viewportWidth = window.innerWidth;
         if (viewportWidth < 480) {
@@ -219,7 +250,7 @@ export class MemoryPanelComponent {
 
     this.isVisible = !this.isVisible;
 
-    const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+    const panel = this.element?.querySelector('.memory-panel') as HTMLElement;
     if (panel) {
       panel.classList.toggle('visible', this.isVisible);
 
@@ -267,43 +298,56 @@ export class MemoryPanelComponent {
     const stats = this.memoryMonitor.getMemoryStats();
     const recommendations = this.memoryMonitor.getMemoryRecommendations();
 
-    // Update usage
-    const usageElement = this.element.querySelector('.memory-usage') as HTMLElement;
-    const fillElement = this.element.querySelector('.memory-fill') as HTMLElement;
+    this.updateUsageDisplay(stats);
+    this.updateLevelDisplay(stats);
+    this.updateTrendDisplay(stats);
+    this.updatePoolDisplay();
+    this.updateRecommendationsDisplay(recommendations);
+  }
+
+  private updateUsageDisplay(stats: any): void {
+    const usageElement = this.element?.querySelector('.memory-usage') as HTMLElement;
+    const fillElement = this.element?.querySelector('.memory-fill') as HTMLElement;
+
     if (usageElement && fillElement) {
       usageElement.textContent = `${stats.percentage.toFixed(1)}%`;
       fillElement.style.width = `${Math.min(stats.percentage, 100)}%`;
-
-      // Color based on usage level
-      const level = stats.level;
-      fillElement.className = `memory-fill memory-${level}`;
+      fillElement.className = `memory-fill memory-${stats.level}`;
     }
+  }
 
-    // Update level
-    const levelElement = this.element.querySelector('.memory-level') as HTMLElement;
+  private updateLevelDisplay(stats: any): void {
+    const levelElement = this.element?.querySelector('.memory-level') as HTMLElement;
+
     if (levelElement) {
       levelElement.textContent = stats.level;
       levelElement.className = `memory-level memory-${stats.level}`;
     }
+  }
 
-    // Update trend
-    const trendElement = this.element.querySelector('.memory-trend') as HTMLElement;
+  private updateTrendDisplay(stats: any): void {
+    const trendElement = this.element?.querySelector('.memory-trend') as HTMLElement;
+
     if (trendElement) {
       const trendIcon =
         stats.trend === 'increasing' ? '📈' : stats.trend === 'decreasing' ? '📉' : '➡️';
       trendElement.textContent = `${trendIcon} ${stats.trend}`;
     }
+  }
 
-    // Update pool stats (this would need to be passed from simulation)
-    const poolElement = this.element.querySelector('.pool-stats') as HTMLElement;
+  private updatePoolDisplay(): void {
+    const poolElement = this.element?.querySelector('.pool-stats') as HTMLElement;
+
     if (poolElement) {
       poolElement.textContent = 'Available'; // Placeholder
     }
+  }
 
-    // Update recommendations
-    const recommendationsElement = this.element.querySelector(
+  private updateRecommendationsDisplay(recommendations: string[]): void {
+    const recommendationsElement = this.element?.querySelector(
       '.recommendations-list'
     ) as HTMLElement;
+
     if (recommendationsElement) {
       if (recommendations.length > 0) {
         recommendationsElement.innerHTML = recommendations
@@ -340,7 +384,7 @@ export class MemoryPanelComponent {
    * Update pool statistics from external source
    */
   public updatePoolStats(poolStats: any): void {
-    const poolElement = this.element.querySelector('.pool-stats') as HTMLElement;
+    const poolElement = this.element?.querySelector('.pool-stats') as HTMLElement;
     if (poolElement && poolStats) {
       const reusePercentage = (poolStats.reuseRatio * 100).toFixed(1);
       poolElement.textContent = `${poolStats.poolSize}/${poolStats.maxSize} (${reusePercentage}% reuse)`;
@@ -354,7 +398,7 @@ export class MemoryPanelComponent {
     if (visible !== this.isVisible) {
       this.isVisible = visible;
 
-      const panel = this.element.querySelector('.memory-panel') as HTMLElement;
+      const panel = this.element?.querySelector('.memory-panel') as HTMLElement;
       if (panel) {
         panel.classList.toggle('visible', this.isVisible);
       }

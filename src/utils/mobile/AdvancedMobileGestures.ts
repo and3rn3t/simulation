@@ -1,103 +1,194 @@
-/**
- * Advanced Mobile Gestures - Enhanced touch interactions for mobile devices
- */
+import { isMobileDevice } from './MobileDetection';
 
 export interface AdvancedGestureCallbacks {
   onSwipe?: (direction: 'up' | 'down' | 'left' | 'right', velocity: number) => void;
+  onPinch?: (scale: number, center: { x: number; y: number }) => void;
   onRotate?: (angle: number, center: { x: number; y: number }) => void;
   onThreeFingerTap?: () => void;
   onFourFingerTap?: () => void;
-  onEdgeSwipe?: (edge: 'top' | 'bottom' | 'left' | 'right') => void;
-  onForceTouch?: (force: number, x: number, y: number) => void;
+  onEdgeSwipe?: (edge: 'left' | 'right' | 'top' | 'bottom') => void;
+  onLongPress?: (position: { x: number; y: number }) => void;
+  onForceTouch?: (force: number, position: { x: number; y: number }) => void;
 }
 
+export interface TouchPoint {
+  x: number;
+  y: number;
+  timestamp: number;
+  force?: number;
+}
+
+/**
+ * Advanced Mobile Gestures - Simplified implementation for handling complex touch interactions
+ */
 export class AdvancedMobileGestures {
   private canvas: HTMLCanvasElement;
   private callbacks: AdvancedGestureCallbacks;
-  private touchHistory: TouchEvent[] = [];
-  private swipeThreshold: number = 50; // pixels
-  private velocityThreshold: number = 0.5; // pixels/ms
-  private rotationThreshold: number = 5; // degrees
-  private edgeDetectionZone: number = 20; // pixels from edge
+  private touchHistory: TouchPoint[] = [];
+  private isEnabled: boolean = false;
+  private edgeDetectionZone: number = 50;
+  private longPressTimer: number | null = null;
+  private longPressDelay: number = 500;
 
-  constructor(canvas: HTMLCanvasElement, callbacks: AdvancedGestureCallbacks) {
+  constructor(canvas: HTMLCanvasElement, callbacks: AdvancedGestureCallbacks = {}) {
     this.canvas = canvas;
     this.callbacks = callbacks;
-    this.setupEventListeners();
+
+    if (isMobileDevice()) {
+      this.isEnabled = true;
+      this.setupEventListeners();
+    }
   }
 
   /**
-   * Setup advanced touch event listeners
+   * Check if advanced gestures are supported and enabled
+   */
+  public isAdvancedGesturesEnabled(): boolean {
+    return this.isEnabled && isMobileDevice();
+  }
+
+  /**
+   * Setup touch event listeners
    */
   private setupEventListeners(): void {
-    // Advanced touch events
-    this.canvas.addEventListener('touchstart', this.handleAdvancedTouchStart.bind(this), {
-      passive: false,
-    });
-    this.canvas.addEventListener('touchmove', this.handleAdvancedTouchMove.bind(this), {
-      passive: false,
-    });
-    this.canvas.addEventListener('touchend', this.handleAdvancedTouchEnd.bind(this), {
-      passive: false,
-    });
+    // Basic touch events
+    this.canvas.addEventListener(
+      'touchstart',
+      event => {
+        this.handleTouchStart(event);
+      },
+      { passive: false }
+    );
 
-    // Force touch support (iOS)
+    this.canvas.addEventListener(
+      'touchmove',
+      event => {
+        this.handleTouchMove(event);
+      },
+      { passive: false }
+    );
+
+    this.canvas.addEventListener(
+      'touchend',
+      event => {
+        this.handleTouchEnd(event);
+      },
+      { passive: false }
+    );
+
+    // Force touch events (iOS)
     if ('ontouchforcechange' in window) {
-      this.canvas.addEventListener('touchforcechange', this.handleForceTouch.bind(this));
+      this.canvas.addEventListener('touchforcechange', event => {
+        this.handleForceChange(event as TouchEvent);
+      });
     }
-
-    // Edge swipe detection
-    this.setupEdgeSwipeDetection();
   }
 
   /**
-   * Handle advanced touch start
+   * Handle touch start events
    */
-  private handleAdvancedTouchStart(event: TouchEvent): void {
-    this.touchHistory = [event];
+  private handleTouchStart(event: TouchEvent): void {
+    event.preventDefault();
+
+    // Record touch points
+    for (let i = 0; i < event.touches.length; i++) {
+      const touch = event.touches[i];
+      const touchPoint: TouchPoint = {
+        x: touch.clientX,
+        y: touch.clientY,
+        timestamp: Date.now(),
+        force: (touch as any).force || 0,
+      };
+      this.touchHistory.push(touchPoint);
+    }
 
     // Detect multi-finger taps
     if (event.touches.length === 3) {
-      this.detectThreeFingerTap(event);
+      this.detectThreeFingerTap();
     } else if (event.touches.length === 4) {
-      this.detectFourFingerTap(event);
+      this.detectFourFingerTap();
+    }
+
+    // Start long press detection for single touch
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      this.longPressTimer = window.setTimeout(() => {
+        this.callbacks.onLongPress?.({
+          x: touch.clientX,
+          y: touch.clientY,
+        });
+      }, this.longPressDelay);
+    }
+
+    // Limit touch history size
+    if (this.touchHistory.length > 10) {
+      this.touchHistory = this.touchHistory.slice(-10);
     }
   }
 
   /**
-   * Handle advanced touch move
+   * Handle touch move events
    */
-  private handleAdvancedTouchMove(event: TouchEvent): void {
-    this.touchHistory.push(event);
+  private handleTouchMove(event: TouchEvent): void {
+    event.preventDefault();
 
-    // Keep only recent history (last 10 events)
-    if (this.touchHistory.length > 10) {
-      this.touchHistory = this.touchHistory.slice(-10);
+    // Cancel long press on movement
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
     }
 
-    // Detect rotation gesture
+    // Detect pinch/zoom for two fingers
+    if (event.touches.length === 2) {
+      this.detectPinchGesture(event);
+    }
+
+    // Detect rotation for two fingers
     if (event.touches.length === 2) {
       this.detectRotationGesture(event);
     }
   }
 
   /**
-   * Handle advanced touch end
+   * Handle touch end events
    */
-  private handleAdvancedTouchEnd(_event: TouchEvent): void {
+  private handleTouchEnd(event: TouchEvent): void {
+    event.preventDefault();
+
+    // Cancel long press
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+
     // Detect swipe gestures
     if (this.touchHistory.length >= 2) {
       this.detectSwipeGesture();
     }
 
-    // Clear history after a delay
-    setTimeout(() => {
+    // Clear touch history when all touches end
+    if (event.touches.length === 0) {
       this.touchHistory = [];
-    }, 100);
+    }
   }
 
   /**
-   * Detect swipe gestures with velocity
+   * Handle force change events (3D Touch/Force Touch)
+   */
+  private handleForceChange(event: TouchEvent): void {
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      const force = (touch as any).force || 0;
+
+      this.callbacks.onForceTouch?.(force, {
+        x: touch.clientX,
+        y: touch.clientY,
+      });
+    }
+  }
+
+  /**
+   * Detect swipe gestures
    */
   private detectSwipeGesture(): void {
     if (this.touchHistory.length < 2) return;
@@ -105,21 +196,16 @@ export class AdvancedMobileGestures {
     const start = this.touchHistory[0];
     const end = this.touchHistory[this.touchHistory.length - 1];
 
-    if (start.touches.length !== 1 || end.changedTouches.length !== 1) return;
-
-    const startTouch = start.touches[0];
-    const endTouch = end.changedTouches[0];
-
-    const deltaX = endTouch.clientX - startTouch.clientX;
-    const deltaY = endTouch.clientY - startTouch.clientY;
-    const deltaTime = end.timeStamp - start.timeStamp;
+    const deltaX = end.x - start.x;
+    const deltaY = end.y - start.y;
+    const deltaTime = end.timestamp - start.timestamp;
 
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     const velocity = distance / deltaTime;
 
-    if (distance < this.swipeThreshold || velocity < this.velocityThreshold) return;
+    // Minimum swipe distance and velocity thresholds
+    if (distance < 50 || velocity < 0.1) return;
 
-    // Determine swipe direction
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
     let direction: 'up' | 'down' | 'left' | 'right';
 
@@ -134,206 +220,101 @@ export class AdvancedMobileGestures {
     }
 
     this.callbacks.onSwipe?.(direction, velocity);
-    this.hapticFeedback('medium');
+  }
+
+  /**
+   * Detect pinch/zoom gestures
+   */
+  private detectPinchGesture(event: TouchEvent): void {
+    if (event.touches.length !== 2) return;
+
+    const touch1 = event.touches[0];
+    const touch2 = event.touches[1];
+
+    const distance = Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+
+    const centerX = (touch1.clientX + touch2.clientX) / 2;
+    const centerY = (touch1.clientY + touch2.clientY) / 2;
+
+    // For simplicity, we'll use a base distance and calculate scale relative to it
+    const baseDistance = 100;
+    const scale = distance / baseDistance;
+
+    this.callbacks.onPinch?.(scale, { x: centerX, y: centerY });
   }
 
   /**
    * Detect rotation gestures
    */
   private detectRotationGesture(event: TouchEvent): void {
-    if (this.touchHistory.length < 2) return;
+    if (event.touches.length !== 2) return;
 
-    const current = event;
-    const previous = this.touchHistory[this.touchHistory.length - 2];
+    const touch1 = event.touches[0];
+    const touch2 = event.touches[1];
 
-    if (current.touches.length !== 2 || previous.touches.length !== 2) return;
+    const angle =
+      Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX) *
+      (180 / Math.PI);
 
-    // Calculate angle between two touches for both events
-    const currentAngle = this.calculateAngle(current.touches[0], current.touches[1]);
-    const previousAngle = this.calculateAngle(previous.touches[0], previous.touches[1]);
+    const centerX = (touch1.clientX + touch2.clientX) / 2;
+    const centerY = (touch1.clientY + touch2.clientY) / 2;
 
-    const angleDiff = currentAngle - previousAngle;
-    const normalizedAngle = ((angleDiff + 180) % 360) - 180; // Normalize to -180 to 180
-
-    if (Math.abs(normalizedAngle) > this.rotationThreshold) {
-      const center = {
-        x: (current.touches[0].clientX + current.touches[1].clientX) / 2,
-        y: (current.touches[0].clientY + current.touches[1].clientY) / 2,
-      };
-
-      this.callbacks.onRotate?.(normalizedAngle, center);
-      this.hapticFeedback('light');
-    }
-  }
-
-  /**
-   * Calculate angle between two touches
-   */
-  private calculateAngle(touch1: Touch, touch2: Touch): number {
-    const deltaX = touch2.clientX - touch1.clientX;
-    const deltaY = touch2.clientY - touch1.clientY;
-    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    this.callbacks.onRotate?.(angle, { x: centerX, y: centerY });
   }
 
   /**
    * Detect three-finger tap
    */
-  private detectThreeFingerTap(event: TouchEvent): void {
-    setTimeout(() => {
-      // Check if all three fingers are still down (tap vs hold)
-      if (event.touches.length === 3) {
-        this.callbacks.onThreeFingerTap?.();
-        this.hapticFeedback('heavy');
-      }
-    }, 100);
+  private detectThreeFingerTap(): void {
+    this.callbacks.onThreeFingerTap?.();
   }
 
   /**
    * Detect four-finger tap
    */
-  private detectFourFingerTap(event: TouchEvent): void {
-    setTimeout(() => {
-      if (event.touches.length === 4) {
-        this.callbacks.onFourFingerTap?.();
-        this.hapticFeedback('heavy');
-      }
-    }, 100);
+  private detectFourFingerTap(): void {
+    this.callbacks.onFourFingerTap?.();
   }
 
   /**
-   * Setup edge swipe detection
+   * Update gesture recognition settings
    */
-  private setupEdgeSwipeDetection(): void {
-    let startNearEdge: string | null = null;
-
-    this.canvas.addEventListener('touchstart', event => {
-      const touch = event.touches[0];
-      const rect = this.canvas.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-
-      // Check which edge the touch started near
-      if (x < this.edgeDetectionZone) {
-        startNearEdge = 'left';
-      } else if (x > rect.width - this.edgeDetectionZone) {
-        startNearEdge = 'right';
-      } else if (y < this.edgeDetectionZone) {
-        startNearEdge = 'top';
-      } else if (y > rect.height - this.edgeDetectionZone) {
-        startNearEdge = 'bottom';
-      } else {
-        startNearEdge = null;
-      }
-    });
-
-    this.canvas.addEventListener('touchend', event => {
-      if (startNearEdge && event.changedTouches.length === 1) {
-        const touch = event.changedTouches[0];
-        const rect = this.canvas.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
-
-        // Check if swipe moved significantly away from edge
-        let movedAway = false;
-        switch (startNearEdge) {
-          case 'left':
-            movedAway = x > this.edgeDetectionZone + this.swipeThreshold;
-            break;
-          case 'right':
-            movedAway = x < rect.width - this.edgeDetectionZone - this.swipeThreshold;
-            break;
-          case 'top':
-            movedAway = y > this.edgeDetectionZone + this.swipeThreshold;
-            break;
-          case 'bottom':
-            movedAway = y < rect.height - this.edgeDetectionZone - this.swipeThreshold;
-            break;
-        }
-
-        if (movedAway) {
-          this.callbacks.onEdgeSwipe?.(startNearEdge as any);
-          this.hapticFeedback('light');
-        }
-      }
-      startNearEdge = null;
-    });
-  }
-
-  /**
-   * Handle force touch (3D Touch on iOS)
-   */
-  private handleForceTouch(event: any): void {
-    const touch = event.touches[0];
-    if (touch && touch.force > 0.5) {
-      // Threshold for force touch
-      const rect = this.canvas.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-
-      this.callbacks.onForceTouch?.(touch.force, x, y);
-      this.hapticFeedback('heavy');
+  public updateSettings(
+    settings: Partial<{
+      edgeDetectionZone: number;
+      longPressDelay: number;
+      enabled: boolean;
+    }>
+  ): void {
+    if (settings.edgeDetectionZone !== undefined) {
+      this.edgeDetectionZone = settings.edgeDetectionZone;
+    }
+    if (settings.longPressDelay !== undefined) {
+      this.longPressDelay = settings.longPressDelay;
+    }
+    if (settings.enabled !== undefined) {
+      this.isEnabled = settings.enabled && isMobileDevice();
     }
   }
 
   /**
-   * Provide haptic feedback
+   * Update gesture callbacks
    */
-  private hapticFeedback(type: 'light' | 'medium' | 'heavy'): void {
-    if ('vibrate' in navigator) {
-      const patterns = {
-        light: 10,
-        medium: 20,
-        heavy: [30, 10, 30],
-      };
-      navigator.vibrate(patterns[type]);
-    }
-
-    // iOS Haptic Feedback (if available)
-    if ('HapticFeedback' in window) {
-      const haptic = (window as any).HapticFeedback;
-      switch (type) {
-        case 'light':
-          haptic?.impact({ style: 'light' });
-          break;
-        case 'medium':
-          haptic?.impact({ style: 'medium' });
-          break;
-        case 'heavy':
-          haptic?.impact({ style: 'heavy' });
-          break;
-      }
-    }
+  public updateCallbacks(callbacks: Partial<AdvancedGestureCallbacks>): void {
+    this.callbacks = { ...this.callbacks, ...callbacks };
   }
 
   /**
-   * Update gesture sensitivity
+   * Cleanup and dispose of resources
    */
-  public updateSensitivity(options: {
-    swipeThreshold?: number;
-    velocityThreshold?: number;
-    rotationThreshold?: number;
-    edgeDetectionZone?: number;
-  }): void {
-    if (options.swipeThreshold !== undefined) {
-      this.swipeThreshold = options.swipeThreshold;
+  public dispose(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
     }
-    if (options.velocityThreshold !== undefined) {
-      this.velocityThreshold = options.velocityThreshold;
-    }
-    if (options.rotationThreshold !== undefined) {
-      this.rotationThreshold = options.rotationThreshold;
-    }
-    if (options.edgeDetectionZone !== undefined) {
-      this.edgeDetectionZone = options.edgeDetectionZone;
-    }
-  }
-
-  /**
-   * Cleanup resources
-   */
-  public destroy(): void {
-    // Remove all event listeners
-    // (In a real implementation, you'd store references to bound functions)
     this.touchHistory = [];
+    this.isEnabled = false;
   }
 }

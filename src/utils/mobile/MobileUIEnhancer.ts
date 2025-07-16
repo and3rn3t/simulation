@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { isMobileDevice } from '../system/mobileDetection';
 
 /**
@@ -54,7 +75,13 @@ export class MobileUIEnhancer {
       justifyContent: 'center',
     });
 
-    this.fullscreenButton.addEventListener('click', this.toggleFullscreen.bind(this));
+    this.fullscreenButton?.addEventListener('click', _event => {
+      try {
+        this.toggleFullscreen();
+      } catch (error) {
+        console.error('Fullscreen toggle error:', error);
+      }
+    });
     document.body.appendChild(this.fullscreenButton);
   }
 
@@ -95,7 +122,13 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    handle.addEventListener('click', this.toggleBottomSheet.bind(this));
+    handle?.addEventListener('click', _event => {
+      try {
+        this.toggleBottomSheet();
+      } catch (error) {
+        console.error('Bottom sheet toggle error:', error);
+      }
+    });
     this.bottomSheet.appendChild(handle);
 
     // Add controls container
@@ -116,7 +149,7 @@ export class MobileUIEnhancer {
    * Move existing controls to bottom sheet
    */
   private moveControlsToBottomSheet(container: HTMLElement): void {
-    const existingControls = document.querySelector('.controls');
+    const existingControls = document?.querySelector('.controls');
     if (!existingControls) return;
 
     // Clone controls for mobile
@@ -136,21 +169,29 @@ export class MobileUIEnhancer {
     // Enhance all buttons and inputs
     const buttons = mobileControls.querySelectorAll('button');
     buttons.forEach(button => {
-      Object.assign(button.style, {
-        minHeight: '48px',
-        fontSize: '16px',
-        borderRadius: '12px',
-        padding: '12px',
-      });
+      try {
+        Object.assign(button.style, {
+          minHeight: '48px',
+          fontSize: '16px',
+          borderRadius: '12px',
+          padding: '12px',
+        });
+      } catch (error) {
+        console.error('Button style error:', error);
+      }
     });
 
     const inputs = mobileControls.querySelectorAll('input, select');
     inputs.forEach(input => {
-      Object.assign((input as HTMLElement).style, {
-        minHeight: '48px',
-        fontSize: '16px',
-        borderRadius: '8px',
-      });
+      try {
+        Object.assign((input as HTMLElement).style, {
+          minHeight: '48px',
+          fontSize: '16px',
+          borderRadius: '8px',
+        });
+      } catch (error) {
+        console.error('Input style error:', error);
+      }
     });
 
     container.appendChild(mobileControls);
@@ -176,7 +217,13 @@ export class MobileUIEnhancer {
       cursor: 'pointer',
     });
 
-    trigger.addEventListener('click', this.toggleBottomSheet.bind(this));
+    trigger?.addEventListener('click', _event => {
+      try {
+        this.toggleBottomSheet();
+      } catch (error) {
+        console.error('Bottom sheet trigger error:', error);
+      }
+    });
     document.body.appendChild(trigger);
   }
 
@@ -184,28 +231,44 @@ export class MobileUIEnhancer {
    * Enhance existing controls for mobile
    */
   private enhanceExistingControls(): void {
-    if (!this.isMobile()) return;
+    try {
+      if (!this.isMobile()) return;
 
-    // Add mobile-specific CSS class to body
-    document.body.classList.add('mobile-optimized');
+      // Add mobile-specific CSS class to body
+      document.body.classList.add('mobile-optimized');
 
-    // Prevent zoom on input focus
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-      (input as HTMLElement).style.fontSize = '16px';
-    });
-
-    // Add touch feedback to all buttons
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-      button.addEventListener('touchstart', () => {
-        button.style.transform = 'scale(0.95)';
+      // Prevent zoom on input focus
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        try {
+          (input as HTMLElement).style.fontSize = '16px';
+        } catch (_error) {
+          console.error('Input font size error:', _error);
+        }
       });
 
-      button.addEventListener('touchend', () => {
-        button.style.transform = 'scale(1)';
+      // Add touch feedback to all buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button?.addEventListener('touchstart', _event => {
+          try {
+            button.style.transform = 'scale(0.95)';
+          } catch (error) {
+            console.error('Touch start error:', error);
+          }
+        });
+
+        button?.addEventListener('touchend', _event => {
+          try {
+            button.style.transform = 'scale(1)';
+          } catch (error) {
+            console.error('Touch end error:', error);
+          }
+        });
       });
-    });
+    } catch (error) {
+      console.error('Enhance existing controls error:', error);
+    }
   }
 
   /**
@@ -213,7 +276,7 @@ export class MobileUIEnhancer {
    */
   private setupMobileMetaTags(): void {
     // Ensure proper viewport
-    let viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement;
+    let viewportMeta = document?.querySelector('meta[name="viewport"]') as HTMLMetaElement;
     if (!viewportMeta) {
       viewportMeta = document.createElement('meta');
       viewportMeta.name = 'viewport';
@@ -246,12 +309,18 @@ export class MobileUIEnhancer {
           this.fullscreenButton.innerHTML = '⤠';
         }
       } else {
-        await document.exitFullscreen();
+        try {
+          await document.exitFullscreen();
+        } catch (error) {
+          console.error('Exit fullscreen error:', error);
+        }
         if (this.fullscreenButton) {
           this.fullscreenButton.innerHTML = '⛶';
         }
       }
-    } catch (error) { /* handled */ }
+    } catch (error) {
+      console.error('Fullscreen toggle error:', error);
+    }
   }
 
   /**

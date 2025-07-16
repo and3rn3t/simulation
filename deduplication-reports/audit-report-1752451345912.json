@@ -1,0 +1,75 @@
+{
+  "sessionId": "1752451345912",
+  "timestamp": "2025-07-14T00:03:32.897Z",
+  "results": {
+    "preCheck": {
+      "typescript": {
+        "success": false,
+        "errors": [
+          "src/config/ConfigManager.ts(27,59): error TS1144: '{' or ';' expected.\r",
+          "src/config/ConfigManager.ts(27,65): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(31,3): error TS1128: Declaration or statement expected.\r",
+          "src/config/ConfigManager.ts(31,28): error TS1005: ',' expected.\r",
+          "src/config/ConfigManager.ts(31,36): error TS1005: ',' expected.\r",
+          "src/config/ConfigManager.ts(31,58): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(31,60): error TS1434: Unexpected keyword or identifier.\r",
+          "src/config/ConfigManager.ts(35,3): error TS1128: Declaration or statement expected.\r",
+          "src/config/ConfigManager.ts(35,26): error TS1005: ';' expected.\r",
+          "src/config/ConfigManager.ts(35,53): error TS1005: ';' expected.\r"
+        ],
+        "totalErrors": 1376
+      },
+      "eslint": {
+        "success": false,
+        "errors": [
+          "> simulation@0.0.0 lint",
+          "> eslint src/ --ext .ts,.tsx",
+          "C:\\git\\simulation\\src\\app\\App.ts",
+          "   27:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "   37:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "  114:11  warning  'enabledFeatures' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars",
+          "  159:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "  163:5   error    'ifPattern' is not defined                                                                  no-undef",
+          "C:\\git\\simulation\\src\\config\\ConfigManager.ts",
+          "  27:58  error  Parsing error: '{' or ';' expected"
+        ],
+        "totalErrors": 169
+      },
+      "imports": {
+        "success": false,
+        "errors": [
+          "C:\\git\\simulation\\src\\core\\simulation.ts: import { ifPattern } from '../utils/UltimatePatternConsolidator'",
+          "C:\\git\\simulation\\src\\models\\unlockables.ts: import { ifPattern } from '../utils/UltimatePatternConsolidator'",
+          "C:\\git\\simulation\\src\\utils\\system\\errorHandler.ts: import { ifPattern } from '../UltimatePatternConsolidator'"
+        ],
+        "totalErrors": 3
+      },
+      "patterns": {
+        "success": false,
+        "errors": [
+          "src\\app\\App.ts: /ifPattern\\s*\\(/",
+          "src\\config\\ConfigManager.ts: /ifPattern\\s*\\(/",
+          "src\\core\\organism.ts: /ifPattern\\s*\\(/",
+          "src\\core\\simulation.ts: /ifPattern\\s*\\(/",
+          "src\\core\\simulation.ts: /import.*UltimatePatternConsolidator/",
+          "src\\dev\\debugMode.ts: /ifPattern\\s*\\(/",
+          "src\\dev\\debugMode.ts: /\\(\\(\\)\\(event\\);/",
+          "src\\dev\\debugMode.ts: /\\(\\(\\)\\(/",
+          "src\\dev\\developerConsole.ts: /ifPattern\\s*\\(/",
+          "src\\dev\\developerConsole.ts: /\\(\\(\\)\\(event\\);/"
+        ],
+        "totalErrors": 88
+      }
+    },
+    "postCheck": null,
+    "buildStatus": null,
+    "rollbackPerformed": false
+  },
+  "warnings": [],
+  "errors": [],
+  "summary": {
+    "success": false,
+    "rollbackPerformed": false,
+    "backupCreated": true
+  }
+}

@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface PanelConfig {
@@ -21,7 +42,7 @@ export class Panel extends BaseComponent {
   private collapsed: boolean = false;
 
   constructor(config: PanelConfig = {}) {
-    super('div', `ui-panel ${config.className || ''}`);
+    super('div', `ui-panel ${config?.className || ''}`);
     this.config = config;
     this.setupPanel();
   }
@@ -65,7 +86,13 @@ export class Panel extends BaseComponent {
       collapseBtn.className = 'ui-panel__collapse-btn';
       collapseBtn.innerHTML = '−';
       collapseBtn.setAttribute('aria-label', 'Toggle panel');
-      collapseBtn.addEventListener('click', this.toggleCollapse.bind(this));
+      collapseBtn?.addEventListener('click', event => {
+        try {
+          this.toggleCollapse.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
       controls.appendChild(collapseBtn);
     }
 
@@ -75,7 +102,13 @@ export class Panel extends BaseComponent {
       closeBtn.className = 'ui-panel__close-btn';
       closeBtn.innerHTML = '×';
       closeBtn.setAttribute('aria-label', 'Close panel');
-      closeBtn.addEventListener('click', this.handleClose.bind(this));
+      closeBtn?.addEventListener('click', event => {
+        try {
+          this.handleClose.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
       controls.appendChild(closeBtn);
     }
 
@@ -91,7 +124,7 @@ export class Panel extends BaseComponent {
     this.element.classList.toggle('ui-panel--collapsed', this.collapsed);
 
     if (this.header) {
-      const collapseBtn = this.header.querySelector('.ui-panel__collapse-btn');
+      const collapseBtn = this.header?.querySelector('.ui-panel__collapse-btn');
       if (collapseBtn) {
         collapseBtn.innerHTML = this.collapsed ? '+' : '−';
       }
@@ -140,7 +173,7 @@ export class Panel extends BaseComponent {
    */
   setTitle(title: string): void {
     if (this.header) {
-      const titleElement = this.header.querySelector('.ui-panel__title');
+      const titleElement = this.header?.querySelector('.ui-panel__title');
       if (titleElement) {
         titleElement.textContent = title;
       }

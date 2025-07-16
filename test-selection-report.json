@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-07-14T23:25:39.372Z",
+  "strategy": "full",
+  "changedFiles": [
+    "M .github/workflows/ci-cd.yml",
+    " M .github/workflows/quality-monitoring.yml",
+    " M .github/workflows/security-advanced.yml",
+    " M .sonarignore",
+    " M eslint.config.js",
+    " M src/main.ts",
+    " M src/ui/components/MemoryPanelComponent.ts",
+    " M src/ui/components/example-integration.ts",
+    " M src/utils/algorithms/batchProcessor.ts",
+    " M src/utils/system/errorHandler.ts",
+    "?? .eslintignore",
+    "?? .gitattributes",
+    "?? .github/optimizations/",
+    "?? .github/workflows/smart-test-selection.yml",
+    "?? .trivyignore",
+    "?? .trufflehog-ignore",
+    "?? DOCKER_CACHING_OPTIMIZATION_COMPLETE.md",
+    "?? pipeline-optimization-report.md",
+    "?? scripts/check-bundle-size.cjs",
+    "?? scripts/optimize-pipeline.js",
+    "?? scripts/optimize-pipeline.mjs",
+    "?? scripts/smart-test-selection.mjs",
+    "?? scripts/test-smart-selection.mjs"
+  ],
+  "stats": {
+    "changedFiles": 23,
+    "selectedTests": "all",
+    "estimatedTimeSaving": 0
+  }
+}

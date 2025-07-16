@@ -1,6 +1,6 @@
 /**
  * Consolidated Error Handlers
- * 
+ *
  * Master handlers to replace repeated catch block patterns
  */
 
@@ -60,7 +60,7 @@ export const ErrorHandlers = {
       ErrorSeverity.MEDIUM,
       `Mobile: ${operation}`
     );
-  }
+  },
 };
 
 /**

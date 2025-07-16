@@ -69,32 +69,32 @@ export class SecureRandom {
     }
 
     // Handle fallback based on security level
-    switch (config.securityLevel) {
+    switch (config?.securityLevel) {
       case RandomSecurityLevel.CRITICAL: {
         const error = new ConfigurationError(
-          `Cryptographically secure random generation required for ${config.context} but crypto.getRandomValues is not available`
+          `Cryptographically secure random generation required for ${config?.context} but crypto.getRandomValues is not available`
         );
-        ErrorHandler.getInstance().handleError(error, ErrorSeverity.CRITICAL, config.context);
+        ErrorHandler.getInstance().handleError(error, ErrorSeverity.CRITICAL, config?.context);
         throw error;
       }
 
       case RandomSecurityLevel.HIGH:
         ErrorHandler.getInstance().handleError(
           new ConfigurationError(
-            `Using insecure fallback for high-security context: ${config.context}`
+            `Using insecure fallback for high-security context: ${config?.context}`
           ),
           ErrorSeverity.HIGH,
-          config.context
+          config?.context
         );
         break;
 
       case RandomSecurityLevel.MEDIUM:
         ErrorHandler.getInstance().handleError(
           new ConfigurationError(
-            `Using insecure fallback for medium-security context: ${config.context}`
+            `Using insecure fallback for medium-security context: ${config?.context}`
           ),
           ErrorSeverity.MEDIUM,
-          config.context
+          config?.context
         );
         break;
 
@@ -104,8 +104,10 @@ export class SecureRandom {
     }
 
     // Fallback to Math.random (not cryptographically secure)
-    for (let i = 0; i < length; i++) {
-      randomBytes[i] = Math.floor(Math.random() * 256);
+    if (randomBytes) {
+      for (let i = 0; i < length; i++) {
+        randomBytes[i] = Math.floor(Math.random() * 256);
+      }
     }
 
     return randomBytes;
@@ -208,7 +210,7 @@ export class SecureRandom {
     };
 
     // For performance in simulation, use Math.random directly for LOW security
-    if (config.securityLevel === RandomSecurityLevel.LOW) {
+    if (config?.securityLevel === RandomSecurityLevel.LOW) {
       return Math.random();
     }
 
@@ -264,6 +266,8 @@ export function getSecureAnalyticsSample(): number {
 }
 
 export function getSimulationRandom(): number {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return secureRandom.getSimulationRandom();
 }
 

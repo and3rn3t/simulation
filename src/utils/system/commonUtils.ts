@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Common Import Utilities
  *
@@ -80,14 +101,14 @@ export function getElementSafely<T extends HTMLElement>(
   expectedType?: string
 ): T | null {
   try {
-    const element = document.getElementById(id) as T;
+    const element = document?.getElementById(id) as T;
     if (!element) {
       handleValidationError('DOM element', id, 'existing element');
       return null;
     }
 
-    if (expectedType && element.tagName.toLowerCase() !== expectedType.toLowerCase()) {
-      handleValidationError('DOM element type', element.tagName, expectedType);
+    if (expectedType && element?.tagName.toLowerCase() !== expectedType.toLowerCase()) {
+      handleValidationError('DOM element type', element?.tagName, expectedType);
       return null;
     }
 
@@ -114,7 +135,7 @@ export function getCanvasContextSafely(
       throw new CanvasError('Canvas element is null or undefined');
     }
 
-    const context = canvas.getContext(contextType);
+    const context = canvas?.getContext(contextType);
     if (!context) {
       throw new CanvasError(`Failed to get ${contextType} context from canvas`);
     }
@@ -145,7 +166,7 @@ export function addEventListenerSafely<K extends keyof HTMLElementEventMap>(
     }
 
     const wrappedHandler = withEventErrorHandling(handler, type);
-    element.addEventListener(type, wrappedHandler, options);
+    element?.addEventListener(type, wrappedHandler, options);
   } catch (error) {
     ErrorHandler.getInstance().handleError(
       error instanceof Error ? error : new DOMError(String(error)),
@@ -162,6 +183,8 @@ export function requestAnimationFrameSafely(
   callback: (timestamp: number) => void,
   animationName: string
 ): number | null {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   try {
     const wrappedCallback = withAnimationErrorHandling(callback, animationName);
     return requestAnimationFrame(wrappedCallback);
@@ -238,4 +261,18 @@ export function isMobileDevice(userAgent: string = navigator.userAgent): boolean
   ];
 
   return mobileKeywords.some(keyword => userAgent.includes(keyword));
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

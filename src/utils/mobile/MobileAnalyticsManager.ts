@@ -1,629 +1,360 @@
-/**
- * Mobile Analytics Manager - Advanced analytics and performance monitoring for mobile
- */
+import { isMobileDevice } from './MobileDetection';
 
-import { generateSecureSessionId, getSecureAnalyticsSample } from '../system/secureRandom';
-
-export interface MobileAnalyticsConfig {
-  enablePerformanceMonitoring: boolean;
-  enableUserBehaviorTracking: boolean;
-  enableErrorTracking: boolean;
-  enableHeatmaps: boolean;
-  sampleRate: number; // 0.0 to 1.0
-  batchSize: number;
-  flushInterval: number; // milliseconds
-}
-
-export interface TouchEvent extends Event {
-  touches: TouchList;
-  targetTouches: TouchList;
-  changedTouches: TouchList;
+export interface AnalyticsConfig {
+  trackingId?: string;
+  enableDebugMode?: boolean;
+  sampleRate?: number;
+  sessionTimeout?: number;
 }
 
 export interface AnalyticsEvent {
-  type: string;
-  timestamp: number;
-  data: any;
-  sessionId: string;
-  userId?: string;
+  name: string;
+  category: string;
+  action: string;
+  label?: string;
+  value?: number;
+  customData?: Record<string, any>;
 }
 
-export class MobileAnalyticsManager {
-  private config: MobileAnalyticsConfig;
-  private sessionId: string;
-  private userId?: string;
-  private eventQueue: AnalyticsEvent[] = [];
-  private performanceMetrics: Map<string, number[]> = new Map();
-  private touchHeatmap: { x: number; y: number; timestamp: number }[] = [];
-  private flushTimer?: number;
-  private startTime: number = Date.now();
+export interface SessionData {
+  sessionId: string;
+  startTime: number;
+  lastActivity: number;
+  deviceInfo: {
+    userAgent: string;
+    screenWidth: number;
+    screenHeight: number;
+    isMobile: boolean;
+    touchSupport: boolean;
+  };
+}
 
-  constructor(config: Partial<MobileAnalyticsConfig> = {}) {
+/**
+ * Mobile Analytics Manager - Simplified implementation for mobile analytics tracking
+ */
+export class MobileAnalyticsManager {
+  private config: AnalyticsConfig;
+  private sessionData: SessionData;
+  private eventQueue: AnalyticsEvent[] = [];
+  private isEnabled: boolean = false;
+  private touchStartTime: number = 0;
+  private interactionCount: number = 0;
+
+  constructor(config: AnalyticsConfig = {}) {
     this.config = {
-      enablePerformanceMonitoring: true,
-      enableUserBehaviorTracking: true,
-      enableErrorTracking: true,
-      enableHeatmaps: true,
-      sampleRate: 0.1, // 10% sampling by default
-      batchSize: 50,
-      flushInterval: 30000, // 30 seconds
+      enableDebugMode: false,
+      sampleRate: 1.0,
+      sessionTimeout: 30 * 60 * 1000, // 30 minutes
       ...config,
     };
 
-    this.sessionId = this.generateSessionId();
-    this.initializeAnalytics();
-  }
+    this.isEnabled = isMobileDevice() && this.shouldTrack();
 
-  /**
-   * Initialize analytics tracking
-   */
-  private initializeAnalytics(): void {
-    if (getSecureAnalyticsSample() > this.config.sampleRate) {
-      return;
+    if (this.isEnabled) {
+      this.initSession();
+      this.setupEventListeners();
     }
-
-    this.trackSessionStart();
-    this.setupPerformanceMonitoring();
-    this.setupUserBehaviorTracking();
-    this.setupErrorTracking();
-    this.setupHeatmapTracking();
-    this.startFlushTimer();
   }
 
   /**
-   * Generate unique session ID using cryptographically secure random values
+   * Initialize analytics session
    */
-  private generateSessionId(): string {
-    // Use secure random utility for cryptographically secure session ID generation
-    return generateSecureSessionId('mobile');
-  }
-
-  /**
-   * Track session start
-   */
-  private trackSessionStart(): void {
-    const deviceInfo = this.getDeviceInfo();
-    this.trackEvent('session_start', {
-      device: deviceInfo,
-      viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        pixelRatio: window.devicePixelRatio,
+  private initSession(): void {
+    this.sessionData = {
+      sessionId: this.generateSessionId(),
+      startTime: Date.now(),
+      lastActivity: Date.now(),
+      deviceInfo: {
+        userAgent: navigator.userAgent,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        isMobile: isMobileDevice(),
+        touchSupport: 'ontouchstart' in window,
       },
-      userAgent: navigator.userAgent,
-      timestamp: Date.now(),
+    };
+
+    this.trackEvent({
+      name: 'session_start',
+      category: 'session',
+      action: 'start',
+      customData: {
+        deviceInfo: this.sessionData.deviceInfo,
+      },
     });
   }
 
   /**
-   * Setup performance monitoring
+   * Setup event listeners for automatic tracking
    */
-  private setupPerformanceMonitoring(): void {
-    if (!this.config.enablePerformanceMonitoring) return;
+  private setupEventListeners(): void {
+    // Track touch interactions
+    document.addEventListener('touchstart', event => {
+      this.touchStartTime = Date.now();
+      this.updateActivity();
+      this.trackTouch('touchstart', event);
+    });
 
-    // Monitor FPS
-    this.monitorFPS();
+    document.addEventListener('touchend', event => {
+      const duration = Date.now() - this.touchStartTime;
+      this.trackTouch('touchend', event, { duration });
+    });
 
-    // Monitor memory usage
-    this.monitorMemoryUsage();
-
-    // Monitor touch responsiveness
-    this.monitorTouchResponsiveness();
-
-    // Monitor page load performance
-    this.monitorPageLoadPerformance();
-  }
-
-  /**
-   * Monitor FPS
-   */
-  private monitorFPS(): void {
-    let lastTime = performance.now();
-    let frameCount = 0;
-    const fpsHistory: number[] = [];
-
-    const measureFPS = (currentTime: number) => {
-      frameCount++;
-
-      if (currentTime - lastTime >= 1000) {
-        // Every second
-        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-        fpsHistory.push(fps);
-
-        this.recordMetric('fps', fps);
-
-        // Keep only last 60 seconds of data
-        if (fpsHistory.length > 60) {
-          fpsHistory.shift();
-        }
-
-        // Alert on poor performance
-        if (fps < 20) {
-          this.trackEvent('performance_warning', {
-            type: 'low_fps',
-            fps,
-            timestamp: currentTime,
-          });
-        }
-
-        frameCount = 0;
-        lastTime = currentTime;
-      }
-
-      requestAnimationFrame(measureFPS);
-    };
-
-    requestAnimationFrame(measureFPS);
-  }
-
-  /**
-   * Monitor memory usage
-   */
-  private monitorMemoryUsage(): void {
-    const checkMemory = () => {
-      if ('memory' in performance) {
-        const memory = (performance as any).memory;
-        const memoryUsage = {
-          used: memory.usedJSHeapSize,
-          total: memory.totalJSHeapSize,
-          limit: memory.jsHeapSizeLimit,
-        };
-
-        this.recordMetric('memory_used', memoryUsage.used);
-        this.recordMetric('memory_total', memoryUsage.total);
-
-        // Warning if memory usage is high
-        const usagePercentage = (memoryUsage.used / memoryUsage.limit) * 100;
-        if (usagePercentage > 80) {
-          this.trackEvent('performance_warning', {
-            type: 'high_memory_usage',
-            usage: memoryUsage,
-            percentage: usagePercentage,
-          });
-        }
-      }
-    };
-
-    setInterval(checkMemory, 10000); // Every 10 seconds
-  }
-
-  /**
-   * Monitor touch responsiveness
-   */
-  private monitorTouchResponsiveness(): void {
-    let touchStartTime: number;
-
-    document.addEventListener(
-      'touchstart',
-      () => {
-        touchStartTime = performance.now();
-      },
-      { passive: true }
-    );
-
-    document.addEventListener(
-      'touchend',
-      () => {
-        if (touchStartTime) {
-          const responseTime = performance.now() - touchStartTime;
-          this.recordMetric('touch_response_time', responseTime);
-
-          if (responseTime > 100) {
-            // > 100ms is slow
-            this.trackEvent('performance_warning', {
-              type: 'slow_touch_response',
-              responseTime,
-            });
-          }
-        }
-      },
-      { passive: true }
-    );
-  }
-
-  /**
-   * Monitor page load performance
-   */
-  private monitorPageLoadPerformance(): void {
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const navigation = performance.getEntriesByType(
-          'navigation'
-        )[0] as PerformanceNavigationTiming;
-
-        this.trackEvent('page_load_performance', {
-          domContentLoaded:
-            navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
-          loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
-          totalTime: navigation.loadEventEnd - navigation.fetchStart,
-          dnsLookup: navigation.domainLookupEnd - navigation.domainLookupStart,
-          tcpConnect: navigation.connectEnd - navigation.connectStart,
-          serverResponse: navigation.responseEnd - navigation.requestStart,
+    // Track page visibility changes
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.trackEvent({
+          name: 'page_hidden',
+          category: 'engagement',
+          action: 'hide',
         });
-      }, 1000);
+      } else {
+        this.trackEvent({
+          name: 'page_visible',
+          category: 'engagement',
+          action: 'show',
+        });
+        this.updateActivity();
+      }
     });
-  }
 
-  /**
-   * Setup user behavior tracking
-   */
-  private setupUserBehaviorTracking(): void {
-    if (!this.config.enableUserBehaviorTracking) return;
-
-    this.trackTouchInteractions();
-    this.trackScrollBehavior();
-    this.trackOrientationChanges();
-    this.trackAppVisibility();
+    // Track orientation changes
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        this.trackEvent({
+          name: 'orientation_change',
+          category: 'device',
+          action: 'orientation_change',
+          customData: {
+            orientation: screen.orientation?.angle || window.orientation,
+          },
+        });
+      }, 100);
+    });
   }
 
   /**
    * Track touch interactions
    */
-  private trackTouchInteractions(): void {
-    let touchSession = {
-      startTime: 0,
-      touches: 0,
-      gestures: [] as string[],
-    };
+  private trackTouch(type: string, event: TouchEvent, extra: any = {}): void {
+    this.interactionCount++;
 
-    document.addEventListener(
-      'touchstart',
-      event => {
-        const e = event as unknown as TouchEvent;
-        if (touchSession.startTime === 0) {
-          touchSession.startTime = Date.now();
-        }
-        touchSession.touches++;
-
-        // Detect gesture types
-        if (e.touches.length === 1) {
-          touchSession.gestures.push('tap');
-        } else if (e.touches.length === 2) {
-          touchSession.gestures.push('pinch');
-        } else if (e.touches.length >= 3) {
-          touchSession.gestures.push('multi_touch');
-        }
+    this.trackEvent({
+      name: 'touch_interaction',
+      category: 'interaction',
+      action: type,
+      customData: {
+        touchCount: event.touches.length,
+        interactionSequence: this.interactionCount,
+        ...extra,
       },
-      { passive: true }
-    );
-
-    document.addEventListener(
-      'touchend',
-      () => {
-        // Track session after inactivity
-        setTimeout(() => {
-          if (touchSession.touches > 0) {
-            this.trackEvent('touch_session', {
-              duration: Date.now() - touchSession.startTime,
-              touches: touchSession.touches,
-              gestures: [...new Set(touchSession.gestures)], // Unique gestures
-            });
-
-            touchSession = { startTime: 0, touches: 0, gestures: [] };
-          }
-        }, 1000);
-      },
-      { passive: true }
-    );
-  }
-
-  /**
-   * Track scroll behavior
-   */
-  private trackScrollBehavior(): void {
-    let scrollData = {
-      startTime: 0,
-      distance: 0,
-      direction: 'none' as 'up' | 'down' | 'none',
-      lastY: 0,
-    };
-
-    document.addEventListener(
-      'scroll',
-      () => {
-        const currentY = window.scrollY;
-
-        if (scrollData.startTime === 0) {
-          scrollData.startTime = Date.now();
-          scrollData.lastY = currentY;
-          return;
-        }
-
-        const deltaY = currentY - scrollData.lastY;
-        scrollData.distance += Math.abs(deltaY);
-        scrollData.direction = deltaY > 0 ? 'down' : 'up';
-        scrollData.lastY = currentY;
-      },
-      { passive: true }
-    );
-
-    // Track scroll session end
-    let scrollTimeout: number;
-    document.addEventListener(
-      'scroll',
-      () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = window.setTimeout(() => {
-          if (scrollData.startTime > 0) {
-            this.trackEvent('scroll_session', {
-              duration: Date.now() - scrollData.startTime,
-              distance: scrollData.distance,
-              direction: scrollData.direction,
-            });
-
-            scrollData = { startTime: 0, distance: 0, direction: 'none', lastY: 0 };
-          }
-        }, 150);
-      },
-      { passive: true }
-    );
-  }
-
-  /**
-   * Track orientation changes
-   */
-  private trackOrientationChanges(): void {
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        this.trackEvent('orientation_change', {
-          orientation: screen.orientation?.angle || window.orientation,
-          viewport: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-          },
-        });
-      }, 500); // Wait for orientation to settle
     });
   }
 
   /**
-   * Track app visibility
+   * Track a custom event
    */
-  private trackAppVisibility(): void {
-    let visibilityStart = Date.now();
+  public trackEvent(event: AnalyticsEvent): void {
+    if (!this.isEnabled) return;
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        this.trackEvent('app_background', {
-          duration: Date.now() - visibilityStart,
-        });
-      } else {
-        visibilityStart = Date.now();
-        this.trackEvent('app_foreground', {});
-      }
-    });
-  }
-
-  /**
-   * Setup error tracking
-   */
-  private setupErrorTracking(): void {
-    if (!this.config.enableErrorTracking) return;
-
-    window.addEventListener('error', event => {
-      this.trackEvent('javascript_error', {
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        stack: event.error?.stack,
-      });
-    });
-
-    window.addEventListener('unhandledrejection', event => {
-      this.trackEvent('unhandled_promise_rejection', {
-        reason: event.reason?.toString(),
-        stack: event.reason?.stack,
-      });
-    });
-  }
-
-  /**
-   * Setup heatmap tracking
-   */
-  private setupHeatmapTracking(): void {
-    if (!this.config.enableHeatmaps) return;
-
-    document.addEventListener(
-      'touchstart',
-      event => {
-        const e = event as unknown as TouchEvent;
-        for (let i = 0; i < e.touches.length; i++) {
-          const touch = e.touches[i];
-          this.touchHeatmap.push({
-            x: touch.clientX,
-            y: touch.clientY,
-            timestamp: Date.now(),
-          });
-        }
-
-        // Keep only recent touches (last 1000)
-        if (this.touchHeatmap.length > 1000) {
-          this.touchHeatmap = this.touchHeatmap.slice(-1000);
-        }
-      },
-      { passive: true }
-    );
-  }
-
-  /**
-   * Start flush timer
-   */
-  private startFlushTimer(): void {
-    this.flushTimer = window.setInterval(() => {
-      this.flushEvents();
-    }, this.config.flushInterval);
-  }
-
-  /**
-   * Track custom event
-   */
-  public trackEvent(type: string, data: any): void {
-    const event: AnalyticsEvent = {
-      type,
+    const enrichedEvent = {
+      ...event,
       timestamp: Date.now(),
-      data,
-      sessionId: this.sessionId,
-      userId: this.userId,
+      sessionId: this.sessionData.sessionId,
+      customData: {
+        ...event.customData,
+        sessionDuration: this.getSessionDuration(),
+      },
     };
 
-    this.eventQueue.push(event);
+    this.eventQueue.push(enrichedEvent);
+    this.updateActivity();
 
-    if (this.eventQueue.length >= this.config.batchSize) {
+    if (this.config.enableDebugMode) {
+      console.log('Analytics Event:', enrichedEvent);
+    }
+
+    // Process events in batches or immediately for critical events
+    if (this.eventQueue.length >= 10 || event.category === 'error') {
       this.flushEvents();
     }
   }
 
   /**
-   * Record performance metric
+   * Track simulation-specific events
    */
-  private recordMetric(name: string, value: number): void {
-    if (!this.performanceMetrics.has(name)) {
-      this.performanceMetrics.set(name, []);
-    }
-
-    const metrics = this.performanceMetrics.get(name)!;
-    metrics.push(value);
-
-    // Keep only last 100 values
-    if (metrics.length > 100) {
-      metrics.shift();
-    }
+  public trackSimulationEvent(action: string, data: Record<string, any> = {}): void {
+    this.trackEvent({
+      name: 'simulation_action',
+      category: 'simulation',
+      action,
+      customData: data,
+    });
   }
 
   /**
-   * Get device information
+   * Track performance metrics
    */
-  private getDeviceInfo(): any {
-    return {
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.language,
-      memory: (navigator as any).deviceMemory,
-      cores: navigator.hardwareConcurrency,
-      connection: (navigator as any).connection?.effectiveType,
-      pixelRatio: window.devicePixelRatio,
-      screen: {
-        width: screen.width,
-        height: screen.height,
-        colorDepth: screen.colorDepth,
+  public trackPerformance(metric: string, value: number, unit: string = 'ms'): void {
+    this.trackEvent({
+      name: 'performance_metric',
+      category: 'performance',
+      action: metric,
+      value,
+      customData: { unit },
+    });
+  }
+
+  /**
+   * Track user engagement
+   */
+  public trackEngagement(action: string, duration?: number): void {
+    this.trackEvent({
+      name: 'user_engagement',
+      category: 'engagement',
+      action,
+      value: duration,
+      customData: {
+        sessionDuration: this.getSessionDuration(),
+        interactionCount: this.interactionCount,
       },
-    };
+    });
   }
 
   /**
-   * Flush events to server
+   * Track errors
    */
-  private async flushEvents(): Promise<void> {
+  public trackError(error: Error, context: string = 'unknown'): void {
+    this.trackEvent({
+      name: 'error_occurred',
+      category: 'error',
+      action: 'javascript_error',
+      label: error.message,
+      customData: {
+        errorStack: error.stack,
+        context,
+        url: window.location.href,
+      },
+    });
+  }
+
+  /**
+   * Update last activity timestamp
+   */
+  private updateActivity(): void {
+    this.sessionData.lastActivity = Date.now();
+  }
+
+  /**
+   * Get current session duration
+   */
+  private getSessionDuration(): number {
+    return Date.now() - this.sessionData.startTime;
+  }
+
+  /**
+   * Generate unique session ID
+   */
+  private generateSessionId(): string {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Check if tracking should be enabled based on sampling
+   */
+  private shouldTrack(): boolean {
+    return Math.random() < (this.config.sampleRate || 1.0);
+  }
+
+  /**
+   * Flush queued events (in a real implementation, this would send to analytics service)
+   */
+  private flushEvents(): void {
     if (this.eventQueue.length === 0) return;
 
-    const events = [...this.eventQueue];
+    if (this.config.enableDebugMode) {
+      console.log('Flushing analytics events:', this.eventQueue);
+    }
+
+    // In a real implementation, you would send these to your analytics service
+    // For now, we'll just store them locally or log them
+    const eventsToFlush = [...this.eventQueue];
     this.eventQueue = [];
 
+    // Store in localStorage for debugging/development
     try {
-      // Add performance summary
-      const performanceSummary = this.getPerformanceSummary();
-      events.push({
-        type: 'performance_summary',
-        timestamp: Date.now(),
-        data: performanceSummary,
-        sessionId: this.sessionId,
-        userId: this.userId,
-      });
-
-      // Add heatmap data
-      if (this.touchHeatmap.length > 0) {
-        events.push({
-          type: 'touch_heatmap',
-          timestamp: Date.now(),
-          data: { touches: [...this.touchHeatmap] },
-          sessionId: this.sessionId,
-          userId: this.userId,
-        });
-        this.touchHeatmap = []; // Clear after sending
-      }
-
-      await this.sendEvents(events);
-    } catch { /* handled */ }
-  }
-
-  /**
-   * Get performance summary
-   */
-  private getPerformanceSummary(): any {
-    const summary: any = {};
-
-    for (const [name, values] of this.performanceMetrics) {
-      if (values.length > 0) {
-        summary[name] = {
-          avg: values.reduce((a, b) => a + b, 0) / values.length,
-          min: Math.min(...values),
-          max: Math.max(...values),
-          count: values.length,
-        };
-      }
-    }
-
-    return summary;
-  }
-
-  /**
-   * Send events to analytics server
-   */
-  private async sendEvents(events: AnalyticsEvent[]): Promise<void> {
-    // In a real implementation, this would send to your analytics service
-    // Store in localStorage for offline mode
-    const storedEvents = localStorage.getItem('offline_analytics') || '[]';
-    let parsedEvents: any[] = [];
-
-    try {
-      parsedEvents = JSON.parse(storedEvents);
-      // Validate that it's actually an array
-      if (!Array.isArray(parsedEvents)) {
-        parsedEvents = [];
-      }
+      const existingEvents = JSON.parse(localStorage.getItem('mobile_analytics') || '[]');
+      const updatedEvents = [...existingEvents, ...eventsToFlush].slice(-100); // Keep last 100 events
+      localStorage.setItem('mobile_analytics', JSON.stringify(updatedEvents));
     } catch (error) {
-      parsedEvents = [];
+      console.warn('Failed to store analytics events:', error);
     }
-
-    const allEvents = [...parsedEvents, ...events];
-    localStorage.setItem('offline_analytics', JSON.stringify(allEvents));
   }
 
   /**
-   * Set user ID
+   * Get session information
    */
-  public setUserId(userId: string): void {
-    this.userId = userId;
+  public getSessionInfo(): SessionData {
+    return { ...this.sessionData };
   }
 
   /**
-   * Get session analytics
+   * Get analytics statistics
    */
-  public getSessionAnalytics(): any {
+  public getStats(): {
+    sessionDuration: number;
+    eventCount: number;
+    interactionCount: number;
+    isEnabled: boolean;
+  } {
     return {
-      sessionId: this.sessionId,
-      duration: Date.now() - this.startTime,
-      events: this.eventQueue.length,
-      performance: this.getPerformanceSummary(),
-      touchPoints: this.touchHeatmap.length,
+      sessionDuration: this.getSessionDuration(),
+      eventCount: this.eventQueue.length,
+      interactionCount: this.interactionCount,
+      isEnabled: this.isEnabled,
     };
   }
 
   /**
-   * Update configuration
+   * Check if analytics is enabled
    */
-  public updateConfig(newConfig: Partial<MobileAnalyticsConfig>): void {
-    this.config = { ...this.config, ...newConfig };
+  public isAnalyticsEnabled(): boolean {
+    return this.isEnabled;
   }
 
   /**
-   * Cleanup resources
+   * Enable or disable analytics
    */
-  public destroy(): void {
-    if (this.flushTimer) {
-      clearInterval(this.flushTimer);
+  public setEnabled(enabled: boolean): void {
+    this.isEnabled = enabled;
+
+    if (enabled) {
+      this.trackEvent({
+        name: 'analytics_enabled',
+        category: 'system',
+        action: 'enable',
+      });
+    } else {
+      this.flushEvents(); // Flush remaining events before disabling
     }
-    this.flushEvents(); // Flush remaining events
+  }
+
+  /**
+   * Cleanup and dispose of resources
+   */
+  public dispose(): void {
+    this.flushEvents();
+
+    this.trackEvent({
+      name: 'session_end',
+      category: 'session',
+      action: 'end',
+      customData: {
+        sessionDuration: this.getSessionDuration(),
+        totalInteractions: this.interactionCount,
+      },
+    });
+
+    this.flushEvents();
+    this.isEnabled = false;
   }
 }

@@ -32,7 +32,7 @@ Thumbs.db
 .git
 .gitignore
 
-# Documentation
+# Documentation (keeping README for metadata)
 docs
 *.md
 !README.md
@@ -50,6 +50,19 @@ temp
 .cache
 .npm
 .eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Additional build artifacts
+*.tgz
+*.tar.gz
+
+# Runtime and process files
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # TypeScript cache
 *.tsbuildinfo
@@ -153,3 +166,43 @@ generated-*
 security-report.json
 license-report.csv
 trivy-results.sarif
+
+# Performance - Large directories that slow build context
+playwright-report/
+test-results/
+generated-issues/
+docs/
+.github/
+environments/
+
+# Development files not needed in production
+*.md
+!README.md
+*.log
+*.tmp
+*.temp
+.vscode/
+.idea/
+
+# Performance - Large cache directories
+.cache/
+dist/
+build/
+coverage/
+
+# Performance - Additional npm cache patterns
+**/.npm/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/.pnpm-debug.log*
+
+# Security and performance - Exclude all documentation except essential
+docs/
+!docs/README.md
+
+# Performance - Exclude generated files and reports
+*.report.json
+*.coverage.json
+*-report.html
+*-results.xml

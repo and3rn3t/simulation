@@ -3,7 +3,7 @@ export class StatsPanelComponent {
   private container: HTMLElement;
 
   constructor(containerId: string) {
-    const container = document.getElementById(containerId);
+    const container = document?.getElementById(containerId);
     if (!container) {
       throw new Error(`Container with ID '${containerId}' not found`);
     }

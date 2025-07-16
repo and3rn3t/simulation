@@ -1,4 +1,24 @@
-import { BaseSingleton } from '../utils/system/BaseSingleton';
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Debug Mode System
  * Provides detailed simulation information and debugging capabilities
@@ -14,7 +34,8 @@ export interface DebugInfo {
   lastUpdate: number;
 }
 
-export class DebugMode extends BaseSingleton {
+export class DebugMode {
+  private static instance: DebugMode;
   private isEnabled = false;
   private debugPanel: HTMLElement | null = null;
   private debugInfo: DebugInfo = {
@@ -32,19 +53,21 @@ export class DebugMode extends BaseSingleton {
   private lastFrameTime = performance.now();
   private updateInterval: number | null = null;
 
-  protected constructor() {
-    super();
+  private constructor() {
+    // Private constructor for singleton
   }
 
   static getInstance(): DebugMode {
-    return super.getInstance.call(this, 'DebugMode');
+    if (!DebugMode.instance) {
+      DebugMode.instance = new DebugMode();
+    }
+    return DebugMode.instance;
   }
 
   enable(): void {
     if (this.isEnabled) return;
 
     this.isEnabled = true;
-    console.log('🐛 Debug mode enabled');
     this.createDebugPanel();
     this.startUpdating();
   }
@@ -53,7 +76,6 @@ export class DebugMode extends BaseSingleton {
     if (!this.isEnabled) return;
 
     this.isEnabled = false;
-    console.log('🐛 Debug mode disabled');
     this.removeDebugPanel();
     this.stopUpdating();
   }
@@ -96,9 +118,10 @@ export class DebugMode extends BaseSingleton {
   }
 
   private createDebugPanel(): void {
-    this.debugPanel = document.createElement('div');
-    this.debugPanel.id = 'debug-panel';
-    this.debugPanel.innerHTML = `
+    try {
+      this.debugPanel = document.createElement('div');
+      this.debugPanel.id = 'debug-panel';
+      this.debugPanel.innerHTML = `
       <div class="debug-header">
         <h3>🐛 Debug Panel</h3>
         <button id="debug-close">×</button>
@@ -149,21 +172,48 @@ export class DebugMode extends BaseSingleton {
       </div>
     `;
 
-    this.styleDebugPanel();
-    document.body.appendChild(this.debugPanel);
+      this.styleDebugPanel();
+      document.body.appendChild(this.debugPanel);
 
-    // Add event listeners
-    const closeBtn = this.debugPanel.querySelector('#debug-close');
-    closeBtn?.addEventListener('click', () => this.disable());
+      // Add event listeners
+      const closeBtn = this.debugPanel?.querySelector('#debug-close');
+      closeBtn?.addEventListener('click', _event => {
+        try {
+          this.disable();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const dumpStateBtn = this.debugPanel.querySelector('#debug-dump-state');
-    dumpStateBtn?.addEventListener('click', () => this.dumpState());
+      const dumpStateBtn = this.debugPanel?.querySelector('#debug-dump-state');
+      dumpStateBtn?.addEventListener('click', _event => {
+        try {
+          this.dumpState();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const profileBtn = this.debugPanel.querySelector('#debug-performance-profile');
-    profileBtn?.addEventListener('click', () => this.startPerformanceProfile());
+      const profileBtn = this.debugPanel?.querySelector('#debug-performance-profile');
+      profileBtn?.addEventListener('click', _event => {
+        try {
+          this.startPerformanceProfile();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    const gcBtn = this.debugPanel.querySelector('#debug-memory-gc');
-    gcBtn?.addEventListener('click', () => this.forceGarbageCollection());
+      const gcBtn = this.debugPanel?.querySelector('#debug-memory-gc');
+      gcBtn?.addEventListener('click', _event => {
+        try {
+          this.forceGarbageCollection();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error creating debug panel:', error);
+    }
   }
 
   private styleDebugPanel(): void {
@@ -270,12 +320,12 @@ export class DebugMode extends BaseSingleton {
   private updateDebugDisplay(): void {
     if (!this.debugPanel) return;
 
-    const fps = this.debugPanel.querySelector('#debug-fps');
-    const frameTime = this.debugPanel.querySelector('#debug-frame-time');
-    const organismCount = this.debugPanel.querySelector('#debug-organism-count');
-    const simulationTime = this.debugPanel.querySelector('#debug-simulation-time');
-    const memory = this.debugPanel.querySelector('#debug-memory');
-    const canvasOps = this.debugPanel.querySelector('#debug-canvas-ops');
+    const fps = this.debugPanel?.querySelector('#debug-fps');
+    const frameTime = this.debugPanel?.querySelector('#debug-frame-time');
+    const organismCount = this.debugPanel?.querySelector('#debug-organism-count');
+    const simulationTime = this.debugPanel?.querySelector('#debug-simulation-time');
+    const memory = this.debugPanel?.querySelector('#debug-memory');
+    const canvasOps = this.debugPanel?.querySelector('#debug-canvas-ops');
 
     if (fps) fps.textContent = this.debugInfo.fps.toFixed(1);
     if (frameTime) frameTime.textContent = `${this.debugInfo.frameTime.toFixed(2)}ms`;
@@ -283,7 +333,7 @@ export class DebugMode extends BaseSingleton {
     if (simulationTime)
       simulationTime.textContent = `${(this.debugInfo.simulationTime / 1000).toFixed(1)}s`;
     if (memory) memory.textContent = `${(this.debugInfo.memoryUsage / 1024 / 1024).toFixed(2)} MB`;
-    if (canvasOps) canvasOps.textContent = this.debugInfo.canvasOperations.toString();
+    if (canvasOps) canvasOps.textContent = this.debugInfo.canvasOperations?.toString();
   }
 
   private removeDebugPanel(): void {
@@ -306,7 +356,6 @@ export class DebugMode extends BaseSingleton {
     };
 
     console.group('🔍 State Dump');
-    console.log('Debug State:', state);
     console.groupEnd();
 
     // Also save to localStorage for debugging
@@ -323,7 +372,7 @@ export class DebugMode extends BaseSingleton {
       const entries = performance.getEntriesByType('measure');
       console.group('📊 Performance Profile');
       entries.forEach(entry => {
-        console.log(`${entry.name}: ${entry.duration.toFixed(2)}ms`);
+        console.log(`${entry.name}: ${entry.duration?.toFixed(2)}ms`);
       });
       console.groupEnd();
     }, 5000); // Profile for 5 seconds
@@ -332,10 +381,9 @@ export class DebugMode extends BaseSingleton {
   private forceGarbageCollection(): void {
     if ((window as any).gc) {
       (window as any).gc();
-      console.log('🗑️ Forced garbage collection');
     } else {
       console.log(
-        '⚠️ Garbage collection not available (Chrome with --js-flags="--expose-gc" required)'
+        'Manual garbage collection not available. Try running Chrome with --js-flags="--expose-gc"'
       );
     }
   }

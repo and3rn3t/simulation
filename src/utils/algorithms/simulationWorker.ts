@@ -104,8 +104,12 @@ class PopulationPredictor {
 
     // Initialize type populations
     organismTypes.forEach(type => {
-      typePopulations[type.name] = Math.floor(currentPopulation / organismTypes.length);
-      typePredictions[type.name] = [];
+      try {
+        typePopulations[type.name] = Math.floor(currentPopulation / organismTypes.length);
+        typePredictions[type.name] = [];
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
 
     const carryingCapacity = this.calculateCarryingCapacity(environmentalFactors);
@@ -117,24 +121,27 @@ class PopulationPredictor {
       const totalCompetition = Object.values(typePopulations).reduce((sum, pop) => sum + pop, 0);
 
       organismTypes.forEach(type => {
-        const currentPop = typePopulations[type.name];
-        if (currentPop !== undefined) {
-          const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
-          const competitionEffect = (totalCompetition / carryingCapacity) * currentPop;
-          const deathEffect = type.deathRate * 0.01 * currentPop;
+        try {
+          const currentPop = typePopulations[type.name];
+          if (currentPop !== undefined && currentPop !== null) {
+            const intrinsicGrowth = type.growthRate * 0.01 * currentPop;
+            const competitionEffect = (totalCompetition / carryingCapacity) * currentPop;
+            const deathEffect = type.deathRate * 0.01 * currentPop;
 
-          const netGrowth = intrinsicGrowth - competitionEffect - deathEffect;
-          const newPop = Math.max(0, currentPop + netGrowth);
+            const netGrowth = intrinsicGrowth - competitionEffect - deathEffect;
+            const newPop = Math.max(0, currentPop + netGrowth);
 
-          typePopulations[type.name] = newPop;
-          const typePrediction = typePredictions[type.name];
-          if (typePrediction) {
-            typePrediction.push(Math.round(newPop));
+            typePopulations[type.name] = newPop;
+            const typePrediction = typePredictions[type.name];
+            if (typePrediction) {
+              typePrediction.push(Math.round(newPop));
+            }
+            totalPop += newPop;
           }
-          totalPop += newPop;
+        } catch (error) {
+          console.error('Callback error:', error);
         }
       });
-
       totalPredictions.push(Math.round(totalPop));
     }
 
@@ -200,12 +207,16 @@ class StatisticsCalculator {
 
     // Calculate density
     organisms.forEach(org => {
-      const gridX = Math.floor(org.x / gridSize);
-      const gridY = Math.floor(org.y / gridSize);
-      const index = gridY * gridWidth + gridX;
+      try {
+        const gridX = Math.floor(org.x / gridSize);
+        const gridY = Math.floor(org.y / gridSize);
+        const index = gridY * gridWidth + gridX;
 
-      if (index >= 0 && index < density.length) {
-        density[index]++;
+        if (index >= 0 && index < density.length) {
+          density[index]++;
+        }
+      } catch (error) {
+        console.error('Callback error:', error);
       }
     });
 
@@ -241,14 +252,18 @@ class StatisticsCalculator {
 
     // Create histogram
     ages.forEach(age => {
-      const bin = Math.floor(age / binSize);
-      if (bin < numBins) {
-        histogram[bin]++;
+      try {
+        const bin = Math.floor(age / binSize);
+        if (bin < numBins) {
+          histogram[bin]++;
+        }
+      } catch (error) {
+        console.error('Callback error:', error);
       }
     });
 
     // Calculate statistics
-    const mean = ages.reduce((sum, age) => sum + age, 0) / ages.length;
+    const mean = ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;
     const sortedAges = [...ages].sort((a, b) => a - b);
     const median = sortedAges[Math.floor(sortedAges.length / 2)] ?? 0;
     const variance = ages.reduce((sum, age) => sum + Math.pow(age - mean, 2), 0) / ages.length;
@@ -325,10 +340,14 @@ class StatisticsCalculator {
       for (let x = 0; x < gridWidth; x++) {
         let count = 0;
         organisms.forEach(org => {
-          const gridX = Math.floor(org.x / gridSize);
-          const gridY = Math.floor(org.y / gridSize);
-          if (gridX === x && gridY === y) {
-            count++;
+          try {
+            const gridX = Math.floor(org.x / gridSize);
+            const gridY = Math.floor(org.y / gridSize);
+            if (gridX === x && gridY === y) {
+              count++;
+            }
+          } catch (error) {
+            console.error('Callback error:', error);
           }
         });
         counts.push(count);
@@ -400,4 +419,4 @@ self.onmessage = function (e: MessageEvent<WorkerMessage>) {
 };
 
 // Export types for TypeScript support
-export type { WorkerMessage, WorkerResponse, PopulationPredictionData, StatisticsData };
+export type { PopulationPredictionData, StatisticsData, WorkerMessage, WorkerResponse };

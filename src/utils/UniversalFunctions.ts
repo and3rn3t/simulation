@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Universal Functions
  * Replace all similar function patterns with standardized versions
@@ -27,7 +48,7 @@ export const UniversalFunctions = {
   addListener: (element: Element | null, event: string, handler: () => void) => {
     try {
       if (element) {
-        element.addEventListener(event, handler);
+        element?.addEventListener(event, handler);
       }
     } catch {
       // Silent handling

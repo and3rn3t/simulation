@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 export class CanvasManager {
   private layers: Record<string, HTMLCanvasElement> = {};
   private contexts: Record<string, CanvasRenderingContext2D> = {};
@@ -25,7 +46,7 @@ export class CanvasManager {
 
     this.container.appendChild(canvas);
     this.layers[name] = canvas;
-    this.contexts[name] = canvas.getContext('2d')!;
+    this.contexts[name] = canvas?.getContext('2d')!;
   }
 
   /**
@@ -47,7 +68,7 @@ export class CanvasManager {
    */
   clearLayer(name: string): void {
     const context = this.getContext(name);
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context?.clearRect(0, 0, context?.canvas.width, context?.canvas.height);
   }
 
   /**
@@ -62,4 +83,18 @@ export class CanvasManager {
       canvas.height = height;
     }
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

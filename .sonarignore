@@ -1,34 +1,125 @@
 # SonarCloud ignore file
 
-# Backup and experimental files
+# === BUILD OUTPUTS & DEPENDENCIES ===
 
-src/main-backup.ts
-src/main-leaderboard.ts
-src/core/simulation\_\*.ts
-src/examples/interactive-examples.ts
-
-# Files with many TypeScript errors
-
-src/core/simulation.ts
-src/models/unlockables.ts
-src/utils/memory/objectPool.ts
-
-# Test files (already covered by sonar-project.properties)
-
-**/\*.test.ts
-**/\*.spec.ts
-test/**
-e2e/**
-
-# Build and coverage outputs
-
+node_modules/**
 dist/**
 coverage/**
-node_modules/\*\*
+build/**
+.next/**
+.nuxt/**
+.output/**
+playwright-report/**
+test-results/\*\*
 
-# Documentation and configuration
+# === CONFIGURATION FILES ===
 
-docs/\*\*
-_.md
-_.json
-_.config._
+_.config.js
+_.config.ts
+_.config.mjs
+_.config.cjs
+vite.config._
+vitest.config._
+playwright.config._
+eslint.config._
+lighthouserc._
+tsconfig_.json
+package*.json
+renovate.json
+codecov.yml
+sonar-project.properties
+wrangler.toml
+docker-compose*.yml
+Dockerfile\*
+nginx.conf
+
+# === DOCUMENTATION & REPORTS ===
+
+docs/**
+\*.md
+**/_.md
+README_
+CHANGELOG*
+LICENSE*
+security-_.json
+code-complexity-report.json
+lint-errors.txt
+typescript-errors.txt
+duplication-details.txt
+generated-_.json
+
+# === SCRIPTS & AUTOMATION ===
+
+scripts/**
+.github/**
+fix-_.ps1
+_.ps1
+\*.sh
+
+# === TEST FILES ===
+
+test/**
+e2e/**
+**/\*.test.ts
+**/_.test.js
+\*\*/_.spec.ts
+**/\*.spec.js
+**/**tests**/\*\*
+**/**mocks**/**
+
+# === ENVIRONMENT & SECRETS ===
+
+.env*
+.env.*
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.cloudflare
+
+# === EDITOR & IDE FILES ===
+
+.vscode/**
+.idea/**
+_.swp
+_.swo
+\*~
+
+# === TEMP & CACHE FILES ===
+
+tmp/**
+temp/**
+.cache/**
+.temp/**
+_.tmp
+_.temp
+
+# === GENERATED FILES ===
+
+types/generated/\*\*
+**/generated/**
+deduplication-reports/**
+generated-issues/**
+github-integration/**
+environments/**
+
+# === PUBLIC ASSETS (if not source code) ===
+
+public/**
+assets/**
+static/\*\*
+
+# === BACKUP & EXPERIMENTAL FILES ===
+
+_backup_
+_-backup._
+_.bak
+experimental/\*\*
+src/main-backup.ts
+src/main-leaderboard.ts
+src/core/simulation\__.ts
+
+# === HTML TEST FILES ===
+
+test-_.html
+_.test.html

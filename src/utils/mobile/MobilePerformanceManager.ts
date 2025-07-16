@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { isMobileDevice } from '../system/mobileDetection';
 
 /**
@@ -101,13 +122,21 @@ export class MobilePerformanceManager {
         this.isLowPowerMode = this.batteryLevel < 0.2;
 
         // Listen for battery changes
-        battery.addEventListener('levelchange', () => {
-          this.batteryLevel = battery.level;
-          this.adjustPerformanceForBattery();
+        battery?.addEventListener('levelchange', _event => {
+          try {
+            this.batteryLevel = battery.level;
+            this.adjustPerformanceForBattery();
+          } catch (error) {
+            console.error('Event listener error for levelchange:', error);
+          }
         });
 
-        battery.addEventListener('chargingchange', () => {
-          this.adjustPerformanceForBattery();
+        battery?.addEventListener('chargingchange', _event => {
+          try {
+            this.adjustPerformanceForBattery();
+          } catch (error) {
+            console.error('Event listener error for chargingchange:', error);
+          }
         });
       }
     } catch (_error) {
@@ -134,7 +163,7 @@ export class MobilePerformanceManager {
 
         // Adjust performance based on actual FPS
         this.adjustPerformanceForFPS(fps);
-      }
+      } // TODO: Consider extracting to reduce closure scope
 
       if (!this.isDestroyed) {
         this.performanceMonitoringId = requestAnimationFrame(measurePerformance);

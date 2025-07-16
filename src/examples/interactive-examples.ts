@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Interactive Code Examples for Organism Simulation
  *
@@ -7,7 +28,7 @@
 
 import { Organism } from '../core/organism';
 import { OrganismSimulation } from '../core/simulation';
-import { getOrganismType, type OrganismType } from '../models/organismTypes';
+import { BehaviorType, getOrganismType, type OrganismType } from '../models/organismTypes';
 
 /**
  * Collection of interactive examples for learning the simulation API
@@ -78,26 +99,38 @@ export class InteractiveExamples {
    * Set up event listeners for the interactive interface
    */
   private setupEventListeners(): void {
-    const selector = document.getElementById('example-selector') as HTMLSelectElement;
-    const runButton = document.getElementById('run-example') as HTMLButtonElement;
-    const clearButton = document.getElementById('clear-output') as HTMLButtonElement;
+    const selector = document?.getElementById('example-selector') as HTMLSelectElement;
+    const runButton = document?.getElementById('run-example') as HTMLButtonElement;
+    const clearButton = document?.getElementById('clear-output') as HTMLButtonElement;
 
-    selector.addEventListener('change', () => {
-      const selectedExample = selector.value;
-      if (selectedExample) {
-        this.displayExampleCode(selectedExample);
+    selector?.addEventListener('change', event => {
+      try {
+        const selectedExample = (event.target as HTMLSelectElement).value;
+        if (selectedExample) {
+          this.displayExampleCode(selectedExample);
+        }
+      } catch (error) {
+        console.error('Event listener error for change:', error);
       }
     });
 
-    runButton.addEventListener('click', () => {
-      const selectedExample = selector.value;
-      if (selectedExample && this.examples.has(selectedExample)) {
-        this.runExample(selectedExample);
+    runButton?.addEventListener('click', event => {
+      try {
+        const selectedExample = selector.value;
+        if (selectedExample && this.examples.has(selectedExample)) {
+          this.runExample(selectedExample);
+        }
+      } catch (error) {
+        console.error('Event listener error for click:', error);
       }
     });
 
-    clearButton.addEventListener('click', () => {
-      this.clearOutput();
+    clearButton?.addEventListener('click', event => {
+      try {
+        this.clearOutput();
+      } catch (error) {
+        console.error('Event listener error for click:', error);
+      }
     });
   }
 
@@ -105,7 +138,7 @@ export class InteractiveExamples {
    * Display the code for a specific example
    */
   private displayExampleCode(exampleName: string): void {
-    const codeDisplay = document.getElementById('example-code-display');
+    const codeDisplay = document?.getElementById('example-code-display');
     if (!codeDisplay) return;
 
     const codeExamples = {
@@ -125,8 +158,8 @@ if (organism.canReproduce()) {
       'simulation-setup': `
 // Simulation Setup Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -164,8 +197,8 @@ const organisms = organismTypes.map((type, index) =>
       'performance-demo': `
 // Performance Demo Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -186,8 +219,8 @@ const memoryStats = simulation.getMemoryStats();
       'memory-management': `
 // Memory Management Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -225,8 +258,8 @@ const simulation = new OrganismSimulation(canvas, customOrganism);
       'event-handling': `
 // Event Handling Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -236,9 +269,7 @@ const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 const monitorStats = () => {
   const stats = simulation.getStats();
 
-  if (stats.population > 50) {
-
-  }
+  if (stats.population > 50) {   }
 };
 
 // Monitor every 2 seconds
@@ -251,8 +282,8 @@ simulation.start();
       'statistics-tracking': `
 // Statistics Tracking Example
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas?.width = 800;
+canvas?.height = 600;
 
 const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
 
@@ -271,10 +302,9 @@ const trackStats = () => {
     ...stats
   });
 
-  if (statsHistory.length > 10) {
-    .map(s => s.population)
+  if (statsHistory.length > 10) { .map(s => s.population)
     );
-  }
+    }
 };
 
 setInterval(trackStats, 1000);
@@ -307,8 +337,8 @@ setInterval(trackStats, 1000);
    * Clear the output area
    */
   private clearOutput(): void {
-    const canvasContainer = document.getElementById('example-canvas-container');
-    const consoleOutput = document.getElementById('example-console');
+    const canvasContainer = document?.getElementById('example-canvas-container');
+    const consoleOutput = document?.getElementById('example-console');
 
     if (canvasContainer) canvasContainer.innerHTML = '';
     if (consoleOutput) consoleOutput.innerHTML = '';
@@ -318,7 +348,7 @@ setInterval(trackStats, 1000);
    * Log messages to the example console
    */
   private logToConsole(message: string): void {
-    const consoleOutput = document.getElementById('example-console');
+    const consoleOutput = document?.getElementById('example-console');
     if (consoleOutput) {
       const logEntry = document.createElement('div');
       logEntry.className = 'log-entry';
@@ -338,7 +368,7 @@ setInterval(trackStats, 1000);
     canvas.style.border = '1px solid #ccc';
     canvas.style.backgroundColor = '#f0f0f0';
 
-    const container = document.getElementById('example-canvas-container');
+    const container = document?.getElementById('example-canvas-container');
     if (container) {
       container.appendChild(canvas);
     }
@@ -374,7 +404,7 @@ setInterval(trackStats, 1000);
 
   private simulationSetupExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Simulation created');
 
@@ -404,14 +434,18 @@ setInterval(trackStats, 1000);
     ];
 
     types.forEach(type => {
-      this.logToConsole(
-        `${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
-      );
+      try {
+        this.logToConsole(
+          `${type.name}: Growth=${type.growthRate}, Death=${type.deathRate}, Max Age=${type.maxAge}`
+        );
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
 
     // Create organisms of different types
     const canvas = this.createExampleCanvas(400, 300);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas?.getContext('2d');
 
     if (ctx) {
       types.forEach((type, index) => {
@@ -425,7 +459,7 @@ setInterval(trackStats, 1000);
 
   private performanceDemoExample(): void {
     const canvas = this.createExampleCanvas(600, 400);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Performance test setup (organisms added via placement in real simulation)');
 
@@ -436,9 +470,10 @@ setInterval(trackStats, 1000);
 
     this.logToConsole(`Performance test completed in ${(endTime - startTime).toFixed(2)}ms`);
 
-    // Enable optimizations
-    simulation.setOptimizationsEnabled(true);
-    this.logToConsole('Enabled algorithm optimizations');
+    // Enable optimizations (commented out - method doesn't exist yet)
+    // TODO: Implement setOptimizationsEnabled method in OrganismSimulation
+    // simulation.setOptimizationsEnabled(true);
+    this.logToConsole('Optimizations would be enabled here');
 
     const stats = simulation.getStats();
     this.logToConsole(`Current population: ${stats.population}`);
@@ -449,24 +484,28 @@ setInterval(trackStats, 1000);
 
   private memoryManagementExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
-    const initialMemory = simulation.getMemoryStats();
-    this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const initialMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Initial memory - Pool size: ${initialMemory.organismPool.poolSize}`);
+    this.logToConsole('Memory management example - methods not yet implemented');
 
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
 
-    const afterMemory = simulation.getMemoryStats();
-    this.logToConsole(`Memory stats - Pool size: ${afterMemory.organismPool.poolSize}`);
-    this.logToConsole(`Total organisms: ${afterMemory.totalOrganisms}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const afterMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Memory stats - Pool size: ${afterMemory.organismPool.poolSize}`);
+    // this.logToConsole(`Total organisms: ${afterMemory.totalOrganisms}`);
 
-    // Toggle SoA optimization
-    simulation.toggleSoAOptimization(true);
-    this.logToConsole('Enabled Structure of Arrays optimization');
+    // TODO: Implement toggleSoAOptimization method in OrganismSimulation
+    // simulation.toggleSoAOptimization(true);
+    this.logToConsole('SoA optimization would be enabled here');
 
-    const optimizedMemory = simulation.getMemoryStats();
-    this.logToConsole(`Using SoA: ${optimizedMemory.usingSoA}`);
+    // TODO: Implement getMemoryStats method in OrganismSimulation
+    // const optimizedMemory = simulation.getMemoryStats();
+    // this.logToConsole(`Using SoA: ${optimizedMemory.usingSoA}`);
   }
 
   private customOrganismExample(): void {
@@ -478,6 +517,10 @@ setInterval(trackStats, 1000);
       deathRate: 0.01,
       maxAge: 200,
       description: 'Custom example organism',
+      behaviorType: BehaviorType.PRODUCER, // Required property
+      initialEnergy: 100, // Required property
+      maxEnergy: 200, // Required property
+      energyConsumption: 1, // Required property
     };
 
     this.logToConsole(`Created custom organism type: ${customType.name}`);
@@ -489,7 +532,7 @@ setInterval(trackStats, 1000);
 
     // Draw the custom organism
     const canvas = this.createExampleCanvas(400, 300);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas?.getContext('2d');
 
     if (ctx) {
       organism.draw(ctx);
@@ -499,7 +542,7 @@ setInterval(trackStats, 1000);
 
   private eventHandlingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     this.logToConsole('Setting up event monitoring...');
 
@@ -525,7 +568,7 @@ setInterval(trackStats, 1000);
 
   private statisticsTrackingExample(): void {
     const canvas = this.createExampleCanvas(400, 300);
-    const simulation = new OrganismSimulation(canvas, getOrganismType('bacteria'));
+    const simulation = new OrganismSimulation(canvas);
 
     // In real simulation, organisms are added via click events
     this.logToConsole('In real simulation, organisms are added via click events');
@@ -570,7 +613,7 @@ setInterval(trackStats, 1000);
  * Initialize interactive examples when DOM is ready
  */
 export function initializeInteractiveExamples(containerId: string = 'interactive-examples'): void {
-  const container = document.getElementById(containerId);
+  const container = document?.getElementById(containerId);
   if (!container) {
     return;
   }
@@ -580,10 +623,28 @@ export function initializeInteractiveExamples(containerId: string = 'interactive
 
 // Auto-initialize if container exists
 if (typeof window !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('interactive-examples');
-    if (container) {
-      initializeInteractiveExamples();
+  document?.addEventListener('DOMContentLoaded', event => {
+    try {
+      const container = document?.getElementById('interactive-examples');
+      if (container) {
+        initializeInteractiveExamples();
+      }
+    } catch (error) {
+      console.error('Event listener error for DOMContentLoaded:', error);
     }
+  });
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
   });
 }

@@ -37,6 +37,11 @@ coverage/
 
 # CLI tool configurations and tokens
 .wrangler/
+# Deduplication backup files
+.deduplication-backups/
+duplication-details.txt
+deduplication-reports/
+
 .snyk
 wrangler.toml.local
 

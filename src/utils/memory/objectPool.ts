@@ -1,7 +1,6 @@
 import { Organism } from '../../core/organism';
-import type { OrganismType } from '../../models/organismTypes';
+import { BehaviorType, type OrganismType } from '../../models/organismTypes';
 import { log } from '../system/logger';
-import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
 
 /**
  * Generic object pool for efficient memory management
@@ -41,7 +40,9 @@ export class ObjectPool<T> {
         this.totalCreated++;
         return this.createFn();
       }
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -54,7 +55,9 @@ export class ObjectPool<T> {
         this.pool.push(obj);
       }
       // If pool is full, let object be garbage collected
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -95,7 +98,9 @@ export class ObjectPool<T> {
         count: this.pool.length,
         maxSize: this.maxSize,
       });
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 }
 
@@ -128,6 +133,10 @@ export class OrganismPool extends ObjectPool<Organism> {
           deathRate: 0,
           maxAge: 1,
           description: 'temporary',
+          behaviorType: BehaviorType.PRODUCER,
+          initialEnergy: 100,
+          maxEnergy: 200,
+          energyConsumption: 1,
         }),
       // Reset function - prepares organism for reuse
       (organism: Organism) => {
@@ -226,7 +235,11 @@ export class ArrayPool<T> {
   getStats(): { totalPools: number; totalArrays: number } {
     let totalArrays = 0;
     this.pools.forEach(pool => {
-      totalArrays += pool.length;
+      try {
+        totalArrays += pool.length;
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
 
     return {

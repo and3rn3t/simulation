@@ -1,6 +1,18 @@
 import { vi } from 'vitest';
+import { JSDOM } from 'jsdom';
 
 // Global test setup for Vitest
+
+// Set up a global DOM environment for tests
+const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+global.window = dom.window;
+global.document = dom.window.document;
+global.navigator = dom.window.navigator;
+
+// Mock other global properties if needed
+Object.defineProperty(global, 'HTMLElement', {
+  value: dom.window.HTMLElement,
+});
 
 // Mock Chart.js immediately
 vi.mock('chart.js', () => {

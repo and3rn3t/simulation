@@ -78,7 +78,7 @@ export class LeaderboardManager {
       if (saved) {
         this.entries = JSON.parse(saved);
       }
-    } catch (error) {
+    } catch (_error) {
       this.entries = [];
     }
   }
@@ -90,14 +90,16 @@ export class LeaderboardManager {
   private saveLeaderboard(): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.entries));
-    } catch (error) { /* handled */ }
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   /**
    * Updates the leaderboard display in the UI
    */
   updateLeaderboardDisplay(): void {
-    const leaderboardList = document.getElementById('leaderboard-list');
+    const leaderboardList = document?.getElementById('leaderboard-list');
     if (!leaderboardList) return;
 
     if (this.entries.length === 0) {

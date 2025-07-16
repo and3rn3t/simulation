@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface ModalConfig {
@@ -24,42 +45,58 @@ export class Modal extends BaseComponent {
   private previousFocus?: HTMLElement;
 
   constructor(config: ModalConfig = {}) {
-    super('div', `ui-modal ${config.className || ''}`);
+    super('div', `ui-modal ${config?.className || ''}`);
     this.config = { backdrop: true, keyboard: true, ...config };
     this.setupModal();
   }
 
   private setupModal(): void {
-    // Create backdrop if enabled
-    if (this.config.backdrop) {
-      this.backdrop = document.createElement('div');
-      this.backdrop.className = 'ui-modal__backdrop';
-      this.backdrop.addEventListener('click', this.handleBackdropClick.bind(this));
-      this.element.appendChild(this.backdrop);
+    try {
+      // Create backdrop if enabled
+      if (this.config.backdrop) {
+        this.backdrop = document.createElement('div');
+        this.backdrop.className = 'ui-modal__backdrop';
+        this.backdrop?.addEventListener('click', event => {
+          try {
+            this.handleBackdropClick(event);
+          } catch (error) {
+            console.error('Backdrop click error:', error);
+          }
+        });
+        this.element.appendChild(this.backdrop);
+      }
+
+      // Create dialog
+      this.dialog = document.createElement('div');
+      this.dialog.className = `ui-modal__dialog ${this.config.size ? `ui-modal__dialog--${this.config.size}` : ''}`;
+      this.element.appendChild(this.dialog);
+
+      // Create header if title or closable
+      if (this.config.title || this.config.closable) {
+        this.createHeader();
+      }
+
+      // Create content area
+      this.content = document.createElement('div');
+      this.content.className = 'ui-modal__content';
+      this.dialog.appendChild(this.content);
+
+      // Set up keyboard navigation
+      if (this.config.keyboard) {
+        this.element?.addEventListener('keydown', event => {
+          try {
+            this.handleKeydown(event);
+          } catch (error) {
+            console.error('Keydown event error:', error);
+          }
+        });
+      }
+
+      // Initially hidden
+      this.element.style.display = 'none';
+    } catch (error) {
+      console.error('Modal setup error:', error);
     }
-
-    // Create dialog
-    this.dialog = document.createElement('div');
-    this.dialog.className = `ui-modal__dialog ${this.config.size ? `ui-modal__dialog--${this.config.size}` : ''}`;
-    this.element.appendChild(this.dialog);
-
-    // Create header if title or closable
-    if (this.config.title || this.config.closable) {
-      this.createHeader();
-    }
-
-    // Create content area
-    this.content = document.createElement('div');
-    this.content.className = 'ui-modal__content';
-    this.dialog.appendChild(this.content);
-
-    // Set up keyboard navigation
-    if (this.config.keyboard) {
-      this.addEventListener('keydown', this.handleKeydown.bind(this));
-    }
-
-    // Initially hidden
-    this.element.style.display = 'none';
   }
 
   private createHeader(): void {
@@ -81,7 +118,13 @@ export class Modal extends BaseComponent {
       closeBtn.className = 'ui-modal__close-btn';
       closeBtn.innerHTML = '×';
       closeBtn.setAttribute('aria-label', 'Close modal');
-      closeBtn.addEventListener('click', this.close.bind(this));
+      closeBtn?.addEventListener('click', _event => {
+        try {
+          this.close();
+        } catch (error) {
+          console.error('Close button error:', error);
+        }
+      });
       header.appendChild(closeBtn);
     }
 
@@ -89,18 +132,18 @@ export class Modal extends BaseComponent {
   }
 
   private handleBackdropClick(event: MouseEvent): void {
-    if (event.target === this.backdrop) {
+    if (event?.target === this.backdrop) {
       this.close();
     }
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && this.isOpen) {
+    if (event?.key === 'Escape' && this.isOpen) {
       this.close();
     }
 
     // Trap focus within modal
-    if (event.key === 'Tab') {
+    if (event?.key === 'Tab') {
       this.trapFocus(event);
     }
   }
@@ -113,15 +156,15 @@ export class Modal extends BaseComponent {
     const firstElement = focusableElements[0] as HTMLElement;
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-    if (event.shiftKey) {
+    if (event?.shiftKey) {
       if (document.activeElement === firstElement) {
         lastElement.focus();
-        event.preventDefault();
+        event?.preventDefault();
       }
     } else {
       if (document.activeElement === lastElement) {
         firstElement.focus();
-        event.preventDefault();
+        event?.preventDefault();
       }
     }
   }
@@ -144,7 +187,7 @@ export class Modal extends BaseComponent {
 
     // Focus first focusable element or close button
     requestAnimationFrame(() => {
-      const firstFocusable = this.dialog.querySelector(
+      const firstFocusable = this.dialog?.querySelector(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       ) as HTMLElement;
 

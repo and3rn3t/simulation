@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Development Tools Module
  * Centralizes all development and debugging tools
@@ -15,16 +36,9 @@ import { DeveloperConsole } from './developerConsole';
 import { PerformanceProfiler } from './performanceProfiler';
 
 /**
- * Initialize all development tools
- * Should be called in development mode only
+ * Register profile command for performance profiling
  */
-export function initializeDevTools(): void {
-
-  const debugMode = DebugMode.getInstance();
-  const devConsole = DeveloperConsole.getInstance();
-  const profiler = PerformanceProfiler.getInstance();
-
-  // Register console commands for debug mode
+function registerProfileCommand(devConsole: DeveloperConsole, profiler: PerformanceProfiler): void {
   devConsole.registerCommand({
     name: 'profile',
     description: 'Start/stop performance profiling',
@@ -46,66 +60,132 @@ export function initializeDevTools(): void {
       }
     },
   });
+}
 
+/**
+ * Register sessions command for managing profiling sessions
+ */
+function registerSessionsCommand(
+  devConsole: DeveloperConsole,
+  profiler: PerformanceProfiler
+): void {
   devConsole.registerCommand({
     name: 'sessions',
     description: 'List all profiling sessions',
     usage: 'sessions [clear]',
     execute: args => {
-      if (args[0] === 'clear') {
-        profiler.clearSessions();
-        return 'Cleared all sessions';
+      try {
+        if (args[0] === 'clear') {
+          profiler.clearSessions();
+          return 'Cleared all sessions';
+        }
+
+        const sessions = profiler.getAllSessions();
+        if (sessions.length === 0) {
+          return 'No profiling sessions found';
+        }
+
+        let output = 'Profiling Sessions:\n';
+        sessions.forEach(session => {
+          try {
+            const duration = session.duration
+              ? `${(session.duration / 1000).toFixed(1)}s`
+              : 'ongoing';
+            output += `  ${session.id} - ${duration} - Avg FPS: ${session.averages.fps.toFixed(1)}\n`;
+          } catch (error) {
+            console.error('Session processing error:', error);
+          }
+        });
+        return output;
+      } catch (error) {
+        console.error('Sessions command error:', error);
+        return 'Error retrieving sessions';
       }
-      const sessions = profiler.getAllSessions();
-      if (sessions.length === 0) {
-        return 'No profiling sessions found';
-      }
-      let output = 'Profiling Sessions:\n';
-      sessions.forEach(session => {
-        const duration = session.duration ? `${(session.duration / 1000).toFixed(1)}s` : 'ongoing';
-        output += `  ${session.id} - ${duration} - Avg FPS: ${session.averages.fps.toFixed(1)}\n`;
-      });
-      return output;
     },
   });
+}
 
+/**
+ * Register export command for exporting session data
+ */
+function registerExportCommand(devConsole: DeveloperConsole, profiler: PerformanceProfiler): void {
   devConsole.registerCommand({
     name: 'export',
     description: 'Export profiling session data',
     usage: 'export <sessionId>',
     execute: args => {
-      if (args.length === 0) {
-        return 'Usage: export <sessionId>';
-      }
       try {
-        const data = profiler.exportSession(args[0]);
-        // Save to clipboard if available
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(data);
-          return `Exported session ${args[0]} to clipboard`;
-        } else {
+        if (args.length === 0) {
+          return 'Usage: export <sessionId>';
+        }
 
-          return `Session data logged to console (clipboard not available)`;
+        const sessionId = args[0];
+        if (!sessionId) {
+          return 'Session ID is required';
+        }
+
+        try {
+          const session = profiler.getSession(sessionId);
+          const data = session ? JSON.stringify(session, null, 2) : 'Session not found';
+          // Save to clipboard if available
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(data);
+            return `Exported session ${sessionId} to clipboard`;
+          } else {
+            console.log('Session data:', data);
+            return `Session data logged to console (clipboard not available)`;
+          }
+        } catch (error) {
+          return `Error: ${error}`;
         }
       } catch (error) {
-        return `Error: ${error}`;
+        console.error('Export command error:', error);
+        return 'Error exporting session';
       }
     },
   });
+}
 
-  // Add global keyboard shortcuts
-  document.addEventListener('keydown', e => {
-    // Ctrl+Shift+D for debug mode
-    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-      e.preventDefault();
-      debugMode.toggle();
+/**
+ * Setup global keyboard shortcuts for development tools
+ */
+function setupKeyboardShortcuts(debugMode: DebugMode): void {
+  document?.addEventListener('keydown', event => {
+    try {
+      // Ctrl+Shift+D for debug mode
+      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+        event.preventDefault();
+        debugMode.toggle();
+      }
+    } catch (error) {
+      console.error('Event listener error for keydown:', error);
     }
   });
+}
 
+/**
+ * Register all console commands for development tools
+ */
+function registerConsoleCommands(
+  devConsole: DeveloperConsole,
+  profiler: PerformanceProfiler
+): void {
+  registerProfileCommand(devConsole, profiler);
+  registerSessionsCommand(devConsole, profiler);
+  registerExportCommand(devConsole, profiler);
+}
 
+/**
+ * Initialize all development tools
+ * Should be called in development mode only
+ */
+export function initializeDevTools(): void {
+  const debugMode = DebugMode.getInstance();
+  const devConsole = DeveloperConsole.getInstance();
+  const profiler = PerformanceProfiler.getInstance();
 
-
-
+  registerConsoleCommands(devConsole, profiler);
+  setupKeyboardShortcuts(debugMode);
 }
 
 /**
@@ -121,7 +201,13 @@ export function isDevelopmentMode(): boolean {
 if (isDevelopmentMode()) {
   // Initialize after DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeDevTools);
+    document?.addEventListener('DOMContentLoaded', () => {
+      try {
+        initializeDevTools();
+      } catch (error) {
+        console.error('Event listener error for DOMContentLoaded:', error);
+      }
+    });
   } else {
     initializeDevTools();
   }

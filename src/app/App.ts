@@ -1,9 +1,9 @@
-import { AppConfig, createConfigFromEnv } from '../types';
+import { ConfigManager } from '../config/ConfigManager';
+import { AppConfig, createConfigFromEnv } from '../types/appTypes';
+import { MemoryPanelComponent } from '../ui/components/MemoryPanelComponent';
+import { PerformanceManager } from '../utils/performance/PerformanceManager';
 import { ErrorHandler, initializeGlobalErrorHandlers } from '../utils/system/errorHandler';
 import { Logger } from '../utils/system/logger';
-import { MemoryPanelComponent } from '../ui/components/MemoryPanelComponent';
-import { ConfigManager } from '../config/ConfigManager';
-import { PerformanceManager } from '../utils/performance/PerformanceManager';
 
 /**
  * Main application class that orchestrates initialization and lifecycle
@@ -40,29 +40,34 @@ export class App {
     }
 
     try {
-
       // Initialize global error handlers first
       initializeGlobalErrorHandlers();
 
       // Start performance monitoring if enabled
       if (this.configManager.getFeature('performanceMonitoring')) {
         this.performanceManager.startMonitoring(1000);
-
       }
 
       // Initialize core components based on configuration
       if (this.configManager.getFeature('memoryPanel')) {
         this.memoryPanelComponent = new MemoryPanelComponent();
-
       }
 
       // Load environment-specific features
       if (this.configManager.isDevelopment()) {
-        await this.initializeDevelopmentFeatures();
+        try {
+          await this.initializeDevelopmentFeatures();
+        } catch (error) {
+          console.error('Await error:', error);
+        }
       }
 
       // Initialize simulation core
-      await this.initializeSimulation();
+      try {
+        await this.initializeSimulation();
+      } catch (error) {
+        console.error('Await error:', error);
+      }
 
       this.initialized = true;
 
@@ -82,18 +87,17 @@ export class App {
    * Initialize development-specific features
    */
   private async initializeDevelopmentFeatures(): Promise<void> {
-
     if (this.configManager.getFeature('debugMode')) {
       try {
         await import('../dev/debugMode');
         // Initialize debug mode
-
-      } catch (error) { /* handled */ }
+      } catch (_error) {
+        /* handled */
+      }
     }
 
     if (this.configManager.get('ui').enableVisualDebug) {
       // Initialize visual debugging
-
     }
   }
 
@@ -101,15 +105,15 @@ export class App {
    * Initialize core simulation
    */
   private async initializeSimulation(): Promise<void> {
-
     try {
       // Import and initialize simulation components
       await import('../core/simulation');
 
       // Configure simulation based on app config
-      const simulationConfig = this.configManager.getSimulationConfig();
-
-    } catch (error) { /* handled */ }
+      const _simulationConfig = this.configManager.getSimulationConfig();
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   /**
@@ -117,21 +121,21 @@ export class App {
    */
   private logConfigurationSummary(): void {
     const config = this.configManager.exportConfig();
-    const enabledFeatures = Object.entries(config.features)
+    const _enabledFeatures = Object.entries(config?.features)
       .filter(([, enabled]) => enabled)
       .map(([feature]) => feature);
-    console.log({
-      enabledFeatures,
-      simulation: config.simulation,
-      ui: config.ui,
-    });
+    // TODO: Add configuration logging
   }
 
   /**
    * Get performance health status
    */
   public getPerformanceHealth(): { healthy: boolean; issues: string[] } {
-    return this.performanceManager.isPerformanceHealthy();
+    const isHealthy = this.performanceManager.isPerformanceHealthy();
+    return {
+      healthy: isHealthy,
+      issues: isHealthy ? [] : ['Performance may be degraded'],
+    };
   }
 
   /**
@@ -162,7 +166,6 @@ export class App {
    * Cleanup and shutdown the application
    */
   public shutdown(): void {
-
     // Stop performance monitoring
     if (this.performanceManager) {
       this.performanceManager.stopMonitoring();
@@ -174,7 +177,6 @@ export class App {
     }
 
     this.initialized = false;
-
   }
 
   public isInitialized(): boolean {

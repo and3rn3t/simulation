@@ -1,4 +1,27 @@
-import { Button, ComponentFactory, Panel, type PanelConfig } from './index';
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
+import { Button } from './Button';
+import { ComponentFactory } from './ComponentFactory';
+import { Panel, type PanelConfig } from './Panel';
 
 export interface ControlPanelConfig {
   title?: string;
@@ -21,7 +44,7 @@ export class ControlPanelComponent extends Panel {
 
   constructor(config: ControlPanelConfig = {}) {
     const panelConfig: PanelConfig = {
-      title: config.title || 'Simulation Controls',
+      title: config?.title || 'Simulation Controls',
       collapsible: true,
       className: 'control-panel',
     };
@@ -105,13 +128,17 @@ export class ControlPanelComponent extends Panel {
     speedDisplay.textContent = `Speed: ${this.speed}x`;
     speedDisplay.className = 'speed-display';
 
-    speedSlider.addEventListener('input', e => {
-      const target = e.target as HTMLInputElement;
-      this.speed = parseFloat(target.value);
-      speedDisplay.textContent = `Speed: ${this.speed}x`;
+    speedSlider?.addEventListener('input', event => {
+      try {
+        const target = event.target as HTMLInputElement;
+        this.speed = parseFloat(target?.value);
+        speedDisplay.textContent = `Speed: ${this.speed}x`;
 
-      if (this.controlConfig.onSpeedChange) {
-        this.controlConfig.onSpeedChange(this.speed);
+        if (this.controlConfig.onSpeedChange) {
+          this.controlConfig.onSpeedChange(this.speed);
+        }
+      } catch (error) {
+        console.error('Event listener error for input:', error);
       }
     });
 
@@ -139,9 +166,13 @@ export class ControlPanelComponent extends Panel {
         variant: 'switch',
         checked: this.autoSpawn,
         onChange: checked => {
-          this.autoSpawn = checked;
-          if (this.controlConfig.onAutoSpawnToggle) {
-            this.controlConfig.onAutoSpawnToggle(checked);
+          try {
+            this.autoSpawn = checked;
+            if (this.controlConfig.onAutoSpawnToggle) {
+              this.controlConfig.onAutoSpawnToggle(checked);
+            }
+          } catch (error) {
+            console.error('Callback error:', error);
           }
         },
       },
@@ -215,12 +246,12 @@ export class ControlPanelComponent extends Panel {
   setSpeed(speed: number): void {
     this.speed = Math.max(0.1, Math.min(5, speed));
 
-    const slider = this.element.querySelector('.speed-slider') as HTMLInputElement;
+    const slider = this.element?.querySelector('.speed-slider') as HTMLInputElement;
     if (slider) {
       slider.value = this.speed.toString();
     }
 
-    const display = this.element.querySelector('.speed-display');
+    const display = this.element?.querySelector('.speed-display');
     if (display) {
       display.textContent = `Speed: ${this.speed}x`;
     }

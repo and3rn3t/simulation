@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Utility functions for canvas operations and rendering
  */
@@ -33,7 +54,7 @@ export class CanvasUtils {
 
       this.canvas = canvas;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas?.getContext('2d');
       if (!ctx) {
         throw new CanvasError('Failed to get 2D rendering context');
       }
@@ -55,7 +76,9 @@ export class CanvasUtils {
     try {
       this.ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -80,7 +103,9 @@ export class CanvasUtils {
       }
 
       this.ctx.stroke();
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -109,7 +134,9 @@ export class CanvasUtils {
         this.canvas.width / 2,
         this.canvas.height / 2 + 20
       );
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -136,7 +163,9 @@ export class CanvasUtils {
       this.ctx.arc(x, y, size, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.restore();
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**
@@ -152,8 +181,8 @@ export class CanvasUtils {
 
       const rect = this.canvas.getBoundingClientRect();
       return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
+        x: event?.clientX - rect.left,
+        y: event?.clientY - rect.top,
       };
     } catch (error) {
       ErrorHandler.getInstance().handleError(
@@ -173,12 +202,12 @@ export class CanvasUtils {
    */
   getTouchCoordinates(event: TouchEvent): { x: number; y: number } {
     try {
-      if (!event || !event.touches || event.touches.length === 0) {
+      if (!event || !event?.touches || event?.touches.length === 0) {
         throw new CanvasError('Touch event with touches is required');
       }
 
       const rect = this.canvas.getBoundingClientRect();
-      const touch = event.touches[0];
+      const touch = event?.touches[0];
       return {
         x: touch.clientX - rect.left,
         y: touch.clientY - rect.top,
@@ -218,4 +247,18 @@ export class CanvasUtils {
       return { x: 0, y: 0 };
     }
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

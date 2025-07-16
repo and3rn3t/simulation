@@ -239,7 +239,7 @@ export function withPerformanceCriticalErrorHandling<T extends any[], R>(
   return (...args: T): R | undefined => {
     try {
       return operation(...args);
-    } catch (error) {
+    } catch (_error) {
       // Only log to console for performance-critical operations
       return fallback;
     }

@@ -1,0 +1,64 @@
+# TruffleHog ignore patterns for non-code files
+
+# Build outputs
+dist/
+build/
+coverage/
+node_modules/
+playwright-report/
+test-results/
+
+# Documentation and reports  
+docs/
+*.md
+**/*.md
+security-*.json
+code-complexity-report.json
+lint-errors.txt
+typescript-errors.txt
+duplication-details.txt
+generated-*.json
+
+# Configuration files (may contain example/template secrets)
+*.config.js
+*.config.ts
+docker-compose*.yml
+Dockerfile*
+nginx.conf
+lighthouserc.*
+codecov.yml
+renovate.json
+wrangler.toml
+
+# Scripts and automation
+scripts/
+.github/
+fix-*.ps1
+*.ps1
+*.sh
+
+# Test files
+test/
+e2e/
+**/*.test.ts
+**/*.test.js  
+**/*.spec.ts
+**/*.spec.js
+
+# Generated/temporary directories
+generated-*/
+deduplication-reports/
+github-integration/
+environments/
+tmp/
+temp/
+.cache/
+
+# HTML test files
+test-*.html
+*.test.html
+
+# Package lock files (contain hashes that look like secrets)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

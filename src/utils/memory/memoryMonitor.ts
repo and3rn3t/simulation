@@ -1,6 +1,28 @@
 import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
 import { log } from '../system/logger';
 
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
+
 /**
  * Memory usage information interface
  */
@@ -223,7 +245,9 @@ export class MemoryMonitor {
       try {
         (window as any).gc();
         log.logSystem('Forced garbage collection');
-      } catch { /* handled */ }
+      } catch {
+        /* handled */
+      }
     }
 
     // Notify other systems to do aggressive cleanup
@@ -354,7 +378,7 @@ export class MemoryAwareCache<K, V> {
     this.memoryMonitor = MemoryMonitor.getInstance();
 
     // Listen for memory cleanup events
-    window.addEventListener('memory-cleanup', (event: Event) => {
+    window?.addEventListener('memory-cleanup', event => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail?.level === 'aggressive') {
         this.clear();
@@ -418,8 +442,11 @@ export class MemoryAwareCache<K, V> {
     const evictCount = Math.max(1, Math.floor(entries.length * 0.25)); // Evict 25%
 
     for (let i = 0; i < evictCount; i++) {
-      const [key] = entries[i];
-      this.cache.delete(key);
+      const entry = entries[i];
+      if (entry) {
+        const [key] = entry;
+        this.cache.delete(key);
+      }
     }
 
     log.logSystem('Cache evicted entries', { evictCount, remainingSize: this.cache.size });

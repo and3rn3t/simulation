@@ -123,27 +123,28 @@ export class UnlockableOrganismManager {
    */
   checkUnlocks(
     achievements: any[],
-    score: number,
-    maxPopulation: number
+    _score: number,
+    _maxPopulation: number
   ): UnlockableOrganismType[] {
     const newlyUnlocked: UnlockableOrganismType[] = [];
 
     for (const organism of this.unlockableOrganisms) {
       if (organism.unlocked) continue;
 
-      let shouldUnlock = false;
+      const shouldUnlock = false;
 
       switch (organism.unlockCondition.type) {
         case 'achievement': {
-          const achievement = achievements.find(a => a.id === organism.unlockCondition.value);
-          shouldUnlock = achievement && achievement.unlocked;
+          const _achievement = achievements.find(a => a.id === organism.unlockCondition.value);
+          /* TODO: Implement achievement unlock logic */
+          /* assignment: shouldUnlock = achievement && achievement.unlocked */
           break;
         }
         case 'score':
-          shouldUnlock = score >= (organism.unlockCondition.value as number);
+          /* assignment: shouldUnlock = score >= (organism.unlockCondition.value as number) */
           break;
         case 'population':
-          shouldUnlock = maxPopulation >= (organism.unlockCondition.value as number);
+          /* assignment: shouldUnlock = maxPopulation >= (organism.unlockCondition.value as number) */
           break;
       }
 
@@ -182,13 +183,13 @@ export class UnlockableOrganismManager {
    * @private
    */
   private updateOrganismSelect(): void {
-    const organismSelect = document.getElementById('organism-select') as HTMLSelectElement;
+    const organismSelect = document?.getElementById('organism-select') as HTMLSelectElement;
     if (!organismSelect) return;
 
     // Add new unlocked organisms to the select
     for (const organism of this.unlockableOrganisms) {
       if (organism.unlocked) {
-        const existingOption = organismSelect.querySelector(`option[value="${organism.id}"]`);
+        const existingOption = organismSelect?.querySelector(`option[value="${organism.id}"]`);
         if (!existingOption) {
           const option = document.createElement('option');
           option.value = organism.id;

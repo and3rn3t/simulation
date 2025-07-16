@@ -1,263 +1,289 @@
+import {
+  getDeviceType,
+  getScreenInfo,
+  isMobileDevice,
+  supportsTouchEvents,
+} from './MobileDetection';
+
+export interface MobileTestResult {
+  test: string;
+  passed: boolean;
+  details: string;
+  performance?: number;
+}
+
+export interface MobileCapabilities {
+  isMobile: boolean;
+  supportsTouch: boolean;
+  deviceType: 'mobile' | 'tablet' | 'desktop';
+  screenInfo: {
+    width: number;
+    height: number;
+    pixelRatio: number;
+    orientation: string;
+  };
+  supportedFeatures: string[];
+}
+
 /**
- * Mobile Features Test Interface
- * Provides visual feedback and testing for advanced mobile features
+ * Mobile Test Interface - Simplified implementation for testing mobile features
  */
-
-import { isMobileDevice } from '../system/mobileDetection';
-
 export class MobileTestInterface {
-  private simulation: any;
-  private testSection: HTMLElement | null = null;
+  private testResults: MobileTestResult[] = [];
+  private isRunning: boolean = false;
 
-  constructor(simulation: any) {
-    this.simulation = simulation;
-    this.initialize();
+  constructor() {
+    // Auto-run basic capability detection
+    this.detectCapabilities();
   }
 
-  private initialize(): void {
-    this.testSection = document.getElementById('mobile-test-section');
-
-    // Show mobile test section only on mobile devices
-    if (this.isMobileDevice()) {
-      this.testSection?.style.setProperty('display', 'block');
-      this.updateDeviceInfo();
-      this.setupEventListeners();
-      this.startPerformanceMonitoring();
-      this.updateFeatureStatus();
-    }
-  }
-
-  private isMobileDevice(): boolean {
-    // Use secure mobile detection utility instead of vulnerable regex
-    return isMobileDevice() || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  }
-
-  private updateDeviceInfo(): void {
-    const deviceTypeElement = document.getElementById('device-type');
-    const touchSupportElement = document.getElementById('touch-support');
-    const screenSizeElement = document.getElementById('screen-size');
-
-    if (deviceTypeElement) {
-      deviceTypeElement.textContent = this.isMobileDevice() ? 'Mobile' : 'Desktop';
-    }
-
-    if (touchSupportElement) {
-      touchSupportElement.textContent = 'ontouchstart' in window ? 'Yes' : 'No';
-    }
-
-    if (screenSizeElement) {
-      screenSizeElement.textContent = `${window.innerWidth}x${window.innerHeight}`;
-    }
-  }
-
-  private setupEventListeners(): void {
-    // Test effect button
-    const testEffectBtn = document.getElementById('test-effect-btn');
-    testEffectBtn?.addEventListener('click', () => {
-      this.testVisualEffect();
-    });
-
-    // Share button
-    const shareBtn = document.getElementById('share-btn');
-    shareBtn?.addEventListener('click', () => {
-      this.testSocialSharing();
-    });
-
-    // Install button (will be shown if PWA install is available)
-    const installBtn = document.getElementById('install-btn');
-    installBtn?.addEventListener('click', () => {
-      this.testPWAInstall();
-    });
-
-    // Listen for custom events from mobile features
-    window.addEventListener('mobile-gesture-detected', (event: any) => {
-      this.updateGestureInfo(event.detail);
-    });
-
-    window.addEventListener('mobile-feature-status', (event: any) => {
-      this.updateFeatureStatus(event.detail);
-    });
-  }
-
-  private updateFeatureStatus(_status?: any): void {
-    if (this.simulation?.getMobileFeatureStatus) {
-      const featureStatus = this.simulation.getMobileFeatureStatus();
-
-      // Update gesture status
-      const gestureStatus = document.getElementById('gesture-status');
-      if (gestureStatus) {
-        gestureStatus.textContent = featureStatus.advancedGesturesEnabled ? 'Enabled' : 'Disabled';
-        gestureStatus.style.color = featureStatus.advancedGesturesEnabled ? '#4CAF50' : '#f44336';
-      }
-
-      // Update effects status
-      const effectsStatus = document.getElementById('effects-status');
-      if (effectsStatus) {
-        effectsStatus.textContent = featureStatus.visualEffectsEnabled ? 'Enabled' : 'Disabled';
-        effectsStatus.style.color = featureStatus.visualEffectsEnabled ? '#4CAF50' : '#f44336';
-      }
-
-      // Update PWA status
-      const pwaStatus = document.getElementById('pwa-status');
-      if (pwaStatus) {
-        pwaStatus.textContent = featureStatus.pwaEnabled ? 'Ready' : 'Not Available';
-        pwaStatus.style.color = featureStatus.pwaEnabled ? '#4CAF50' : '#f44336';
-      }
-
-      // Update analytics status
-      const analyticsStatus = document.getElementById('analytics-status');
-      if (analyticsStatus) {
-        analyticsStatus.textContent = featureStatus.analyticsEnabled ? 'Tracking' : 'Disabled';
-        analyticsStatus.style.color = featureStatus.analyticsEnabled ? '#4CAF50' : '#f44336';
-      }
-
-      // Update social status
-      const socialStatus = document.getElementById('social-status');
-      if (socialStatus) {
-        socialStatus.textContent = featureStatus.socialSharingEnabled
-          ? 'Available'
-          : 'Not Supported';
-        socialStatus.style.color = featureStatus.socialSharingEnabled ? '#4CAF50' : '#f44336';
-      }
-    }
-  }
-
-  private updateGestureInfo(gestureData: any): void {
-    const lastGesture = document.getElementById('last-gesture');
-    if (lastGesture && gestureData) {
-      lastGesture.textContent = `Last: ${gestureData.type} (${gestureData.timestamp || 'now'})`;
-    }
-  }
-
-  private testVisualEffect(): void {
-    // Simulate a test effect
-    const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // Dispatch a custom event to trigger visual effects
-      window.dispatchEvent(
-        new CustomEvent('test-visual-effect', {
-          detail: { x: centerX, y: centerY },
-        })
-      );
-
-      this.showTestFeedback('Visual effect triggered!');
-    }
-  }
-
-  private async testSocialSharing(): Promise<void> {
-    try {
-      if (this.simulation?.captureAndShare) {
-        await this.simulation.captureAndShare();
-        this.showTestFeedback('Screenshot captured and shared!');
-      } else if (navigator.share) {
-        await navigator.share({
-          title: 'My Organism Simulation',
-          text: 'Check out my organism simulation!',
-          url: window.location.href,
-        });
-        this.showTestFeedback('Shared successfully!');
-      } else {
-        this.showTestFeedback('Sharing not supported on this device');
-      }
-    } catch (error) {
-      this.showTestFeedback(`Sharing failed: ${(error as Error).message}`);
-    }
-  }
-
-  private testPWAInstall(): void {
-    // This would be handled by the PWA manager
-    this.showTestFeedback('PWA install requested');
-  }
-
-  private startPerformanceMonitoring(): void {
-    let frameCount = 0;
-    let lastTime = performance.now();
-
-    const updatePerformance = () => {
-      frameCount++;
-      const currentTime = performance.now();
-
-      // Update FPS every second
-      if (currentTime - lastTime >= 1000) {
-        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-        const fpsCounter = document.getElementById('fps-counter');
-        if (fpsCounter) {
-          fpsCounter.textContent = fps.toString();
-          fpsCounter.style.color = fps >= 30 ? '#4CAF50' : fps >= 15 ? '#FF9800' : '#f44336';
-        }
-
-        frameCount = 0;
-        lastTime = currentTime;
-      }
-
-      // Update memory usage if available
-      if ((performance as any).memory) {
-        const memory = (performance as any).memory;
-        const memoryElement = document.getElementById('memory-usage');
-        if (memoryElement) {
-          const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
-          memoryElement.textContent = `${usedMB}MB`;
-        }
-      }
-
-      requestAnimationFrame(updatePerformance);
+  /**
+   * Detect mobile capabilities
+   */
+  private detectCapabilities(): void {
+    const capabilities: MobileCapabilities = {
+      isMobile: isMobileDevice(),
+      supportsTouch: supportsTouchEvents(),
+      deviceType: getDeviceType(),
+      screenInfo: getScreenInfo(),
+      supportedFeatures: this.detectSupportedFeatures(),
     };
 
-    updatePerformance();
+    this.addTestResult({
+      test: 'Mobile Detection',
+      passed: true,
+      details: `Device: ${capabilities.deviceType}, Touch: ${capabilities.supportsTouch}, Mobile: ${capabilities.isMobile}`,
+    });
+  }
 
-    // Update battery level if available
-    if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
-        const updateBattery = () => {
-          const batteryElement = document.getElementById('battery-level');
-          if (batteryElement) {
-            const level = Math.round(battery.level * 100);
-            batteryElement.textContent = `${level}%`;
-            batteryElement.style.color = level > 20 ? '#4CAF50' : '#f44336';
-          }
-        };
+  /**
+   * Detect supported features
+   */
+  private detectSupportedFeatures(): string[] {
+    const features: string[] = [];
 
-        updateBattery();
-        battery.addEventListener('levelchange', updateBattery);
+    // Check for various mobile features
+    if ('serviceWorker' in navigator) features.push('ServiceWorker');
+    if ('Notification' in window) features.push('Notifications');
+    if ('requestFullscreen' in document.documentElement) features.push('Fullscreen');
+    if ('geolocation' in navigator) features.push('Geolocation');
+    if ('deviceorientation' in window) features.push('DeviceOrientation');
+    if ('DeviceMotionEvent' in window) features.push('DeviceMotion');
+    if ('webkitRequestFullscreen' in document.documentElement) features.push('WebkitFullscreen');
+    if ('share' in navigator) features.push('WebShare');
+    if ('vibrate' in navigator) features.push('Vibration');
+
+    return features;
+  }
+
+  /**
+   * Run comprehensive mobile tests
+   */
+  public async runAllTests(): Promise<MobileTestResult[]> {
+    if (this.isRunning) {
+      throw new Error('Tests are already running');
+    }
+
+    this.isRunning = true;
+    this.testResults = [];
+
+    try {
+      // Basic capability tests
+      await this.testBasicCapabilities();
+
+      // Touch interaction tests
+      if (supportsTouchEvents()) {
+        await this.testTouchCapabilities();
+      }
+
+      // Performance tests
+      await this.testPerformance();
+
+      // Feature availability tests
+      await this.testFeatureAvailability();
+
+      return this.testResults;
+    } finally {
+      this.isRunning = false;
+    }
+  }
+
+  /**
+   * Test basic mobile capabilities
+   */
+  private async testBasicCapabilities(): Promise<void> {
+    // Screen size test
+    const screenInfo = getScreenInfo();
+    this.addTestResult({
+      test: 'Screen Size',
+      passed: screenInfo.width > 0 && screenInfo.height > 0,
+      details: `${screenInfo.width}x${screenInfo.height}, ratio: ${screenInfo.pixelRatio}`,
+    });
+
+    // User agent test
+    const userAgent = navigator.userAgent;
+    const isMobileUA = /Mobile|Android|iPhone|iPad/.test(userAgent);
+    this.addTestResult({
+      test: 'User Agent Detection',
+      passed: true,
+      details: `Mobile in UA: ${isMobileUA}, Detected: ${isMobileDevice()}`,
+    });
+
+    // Viewport test
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+    this.addTestResult({
+      test: 'Viewport',
+      passed: viewport.width > 0 && viewport.height > 0,
+      details: `${viewport.width}x${viewport.height}`,
+    });
+  }
+
+  /**
+   * Test touch capabilities
+   */
+  private async testTouchCapabilities(): Promise<void> {
+    // Touch event support
+    const touchSupport = 'ontouchstart' in window;
+    this.addTestResult({
+      test: 'Touch Events',
+      passed: touchSupport,
+      details: `Touch events ${touchSupport ? 'supported' : 'not supported'}`,
+    });
+
+    // Touch points
+    const maxTouchPoints = navigator.maxTouchPoints || 0;
+    this.addTestResult({
+      test: 'Touch Points',
+      passed: maxTouchPoints > 0,
+      details: `Max touch points: ${maxTouchPoints}`,
+    });
+
+    // Pointer events
+    const pointerSupport = 'onpointerdown' in window;
+    this.addTestResult({
+      test: 'Pointer Events',
+      passed: pointerSupport,
+      details: `Pointer events ${pointerSupport ? 'supported' : 'not supported'}`,
+    });
+  }
+
+  /**
+   * Test performance characteristics
+   */
+  private async testPerformance(): Promise<void> {
+    const startTime = performance.now();
+
+    // Simple computation test
+    let _sum = 0;
+    for (let i = 0; i < 1000000; i++) {
+      _sum += i;
+    }
+
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    this.addTestResult({
+      test: 'CPU Performance',
+      passed: duration < 1000, // Should complete in under 1 second
+      details: `Computation took ${duration.toFixed(2)}ms`,
+      performance: duration,
+    });
+
+    // Memory test (if available)
+    if ('memory' in performance) {
+      const memInfo = (performance as any).memory;
+      this.addTestResult({
+        test: 'Memory Info',
+        passed: true,
+        details: `Used: ${(memInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB, Total: ${(memInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
       });
     }
   }
 
-  private showTestFeedback(message: string): void {
-    // Create a temporary feedback element
-    const feedback = document.createElement('div');
-    feedback.textContent = message;
-    feedback.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      z-index: 1000;
-      font-size: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    `;
+  /**
+   * Test feature availability
+   */
+  private async testFeatureAvailability(): Promise<void> {
+    const features = this.detectSupportedFeatures();
 
-    document.body.appendChild(feedback);
+    this.addTestResult({
+      test: 'Feature Detection',
+      passed: features.length > 0,
+      details: `Supported features: ${features.join(', ')}`,
+    });
 
-    // Remove after 3 seconds
-    setTimeout(() => {
-      if (feedback.parentNode) {
-        feedback.parentNode.removeChild(feedback);
+    // Service Worker test
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        this.addTestResult({
+          test: 'Service Worker',
+          passed: !!registration,
+          details: registration ? 'Service Worker registered' : 'No Service Worker found',
+        });
+      } catch (error) {
+        this.addTestResult({
+          test: 'Service Worker',
+          passed: false,
+          details: `Service Worker error: ${error}`,
+        });
       }
-    }, 3000);
+    }
   }
 
-  public updateSessionInfo(sessionData: any): void {
-    const sessionInfo = document.getElementById('session-info');
-    if (sessionInfo && sessionData) {
-      sessionInfo.textContent = `Session: ${sessionData.duration || 0}s`;
-    }
+  /**
+   * Add a test result
+   */
+  private addTestResult(result: MobileTestResult): void {
+    this.testResults.push(result);
+  }
+
+  /**
+   * Get current test results
+   */
+  public getTestResults(): MobileTestResult[] {
+    return [...this.testResults];
+  }
+
+  /**
+   * Get mobile capabilities summary
+   */
+  public getCapabilities(): MobileCapabilities {
+    return {
+      isMobile: isMobileDevice(),
+      supportsTouch: supportsTouchEvents(),
+      deviceType: getDeviceType(),
+      screenInfo: getScreenInfo(),
+      supportedFeatures: this.detectSupportedFeatures(),
+    };
+  }
+
+  /**
+   * Check if tests are currently running
+   */
+  public isTestRunning(): boolean {
+    return this.isRunning;
+  }
+
+  /**
+   * Get a summary of passed/failed tests
+   */
+  public getTestSummary(): { total: number; passed: number; failed: number; successRate: number } {
+    const total = this.testResults.length;
+    const passed = this.testResults.filter(test => test.passed).length;
+    const failed = total - passed;
+    const successRate = total > 0 ? (passed / total) * 100 : 0;
+
+    return { total, passed, failed, successRate };
+  }
+
+  /**
+   * Clear all test results
+   */
+  public clearResults(): void {
+    this.testResults = [];
   }
 }

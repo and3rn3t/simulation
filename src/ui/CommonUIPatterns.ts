@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Common UI Patterns
  * Reduces duplication in UI components
@@ -14,7 +35,7 @@ export const CommonUIPatterns = {
         element.className = className;
       }
       return element;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   },
@@ -22,15 +43,11 @@ export const CommonUIPatterns = {
   /**
    * Standard event listener with error handling
    */
-  addEventListenerSafe(
-    element: Element,
-    event: string,
-    handler: EventListener
-  ): boolean {
+  addEventListenerSafe(element: Element, event: string, handler: EventListener): boolean {
     try {
-      element.addEventListener(event, handler);
+      element?.addEventListener(event, handler);
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   },
@@ -41,7 +58,7 @@ export const CommonUIPatterns = {
   querySelector<T extends Element>(selector: string): T | null {
     try {
       return document.querySelector<T>(selector);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   },
@@ -56,8 +73,8 @@ export const CommonUIPatterns = {
         return true;
       }
       return false;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
-  }
+  },
 };

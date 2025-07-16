@@ -1,4 +1,24 @@
-import { BaseSingleton } from '../utils/system/BaseSingleton';
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Developer Console System
  * Provides a command-line interface for debugging and development
@@ -11,7 +31,8 @@ export interface ConsoleCommand {
   execute: (args: string[]) => Promise<string> | string;
 }
 
-export class DeveloperConsole extends BaseSingleton {
+export class DeveloperConsole {
+  private static instance: DeveloperConsole;
   private isVisible = false;
   private consoleElement: HTMLElement | null = null;
   private inputElement: HTMLInputElement | null = null;
@@ -20,12 +41,19 @@ export class DeveloperConsole extends BaseSingleton {
   private commandHistory: string[] = [];
   private historyIndex = -1;
 
-  static getInstance(): DeveloperConsole {
-    return super.getInstance.call(this, 'DeveloperConsole');
+  private constructor() {
+    // Private constructor for singleton
+    this.initializeConsole();
   }
 
-  protected constructor() {
-    super();
+  static getInstance(): DeveloperConsole {
+    if (!DeveloperConsole.instance) {
+      DeveloperConsole.instance = new DeveloperConsole();
+    }
+    return DeveloperConsole.instance;
+  }
+
+  private initializeConsole(): void {
     this.initializeDefaultCommands();
     this.setupKeyboardShortcuts();
   }
@@ -94,9 +122,10 @@ export class DeveloperConsole extends BaseSingleton {
   }
 
   private createConsoleElement(): void {
-    this.consoleElement = document.createElement('div');
-    this.consoleElement.id = 'dev-console';
-    this.consoleElement.innerHTML = `
+    try {
+      this.consoleElement = document.createElement('div');
+      this.consoleElement.id = 'dev-console';
+      this.consoleElement.innerHTML = `
       <div class="console-header">
         <span>🔧 Developer Console</span>
         <button id="console-close">×</button>
@@ -108,18 +137,33 @@ export class DeveloperConsole extends BaseSingleton {
       </div>
     `;
 
-    this.styleConsoleElement();
-    document.body.appendChild(this.consoleElement);
+      this.styleConsoleElement();
+      document.body.appendChild(this.consoleElement);
 
-    this.outputElement = document.getElementById('console-output');
-    this.inputElement = document.getElementById('console-input') as HTMLInputElement;
+      this.outputElement = document?.getElementById('console-output');
+      this.inputElement = document?.getElementById('console-input') as HTMLInputElement;
 
-    // Setup event listeners
-    const closeBtn = document.getElementById('console-close');
-    closeBtn?.addEventListener('click', () => this.hide());
+      // Setup event listeners
+      const closeBtn = document?.getElementById('console-close');
+      closeBtn?.addEventListener('click', _event => {
+        try {
+          this.hide();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
 
-    this.inputElement?.addEventListener('keydown', e => this.handleKeyDown(e));
-    this.inputElement?.focus();
+      this.inputElement?.addEventListener('keydown', event => {
+        try {
+          this.handleKeyDown(event);
+        } catch (error) {
+          console.error('Event listener error for keydown:', error);
+        }
+      });
+      this.inputElement?.focus();
+    } catch (error) {
+      console.error('Error creating console element:', error);
+    }
   }
 
   private styleConsoleElement(): void {
@@ -238,7 +282,7 @@ export class DeveloperConsole extends BaseSingleton {
       if (this.historyIndex < this.commandHistory.length - 1) {
         this.historyIndex++;
         const historyValue = this.commandHistory[this.historyIndex];
-        if (this.inputElement && historyValue) {
+        if (this.inputElement && historyValue !== undefined) {
           this.inputElement.value = historyValue;
         }
       }
@@ -247,7 +291,7 @@ export class DeveloperConsole extends BaseSingleton {
       if (this.historyIndex > 0) {
         this.historyIndex--;
         const historyValue = this.commandHistory[this.historyIndex];
-        if (this.inputElement && historyValue) {
+        if (this.inputElement && historyValue !== undefined) {
           this.inputElement.value = historyValue;
         }
       } else if (this.historyIndex === 0) {
@@ -263,7 +307,7 @@ export class DeveloperConsole extends BaseSingleton {
     const [commandName, ...args] = input.split(' ');
     this.log(`> ${input}`, 'info');
 
-    if (!commandName) {
+    if (!commandName || commandName.trim() === '') {
       this.log('Empty command entered.', 'error');
       return;
     }
@@ -285,43 +329,75 @@ export class DeveloperConsole extends BaseSingleton {
   }
 
   private setupKeyboardShortcuts(): void {
-    document.addEventListener('keydown', e => {
-      // Ctrl+` or Ctrl+~ to toggle console
-      if (e.ctrlKey && (e.key === '`' || e.key === '~')) {
-        e.preventDefault();
-        this.toggle();
-      }
-      // Escape to hide console
-      else if (e.key === 'Escape' && this.isVisible) {
-        this.hide();
-      }
-    });
+    try {
+      document?.addEventListener('keydown', event => {
+        try {
+          // Ctrl+` or Ctrl+~ to toggle console
+          if (event.ctrlKey && (event.key === '`' || event.key === '~')) {
+            event.preventDefault();
+            this.toggle();
+          }
+          // Escape to hide console
+          else if (event.key === 'Escape' && this.isVisible) {
+            this.hide();
+          }
+        } catch (error) {
+          console.error('Keyboard shortcut error:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error setting up keyboard shortcuts:', error);
+    }
   }
 
   private initializeDefaultCommands(): void {
+    try {
+      this.registerHelpCommand();
+      this.registerClearCommand();
+      this.registerReloadCommand();
+      this.registerPerformanceCommand();
+      this.registerLocalStorageCommand();
+      this.registerDebugCommand();
+    } catch (error) {
+      console.error('Error initializing default commands:', error);
+    }
+  }
+
+  private registerHelpCommand(): void {
     this.registerCommand({
       name: 'help',
       description: 'Show available commands',
       usage: 'help [command]',
       execute: args => {
-        if (args.length === 0) {
-          let output = 'Available commands:\n';
-          this.commands.forEach((cmd, name) => {
-            output += `  ${name} - ${cmd.description}\n`;
-          });
-          output += '\nType "help <command>" for detailed usage.';
-          return output;
-        } else {
-          const cmd = this.commands.get(args[0]);
-          if (cmd) {
-            return `${cmd.name}: ${cmd.description}\nUsage: ${cmd.usage}`;
+        try {
+          if (args.length === 0) {
+            let output = 'Available commands:\n';
+            this.commands.forEach((cmd, name) => {
+              output += `  ${name} - ${cmd.description}\n`;
+            });
+            output += '\nType "help <command>" for detailed usage.';
+            return output;
           } else {
-            return `Unknown command: ${args[0]}`;
+            const commandToHelp = args[0];
+            if (!commandToHelp) {
+              return 'Invalid command name provided.';
+            }
+            const cmd = this.commands.get(commandToHelp);
+            if (cmd) {
+              return `${cmd.name}: ${cmd.description}\nUsage: ${cmd.usage}`;
+            } else {
+              return `Unknown command: ${args[0]}`;
+            }
           }
+        } catch (error) {
+          console.error('Help command error:', error);
+          return 'Error executing help command';
         }
       },
     });
+  }
 
+  private registerClearCommand(): void {
     this.registerCommand({
       name: 'clear',
       description: 'Clear console output',
@@ -333,7 +409,9 @@ export class DeveloperConsole extends BaseSingleton {
         return '';
       },
     });
+  }
 
+  private registerReloadCommand(): void {
     this.registerCommand({
       name: 'reload',
       description: 'Reload the application',
@@ -343,7 +421,9 @@ export class DeveloperConsole extends BaseSingleton {
         return '';
       },
     });
+  }
 
+  private registerPerformanceCommand(): void {
     this.registerCommand({
       name: 'performance',
       description: 'Show performance information',
@@ -361,63 +441,90 @@ export class DeveloperConsole extends BaseSingleton {
         return output;
       },
     });
+  }
 
+  private registerLocalStorageCommand(): void {
     this.registerCommand({
       name: 'localStorage',
       description: 'Manage localStorage',
       usage: 'localStorage [get|set|remove|clear] [key] [value]',
       execute: args => {
-        if (args.length === 0) {
-          return 'Usage: localStorage [get|set|remove|clear] [key] [value]';
-        }
-
-        const action = args[0];
-        switch (action) {
-          case 'get': {
-            if (args.length < 2) return 'Usage: localStorage get <key>';
-            const value = localStorage.getItem(args[1]);
-            return value !== null ? `${args[1]}: ${value}` : `Key "${args[1]}" not found`;
+        try {
+          if (args.length === 0) {
+            return 'Usage: localStorage [get|set|remove|clear] [key] [value]';
           }
 
-          case 'set':
-            if (args.length < 3) return 'Usage: localStorage set <key> <value>';
-            localStorage.setItem(args[1], args.slice(2).join(' '));
-            return `Set ${args[1]} = ${args.slice(2).join(' ')}`;
+          const action = args[0];
+          if (!action) {
+            return 'Action is required. Usage: localStorage [get|set|remove|clear] [key] [value]';
+          }
 
-          case 'remove':
-            if (args.length < 2) return 'Usage: localStorage remove <key>';
-            localStorage.removeItem(args[1]);
-            return `Removed ${args[1]}`;
+          switch (action) {
+            case 'get': {
+              if (args.length < 2) return 'Usage: localStorage get <key>';
+              const key = args[1];
+              if (!key) return 'Key is required for get operation';
+              const value = localStorage.getItem(key);
+              return value !== null ? `${key}: ${value}` : `Key "${key}" not found`;
+            }
 
-          case 'clear':
-            localStorage.clear();
-            return 'Cleared all localStorage';
+            case 'set': {
+              if (args.length < 3) return 'Usage: localStorage set <key> <value>';
+              const key = args[1];
+              if (!key) return 'Key is required for set operation';
+              const value = args.slice(2).join(' ');
+              localStorage.setItem(key, value);
+              return `Set ${key} = ${value}`;
+            }
 
-          default:
-            return 'Invalid action. Use: get, set, remove, or clear';
+            case 'remove': {
+              if (args.length < 2) return 'Usage: localStorage remove <key>';
+              const key = args[1];
+              if (!key) return 'Key is required for remove operation';
+              localStorage.removeItem(key);
+              return `Removed ${key}`;
+            }
+
+            case 'clear':
+              localStorage.clear();
+              return 'Cleared all localStorage';
+
+            default:
+              return 'Invalid action. Use: get, set, remove, or clear';
+          }
+        } catch (error) {
+          console.error('localStorage command error:', error);
+          return 'Error executing localStorage command';
         }
       },
     });
+  }
 
+  private registerDebugCommand(): void {
     this.registerCommand({
       name: 'debug',
       description: 'Toggle debug mode',
       usage: 'debug [on|off]',
       execute: args => {
-        const { DebugMode } = require('./debugMode');
-        const debugMode = DebugMode.getInstance();
+        try {
+          const { DebugMode } = require('./debugMode');
+          const debugMode = DebugMode.getInstance();
 
-        if (args.length === 0) {
-          debugMode.toggle();
-          return 'Debug mode toggled';
-        } else if (args[0] === 'on') {
-          debugMode.enable();
-          return 'Debug mode enabled';
-        } else if (args[0] === 'off') {
-          debugMode.disable();
-          return 'Debug mode disabled';
-        } else {
-          return 'Usage: debug [on|off]';
+          if (args.length === 0) {
+            debugMode.toggle();
+            return 'Debug mode toggled';
+          } else if (args[0] === 'on') {
+            debugMode.enable();
+            return 'Debug mode enabled';
+          } else if (args[0] === 'off') {
+            debugMode.disable();
+            return 'Debug mode disabled';
+          } else {
+            return 'Usage: debug [on|off]';
+          }
+        } catch (error) {
+          console.error('Debug command error:', error);
+          return 'Error executing debug command';
         }
       },
     });

@@ -173,9 +173,13 @@ export class ThemeManager {
     }
 
     // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      if (!localStorage.getItem('ui-theme')) {
-        this.setTheme(e.matches ? 'dark' : 'light');
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      try {
+        if (!localStorage.getItem('ui-theme')) {
+          this.setTheme(event.matches ? 'dark' : 'light');
+        }
+      } catch (error) {
+        console.error('Event listener error for change:', error);
       }
     });
   }
@@ -241,11 +245,19 @@ export class AccessibilityManager {
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
+    container?.addEventListener('keydown', event => {
+      try {
+        handleKeyDown(event);
+      } catch (error) {
+        console.error('Event listener error for keydown:', error);
+      }
+    });
 
     // Return cleanup function
     return () => {
-      container.removeEventListener('keydown', handleKeyDown);
+      const maxDepth = 100;
+      if (arguments[arguments.length - 1] > maxDepth) return;
+      container?.removeEventListener('keydown', handleKeyDown);
     };
   }
 

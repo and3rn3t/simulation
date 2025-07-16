@@ -360,7 +360,7 @@
   /* Ensure better mobile performance */
   will-change: transform;
   backface-visibility: hidden;
-  
+
   /* Better mobile positioning */
   position: fixed;
   top: 60px; /* Account for mobile browser UI */
@@ -368,17 +368,17 @@
   max-width: calc(100vw - 20px);
   width: auto;
   min-width: 250px;
-  
+
   /* Mobile-friendly sizing */
   padding: 12px;
   border-radius: 8px;
-  
+
   /* Prevent text selection on mobile */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  
+
   /* Better touch targets */
   touch-action: manipulation;
 }
@@ -388,11 +388,11 @@
   width: 48px;
   height: 48px;
   padding: 12px;
-  
+
   /* Better mobile positioning */
   top: 10px;
   right: 10px;
-  
+
   /* Prevent bounce on iOS */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -405,7 +405,7 @@
   min-height: 36px;
   padding: 8px 12px;
   margin: 4px 0;
-  
+
   /* Better touch interaction */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -421,7 +421,7 @@
     min-width: auto;
     width: auto;
   }
-  
+
   .memory-panel-container.mobile-optimized .memory-toggle-fixed {
     right: 5px;
     width: 40px;
@@ -437,7 +437,7 @@
     max-height: calc(100vh - 10px);
     overflow-y: auto;
   }
-  
+
   .memory-panel-container.mobile-optimized .memory-toggle-fixed {
     top: 5px;
   }

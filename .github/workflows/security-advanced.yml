@@ -22,7 +22,10 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, CC-BY-4.0, LicenseRef-scancode-unicode
+          vulnerability-check: true
+          license-check: true
+          config-file: .github/dependency-review-config.yml
 
   codeql-analysis:
     name: CodeQL Security Analysis
@@ -35,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'typescript' ]
+        language: [ 'javascript' ]
     
     steps:
     - name: Checkout repository
@@ -86,16 +89,15 @@ jobs:
       continue-on-error: true
     
     - name: Snyk vulnerability scan
-      if: env.SNYK_TOKEN != ''
-      uses: snyk/actions/node@master
+      uses: snyk/actions/node@v1
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=medium --file=package.json
+        args: --severity-threshold=medium --file=package.json --sarif-file-output=snyk.sarif
       continue-on-error: true
     
     - name: Upload Snyk results to GitHub Code Scanning
-      if: env.SNYK_TOKEN != ''
+      if: hashFiles('snyk.sarif') != ''
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: snyk.sarif
@@ -135,20 +137,20 @@ jobs:
     
     - name: TruffleHog OSS Secret Scanning (Diff Mode)
       if: steps.commit-range.outputs.scan_type == 'diff'
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@v3.80.2
       with:
         path: ./
         base: ${{ steps.commit-range.outputs.base }}
         head: ${{ steps.commit-range.outputs.head }}
-        extra_args: --debug --only-verified --fail
+        extra_args: --debug --only-verified --fail --exclude-paths=.trufflehog-ignore
       continue-on-error: true
     
     - name: TruffleHog OSS Secret Scanning (Filesystem Mode)
       if: steps.commit-range.outputs.scan_type == 'filesystem'
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@v3.80.2
       with:
         path: ./
-        extra_args: --debug --only-verified --fail
+        extra_args: --debug --only-verified --fail --exclude-paths=.trufflehog-ignore
       continue-on-error: true
 
   license-compliance:
@@ -191,6 +193,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     # Re-enabled: Docker containerization is now complete
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     
     steps:
     - name: Checkout repository
@@ -203,17 +209,18 @@ jobs:
       run: docker build -t organism-simulation:latest .
     
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         image-ref: 'organism-simulation:latest'
         format: 'sarif'
         output: 'trivy-results.sarif'
         exit-code: '1'  # Fail on HIGH/CRITICAL vulnerabilities
         severity: 'CRITICAL,HIGH'
+        trivyignores: '.trivyignore'
     
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && hashFiles('trivy-results.sarif') != ''
       with:
         sarif_file: 'trivy-results.sarif'
     

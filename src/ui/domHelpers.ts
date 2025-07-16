@@ -8,7 +8,9 @@
  * @returns The element or null if not found
  */
 export function getElementById<T extends HTMLElement>(id: string): T | null {
-  return document.getElementById(id) as T | null;
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
+  return document?.getElementById(id) as T | null;
 }
 
 /**
@@ -18,7 +20,7 @@ export function getElementById<T extends HTMLElement>(id: string): T | null {
  * @throws Error if element not found
  */
 export function getRequiredElementById<T extends HTMLElement>(id: string): T {
-  const element = document.getElementById(id) as T | null;
+  const element = document?.getElementById(id) as T | null;
   if (!element) {
     throw new Error(`Required element with id '${id}' not found`);
   }

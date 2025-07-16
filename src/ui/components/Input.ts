@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { generateSecureUIId } from '../../utils/system/secureRandom';
 import { BaseComponent } from './BaseComponent';
 
@@ -148,25 +169,37 @@ export class Input extends BaseComponent {
   }
 
   private setupEventListeners(): void {
-    this.input.addEventListener('input', event => {
-      const target = event.target as HTMLInputElement;
-      if (this.config.onChange) {
-        this.config.onChange(target.value);
+    this.input?.addEventListener('input', event => {
+      try {
+        const target = event?.target as HTMLInputElement;
+        if (this.config.onChange) {
+          this.config.onChange(target?.value);
+        }
+      } catch (error) {
+        console.error('Event listener error for input:', error);
       }
     });
 
-    this.input.addEventListener('focus', () => {
-      this.element.classList.add('ui-input--focused');
-      if (this.config.onFocus) {
-        this.config.onFocus();
+    this.input?.addEventListener('focus', _event => {
+      try {
+        this.element.classList.add('ui-input--focused');
+        if (this.config.onFocus) {
+          this.config.onFocus();
+        }
+      } catch (error) {
+        console.error('Event listener error for focus:', error);
       }
     });
 
-    this.input.addEventListener('blur', () => {
-      this.element.classList.remove('ui-input--focused');
-      this.validateInput();
-      if (this.config.onBlur) {
-        this.config.onBlur();
+    this.input?.addEventListener('blur', _event => {
+      try {
+        this.element.classList.remove('ui-input--focused');
+        this.validateInput();
+        if (this.config.onBlur) {
+          this.config.onBlur();
+        }
+      } catch (error) {
+        console.error('Event listener error for blur:', error);
       }
     });
   }

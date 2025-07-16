@@ -148,7 +148,7 @@ export class PowerUpManager {
    */
   private updatePowerUpButtons(): void {
     for (const powerUp of this.powerups) {
-      const button = document.querySelector(`[data-powerup="${powerUp.id}"]`) as HTMLButtonElement;
+      const button = document?.querySelector(`[data-powerup="${powerUp.id}"]`) as HTMLButtonElement;
       if (button) {
         button.disabled = !this.canAfford(powerUp.id) || powerUp.active;
         button.textContent = powerUp.active ? 'Active' : 'Buy';

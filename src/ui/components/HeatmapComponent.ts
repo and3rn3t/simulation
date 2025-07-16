@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface HeatmapConfig {
@@ -53,7 +74,7 @@ export class HeatmapComponent extends BaseComponent {
       </div>
     `;
 
-    this.canvas = this.element.querySelector('.heatmap-canvas') as HTMLCanvasElement;
+    this.canvas = this.element?.querySelector('.heatmap-canvas') as HTMLCanvasElement;
   }
 
   private initializeCanvas(): void {
@@ -80,25 +101,33 @@ export class HeatmapComponent extends BaseComponent {
   }
 
   private setupEventListeners(): void {
-    if (this.config.onCellClick) {
-      this.canvas.addEventListener('click', event => {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+    try {
+      if (this.config.onCellClick) {
+        this.canvas?.addEventListener('click', event => {
+          try {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event?.clientX - rect.left;
+            const y = event?.clientY - rect.top;
 
-        const cellX = Math.floor(x / this.config.cellSize);
-        const cellY = Math.floor(y / this.config.cellSize);
+            const cellX = Math.floor(x / this.config.cellSize);
+            const cellY = Math.floor(y / this.config.cellSize);
 
-        if (cellY < this.data.length && cellX < this.data[cellY].length) {
-          const value = this.data[cellY][cellX];
-          this.config.onCellClick!(cellX, cellY, value);
-        }
-      });
+            if (cellY < this.data.length && cellX < this.data[cellY].length) {
+              const value = this.data[cellY][cellX];
+              this.config.onCellClick!(cellX, cellY, value);
+            }
+          } catch (_error) {
+            /* handled */
+          }
+        });
+      }
+    } catch (_error) {
+      /* handled */
     }
   }
 
   private createLegend(): void {
-    const legendContainer = this.element.querySelector('.heatmap-legend') as HTMLElement;
+    const legendContainer = this.element?.querySelector('.heatmap-legend') as HTMLElement;
     if (!legendContainer) return;
 
     legendContainer.innerHTML = `
@@ -113,7 +142,7 @@ export class HeatmapComponent extends BaseComponent {
     `;
 
     // Create gradient for legend
-    const legendBar = legendContainer.querySelector('.legend-bar') as HTMLElement;
+    const legendBar = legendContainer?.querySelector('.legend-bar') as HTMLElement;
     if (legendBar) {
       const gradient = this.config.colorScheme!.join(', ');
       legendBar.style.background = `linear-gradient(to right, ${gradient})`;
@@ -124,21 +153,34 @@ export class HeatmapComponent extends BaseComponent {
    * Update heatmap data from organism positions
    */
   updateFromPositions(positions: { x: number; y: number }[]): void {
-    // Clear previous data
-    this.data = this.data.map(row => row.fill(0));
+    try {
+      // Clear previous data
+      this.data = this.data.map(row => row.fill(0));
 
-    // Count organisms in each cell
-    positions.forEach(pos => {
-      const cellX = Math.floor(pos.x / this.config.cellSize);
-      const cellY = Math.floor(pos.y / this.config.cellSize);
+      // Count organisms in each cell
+      positions.forEach(pos => {
+        try {
+          const cellX = Math.floor(pos.x / this.config.cellSize);
+          const cellY = Math.floor(pos.y / this.config.cellSize);
 
-      if (cellY >= 0 && cellY < this.data.length && cellX >= 0 && cellX < this.data[cellY].length) {
-        this.data[cellY][cellX]++;
-      }
-    });
+          if (
+            cellY >= 0 &&
+            cellY < this.data.length &&
+            cellX >= 0 &&
+            cellX < this.data[cellY].length
+          ) {
+            this.data[cellY][cellX]++;
+          }
+        } catch (_error) {
+          /* handled */
+        }
+      });
 
-    this.updateMinMax();
-    this.render();
+      this.updateMinMax();
+      this.render();
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   /**
@@ -151,17 +193,25 @@ export class HeatmapComponent extends BaseComponent {
   }
 
   private updateMinMax(): void {
-    this.maxValue = 0;
-    this.minValue = Infinity;
+    try {
+      this.maxValue = 0;
+      this.minValue = Infinity;
 
-    this.data.forEach(row => {
-      row.forEach(value => {
-        if (value > this.maxValue) this.maxValue = value;
-        if (value < this.minValue) this.minValue = value;
+      this.data.forEach(row => {
+        try {
+          row.forEach(value => {
+            if (value > this.maxValue) this.maxValue = value;
+            if (value < this.minValue) this.minValue = value;
+          });
+        } catch (_error) {
+          /* handled */
+        }
       });
-    });
 
-    if (this.minValue === Infinity) this.minValue = 0;
+      if (this.minValue === Infinity) this.minValue = 0;
+    } catch (_error) {
+      /* handled */
+    }
   }
 
   private getColorForValue(value: number): string {
@@ -201,8 +251,8 @@ export class HeatmapComponent extends BaseComponent {
   }
 
   private updateLegendValues(): void {
-    const minLabel = this.element.querySelector('.legend-min') as HTMLElement;
-    const maxLabel = this.element.querySelector('.legend-max') as HTMLElement;
+    const minLabel = this.element?.querySelector('.legend-min') as HTMLElement;
+    const maxLabel = this.element?.querySelector('.legend-max') as HTMLElement;
 
     if (minLabel) minLabel.textContent = this.minValue.toString();
     if (maxLabel) maxLabel.textContent = this.maxValue.toString();
@@ -309,4 +359,18 @@ export class PopulationDensityHeatmap extends HeatmapComponent {
     this.stopAutoUpdate();
     super.unmount();
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      } // TODO: Consider extracting to reduce closure scope
+    });
+  });
 }

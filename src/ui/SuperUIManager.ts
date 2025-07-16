@@ -2,7 +2,6 @@
  * Super UI Manager
  * Consolidated UI component patterns to eliminate duplication
  */
-import { ifPattern } from '../utils/UniversalFunctions';
 
 export class SuperUIManager {
   private static instance: SuperUIManager;
@@ -10,7 +9,9 @@ export class SuperUIManager {
   private listeners = new Map<string, EventListener[]>();
 
   static getInstance(): SuperUIManager {
-    /* consolidated */
+    if (!SuperUIManager.instance) {
+      SuperUIManager.instance = new SuperUIManager();
+    }
     return SuperUIManager.instance;
   }
 
@@ -29,12 +30,12 @@ export class SuperUIManager {
     try {
       const element = document.createElement(tag) as T;
 
-      if (options.id) element.id = options.id;
-      if (options.className) element.className = options.className;
-      if (options.textContent) element.textContent = options.textContent;
-      if (options.parent) options.parent.appendChild(element);
+      if (options?.id) element.id = options.id;
+      if (options?.className) element.className = options.className;
+      if (options?.textContent) element.textContent = options.textContent;
+      if (options?.parent) options?.parent.appendChild(element);
 
-      if (options.id) this.elements.set(options.id, element);
+      if (options?.id) this.elements.set(options?.id, element);
       return element;
     } catch {
       return null;
@@ -47,7 +48,7 @@ export class SuperUIManager {
     if (!element) return false;
 
     try {
-      element.addEventListener(event, handler);
+      element?.addEventListener(event, handler);
 
       if (!this.listeners.has(elementId)) {
         this.listeners.set(elementId, []);
@@ -61,7 +62,7 @@ export class SuperUIManager {
 
   // === COMPONENT MOUNTING ===
   mountComponent(parentId: string, childElement: HTMLElement): boolean {
-    const parent = this.elements.get(parentId) || document.getElementById(parentId);
+    const parent = this.elements.get(parentId) || document?.getElementById(parentId);
     if (!parent) return false;
 
     try {
@@ -88,13 +89,19 @@ export class SuperUIManager {
   ): HTMLButtonElement | null {
     const button = this.createElement<HTMLButtonElement>('button', {
       textContent: text,
-      className: options.className || 'btn',
-      parent: options.parent,
+      className: options?.className || 'btn',
+      parent: options?.parent,
     });
 
-    ifPattern(button, () => {
-      button.addEventListener('click', onClick);
-    });
+    if (button) {
+      button?.addEventListener('click', _event => {
+        try {
+          onClick();
+        } catch (error) {
+          console.error('Event listener error for click:', error);
+        }
+      });
+    }
     return button;
   }
 
@@ -102,11 +109,15 @@ export class SuperUIManager {
   cleanup(): void {
     this.listeners.forEach((handlers, elementId) => {
       const element = this.elements.get(elementId);
-      ifPattern(element, () => {
+      if (element) {
         handlers.forEach(handler => {
-          element.removeEventListener('click', handler); // Simplified
+          try {
+            element?.removeEventListener('click', handler); // Simplified
+          } catch (error) {
+            console.error('Callback error:', error);
+          }
         });
-      });
+      }
     });
     this.listeners.clear();
     this.elements.clear();

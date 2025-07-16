@@ -8,7 +8,7 @@ export class PromiseSafetyUtils {
    * Safe promise wrapper that never throws
    */
   static async safePromise<T>(
-    promise: Promise<T>, 
+    promise: Promise<T>,
     fallback?: T,
     context?: string
   ): Promise<{ data?: T; error?: any; success: boolean }> {
@@ -17,10 +17,10 @@ export class PromiseSafetyUtils {
       return { data, success: true };
     } catch (error) {
       console.warn(`Promise failed${context ? ` in ${context}` : ''}`, error);
-      return { 
-        error, 
-        success: false, 
-        data: fallback 
+      return {
+        error,
+        success: false,
+        data: fallback,
       };
     }
   }
@@ -86,7 +86,7 @@ export class PromiseSafetyUtils {
           console.error('Max retries exceeded:', error);
           return undefined;
         }
-        
+
         const delay = baseDelay * Math.pow(2, attempt);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -97,12 +97,9 @@ export class PromiseSafetyUtils {
   /**
    * Convert callback to promise safely
    */
-  static safePromisify<T>(
-    fn: Function,
-    context?: any
-  ): (...args: any[]) => Promise<T | undefined> {
+  static safePromisify<T>(fn: Function, context?: any): (...args: any[]) => Promise<T | undefined> {
     return (...args: any[]) => {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         try {
           const callback = (error: any, result: T) => {
             if (error) {
@@ -112,7 +109,7 @@ export class PromiseSafetyUtils {
               resolve(result);
             }
           };
-          
+
           fn.apply(context, [...args, callback]);
         } catch (error) {
           console.warn('Promisify error:', error);

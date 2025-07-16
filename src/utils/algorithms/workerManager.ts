@@ -78,8 +78,13 @@ export class AlgorithmWorkerManager {
         // Use a string path instead of URL constructor for compatibility
         const workerScript = `
           import('./simulationWorker.ts').then(module => {
+  try {
             // Worker initialization will be handled by the module
-          });
+          
+  } catch (error).catch(error => console.error('Promise rejection:', error)) {
+    console.error("Callback error:", error);
+  }
+});
         `;
         const blob = new Blob([workerScript], { type: 'application/javascript' });
         const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
@@ -121,7 +126,11 @@ export class AlgorithmWorkerManager {
     logistic: number[];
     competition: { totalPopulation: number[]; byType: Record<string, number[]> };
   }> {
-    await this.initialize();
+    try {
+      await this.initialize();
+    } catch (error) {
+      console.error('Await error:', error);
+    }
 
     return this.sendTaskToWorker('PREDICT_POPULATION', data);
   }
@@ -144,7 +153,11 @@ export class AlgorithmWorkerManager {
       standardDeviation: number;
     };
   }> {
-    await this.initialize();
+    try {
+      await this.initialize();
+    } catch (error) {
+      console.error('Await error:', error);
+    }
 
     return this.sendTaskToWorker('CALCULATE_STATISTICS', data);
   }
@@ -210,10 +223,15 @@ export class AlgorithmWorkerManager {
    * @returns Next worker instance
    */
   private getNextWorker(): Worker {
-    const worker = this.workers[this.currentWorkerIndex];
-    if (!worker) {
+    if (this.workers.length === 0) {
       throw new Error('No workers available');
     }
+
+    const worker = this.workers[this.currentWorkerIndex];
+    if (!worker) {
+      throw new Error('Worker at current index is undefined');
+    }
+
     this.currentWorkerIndex = (this.currentWorkerIndex + 1) % this.workers.length;
     return worker;
   }
@@ -252,13 +270,19 @@ export class AlgorithmWorkerManager {
 
       // Reject all pending tasks
       this.pendingTasks.forEach(task => {
-        clearTimeout(task.timeout);
-        task.reject(new SimulationError('Worker pool terminated', 'WORKER_TERMINATED'));
+        try {
+          clearTimeout(task.timeout);
+          task.reject(new SimulationError('Worker pool terminated', 'WORKER_TERMINATED'));
+        } catch (error) {
+          console.error('Callback error:', error);
+        }
       });
 
       this.pendingTasks.clear();
       this.isInitialized = false;
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   }
 
   /**

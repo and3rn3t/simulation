@@ -1,6 +1,6 @@
-import type { Achievement } from '../../features/achievements';
-import type { PowerUpManager } from '../../features/powerups';
-import type { LeaderboardManager } from '../../features/leaderboard';
+import type { Achievement } from '../../features/achievements/achievements';
+import type { LeaderboardManager } from '../../features/leaderboard/leaderboard';
+import type { PowerUpManager } from '../../features/powerups/powerups';
 import type { UnlockableOrganismManager } from '../../models/unlockables';
 
 /**
@@ -43,7 +43,11 @@ export class GameStateManager {
 
     // Show unlock notifications
     newlyUnlocked.forEach(organism => {
-      this.unlockableManager.showUnlockNotification(organism);
+      try {
+        this.unlockableManager.showUnlockNotification(organism);
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
     });
   }
 

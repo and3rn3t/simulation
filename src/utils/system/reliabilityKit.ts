@@ -22,10 +22,10 @@ export class ReliabilityKit {
     try {
       // Initialize global error handling
       GlobalReliabilityManager.getInstance().init();
-      
+
       // Initialize resource cleanup
       ResourceCleanupManager.getInstance().init();
-      
+
       this.isInitialized = true;
       console.log('✅ ReliabilityKit initialized successfully');
     } catch (error) {
@@ -44,18 +44,18 @@ export class ReliabilityKit {
     try {
       const globalStats = GlobalReliabilityManager.getInstance().getStats();
       const resourceStats = ResourceCleanupManager.getInstance().getStats();
-      
+
       return {
         globalErrors: globalStats.errorCount,
         resourceUsage: resourceStats,
-        isHealthy: globalStats.isHealthy && resourceStats.timers < 50
+        isHealthy: globalStats.isHealthy && resourceStats.timers < 50,
       };
     } catch (error) {
       console.error('Health check failed:', error);
       return {
         globalErrors: -1,
         resourceUsage: {},
-        isHealthy: false
+        isHealthy: false,
       };
     }
   }
@@ -79,7 +79,7 @@ export class ReliabilityKit {
       ),
       addEventListener: ResourceCleanupManager.getInstance().safeAddEventListener.bind(
         ResourceCleanupManager.getInstance()
-      )
+      ),
     };
   }
 }
@@ -90,11 +90,6 @@ if (typeof window !== 'undefined') {
 }
 
 // Export individual utilities
-export {
-  GlobalReliabilityManager,
-  NullSafetyUtils,
-  PromiseSafetyUtils,
-  ResourceCleanupManager
-};
+export { GlobalReliabilityManager, NullSafetyUtils, PromiseSafetyUtils, ResourceCleanupManager };
 
 export default ReliabilityKit;

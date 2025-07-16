@@ -1,5 +1,26 @@
-import { log } from '../system/logger';
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { ErrorHandler, ErrorSeverity } from '../system/errorHandler';
+import { log } from '../system/logger';
 import { MemoryMonitor } from './memoryMonitor';
 
 /**
@@ -38,12 +59,16 @@ export class LazyLoader {
     this.memoryMonitor = MemoryMonitor.getInstance();
 
     // Listen for memory cleanup events
-    window.addEventListener('memory-cleanup', (event: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent.detail?.level === 'aggressive') {
-        this.clearAll();
-      } else {
-        this.evictLeastRecentlyUsed();
+    window?.addEventListener('memory-cleanup', event => {
+      try {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail?.level === 'aggressive') {
+          this.clearAll();
+        } else {
+          this.evictLeastRecentlyUsed();
+        }
+      } catch (error) {
+        console.error('Event listener error for memory-cleanup:', error);
       }
     });
   }
@@ -91,7 +116,13 @@ export class LazyLoader {
 
       // Check if currently loading
       if (this.loadingPromises.has(id)) {
-        const data = await this.loadingPromises.get(id);
+        let data;
+        try {
+          data = await this.loadingPromises.get(id);
+        } catch (error) {
+          console.error('Loading promise error:', error);
+          throw error;
+        }
         return {
           success: true,
           data: data as T,
@@ -106,7 +137,12 @@ export class LazyLoader {
 
       // Load dependencies first
       if (loadable.dependencies) {
-        await this.loadDependencies(loadable.dependencies);
+        try {
+          await this.loadDependencies(loadable.dependencies);
+        } catch (error) {
+          console.error('Dependencies loading error:', error);
+          throw error;
+        }
       }
 
       // Start loading
@@ -158,7 +194,15 @@ export class LazyLoader {
     for (let i = 0; i < ids.length; i += batchSize) {
       const batch = ids.slice(i, i + batchSize);
       const batchPromises = batch.map(id => this.load(id));
-      const batchResults = await Promise.all(batchPromises);
+
+      let batchResults;
+      try {
+        batchResults = await Promise.all(batchPromises);
+      } catch (error) {
+        console.error('Batch loading error:', error);
+        continue; // Skip this batch and continue with next
+      }
+
       results.push(...batchResults);
 
       // Check memory after each batch
@@ -216,7 +260,13 @@ export class LazyLoader {
    */
   private async loadDependencies(dependencies: string[]): Promise<void> {
     const loadPromises = dependencies.map(depId => this.load(depId));
-    await Promise.all(loadPromises);
+    try {
+      await Promise.all(loadPromises).catch(error =>
+        console.error('Promise.all rejection:', error)
+      );
+    } catch (error) {
+      console.error('Await error:', error);
+    }
   }
 
   /**
@@ -346,7 +396,7 @@ export class UnlockableOrganismLazyLoader {
       id: `organism_${id}`,
       isLoaded: false,
       loader,
-      dependencies: dependencies?.map(dep => `organism_${dep}`),
+      dependencies: dependencies?.map(dep => `organism_${dep}`) ?? [],
     });
   }
 

@@ -1,4 +1,3 @@
-import { BaseSingleton } from '../utils/system/BaseSingleton';
 /**
  * Performance Profiling Tools
  * Provides detailed performance analysis and optimization recommendations
@@ -15,6 +14,7 @@ export interface PerformanceMetrics {
   drawCalls: number;
   updateTime: number;
   renderTime: number;
+  cpuUsage: number;
 }
 
 export interface ProfileSession {
@@ -28,7 +28,8 @@ export interface ProfileSession {
   recommendations: string[];
 }
 
-export class PerformanceProfiler extends BaseSingleton {
+export class PerformanceProfiler {
+  private static instance: PerformanceProfiler;
   private isProfilering = false;
   private currentSession: ProfileSession | null = null;
   private sessions: ProfileSession[] = [];
@@ -39,12 +40,15 @@ export class PerformanceProfiler extends BaseSingleton {
   private frameCounter = 0;
   private lastFrameTime = performance.now();
 
-  static getInstance(): PerformanceProfiler {
-    return super.getInstance.call(this, 'PerformanceProfiler');
+  private constructor() {
+    // Private constructor for singleton
   }
 
-  protected constructor() {
-    super();
+  static getInstance(): PerformanceProfiler {
+    if (!PerformanceProfiler.instance) {
+      PerformanceProfiler.instance = new PerformanceProfiler();
+    }
+    return PerformanceProfiler.instance;
   }
 
   startProfiling(duration: number = 10000): string {
@@ -157,14 +161,20 @@ export class PerformanceProfiler extends BaseSingleton {
   // Call this to track canvas operations
   trackCanvasOperation(): void {
     if (this.currentSession && this.metricsBuffer.length > 0) {
-      this.metricsBuffer[this.metricsBuffer.length - 1].canvasOperations++;
+      const lastMetric = this.metricsBuffer[this.metricsBuffer.length - 1];
+      if (lastMetric) {
+        lastMetric.canvasOperations++;
+      }
     }
   }
 
   // Call this to track draw calls
   trackDrawCall(): void {
     if (this.currentSession && this.metricsBuffer.length > 0) {
-      this.metricsBuffer[this.metricsBuffer.length - 1].drawCalls++;
+      const lastMetric = this.metricsBuffer[this.metricsBuffer.length - 1];
+      if (lastMetric) {
+        lastMetric.drawCalls++;
+      }
     }
   }
 
@@ -182,6 +192,7 @@ export class PerformanceProfiler extends BaseSingleton {
       drawCalls: 0, // Will be tracked separately
       updateTime: 0, // Will be measured in update loop
       renderTime: 0, // Will be measured in render loop
+      cpuUsage: 0, // Simplified CPU usage calculation
     };
 
     this.metricsBuffer.push(metrics);
@@ -224,6 +235,7 @@ export class PerformanceProfiler extends BaseSingleton {
       drawCalls: metrics.reduce((sum, m) => sum + m.drawCalls, 0) / count,
       updateTime: metrics.reduce((sum, m) => sum + m.updateTime, 0) / count,
       renderTime: metrics.reduce((sum, m) => sum + m.renderTime, 0) / count,
+      cpuUsage: metrics.reduce((sum, m) => sum + m.cpuUsage, 0) / count,
     };
 
     // Calculate peaks
@@ -236,6 +248,7 @@ export class PerformanceProfiler extends BaseSingleton {
       drawCalls: Math.max(...metrics.map(m => m.drawCalls)),
       updateTime: Math.max(...metrics.map(m => m.updateTime)),
       renderTime: Math.max(...metrics.map(m => m.renderTime)),
+      cpuUsage: Math.max(...metrics.map(m => m.cpuUsage)),
     };
   }
 
@@ -306,6 +319,7 @@ export class PerformanceProfiler extends BaseSingleton {
       drawCalls: 0,
       updateTime: 0,
       renderTime: 0,
+      cpuUsage: 0,
     };
   }
 
@@ -314,20 +328,21 @@ export class PerformanceProfiler extends BaseSingleton {
     console.log(`Duration: ${(session.endTime - session.startTime).toFixed(2)}ms`);
 
     console.group('Averages');
-    console.log(`FPS: ${session.averages.fps.toFixed(2)}`);
     console.log(`Frame Time: ${session.averages.frameTime.toFixed(2)}ms`);
-    console.log(`Memory: ${session.averages.memoryUsage.toFixed(2)}MB`);
-    console.log(`GC Pressure: ${session.averages.gcPressure.toFixed(1)}%`);
+    console.log(`Update Time: ${session.averages.updateTime.toFixed(2)}ms`);
+    console.log(`Memory Usage: ${session.averages.memoryUsage.toFixed(2)}MB`);
+    console.log(`CPU Usage: ${session.averages.cpuUsage.toFixed(2)}%`);
     console.groupEnd();
 
     console.group('Peaks');
     console.log(`Max Frame Time: ${session.peaks.frameTime.toFixed(2)}ms`);
-    console.log(`Peak Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
-    console.log(`Peak GC Pressure: ${session.peaks.gcPressure.toFixed(1)}%`);
+    console.log(`Max Memory: ${session.peaks.memoryUsage.toFixed(2)}MB`);
+    console.log(`Max CPU: ${session.peaks.cpuUsage.toFixed(2)}%`);
     console.groupEnd();
 
     console.group('Recommendations');
-    session.recommendations.forEach(rec => console.log(`💡 ${rec}`));
+    session.recommendations.forEach(rec => console.log(rec));
+    console.groupEnd();
     console.groupEnd();
 
     console.groupEnd();
@@ -349,7 +364,7 @@ export class PerformanceProfiler extends BaseSingleton {
       const session: ProfileSession = JSON.parse(sessionData);
       this.sessions.push(session);
     } catch (error) {
-      throw new Error(`Failed to import session: ${error}`);
+      console.error('Failed to import session data:', error);
     }
   }
 }

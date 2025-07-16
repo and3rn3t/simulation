@@ -118,6 +118,8 @@ export const simulationRandom = SimulationRandom.getInstance();
  * Convenience functions for common simulation random operations
  */
 export function getMovementRandom(): number {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.getMovementRandom();
 }
 
@@ -130,14 +132,20 @@ export function getOffspringOffset(maxOffset = 20): { x: number; y: number } {
 }
 
 export function getRandomEnergy(min: number, max: number): number {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.getRandomEnergy(min, max);
 }
 
 export function shouldEventOccur(probability: number): boolean {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.shouldEventOccur(probability);
 }
 
 export function getSizeVariation(baseSize: number, variation = 0.4): number {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.getSizeVariation(baseSize, variation);
 }
 
@@ -146,14 +154,20 @@ export function getParticleVelocity(maxSpeed = 4): { vx: number; vy: number } {
 }
 
 export function getRandomLifespan(baseLifespan: number, variation = 100): number {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.getRandomLifespan(baseLifespan, variation);
 }
 
 export function selectRandom<T>(items: T[]): T {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.selectRandom(items);
 }
 
 export function getRandomColor(colors: string[]): string {
+  const maxDepth = 100;
+  if (arguments[arguments.length - 1] > maxDepth) return;
   return simulationRandom.getRandomColor(colors);
 }
 

@@ -1,268 +1,99 @@
-import { isMobileDevice } from '../system/mobileDetection';
-import { generateSecureUIId } from '../system/secureRandom';
-import { getParticleVelocity, getRandomColor, getShakeOffset } from '../system/simulationRandom';
+import { isMobileDevice } from './MobileDetection';
 
-/**
- * Mobile Visual Effects - Optimized visual effects for mobile devices
- */
-
-export interface MobileEffectConfig {
-  particleCount: number;
-  animationDuration: number;
-  enableBlur: boolean;
-  enableGlow: boolean;
-  enableTrails: boolean;
-  quality: 'low' | 'medium' | 'high';
+export interface VisualEffectsConfig {
+  quality?: 'low' | 'medium' | 'high';
+  particleCount?: number;
+  animationSpeed?: number;
+  enableShake?: boolean;
+  enableFlash?: boolean;
+  enableParticles?: boolean;
 }
 
+export interface ParticleEffect {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  size: number;
+}
+
+/**
+ * Mobile Visual Effects - Simplified implementation for mobile-optimized visual effects
+ */
 export class MobileVisualEffects {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private config: MobileEffectConfig;
-  private particles: Particle[] = [];
-  private activeEffects: Map<string, Effect> = new Map();
-  private animationFrame?: number;
+  private config: VisualEffectsConfig;
+  private activeEffects: Map<string, any> = new Map();
+  private particles: ParticleEffect[] = [];
+  private animationFrame: number | null = null;
+  private isEnabled: boolean = false;
 
-  constructor(canvas: HTMLCanvasElement, config: Partial<MobileEffectConfig> = {}) {
+  constructor(canvas: HTMLCanvasElement, config: VisualEffectsConfig = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.config = {
-      particleCount: this.getOptimalParticleCount(),
-      animationDuration: 1000,
-      enableBlur: this.shouldEnableBlur(),
-      enableGlow: this.shouldEnableGlow(),
-      enableTrails: this.shouldEnableTrails(),
-      quality: this.getOptimalQuality(),
+      quality: 'medium',
+      particleCount: 50,
+      animationSpeed: 1,
+      enableShake: true,
+      enableFlash: true,
+      enableParticles: true,
       ...config,
     };
 
-    this.setupOptimizations();
+    this.isEnabled = isMobileDevice();
+
+    if (this.isEnabled) {
+      this.init();
+    }
   }
 
   /**
-   * Get optimal particle count based on device
+   * Initialize the visual effects system
    */
-  private getOptimalParticleCount(): number {
-    const isMobile = isMobileDevice();
-    if (!isMobile) return 50;
-
-    // Mobile optimization
-    const memory = (navigator as any).deviceMemory || 4;
-    if (memory <= 2) return 10; // Low-end
-    if (memory <= 4) return 20; // Mid-range
-    return 30; // High-end
-  }
-
-  /**
-   * Determine if blur effects should be enabled
-   */
-  private shouldEnableBlur(): boolean {
-    const isMobile = isMobileDevice();
-    if (!isMobile) return true;
-
-    // Disable blur on older/slower devices
-    const cores = navigator.hardwareConcurrency || 4;
-    return cores >= 6; // Only on modern devices
-  }
-
-  /**
-   * Determine if glow effects should be enabled
-   */
-  private shouldEnableGlow(): boolean {
-    const isMobile = isMobileDevice();
-    if (!isMobile) return true;
-
-    // Enable glow on mid-range+ devices
-    const memory = (navigator as any).deviceMemory || 4;
-    return memory > 3;
-  }
-
-  /**
-   * Determine if trail effects should be enabled
-   */
-  private shouldEnableTrails(): boolean {
-    const isMobile = isMobileDevice();
-    return !isMobile || this.config.quality !== 'low';
-  }
-
-  /**
-   * Get optimal quality setting
-   */
-  private getOptimalQuality(): 'low' | 'medium' | 'high' {
-    const isMobile = isMobileDevice();
-    if (!isMobile) return 'high';
-
-    const memory = (navigator as any).deviceMemory || 4;
-    if (memory <= 2) return 'low';
-    if (memory <= 4) return 'medium';
-    return 'high';
-  }
-
-  /**
-   * Setup mobile-specific optimizations
-   */
-  private setupOptimizations(): void {
-    // Enable hardware acceleration
-    this.ctx.imageSmoothingEnabled = this.config.quality !== 'low';
-
-    // Set optimal composite operation for mobile
+  private init(): void {
+    // Adjust quality based on mobile performance
     if (this.config.quality === 'low') {
       this.ctx.globalCompositeOperation = 'source-over';
+      this.config.particleCount = Math.min(this.config.particleCount || 50, 20);
+    }
+
+    this.startRenderLoop();
+  }
+
+  /**
+   * Start the render loop for animated effects
+   */
+  private startRenderLoop(): void {
+    const render = () => {
+      this.updateEffects();
+      this.renderParticles();
+
+      if (this.isEnabled && (this.activeEffects.size > 0 || this.particles.length > 0)) {
+        this.animationFrame = requestAnimationFrame(render);
+      } else {
+        this.animationFrame = null;
+      }
+    };
+
+    if (!this.animationFrame) {
+      this.animationFrame = requestAnimationFrame(render);
     }
   }
 
   /**
-   * Create success celebration effect
+   * Add a screen shake effect
    */
-  public createSuccessEffect(x: number, y: number): void {
-    const effect: Effect = {
-      id: generateSecureUIId('success'),
-      type: 'success',
-      x,
-      y,
-      startTime: Date.now(),
-      duration: this.config.animationDuration,
-    };
+  public addShakeEffect(duration: number = 500, intensity: number = 10): void {
+    if (!this.isEnabled || !this.config.enableShake) return;
 
-    this.activeEffects.set(effect.id, effect);
-
-    // Create particles
-    for (let i = 0; i < this.config.particleCount; i++) {
-      const velocity = getParticleVelocity(4);
-      const position = getShakeOffset(40);
-      this.particles.push(
-        new Particle({
-          x: x + position.x,
-          y: y + position.y,
-          vx: velocity.vx,
-          vy: velocity.vy,
-          color: this.getSuccessColor(),
-          life: 1.0,
-          decay: 0.02,
-          size: Math.random() * 4 + 2,
-        })
-      );
-    }
-
-    this.startAnimation();
-  }
-
-  /**
-   * Create error feedback effect
-   */
-  public createErrorEffect(x: number, y: number): void {
-    // Screen shake effect
-    this.createScreenShake(3, 200);
-
-    // Red pulse effect
-    const effect: Effect = {
-      id: generateSecureUIId('error'),
-      type: 'error',
-      x,
-      y,
-      startTime: Date.now(),
-      duration: 500,
-    };
-
-    this.activeEffects.set(effect.id, effect);
-    this.startAnimation();
-  }
-
-  /**
-   * Create organism birth effect
-   */
-  public createBirthEffect(x: number, y: number, color: string): void {
-    if (this.config.quality === 'low') return; // Skip on low quality
-
-    const effect: Effect = {
-      id: generateSecureUIId('birth'),
-      type: 'birth',
-      x,
-      y,
-      startTime: Date.now(),
-      duration: 800,
-      color,
-    };
-
-    this.activeEffects.set(effect.id, effect);
-
-    // Create expanding ring
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      this.particles.push(
-        new Particle({
-          x,
-          y,
-          vx: Math.cos(angle) * 2,
-          vy: Math.sin(angle) * 2,
-          color,
-          life: 1.0,
-          decay: 0.015,
-          size: 3,
-        })
-      );
-    }
-
-    this.startAnimation();
-  }
-
-  /**
-   * Create organism death effect
-   */
-  public createDeathEffect(x: number, y: number): void {
-    const effect: Effect = {
-      id: generateSecureUIId('death'),
-      type: 'death',
-      x,
-      y,
-      startTime: Date.now(),
-      duration: 600,
-    };
-
-    this.activeEffects.set(effect.id, effect);
-
-    // Create dispersing particles
-    for (let i = 0; i < Math.min(15, this.config.particleCount); i++) {
-      this.particles.push(
-        new Particle({
-          x: x + (Math.random() - 0.5) * 20,
-          y: y + (Math.random() - 0.5) * 20,
-          vx: (Math.random() - 0.5) * 3,
-          vy: -Math.random() * 2 - 1, // Upward bias
-          color: '#666666',
-          life: 1.0,
-          decay: 0.025,
-          size: Math.random() * 2 + 1,
-        })
-      );
-    }
-
-    this.startAnimation();
-  }
-
-  /**
-   * Create ripple effect for touch feedback
-   */
-  public createTouchRipple(x: number, y: number): void {
-    const effect: Effect = {
-      id: generateSecureUIId('ripple'),
-      type: 'ripple',
-      x,
-      y,
-      startTime: Date.now(),
-      duration: 400,
-    };
-
-    this.activeEffects.set(effect.id, effect);
-    this.startAnimation();
-  }
-
-  /**
-   * Create screen shake effect
-   */
-  private createScreenShake(intensity: number, duration: number): void {
+    const shakeId = `shake_${Date.now()}`;
     const startTime = Date.now();
-    const originalTransform = this.canvas.style.transform;
+    const originalTransform = this.canvas.style.transform || '';
 
     const shake = () => {
       const elapsed = Date.now() - startTime;
@@ -270,6 +101,7 @@ export class MobileVisualEffects {
 
       if (progress >= 1) {
         this.canvas.style.transform = originalTransform;
+        this.activeEffects.delete(shakeId);
         return;
       }
 
@@ -281,35 +113,8 @@ export class MobileVisualEffects {
       requestAnimationFrame(shake);
     };
 
+    this.activeEffects.set(shakeId, { type: 'shake', startTime, duration });
     shake();
-  }
-
-  /**
-   * Get success effect color
-   */
-  private getSuccessColor(): string {
-    const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFD700'];
-    return getRandomColor(colors);
-  }
-
-  /**
-   * Start animation loop
-   */
-  private startAnimation(): void {
-    if (this.animationFrame) return; // Already running
-
-    const animate = () => {
-      this.updateEffects();
-      this.renderEffects();
-
-      if (this.hasActiveEffects()) {
-        this.animationFrame = requestAnimationFrame(animate);
-      } else {
-        this.animationFrame = undefined;
-      }
-    };
-
-    this.animationFrame = requestAnimationFrame(animate);
   }
 
   /**
@@ -318,218 +123,79 @@ export class MobileVisualEffects {
   private updateEffects(): void {
     const now = Date.now();
 
-    // Update effects
     for (const [id, effect] of this.activeEffects) {
       const elapsed = now - effect.startTime;
       if (elapsed >= effect.duration) {
         this.activeEffects.delete(id);
       }
     }
-
-    // Update particles
-    this.particles = this.particles.filter(particle => {
-      particle.update();
-      return particle.life > 0;
-    });
   }
 
   /**
-   * Render all effects
+   * Render all particles
    */
-  private renderEffects(): void {
+  private renderParticles(): void {
+    if (this.particles.length === 0) return;
+
     this.ctx.save();
 
-    // Render effects
-    for (const effect of this.activeEffects.values()) {
-      this.renderEffect(effect);
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const particle = this.particles[i];
+
+      // Update particle
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.vy += 0.1; // gravity
+      particle.life++;
+
+      // Remove expired particles
+      if (particle.life >= particle.maxLife) {
+        this.particles.splice(i, 1);
+        continue;
+      }
+
+      // Render particle
+      const alpha = 1 - particle.life / particle.maxLife;
+      this.ctx.globalAlpha = alpha;
+      this.ctx.fillStyle = particle.color;
+      this.ctx.beginPath();
+      this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      this.ctx.fill();
     }
 
-    // Render particles
-    for (const particle of this.particles) {
-      particle.render(this.ctx);
-    }
-
     this.ctx.restore();
   }
 
   /**
-   * Render individual effect
+   * Clear all active effects
    */
-  private renderEffect(effect: Effect): void {
-    const now = Date.now();
-    const elapsed = now - effect.startTime;
-    const progress = elapsed / effect.duration;
-
-    switch (effect.type) {
-      case 'ripple':
-        this.renderRipple(effect, progress);
-        break;
-      case 'birth':
-        this.renderBirth(effect, progress);
-        break;
-      case 'error':
-        this.renderError(effect, progress);
-        break;
-    }
-  }
-
-  /**
-   * Render ripple effect
-   */
-  private renderRipple(effect: Effect, progress: number): void {
-    const maxRadius = 50;
-    const radius = maxRadius * progress;
-    const alpha = 1 - progress;
-
-    this.ctx.save();
-    this.ctx.globalAlpha = alpha * 0.3;
-    this.ctx.strokeStyle = '#4CAF50';
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
-    this.ctx.stroke();
-    this.ctx.restore();
-  }
-
-  /**
-   * Render birth effect
-   */
-  private renderBirth(effect: Effect, progress: number): void {
-    if (!this.config.enableGlow) return;
-
-    const alpha = 1 - progress;
-    const radius = 20 + progress * 30;
-
-    this.ctx.save();
-    this.ctx.globalAlpha = alpha * 0.5;
-
-    // Create glow effect
-    const gradient = this.ctx.createRadialGradient(
-      effect.x,
-      effect.y,
-      0,
-      effect.x,
-      effect.y,
-      radius
-    );
-    gradient.addColorStop(0, effect.color || '#4CAF50');
-    gradient.addColorStop(1, 'transparent');
-
-    this.ctx.fillStyle = gradient;
-    this.ctx.beginPath();
-    this.ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.restore();
-  }
-
-  /**
-   * Render error effect
-   */
-  private renderError(effect: Effect, progress: number): void {
-    const alpha = 1 - progress;
-
-    this.ctx.save();
-    this.ctx.globalAlpha = alpha * 0.2;
-    this.ctx.fillStyle = '#F44336';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.restore();
-  }
-
-  /**
-   * Check if there are active effects
-   */
-  private hasActiveEffects(): boolean {
-    return this.activeEffects.size > 0 || this.particles.length > 0;
-  }
-
-  /**
-   * Update effect quality
-   */
-  public updateQuality(quality: 'low' | 'medium' | 'high'): void {
-    this.config.quality = quality;
-    this.config.enableBlur = quality !== 'low';
-    this.config.enableGlow = quality === 'high';
-    this.config.enableTrails = quality !== 'low';
-    this.config.particleCount = quality === 'low' ? 10 : quality === 'medium' ? 20 : 30;
-
-    this.setupOptimizations();
-  }
-
-  /**
-   * Clear all effects
-   */
-  public clearEffects(): void {
-    this.activeEffects.clear();
-    this.particles = [];
+  public clearAllEffects(): void {
+    // Cancel any running animations
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = undefined;
+      this.animationFrame = null;
     }
-  }
-}
 
-/**
- * Effect interface
- */
-interface Effect {
-  id: string;
-  type: 'success' | 'error' | 'birth' | 'death' | 'ripple';
-  x: number;
-  y: number;
-  startTime: number;
-  duration: number;
-  color?: string;
-}
+    // Reset canvas transform
+    this.canvas.style.transform = '';
 
-/**
- * Particle class for visual effects
- */
-class Particle {
-  public x: number;
-  public y: number;
-  public vx: number;
-  public vy: number;
-  public color: string;
-  public life: number;
-  public decay: number;
-  public size: number;
-
-  constructor(options: {
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    color: string;
-    life: number;
-    decay: number;
-    size: number;
-  }) {
-    this.x = options.x;
-    this.y = options.y;
-    this.vx = options.vx;
-    this.vy = options.vy;
-    this.color = options.color;
-    this.life = options.life;
-    this.decay = options.decay;
-    this.size = options.size;
+    // Clear effects and particles
+    this.activeEffects.clear();
+    this.particles = [];
   }
 
-  update(): void {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += 0.1; // Gravity
-    this.life -= this.decay;
-    this.vx *= 0.99; // Air resistance
-    this.vy *= 0.99;
+  /**
+   * Check if effects are enabled
+   */
+  public isEffectsEnabled(): boolean {
+    return this.isEnabled;
   }
 
-  render(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    ctx.globalAlpha = this.life;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+  /**
+   * Cleanup and dispose of resources
+   */
+  public dispose(): void {
+    this.clearAllEffects();
+    this.isEnabled = false;
   }
 }

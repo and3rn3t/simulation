@@ -195,7 +195,11 @@ export class OrganismSoA {
       return false;
     }
 
-    const type = this.getOrganismType(index)!;
+    const type = this.getOrganismType(index);
+    if (!type) {
+      return false;
+    }
+
     return (
       this.age[index] > 20 && this.reproduced[index] === 0 && Math.random() < type.growthRate * 0.01
     );
@@ -209,7 +213,11 @@ export class OrganismSoA {
       return false;
     }
 
-    const type = this.getOrganismType(index)!;
+    const type = this.getOrganismType(index);
+    if (!type) {
+      return true; // If we can't determine type, consider it dead
+    }
+
     return this.age[index] > type.maxAge || Math.random() < type.deathRate * 0.001;
   }
 
@@ -221,8 +229,18 @@ export class OrganismSoA {
       return null;
     }
 
-    const type = this.getOrganismType(index)!;
-    const organism = new Organism(this.x[index], this.y[index], type);
+    const type = this.getOrganismType(index);
+    if (!type) {
+      return null;
+    }
+
+    const x = this.x[index];
+    const y = this.y[index];
+    if (x === undefined || y === undefined) {
+      return null;
+    }
+
+    const organism = new Organism(x, y, type);
     organism.age = this.age[index];
     organism.reproduced = this.reproduced[index] === 1;
 
@@ -358,10 +376,17 @@ export class OrganismSoA {
 
     // Bounds checking (vectorized)
     for (let i = 0; i < this.size; i++) {
-      const type = this.getOrganismType(i)!;
-      const size = type.size;
-      this.x[i] = Math.max(size, Math.min(canvasWidth - size, this.x[i]));
-      this.y[i] = Math.max(size, Math.min(canvasHeight - size, this.y[i]));
+      const type = this.getOrganismType(i);
+      if (type) {
+        const size = type.size;
+        const currentX = this.x[i];
+        const currentY = this.y[i];
+
+        if (currentX !== undefined && currentY !== undefined) {
+          this.x[i] = Math.max(size, Math.min(canvasWidth - size, currentX));
+          this.y[i] = Math.max(size, Math.min(canvasHeight - size, currentY));
+        }
+      }
     }
 
     // Reproduction and death checks

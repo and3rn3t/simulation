@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 /**
  * Mobile Touch Handler - Advanced touch gesture support for mobile devices
  */
@@ -40,26 +61,72 @@ export class MobileTouchHandler {
    */
   private setupTouchEvents(): void {
     // Prevent default touch behaviors
-    this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), {
-      passive: false,
-    });
-    this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-    this.canvas.addEventListener('touchcancel', this.handleTouchCancel.bind(this), {
-      passive: false,
-    });
+    this.canvas?.addEventListener(
+      'touchstart',
+      event => {
+        try {
+          this.handleTouchStart.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchstart:', error);
+        }
+      },
+      {
+        passive: false,
+      }
+    );
+    this.canvas?.addEventListener(
+      'touchmove',
+      event => {
+        try {
+          this.handleTouchMove.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchmove:', error);
+        }
+      },
+      { passive: false }
+    );
+    this.canvas?.addEventListener(
+      'touchend',
+      event => {
+        try {
+          this.handleTouchEnd.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchend:', error);
+        }
+      },
+      { passive: false }
+    );
+    this.canvas?.addEventListener(
+      'touchcancel',
+      event => {
+        try {
+          this.handleTouchCancel.bind(this)(event);
+        } catch (error) {
+          console.error('Event listener error for touchcancel:', error);
+        }
+      },
+      {
+        passive: false,
+      }
+    );
 
     // Prevent context menu on long press
-    this.canvas.addEventListener('contextmenu', e => e.preventDefault());
+    this.canvas?.addEventListener('contextmenu', event => {
+      try {
+        event.preventDefault();
+      } catch (error) {
+        console.error('Event listener error for contextmenu:', error);
+      }
+    });
   }
 
   /**
    * Handle touch start
    */
   private handleTouchStart(event: TouchEvent): void {
-    event.preventDefault();
+    event?.preventDefault();
 
-    this.touches = Array.from(event.touches);
+    this.touches = Array.from(event?.touches);
 
     if (this.touches.length === 1) {
       // Single touch - potential tap or long press
@@ -85,9 +152,9 @@ export class MobileTouchHandler {
    * Handle touch move
    */
   private handleTouchMove(event: TouchEvent): void {
-    event.preventDefault();
+    event?.preventDefault();
 
-    this.touches = Array.from(event.touches);
+    this.touches = Array.from(event?.touches);
 
     if (this.touches.length === 1) {
       // Single touch - potential pan
@@ -96,7 +163,7 @@ export class MobileTouchHandler {
 
       if (!this.isPanning) {
         // Check if we've moved enough to start panning
-        const startCoords = this.getTouchCoordinates(event.changedTouches[0]);
+        const startCoords = this.getTouchCoordinates(event?.changedTouches[0]);
         const distance = Math.sqrt(
           Math.pow(coords.x - startCoords.x, 2) + Math.pow(coords.y - startCoords.y, 2)
         );
@@ -138,15 +205,15 @@ export class MobileTouchHandler {
    * Handle touch end
    */
   private handleTouchEnd(event: TouchEvent): void {
-    event.preventDefault();
+    event?.preventDefault();
 
     this.clearLongPressTimer();
 
-    if (event.touches.length === 0) {
+    if (event?.touches.length === 0) {
       // All touches ended
       if (!this.isPanning && this.touches.length === 1) {
         // This was a tap
-        const touch = event.changedTouches[0];
+        const touch = event?.changedTouches[0];
         const coords = this.getTouchCoordinates(touch);
 
         // Check for double tap
@@ -172,7 +239,7 @@ export class MobileTouchHandler {
       this.touches = [];
     }
 
-    this.touches = Array.from(event.touches);
+    this.touches = Array.from(event?.touches);
   }
 
   /**

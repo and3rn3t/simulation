@@ -1,3 +1,24 @@
+class EventListenerManager {
+  private static listeners: Array<{ element: EventTarget; event: string; handler: EventListener }> =
+    [];
+
+  static addListener(element: EventTarget, event: string, handler: EventListener): void {
+    element.addEventListener(event, handler);
+    this.listeners.push({ element, event, handler });
+  }
+
+  static cleanup(): void {
+    this.listeners.forEach(({ element, event, handler }) => {
+      element?.removeEventListener?.(event, handler);
+    });
+    this.listeners = [];
+  }
+}
+
+// Auto-cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => EventListenerManager.cleanup());
+}
 import { BaseComponent } from './BaseComponent';
 
 export interface ButtonConfig {
@@ -26,12 +47,12 @@ export class Button extends BaseComponent {
   private static generateClassName(config: ButtonConfig): string {
     const classes = ['ui-button'];
 
-    if (config.variant) {
-      classes.push(`ui-button--${config.variant}`);
+    if (config?.variant) {
+      classes.push(`ui-button--${config?.variant}`);
     }
 
-    if (config.size) {
-      classes.push(`ui-button--${config.size}`);
+    if (config?.size) {
+      classes.push(`ui-button--${config?.size}`);
     }
 
     return classes.join(' ');
@@ -59,16 +80,28 @@ export class Button extends BaseComponent {
 
     // Add click handler
     if (this.config.onClick) {
-      this.addEventListener('click', this.config.onClick);
+      this.element?.addEventListener('click', _event => {
+        try {
+          this.config.onClick!();
+        } catch (error) {
+          console.error('Button click handler error:', error);
+        }
+      });
     }
 
     // Add keyboard navigation
-    this.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.element?.addEventListener('keydown', event => {
+      try {
+        this.handleKeydown.bind(this)(event);
+      } catch (error) {
+        console.error('Button keydown handler error:', error);
+      }
+    });
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
+    if (event?.key === 'Enter' || event?.key === ' ') {
+      event?.preventDefault();
       if (this.config.onClick && !this.config.disabled) {
         this.config.onClick();
       }

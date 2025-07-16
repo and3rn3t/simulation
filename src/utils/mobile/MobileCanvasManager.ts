@@ -1,28 +1,27 @@
-import { isMobileDevice } from '../system/mobileDetection';
+import { isMobileDevice } from './MobileDetection';
 
 /**
  * Mobile Canvas Manager - Handles responsive canvas sizing and mobile optimizations
  */
-
 export class MobileCanvasManager {
   private canvas: HTMLCanvasElement;
   private container: HTMLElement;
-  private resizeObserver?: ResizeObserver;
+  private resizeObserver: ResizeObserver | null = null;
   private devicePixelRatio: number;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, container?: HTMLElement) {
     this.canvas = canvas;
-    this.container = canvas.parentElement!;
+    this.container = container || canvas.parentElement || document.body;
     this.devicePixelRatio = window.devicePixelRatio || 1;
 
-    this.initializeResponsiveCanvas();
-    this.setupEventListeners();
+    this.init();
   }
 
   /**
-   * Initialize responsive canvas with proper DPI scaling
+   * Initialize the canvas manager
    */
-  private initializeResponsiveCanvas(): void {
+  private init(): void {
+    this.setupEventListeners();
     this.updateCanvasSize();
 
     // Setup ResizeObserver for automatic sizing
@@ -155,4 +154,18 @@ export class MobileCanvasManager {
       this.resizeObserver.disconnect();
     }
   }
+}
+
+// WebGL context cleanup
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl && gl.getExtension) {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      }
+    });
+  });
 }

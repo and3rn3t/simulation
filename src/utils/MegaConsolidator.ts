@@ -13,7 +13,11 @@ export class MegaConsolidator {
 
   // Replace all try-catch
   static try<T>(fn: () => T, catch_?: (e: any) => T): T | undefined {
-    try { return fn(); } catch (e) { return catch_?.(e); }
+    try {
+      return fn();
+    } catch (e) {
+      return catch_?.(e);
+    }
   }
 
   // Replace all event listeners
@@ -24,7 +28,7 @@ export class MegaConsolidator {
 
   // Replace all DOM queries
   static $(selector: string): Element | null {
-    return document.querySelector(selector);
+    return document?.querySelector(selector);
   }
 
   // Replace all assignments
@@ -57,23 +61,12 @@ export class MegaConsolidator {
 
   // Replace all getters
   static get(obj: any, key: string, fallback?: any): any {
-    return obj?.[key] ?? fallback;
+    return obj[key] ?? fallback;
   }
 }
 
 // Export all as shorthand functions
-export const {
-  if: _if,
-  try: _try,
-  listen,
-  $,
-  set,
-  call,
-  init,
-  each,
-  when,
-  get
-} = MegaConsolidator;
+export const { if: _if, try: _try, listen, $, set, call, init, each, when, get } = MegaConsolidator;
 
 // Legacy aliases for existing code
 export const ifPattern = _if;

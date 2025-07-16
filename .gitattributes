@@ -1,0 +1,49 @@
+# Git attributes for proper file type detection and security scanning
+
+# Source code files
+*.ts text
+*.js text  
+*.tsx text
+*.jsx text
+*.json text
+*.md text
+*.yml text
+*.yaml text
+
+# Configuration files
+*.config.* text
+*.rc text
+.env* text
+
+# Exclude from language detection (for GitHub)
+*.md linguist-documentation
+*.json linguist-data
+test/** linguist-documentation
+e2e/** linguist-documentation  
+docs/** linguist-documentation
+scripts/** linguist-vendored
+.github/** linguist-vendored
+*.config.* linguist-generated
+dist/** linguist-generated
+coverage/** linguist-generated
+build/** linguist-generated
+node_modules/** linguist-vendored
+playwright-report/** linguist-generated
+test-results/** linguist-generated
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Exclude sensitive files from diff
+.env* diff=env
+*.key diff=secret
+*.pem diff=secret
