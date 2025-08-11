@@ -322,7 +322,7 @@ jobs:
         cache: 'npm'
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: dist
         path: dist/
@@ -391,7 +391,7 @@ jobs:
         cache: 'npm'
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: dist
         path: dist/
